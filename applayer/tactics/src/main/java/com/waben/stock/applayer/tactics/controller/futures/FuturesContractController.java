@@ -20,7 +20,6 @@ import com.waben.stock.applayer.tactics.business.futures.FuturesContractBusiness
 import com.waben.stock.applayer.tactics.dto.futures.FuturesContractQuotationDto;
 import com.waben.stock.applayer.tactics.security.SecurityUtil;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
-import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationPublisherDto;
 import com.waben.stock.interfaces.enums.FuturesProductType;
 import com.waben.stock.interfaces.pojo.Response;

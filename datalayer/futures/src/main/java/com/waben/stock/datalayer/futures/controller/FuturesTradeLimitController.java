@@ -26,30 +26,30 @@ import io.swagger.annotations.Api;
 @RequestMapping("/tradeLimit")
 @Api(description = "合约风控接口列表")
 public class FuturesTradeLimitController implements FuturesTradeLimitInterface {
-	
+
 	@Autowired
 	private FuturesTradeLimitService limitService;
-	
+
 	@Autowired
 	private FuturesContractService contractService;
 
 	@Override
 	public Response<FuturesTradeLimitDto> addLimit(@RequestBody FuturesTradeLimitDto query) {
 		FuturesTradeLimit limit = CopyBeanUtils.copyBeanProperties(FuturesTradeLimit.class, query, false);
-		
+
 		FuturesContract contract = contractService.findByContractId(query.getContractId());
 		limit.setContract(contract);
-		
+
 		FuturesTradeLimitTypeConverter converter = new FuturesTradeLimitTypeConverter();
-		if(query.getLimitType() !=null && !"".equals(query.getLimitType())){
+		if (query.getLimitType() != null && !"".equals(query.getLimitType())) {
 			limit.setLimitType(converter.convertToEntityAttribute(Integer.valueOf(query.getLimitType())));
 		}
 		FuturesTradeLimit result = limitService.save(limit);
 		FuturesTradeLimitDto dtoResult = CopyBeanUtils.copyBeanProperties(result, new FuturesTradeLimitDto(), false);
-		if(result.getContract()!=null){
+		if (result.getContract() != null) {
 			dtoResult.setContractId(result.getContract().getId());
 		}
-		if(result.getLimitType()!=null){
+		if (result.getLimitType() != null) {
 			dtoResult.setLimitType(result.getLimitType().getType());
 		}
 		return new Response<>(dtoResult);
@@ -58,21 +58,21 @@ public class FuturesTradeLimitController implements FuturesTradeLimitInterface {
 	@Override
 	public Response<FuturesTradeLimitDto> modifyLimit(@RequestBody FuturesTradeLimitDto query) {
 		FuturesTradeLimit limit = CopyBeanUtils.copyBeanProperties(FuturesTradeLimit.class, query, false);
-		
+
 		FuturesContract contract = contractService.findByContractId(query.getContractId());
 		limit.setContract(contract);
-		
+
 		FuturesTradeLimitTypeConverter converter = new FuturesTradeLimitTypeConverter();
-		if(query.getLimitType() !=null && !"".equals(query.getLimitType())){
+		if (query.getLimitType() != null && !"".equals(query.getLimitType())) {
 			limit.setLimitType(converter.convertToEntityAttribute(Integer.valueOf(query.getLimitType())));
 		}
-		
+
 		FuturesTradeLimit result = limitService.modify(limit);
 		FuturesTradeLimitDto dtoResult = CopyBeanUtils.copyBeanProperties(result, new FuturesTradeLimitDto(), false);
-		if(result.getContract()!=null){
+		if (result.getContract() != null) {
 			dtoResult.setContractId(result.getContract().getId());
 		}
-		if(result.getLimitType()!=null){
+		if (result.getLimitType() != null) {
 			dtoResult.setLimitType(result.getLimitType().getType());
 		}
 		return new Response<>(dtoResult);
@@ -87,23 +87,26 @@ public class FuturesTradeLimitController implements FuturesTradeLimitInterface {
 	public Response<PageInfo<FuturesTradeLimitDto>> pagesLimit(@RequestBody FuturesTradeLimitQuery query) {
 		Page<FuturesTradeLimit> page = limitService.pagesTradeLimit(query);
 		PageInfo<FuturesTradeLimitDto> pages = PageToPageInfo.pageToPageInfo(page, FuturesTradeLimitDto.class);
-		for (int i=0;i<page.getContent().size();i++) {
+		for (int i = 0; i < page.getContent().size(); i++) {
 			FuturesTradeLimit li = page.getContent().get(i);
-			if(li.getContract()!=null){
+			if (li.getContract() != null) {
 				pages.getContent().get(i).setContractId(li.getContract().getId());
 				pages.getContent().get(i).setContractNo(li.getContract().getContractNo());
-				if(li.getContract().getCommodity()!=null){
+				if (li.getContract().getCommodity() != null) {
+					pages.getContent().get(i).setCommodityId(li.getContract().getCommodity().getId());
 					pages.getContent().get(i).setSymbol(li.getContract().getCommodity().getSymbol());
 					pages.getContent().get(i).setName(li.getContract().getCommodity().getName());
-					if(li.getContract().getCommodity().getExchange()!=null){
-						pages.getContent().get(i).setExchangcode(li.getContract().getCommodity().getExchange().getCode());
-						pages.getContent().get(i).setExchangename(li.getContract().getCommodity().getExchange().getName());
-						pages.getContent().get(i).setExchangeType(li.getContract().getCommodity().getExchange().getExchangeType());
+					if (li.getContract().getCommodity().getExchange() != null) {
+						pages.getContent().get(i)
+								.setExchangcode(li.getContract().getCommodity().getExchange().getCode());
+						pages.getContent().get(i)
+								.setExchangename(li.getContract().getCommodity().getExchange().getName());
+						pages.getContent().get(i)
+								.setExchangeType(li.getContract().getCommodity().getExchange().getExchangeType());
 					}
 				}
 			}
-			if(li.getLimitType()!=null){
-				FuturesTradeLimitTypeConverter converter = new FuturesTradeLimitTypeConverter();
+			if (li.getLimitType() != null) {
 				pages.getContent().get(i).setLimitType(li.getLimitType().getType());
 			}
 		}

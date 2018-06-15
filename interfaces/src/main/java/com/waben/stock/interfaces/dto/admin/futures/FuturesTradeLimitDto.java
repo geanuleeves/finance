@@ -5,18 +5,17 @@ import java.util.Date;
 public class FuturesTradeLimitDto {
 
 	private Long id;
-	
-	
+
 	/**
 	 * 交易所代码
 	 */
 	private String exchangcode;
-	
+
 	/**
 	 * 交易所全称
 	 */
 	private String exchangename;
-	
+
 	/**
 	 * 交易所类型
 	 * <ul>
@@ -25,12 +24,16 @@ public class FuturesTradeLimitDto {
 	 * </ul>
 	 */
 	private Integer exchangeType;
-	
+
 	/**
 	 * 合约ID
 	 */
 	private Long contractId;
-	
+	/**
+	 * 品种ID
+	 */
+	private Long commodityId;
+
 	/**
 	 * 交易代码
 	 */
@@ -39,37 +42,37 @@ public class FuturesTradeLimitDto {
 	 * 交易名称
 	 */
 	private String name;
-	
+
 	/**
 	 * 合约代码
 	 */
 	private String contractNo;
-	
+
 	/**
 	 * 限制类型
 	 */
 	private String limitType;
-	
+
 	/**
 	 * 星期
 	 */
 	private Integer weekDay;
-	
+
 	/**
 	 * 开始时间
 	 */
 	private String startLimitTime;
-	
+
 	/**
 	 * 结束时间
 	 */
 	private String endLimitTime;
-	
+
 	/**
 	 * 是否可用
 	 */
 	private Boolean enable;
-	
+
 	/**
 	 * 更新时间
 	 */
@@ -185,5 +188,13 @@ public class FuturesTradeLimitDto {
 
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
+	}
+
+	public Long getCommodityId() {
+		return commodityId;
+	}
+
+	public void setCommodityId(Long commodityId) {
+		this.commodityId = commodityId;
 	}
 }
