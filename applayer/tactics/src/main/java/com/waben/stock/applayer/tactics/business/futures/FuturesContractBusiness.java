@@ -59,8 +59,6 @@ public class FuturesContractBusiness {
 	@Qualifier("organizationPublisherInterface")
 	private OrganizationPublisherInterface organizationPublisherInterface;
 
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm");
-
 	public CapitalAccountDto findByPublisherId(Long publisherId) {
 		Response<CapitalAccountDto> response = service.fetchByPublisherId(publisherId);
 		if ("200".equals(response.getCode())) {
@@ -148,13 +146,15 @@ public class FuturesContractBusiness {
 
 				OrganizationPublisherDto publisher = fetchOrgPublisher(SecurityUtil.getUserDetails().getUserId());
 				if (publisher != null) {
-//					FuturesAgentPriceDto agentPrice = getCurrentAgentPrice(publisher.getOrgId(), contractDto.getId());
-//					if (agentPrice != null) {
-//						contractDto.setPerUnitReserveFund(agentPrice.getCostReserveFund());
-//						contractDto.setOpenwindServiceFee(agentPrice.getSaleOpenwindServiceFee());
-//						contractDto.setUnwindServiceFee(agentPrice.getSaleUnwindServiceFee());
-//						contractDto.setOvernightPerUnitDeferredFee(agentPrice.getSaleDeferredFee());
-//					}
+					// FuturesAgentPriceDto agentPrice =
+					// getCurrentAgentPrice(publisher.getOrgId(),
+					// contractDto.getId());
+					// if (agentPrice != null) {
+					// contractDto.setPerUnitReserveFund(agentPrice.getCostReserveFund());
+					// contractDto.setOpenwindServiceFee(agentPrice.getSaleOpenwindServiceFee());
+					// contractDto.setUnwindServiceFee(agentPrice.getSaleUnwindServiceFee());
+					// contractDto.setOvernightPerUnitDeferredFee(agentPrice.getSaleDeferredFee());
+					// }
 				}
 			}
 
@@ -173,12 +173,13 @@ public class FuturesContractBusiness {
 	 * @return 国内时间
 	 */
 	private String timeZoneConversion(Integer timeZoneGap, String time) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-d HH:mm");
 		String timeStr = "";
 		try {
 			if (StringUtil.isEmpty(time)) {
 				return "";
 			}
-			timeStr = sdf.format(retriveExchangeTime(sdf.parse(time), timeZoneGap));
+			timeStr = sdf.format(retriveExchangeTime(sdf.parse(time.toString()), timeZoneGap));
 		} catch (ParseException e) {
 			return "";
 		}

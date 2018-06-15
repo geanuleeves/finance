@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
+import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
 import com.waben.stock.interfaces.dto.manage.RoleDto;
 import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationDetailDto;
@@ -22,6 +22,7 @@ import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.organization.OrganizationQuery;
 import com.waben.stock.interfaces.pojo.query.organization.OrganizationStaQuery;
 import com.waben.stock.interfaces.pojo.query.organization.TradingFowQuery;
+import com.waben.stock.interfaces.service.futures.FuturesCommodityInterface;
 import com.waben.stock.interfaces.service.futures.FuturesContractInterface;
 import com.waben.stock.interfaces.service.organization.OrganizationInterface;
 
@@ -43,6 +44,10 @@ public class OrganizationBusiness {
 	@Autowired
 	@Qualifier("futurescontractInterface")
 	private FuturesContractInterface futuresContractInterface;
+
+	@Autowired
+	@Qualifier("futuresCommodityInterface")
+	private FuturesCommodityInterface futuresCommodityInterface;
 
 	public OrganizationDto addition(OrganizationForm orgForm) {
 		Response<OrganizationDto> response = reference.addition(orgForm);
@@ -177,24 +182,24 @@ public class OrganizationBusiness {
 		throw new ServiceException(response.getCode());
 	}
 
-	public FuturesAgentPriceDto getCurrentAgentPrice(Long orgId, Long contractId) {
-		Response<FuturesAgentPriceDto> response = reference.getCurrentAgentPrice(orgId, contractId);
+	public FuturesAgentPriceDto getCurrentAgentPrice(Long orgId, Long commodityId) {
+		Response<FuturesAgentPriceDto> response = reference.getCurrentAgentPrice(orgId, commodityId);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}
 		throw new ServiceException(response.getCode());
 	}
 
-	public FuturesAgentPriceDto getSuperiorAgentPrice(Long orgId, Long contractId) {
-		Response<FuturesAgentPriceDto> response = reference.getSuperiorAgentPrice(orgId, contractId);
+	public FuturesAgentPriceDto getSuperiorAgentPrice(Long orgId, Long commodityId) {
+		Response<FuturesAgentPriceDto> response = reference.getSuperiorAgentPrice(orgId, commodityId);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}
 		throw new ServiceException(response.getCode());
 	}
 
-	public FuturesContractDto getFuturesByContractId(Long contractId) {
-		Response<FuturesContractDto> response = futuresContractInterface.findByContractId(contractId);
+	public FuturesCommodityDto getFuturesByContractId(Long commodityId) {
+		Response<FuturesCommodityDto> response = futuresCommodityInterface.getFuturesByCommodityId(commodityId);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}

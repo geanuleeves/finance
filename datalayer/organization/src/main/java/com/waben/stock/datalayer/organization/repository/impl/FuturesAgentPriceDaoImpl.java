@@ -55,8 +55,8 @@ public class FuturesAgentPriceDaoImpl implements FuturesAgentPriceDao {
 	}
 
 	@Override
-	public FuturesAgentPrice findByContractIdAndOrgId(Long contractId, Long orgId) {
-		return repository.findByContractIdAndOrgId(contractId, orgId);
+	public FuturesAgentPrice findByCommodityIdAndOrgId(Long commodityId, Long orgId) {
+		return repository.findByCommodityIdAndOrgId(commodityId, orgId);
 	}
 
 }

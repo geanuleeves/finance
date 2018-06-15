@@ -15,10 +15,10 @@ public class FuturesAgentPriceDto {
 	@ApiModelProperty(value = "代理价格ID")
 	private Long id;
 	/**
-	 * 合约ID
+	 * 品种ID
 	 */
-	@ApiModelProperty(value = "合约ID")
-	private Long contractId;
+	@ApiModelProperty(value = "品种ID")
+	private Long commodityId;
 	/**
 	 * 代理商ID
 	 */
@@ -62,13 +62,13 @@ public class FuturesAgentPriceDto {
 	/**
 	 * 代理商名称
 	 */
-	@ApiModelProperty(value = "代理商名称")
-	private String contractName;
+	@ApiModelProperty(value = "品种名称")
+	private String commodityName;
 	/**
 	 * 代理商代码
 	 */
-	@ApiModelProperty(value = "代理商代码")
-	private String symbol;
+	@ApiModelProperty(value = "品种代码")
+	private String commoditySymbol;
 
 	public Long getId() {
 		return id;
@@ -78,12 +78,12 @@ public class FuturesAgentPriceDto {
 		this.id = id;
 	}
 
-	public Long getContractId() {
-		return contractId;
+	public Long getCommodityId() {
+		return commodityId;
 	}
 
-	public void setContractId(Long contractId) {
-		this.contractId = contractId;
+	public void setCommodityId(Long commodityId) {
+		this.commodityId = commodityId;
 	}
 
 	public Long getOrgId() {
@@ -150,20 +150,20 @@ public class FuturesAgentPriceDto {
 		this.saleDeferredFee = saleDeferredFee;
 	}
 
-	public String getContractName() {
-		return contractName;
+	public String getCommodityName() {
+		return commodityName;
 	}
 
-	public void setContractName(String contractName) {
-		this.contractName = contractName;
+	public void setCommodityName(String commodityName) {
+		this.commodityName = commodityName;
 	}
 
-	public String getSymbol() {
-		return symbol;
+	public String getCommoditySymbol() {
+		return commoditySymbol;
 	}
 
-	public void setSymbol(String symbol) {
-		this.symbol = symbol;
+	public void setCommoditySymbol(String commoditySymbol) {
+		this.commoditySymbol = commoditySymbol;
 	}
 
 }

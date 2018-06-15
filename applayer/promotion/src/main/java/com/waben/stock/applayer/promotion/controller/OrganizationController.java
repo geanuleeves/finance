@@ -29,7 +29,7 @@ import com.waben.stock.applayer.promotion.security.SecurityUtil;
 import com.waben.stock.applayer.promotion.util.PoiUtil;
 import com.waben.stock.applayer.promotion.util.QRCodeUtil;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
-import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
+import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
 import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationStaDto;
@@ -46,6 +46,8 @@ import com.waben.stock.interfaces.pojo.query.organization.OrganizationStaQuery;
 import com.waben.stock.interfaces.pojo.query.organization.TradingFowQuery;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
 /**
@@ -185,6 +187,7 @@ public class OrganizationController {
 
 	@RequestMapping(value = "/futures/agent/price", method = RequestMethod.GET)
 	@ApiOperation(value = "获取期货代理价格数据")
+	@ApiImplicitParam(paramType = "query", dataType = "Long", name = "orgId", value = "代理商ID", required = true)
 	public Response<List<FuturesAgentPriceDto>> getListByFuturesAgentPrice(Long orgId) {
 		return new Response<>(business.getListByFuturesAgentPrice(orgId));
 	}
@@ -195,24 +198,31 @@ public class OrganizationController {
 		return new Response<>(business.saveFuturesAgentPrice(agentPriceDto));
 	}
 
-	@RequestMapping(value = "/current/{orgId}/{contractId}", method = RequestMethod.GET)
-	@ApiOperation(value = "根据合约ID和代理商ID获取当前期货代理价格")
+	@RequestMapping(value = "/current/{orgId}/{commodityId}", method = RequestMethod.GET)
+	@ApiOperation(value = "根据品种ID和代理商ID获取当前期货代理价格")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "path", dataType = "Long", name = "orgId", value = "代理商ID", required = true),
+			@ApiImplicitParam(paramType = "path", dataType = "Long", name = "commodityId", value = "品种ID", required = true) })
 	public Response<FuturesAgentPriceDto> getCurrentAgentPrice(@PathVariable Long orgId,
-			@PathVariable Long contractId) {
-		return new Response<>(business.getCurrentAgentPrice(orgId, contractId));
+			@PathVariable Long commodityId) {
+		return new Response<>(business.getCurrentAgentPrice(orgId, commodityId));
 	}
 
-	@RequestMapping(value = "/superior/{orgId}/{contractId}", method = RequestMethod.GET)
-	@ApiOperation(value = "根据合约ID和代理商ID获取上级期货代理价格")
+	@RequestMapping(value = "/superior/{orgId}/{commodityId}", method = RequestMethod.GET)
+	@ApiOperation(value = "根据品种ID和代理商ID获取上级期货代理价格")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "path", dataType = "Long", name = "orgId", value = "代理商ID", required = true),
+			@ApiImplicitParam(paramType = "path", dataType = "Long", name = "commodityId", value = "品种ID", required = true) })
 	public Response<FuturesAgentPriceDto> getSuperiorAgentPrice(@PathVariable Long orgId,
-			@PathVariable Long contractId) {
-		return new Response<>(business.getSuperiorAgentPrice(orgId, contractId));
+			@PathVariable Long commodityId) {
+		return new Response<>(business.getSuperiorAgentPrice(orgId, commodityId));
 	}
 
-	@RequestMapping(value = "/futures/{contractId}", method = RequestMethod.GET)
-	@ApiOperation(value = "根据合约ID获取合约数据")
-	public Response<FuturesContractDto> getFuturesByContractId(@PathVariable Long contractId) {
-		return new Response<>(business.getFuturesByContractId(contractId));
+	@RequestMapping(value = "/futures/{commodityId}", method = RequestMethod.GET)
+	@ApiOperation(value = "根据品种ID获取品种数据")
+	@ApiImplicitParam(paramType = "path", dataType = "Long", name = "commodityId", value = "品种ID", required = true)
+	public Response<FuturesCommodityDto> findByCommodityIdAndOrgId(@PathVariable Long commodityId) {
+		return new Response<>(business.getFuturesByContractId(commodityId));
 	}
 
 	@RequestMapping(value = "/export", method = RequestMethod.GET)

@@ -38,7 +38,7 @@ import com.waben.stock.datalayer.organization.repository.OrganizationDao;
 import com.waben.stock.datalayer.organization.repository.SettlementMethodDao;
 import com.waben.stock.datalayer.organization.repository.impl.MethodDesc;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
-import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
+import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
 import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.organization.FuturesFowDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationDetailDto;
@@ -534,7 +534,7 @@ public class OrganizationService {
 			orgNameCondition = " and t4.name like '%" + query.getOrgName() + "%' ";
 		}
 		String sql = String.format(
-				"select t4.id, t4.parent_id, t4.tree_code, t4.name, t4.level, t4.state, t4.create_time, t5.promotion_count,  "
+				"select t4.id, t4.parent_id, t4.code, t4.name, t4.level, t4.state, t4.create_time, t5.promotion_count,  "
 						+ "IF(t6.pid is null, 0, t6.children_count) as children_count, IFNULL(t7.available_balance, 0) as available_balance, t8.name as bind_name, t8.phone as bing_phone "
 						+ "from p_organization t4 LEFT JOIN "
 						+ "(select t1.id, IF(t2.id is null, 0, count(t1.id)) as promotion_count from p_organization t1 LEFT JOIN p_organization_publisher t2 on t2.tree_code LIKE CONCAT(t1.tree_code, '%%') group by t1.id) as t5 on t4.id=t5.id  "
@@ -723,12 +723,12 @@ public class OrganizationService {
 
 	public List<FuturesAgentPriceDto> getListByFuturesAgentPrice(Long orgId) {
 		String sql = String
-				.format("SELECT c1.id as contractId, c1.symbol, c1.name, c2.id , c2.cost_reserve_fund, c2.cost_openwind_service_fee,c2.cost_unwind_service_fee,c2.cost_deferred_fee,c2.sale_openwind_service_fee,c2.sale_unwind_service_fee,c2.sale_deferred_fee FROM f_futures_contract c1 LEFT JOIN p_futures_agent_price c2 on c1.id = c2.contract_id AND c2.org_id="
+				.format("SELECT c1.id AS commodity_id ,c1.symbol,c1.`name`,c2.id , c2.cost_reserve_fund, c2.cost_openwind_service_fee,c2.cost_unwind_service_fee,c2.cost_deferred_fee,c2.sale_openwind_service_fee,c2.sale_unwind_service_fee,c2.sale_deferred_fee FROM f_futures_commodity c1 LEFT JOIN p_futures_agent_price c2 ON c2.contract_id = c1.id AND c2.org_id="
 						+ orgId);
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
-		setMethodMap.put(new Integer(0), new MethodDesc("setContractId", new Class<?>[] { Long.class }));
-		setMethodMap.put(new Integer(1), new MethodDesc("setSymbol", new Class<?>[] { String.class }));
-		setMethodMap.put(new Integer(2), new MethodDesc("setContractName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(0), new MethodDesc("setCommodityId", new Class<?>[] { Long.class }));
+		setMethodMap.put(new Integer(1), new MethodDesc("setCommoditySymbol", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(2), new MethodDesc("setCommodityName", new Class<?>[] { String.class }));
 		setMethodMap.put(new Integer(3), new MethodDesc("setId", new Class<?>[] { Long.class }));
 		setMethodMap.put(new Integer(4), new MethodDesc("setCostReserveFund", new Class<?>[] { BigDecimal.class }));
 		setMethodMap.put(new Integer(5),
@@ -756,11 +756,11 @@ public class OrganizationService {
 				// 获取当前期货代理价格数据
 				FuturesAgentPrice currentPrice = futuresAgentPrice.get(i);
 				// 获取上级期货代理价格数据
-				FuturesAgentPrice agentPrice = agentPriceDao.findByContractIdAndOrgId(currentPrice.getContractId(),
+				FuturesAgentPrice agentPrice = agentPriceDao.findByCommodityIdAndOrgId(currentPrice.getCommodityId(),
 						organization.getParentId());
-				// 获取期货合约信息
-				FuturesContractDto contractDto = agentPriceBusiness
-						.getFuturesContractDtoByContractId(currentPrice.getContractId());
+				// 获取期货品种信息
+				FuturesCommodityDto contractDto = agentPriceBusiness
+						.getFuturesByCommodityId(currentPrice.getCommodityId());
 				// 判断是否期货代理价格是否合法
 				currentPrice = saveAgent(currentPrice, agentPrice, contractDto, organization);
 				agentPriceDao.create(currentPrice);
@@ -783,7 +783,7 @@ public class OrganizationService {
 	 *            代理商数据
 	 */
 	public FuturesAgentPrice saveAgent(FuturesAgentPrice currentPrice, FuturesAgentPrice agentPrice,
-			FuturesContractDto contractDto, OrganizationDto organization) {
+			FuturesCommodityDto contractDto, OrganizationDto organization) {
 		if (contractDto == null) {
 			// 该合约不存在
 			throw new ServiceException(ExceptionConstant.CONTRACT_DOESNOT_EXIST_EXCEPTION);
@@ -917,14 +917,32 @@ public class OrganizationService {
 		return currentPrice;
 	}
 
-	public FuturesAgentPrice currentAgentPrice(Long orgId, Long contractId) {
+	/**
+	 * 获取当前期货代理价格数据
+	 * 
+	 * @param orgId
+	 *            代理商ID
+	 * @param commodityId
+	 *            品种ID
+	 * @return 货代理价格数据
+	 */
+	public FuturesAgentPrice currentAgentPrice(Long orgId, Long commodityId) {
 
-		return agentPriceDao.findByContractIdAndOrgId(contractId, orgId);
+		return agentPriceDao.findByCommodityIdAndOrgId(commodityId, orgId);
 	}
 
-	public FuturesAgentPrice superiorAgentPrice(Long orgId, Long contractId) {
+	/**
+	 * 获取上级期货代理商数据
+	 * 
+	 * @param orgId
+	 *            代理商ID
+	 * @param commodityId
+	 *            品种ID
+	 * @return 货代理商数据
+	 */
+	public FuturesAgentPrice superiorAgentPrice(Long orgId, Long commodityId) {
 		OrganizationDto organization = agentPriceBusiness.fetchByOrgId(orgId);
-		return agentPriceDao.findByContractIdAndOrgId(contractId, organization.getParentId());
+		return agentPriceDao.findByCommodityIdAndOrgId(commodityId, organization.getParentId());
 	}
 
 }

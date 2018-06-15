@@ -61,7 +61,6 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 	public Response<PageInfo<FuturesCommodityAdminDto>> pagesAdmin(@RequestBody FuturesCommodityAdminQuery query) {
 		Page<FuturesCommodity> page = commodityService.pages(query);
 		PageInfo<FuturesCommodityAdminDto> result = PageToPageInfo.pageToPageInfo(page, FuturesCommodityAdminDto.class);
-		FuturesProductTypeConverter converter = new FuturesProductTypeConverter();
 		if (result != null && result.getContent() != null) {
 			for (int i = 0; i < result.getContent().size(); i++) {
 				FuturesCommodity commodity = page.getContent().get(i);
@@ -227,7 +226,7 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 			}
 
 			List<FuturesPreQuantity> quantity = quantityService.findByCommodityId(commodity.getId());
-			if (quantity == null && quantity.size() == 0) {
+			if (quantity == null || quantity.size() == 0) {
 				throw new ServiceException(ExceptionConstant.CONTRACT_PREQUANTITY_EXCEPTION);
 			}
 
@@ -253,6 +252,11 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 	}
 
 	@Override
+	public Response<FuturesCommodityDto> getFuturesByCommodityId(@PathVariable Long commodityId) {
+		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesCommodityDto.class,
+				commodityService.retrieve(commodityId), false));
+	}
+
 	public Response<List<FuturesCommodityDto>> listByExchangeId(@PathVariable Long exchangeId) {
 		return new Response<>(CopyBeanUtils.copyListBeanPropertiesToList(commodityService.listByExchangeId(exchangeId),
 				FuturesCommodityDto.class));

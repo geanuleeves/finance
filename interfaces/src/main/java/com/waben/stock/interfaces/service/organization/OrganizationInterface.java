@@ -212,9 +212,9 @@ public interface OrganizationInterface {
 	 *            合约ID
 	 * @return 期货代理价格
 	 */
-	@RequestMapping(value = "/current/{orgId}/{contractId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/current/{orgId}/{commodityId}", method = RequestMethod.GET)
 	Response<FuturesAgentPriceDto> getCurrentAgentPrice(@PathVariable("orgId") Long orgId,
-			@PathVariable("contractId") Long contractId);
+			@PathVariable("commodityId") Long commodityId);
 
 	/**
 	 * 获取上级期货代理价格数据
@@ -225,8 +225,8 @@ public interface OrganizationInterface {
 	 *            合约ID
 	 * @return 期货代理价格
 	 */
-	@RequestMapping(value = "/superior/{orgId}/{contractId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/superior/{orgId}/{commodityId}", method = RequestMethod.GET)
 	Response<FuturesAgentPriceDto> getSuperiorAgentPrice(@PathVariable("orgId") Long orgId,
-			@PathVariable("contractId") Long contractId);
+			@PathVariable("commodityId") Long commodityId);
 
 }

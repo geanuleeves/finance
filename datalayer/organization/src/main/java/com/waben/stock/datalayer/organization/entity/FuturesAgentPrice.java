@@ -22,9 +22,9 @@ public class FuturesAgentPrice {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	/**
-	 * 合约ID
+	 * 品种ID
 	 */
-	private Long contractId;
+	private Long commodityId;
 	/**
 	 * 代理商ID
 	 */
@@ -70,12 +70,12 @@ public class FuturesAgentPrice {
 		this.id = id;
 	}
 
-	public Long getContractId() {
-		return contractId;
+	public Long getCommodityId() {
+		return commodityId;
 	}
 
-	public void setContractId(Long contractId) {
-		this.contractId = contractId;
+	public void setCommodityId(Long commodityId) {
+		this.commodityId = commodityId;
 	}
 
 	public Long getOrgId() {

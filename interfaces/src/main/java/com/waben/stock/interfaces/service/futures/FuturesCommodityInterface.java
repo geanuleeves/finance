@@ -39,6 +39,16 @@ public interface FuturesCommodityInterface {
 	@RequestMapping(value = "/isCurrency/{id}", method = RequestMethod.POST, consumes = "application/json")
 	Response<String> isCurrency(@PathVariable("id") Long id);
 
+	/**
+	 * 根据品种ID获取品种数据
+	 * 
+	 * @param commodityId
+	 *            品种ID
+	 * @return 品种数据
+	 */
+	@RequestMapping(value = "/commodity/{commodityId}", method = RequestMethod.GET)
+	Response<FuturesCommodityDto> getFuturesByCommodityId(@PathVariable("commodityId") Long commodityId);
+
 	@RequestMapping(value = "/lists/{exchangeId}", method = RequestMethod.GET)
 	Response<List<FuturesCommodityDto>> listByExchangeId(@PathVariable("exchangeId") Long exchangeId);
 }

@@ -279,8 +279,8 @@ public class FuturesOrderBusiness {
 				unwind.setPublisherId(unwindOrder.getPublisherId());
 				unwind.setTotalQuantity(unwindOrder.getTotalQuantity());
 				unwind.setOrderType(unwindOrder.getOrderType());
-				unwind.setPhone(publisher.getPhone());
-				unwind.setState(contract.getState());
+				unwind.setPhone(publisher == null ? "" : publisher.getPhone());
+				unwind.setState(contract == null ? 3 : contract.getState());
 				content.add(unwind);
 				isSettlement = false;
 			} else {
@@ -302,8 +302,8 @@ public class FuturesOrderBusiness {
 					position.setPublisherId(positionOrder.getPublisherId());
 					position.setTotalQuantity(positionOrder.getTotalQuantity());
 					position.setOrderType(positionOrder.getOrderType());
-					position.setPhone(publisher.getPhone());
-					position.setState(contract.getState());
+					position.setPhone(publisher == null ? "" : publisher.getPhone());
+					position.setState(contract == null ? 3 : contract.getState());
 					content.add(position);
 					isSettlement = true;
 				} else {
