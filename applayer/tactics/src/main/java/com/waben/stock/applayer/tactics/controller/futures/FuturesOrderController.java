@@ -215,6 +215,18 @@ public class FuturesOrderController {
 		return new Response<>(futuresOrderBusiness.pageOrderMarket(orderQuery));
 	}
 
+	@GetMapping("/entrustQueuing")
+	@ApiOperation(value = "获取委托排队中列表")
+	public Response<PageInfo<FuturesOrderMarketDto>> entrustQueuing(int page, int size) {
+		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
+		FuturesOrderState[] states = { FuturesOrderState.BuyingEntrust, FuturesOrderState.SellingEntrust };
+		orderQuery.setStates(states);
+		orderQuery.setPage(page);
+		orderQuery.setSize(size);
+		orderQuery.setPublisherId(SecurityUtil.getUserId());
+		return new Response<>(futuresOrderBusiness.pageOrderMarket(orderQuery));
+	}
+
 	@GetMapping("/entrustment")
 	@ApiOperation(value = "获取委托中列表")
 	public Response<PageInfo<FuturesOrderMarketDto>> entrustmentList(int page, int size) {

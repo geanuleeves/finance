@@ -94,7 +94,7 @@ public class EsTradeWrapper extends TradeApiAdapter {
 	 * 连接成功回调通知
 	 */
 	public void onConnect() {
-		System.out.println("连接成功");
+		logger.info("易盛交易API连接成功 ");
 	}
 
 	/**
@@ -105,7 +105,8 @@ public class EsTradeWrapper extends TradeApiAdapter {
 	 *            断开原因代码。具体原因请参见错误码列表
 	 */
 	public void onDisconnected(int reasonCode) {
-		System.out.println("断开连接 " + reasonCode);
+		logger.info("易盛交易API断开连接 " + reasonCode);
+		this.connect();
 	}
 
 	/**
