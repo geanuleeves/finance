@@ -74,7 +74,6 @@ public class FuturesContractController implements FuturesContractInterface {
 			dto = CopyBeanUtils.copyBeanProperties(contract, dto);
 			content.add(dto);
 		}
-		result.setContent(content);
 		// 设置部分额外的属性
 		for (FuturesContractDto contractDto : content) {
 			contractDto.setState(1);
@@ -148,6 +147,7 @@ public class FuturesContractController implements FuturesContractInterface {
 				}
 			}
 		}
+		result.setContent(content);
 
 		return new Response<>(result);
 	}
