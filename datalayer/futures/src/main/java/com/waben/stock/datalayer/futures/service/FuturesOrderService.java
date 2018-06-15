@@ -299,7 +299,8 @@ public class FuturesOrderService {
 			public Predicate toPredicate(Root<FuturesOrder> root, CriteriaQuery<?> criteriaQuery,
 					CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
-				Join<FuturesOrder, FuturesContract> join = root.join("contract", JoinType.LEFT);
+				Join<FuturesOrder, FuturesContract> join = root.join("contract", JoinType.LEFT).join("commodity",
+						JoinType.LEFT);
 				// 用户ID
 				if (query.getPublisherId() != null && query.getPublisherId() != 0) {
 					predicateList
