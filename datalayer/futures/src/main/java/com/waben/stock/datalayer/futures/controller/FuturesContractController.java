@@ -77,6 +77,7 @@ public class FuturesContractController implements FuturesContractInterface {
 		result.setContent(content);
 		// 设置部分额外的属性
 		for (FuturesContractDto contractDto : content) {
+			contractDto.setState(1);
 			FuturesExchange exchange = exchangeService.findById(contractDto.getExchangeId());
 			if (exchange == null) {
 				contractDto.setState(3);

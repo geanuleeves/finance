@@ -1,7 +1,5 @@
 package com.waben.stock.applayer.admin.business.futures;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;

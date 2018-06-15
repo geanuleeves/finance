@@ -98,6 +98,8 @@ public class FuturesTradeController implements FuturesTradeInterface {
 		PageInfo<FuturesOrderAdminDto> result = PageToPageInfo.pageToPageInfo(page, FuturesOrderAdminDto.class);
 		for (int i = 0; i < page.getContent().size(); i++) {
 			FuturesOrder order = page.getContent().get(i);
+			result.getContent().get(i).setSymbol(order.getCommoditySymbol());
+			result.getContent().get(i).setName(order.getCommodityName());
 			if (order.getOpenwindServiceFee() != null) {
 				if (order.getTotalQuantity() != null) {
 					result.getContent().get(i)

@@ -22,48 +22,52 @@ import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
 import com.waben.stock.datalayer.futures.repository.FuturesTradeLimitDao;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeLimitQuery;
+import com.waben.stock.interfaces.util.StringUtil;
 
 @Service
 public class FuturesTradeLimitService {
 
 	@Autowired
 	private FuturesTradeLimitDao limitDao;
-	
-	public FuturesTradeLimit save(FuturesTradeLimit limit){
+
+	public FuturesTradeLimit save(FuturesTradeLimit limit) {
 		limit.setUpdateTime(new Date());
 		return limitDao.create(limit);
 	}
-	
-	public FuturesTradeLimit modify(FuturesTradeLimit limit){
+
+	public FuturesTradeLimit modify(FuturesTradeLimit limit) {
 		limit.setUpdateTime(new Date());
 		return limitDao.update(limit);
 	}
-	
-	public void delete(Long id){
-		limitDao.delete(id);;
+
+	public void delete(Long id) {
+		limitDao.delete(id);
+		;
 	}
-	
-	public void deleteByContractId(Long contractId){
+
+	public void deleteByContractId(Long contractId) {
 		limitDao.deleteByContractId(contractId);
 	}
-	
-	public List<FuturesTradeLimit> findByContractId(Long contractId){
+
+	public List<FuturesTradeLimit> findByContractId(Long contractId) {
 		return limitDao.findByContractId(contractId);
 	}
 
-	public Page<FuturesTradeLimit> pagesTradeLimit(final FuturesTradeLimitQuery query){
+	public Page<FuturesTradeLimit> pagesTradeLimit(final FuturesTradeLimitQuery query) {
 		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
 		Page<FuturesTradeLimit> pages = limitDao.page(new Specification<FuturesTradeLimit>() {
-			
+
 			@Override
-			public Predicate toPredicate(Root<FuturesTradeLimit> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-				List<Predicate> predicateList = new ArrayList<Predicate>();
-				Join<FuturesTradeLimit, FuturesContract> join = root.join("contract",JoinType.LEFT);
-				
-				if(query.getName()!=null&&!"".equals(query.getName())){
-					predicateList.add(criteriaBuilder.equal(join.get("name").as(String.class), query.getName()));
+			public Predicate toPredicate(Root<FuturesTradeLimit> root, CriteriaQuery<?> criteriaQuery,
+					CriteriaBuilder criteriaBuilder) {
+				List<Predicate> predicateList = new ArrayList<>();
+				if (!StringUtil.isEmpty(query.getName())) {
+					Join<FuturesTradeLimit, FuturesContract> parentJoin = root.join("contract", JoinType.LEFT);
+					Predicate contractName = criteriaBuilder.like(parentJoin.get("contractName").as(String.class),
+							"%" + query.getName() + "%");
+					predicateList.add(contractName);
 				}
-				
+
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
