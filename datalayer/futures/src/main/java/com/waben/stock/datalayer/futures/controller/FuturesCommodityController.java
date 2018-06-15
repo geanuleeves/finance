@@ -231,7 +231,7 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 	@Override
 	public Response<String> isCurrency(@PathVariable("id") Long id) {
 		FuturesCommodity commodity = commodityService.retrieve(id);
-		boolean isCurrency = commodity.getEnable();
+		boolean isCurrency = commodity.getEnable() == null ? false : commodity.getEnable();
 		List<FuturesContract> list = contractService.findByCommodity(commodity.getId());
 		if (!isCurrency) {
 			for (FuturesContract contract : list) {

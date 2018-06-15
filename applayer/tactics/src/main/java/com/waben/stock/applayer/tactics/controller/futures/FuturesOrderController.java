@@ -92,6 +92,10 @@ public class FuturesOrderController {
 		BigDecimal perNum = contractDto.getPerOrderLimit();
 		// 用户最大可持仓量
 		BigDecimal userMaxNum = contractDto.getUserTotalLimit();
+		if (userMaxNum == null) {
+			// 用户最大可持仓量为空
+			throw new ServiceException(ExceptionConstant.MAXIMUM_CAPACITY_USER_EMPTY_EXCEPTION);
+		}
 		// 用户持仓总数量
 		// TODO 查询方法有误
 		Integer sumUser = futuresOrderBusiness.sumUserNum(buysellDto.getContractId(), SecurityUtil.getUserId());

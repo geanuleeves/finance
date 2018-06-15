@@ -1,7 +1,6 @@
 package com.waben.stock.datalayer.futures.controller;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -66,6 +65,8 @@ public class FuturesTradeController implements FuturesTradeInterface {
 		for (int i = 0; i < orderList.size(); i++) {
 			FuturesOrder order = orderList.get(i);
 
+			result.getContent().get(i).setSymbol(order.getCommoditySymbol());
+			result.getContent().get(i).setName(order.getCommodityName());
 			result.getContent().get(i).setPublisherId(order.getPublisherId());
 			if (order.getOrderType() != null) {
 				result.getContent().get(i).setOrderType(order.getOrderType().getType());
@@ -166,35 +167,39 @@ public class FuturesTradeController implements FuturesTradeInterface {
 				List<FuturesTradeLimit> limit = limitService.findByContractId(order.getContract().getId());
 				if (limit != null) {
 					Date da = new Date();
-					String curreyDay = sdf.format(da);
-					int weekDays = getWeekOfDate(da);
+//					String curreyDay = sdf.format(da);
+//					int weekDays = getWeekOfDate(da);
 					for (int j = 0; j < limit.size(); j++) {
-						if (limit.get(j).getWeekDay() == weekDays) {
-							try {
-								Date start = null;
-								Date end = null;
-								if (limit.get(j).getStartLimitTime() != null
-										&& !"".equals(limit.get(j).getStartLimitTime())) {
-									String startStr = curreyDay + " " + limit.get(j).getStartLimitTime();
-									start = sdf1.parse(startStr);
-								}
-								if (limit.get(j).getEndLimitTime() != null
-										&& !"".equals(limit.get(j).getEndLimitTime())) {
-									String endStr = curreyDay + " " + limit.get(j).getEndLimitTime();
-									end = sdf1.parse(endStr);
-								}
-								if (start != null && end != null) {
-									if (da.getTime() > start.getTime() && da.getTime() < end.getTime()) {
-										result.getContent().get(i)
-												.setWindControlState(limit.get(j).getLimitType().getType());
-									} else {
-										result.getContent().get(i).setWindControlState("正常");
-									}
-								}
-							} catch (ParseException e) {
-								e.printStackTrace();
-							}
-						}
+						// TODO 需求修改，风控限制关联到合约，开始和结束时间精确到日、时、分、秒
+						// if (limit.get(j).getWeekDay() == weekDays) {
+						// try {
+						// Date start = null;
+						// Date end = null;
+						// if (limit.get(j).getStartLimitTime() != null
+						// && !"".equals(limit.get(j).getStartLimitTime())) {
+						// String startStr = curreyDay + " " +
+						// limit.get(j).getStartLimitTime();
+						// start = sdf1.parse(startStr);
+						// }
+						// if (limit.get(j).getEndLimitTime() != null
+						// && !"".equals(limit.get(j).getEndLimitTime())) {
+						// String endStr = curreyDay + " " +
+						// limit.get(j).getEndLimitTime();
+						// end = sdf1.parse(endStr);
+						// }
+						// if (start != null && end != null) {
+						// if (da.getTime() > start.getTime() && da.getTime() <
+						// end.getTime()) {
+						// result.getContent().get(i)
+						// .setWindControlState(limit.get(j).getLimitType().getType());
+						// } else {
+						// result.getContent().get(i).setWindControlState("正常");
+						// }
+						// }
+						// } catch (ParseException e) {
+						// e.printStackTrace();
+						// }
+						// }
 						if (result.getContent().get(i).getWindControlState() == null
 								&& "".equals(result.getContent().get(i).getWindControlState())) {
 							result.getContent().get(i).setWindControlState("正常");

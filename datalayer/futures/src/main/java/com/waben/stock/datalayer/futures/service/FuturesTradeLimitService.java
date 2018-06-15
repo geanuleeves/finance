@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
 import com.waben.stock.datalayer.futures.repository.FuturesTradeLimitDao;
@@ -62,8 +63,11 @@ public class FuturesTradeLimitService {
 					CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<>();
 				if (!StringUtil.isEmpty(query.getName())) {
-					Join<FuturesTradeLimit, FuturesContract> parentJoin = root.join("contract", JoinType.LEFT);
-					Predicate contractName = criteriaBuilder.like(parentJoin.get("contractName").as(String.class),
+					Join<FuturesTradeLimit, FuturesContract> parentJoin = root.join("contract", JoinType.LEFT)
+							.join("commodity", JoinType.LEFT);
+					// Join<FuturesContract, FuturesCommodity> join =
+					// root.join("commodity", JoinType.LEFT);
+					Predicate contractName = criteriaBuilder.like(parentJoin.get("name").as(String.class),
 							"%" + query.getName() + "%");
 					predicateList.add(contractName);
 				}
