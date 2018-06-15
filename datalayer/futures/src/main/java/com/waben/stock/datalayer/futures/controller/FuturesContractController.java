@@ -81,7 +81,7 @@ public class FuturesContractController implements FuturesContractInterface {
 			if (exchange == null) {
 				contractDto.setState(3);
 				contractDto.setCurrentTradeTimeDesc("交易所为空异常");
-				break;
+				// break;
 			}
 			// 获取汇率信息
 			FuturesCurrencyRate rate = futuresCurrencyRateService.findByCurrency(contractDto.getCurrency());
@@ -94,13 +94,13 @@ public class FuturesContractController implements FuturesContractInterface {
 			if (contractDto.getExchangeEnable() != null && !contractDto.getExchangeEnable()) {
 				contractDto.setState(3);
 				contractDto.setCurrentTradeTimeDesc("交易不可用异常");
-				break;
+				// break;
 			}
 			// 判断合约是否可用
 			if (contractDto.getEnable() != null && !contractDto.getEnable()) {
 				contractDto.setState(3);
 				contractDto.setCurrentTradeTimeDesc("合约不可用异常");
-				break;
+				// break;
 			}
 			// 判断是否在交易时间段
 			Date now = new Date();
