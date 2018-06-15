@@ -10,6 +10,11 @@ public class FuturesContractDto extends FuturesCommodityDto {
 	@ApiModelProperty(value = "合约ID")
 	private Long id;
 	/**
+	 * 品种ID
+	 */
+	@ApiModelProperty(value = "品种ID")
+	private Long commodityId;
+	/**
 	 * 合约编号
 	 */
 	@ApiModelProperty(value = "合约编号")
@@ -332,6 +337,14 @@ public class FuturesContractDto extends FuturesCommodityDto {
 
 	public void setNextTradingTime(String nextTradingTime) {
 		this.nextTradingTime = nextTradingTime;
+	}
+
+	public Long getCommodityId() {
+		return commodityId;
+	}
+
+	public void setCommodityId(Long commodityId) {
+		this.commodityId = commodityId;
 	}
 
 }

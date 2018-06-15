@@ -10,6 +10,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * 期货合约
@@ -40,12 +43,12 @@ public class FuturesContract {
 	 * </p>
 	 */
 	private BigDecimal userTotalLimit;
-	
+
 	/**
 	 * 买涨持仓总额度
 	 */
 	private BigDecimal buyUpTotalLimit;
-	
+
 	/**
 	 * 买跌持仓总额度
 	 */
@@ -77,8 +80,8 @@ public class FuturesContract {
 	 * 强平时间
 	 */
 	private Date forceUnwindDate;
-	/**`	
-	 * 是否主力合约
+	/**
+	 * ` 是否主力合约
 	 */
 	private Boolean mainForce;
 	/**
@@ -107,6 +110,15 @@ public class FuturesContract {
 	@ManyToOne
 	@JoinColumn(name = "commodity_id")
 	private FuturesCommodity commodity;
+
+	/***************** 分割线，以下字段为非数据库字段 ********************/
+
+	/**
+	 * 品种ID
+	 */
+	@Transient
+	@ApiModelProperty(value = "品种ID")
+	private Long commodityId;
 
 	public Long getId() {
 		return id;
@@ -258,6 +270,17 @@ public class FuturesContract {
 
 	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
+	}
+
+	public Long getCommodityId() {
+		if (commodity != null) {
+			return commodity.getId();
+		}
+		return commodityId;
+	}
+
+	public void setCommodityId(Long commodityId) {
+		this.commodityId = commodityId;
 	}
 
 }
