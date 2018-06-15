@@ -12,6 +12,11 @@ public class FuturesTradeLimitDto {
 	private String exchangcode;
 
 	/**
+	 * 交易所ID
+	 */
+	private Long exchangeId;
+
+	/**
 	 * 交易所全称
 	 */
 	private String exchangename;
@@ -197,4 +202,13 @@ public class FuturesTradeLimitDto {
 	public void setCommodityId(Long commodityId) {
 		this.commodityId = commodityId;
 	}
+
+	public Long getExchangeId() {
+		return exchangeId;
+	}
+
+	public void setExchangeId(Long exchangeId) {
+		this.exchangeId = exchangeId;
+	}
+
 }
