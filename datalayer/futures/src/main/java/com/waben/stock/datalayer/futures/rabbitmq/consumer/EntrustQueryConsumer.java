@@ -109,45 +109,34 @@ public class EntrustQueryConsumer {
 	private boolean checkYishengOrder(FuturesGatewayOrder gatewayOrder, Integer entrustType, Long orderId) {
 		boolean isNeedRetry = true;
 		Integer state = gatewayOrder.getOrderState();
-		if (entrustType == 1) {
-			if (state != null && state == 9) {
-				// 已取消
-				orderService.canceledOrder(orderId);
-				isNeedRetry = false;
-			} else if (state != null && state == 5) {
+		if (entrustType == 1 || entrustType == 2 || entrustType == 3) {
+			if (state != null && state == 5 && entrustType == 1) {
 				// 部分买入成功
 				orderService.partPositionOrder(orderId);
-			} else if (state != null && state == 6) {
+			} else if (state != null && state == 5 && (entrustType == 2 || entrustType == 3)) {
+				// 部分已平仓
+				orderService.partUnwindOrder(orderId);
+			} else if (state != null && state == 6 && entrustType == 1) {
 				// 持仓中
 				orderService.positionOrder(orderId, gatewayOrder.getLastFillPrice());
 				isNeedRetry = false;
-			}
-		} else if (entrustType == 2) {
-			if (state != null && state == 9) {
-				// 已取消
-				orderService.canceledOrder(orderId);
-				isNeedRetry = false;
-			} else if (state != null && state == 5) {
-				// 部分已平仓
-				orderService.partUnwindOrder(orderId);
-			} else if (state != null && state == 6) {
+			} else if (state != null && state == 6 && entrustType == 2) {
 				// 已平仓
 				orderService.unwindOrder(orderId, gatewayOrder.getLastFillPrice());
 				isNeedRetry = false;
-			}
-		} else if (entrustType == 3) {
-			if (state != null && state == 9) {
-				// 已取消
-				orderService.canceledOrder(orderId);
-				isNeedRetry = false;
-			} else if (state != null && state == 5) {
-				// 部分已平仓
-				orderService.partUnwindOrder(orderId);
-			} else if (state != null && state == 6) {
+			} else if (state != null && state == 6 && entrustType == 3) {
 				// 已平仓
 				orderService.unwindOrder(orderId, gatewayOrder.getLastFillPrice());
 				// 反手以市价买入
 				orderService.backhandPlaceOrder(orderId);
+				isNeedRetry = false;
+			} else if (state != null && state == 9) {
+				// 已取消
+				orderService.canceledOrder(orderId);
+				isNeedRetry = false;
+			} else if (state != null && state == 11) {
+				// 已失败
+				orderService.failureOrder(orderId);
 				isNeedRetry = false;
 			}
 		} else {

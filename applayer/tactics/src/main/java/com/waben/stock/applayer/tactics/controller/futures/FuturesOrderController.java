@@ -46,7 +46,6 @@ import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesContractQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
-import com.waben.stock.interfaces.util.PasswordCrypt;
 import com.waben.stock.interfaces.util.StringUtil;
 
 import io.swagger.annotations.Api;
@@ -220,8 +219,9 @@ public class FuturesOrderController {
 	@ApiOperation(value = "获取委托中列表")
 	public Response<PageInfo<FuturesOrderMarketDto>> entrustmentList(int page, int size) {
 		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
-		FuturesOrderState[] states = { FuturesOrderState.BuyingEntrust, FuturesOrderState.PartPosition,
-				FuturesOrderState.SellingEntrust, FuturesOrderState.PartUnwind };
+		FuturesOrderState[] states = { FuturesOrderState.BuyingEntrust, FuturesOrderState.BuyingCanceled,
+				FuturesOrderState.BuyingFailure, FuturesOrderState.PartPosition, FuturesOrderState.Position,
+				FuturesOrderState.SellingEntrust, FuturesOrderState.PartUnwind, FuturesOrderState.Unwind };
 		orderQuery.setStates(states);
 		orderQuery.setPage(page);
 		orderQuery.setSize(size);
@@ -261,8 +261,7 @@ public class FuturesOrderController {
 	@ApiOperation(value = "获取已结算列表")
 	public Response<PageInfo<FuturesOrderMarketDto>> settledList(int page, int size) {
 		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
-		FuturesOrderState[] states = { FuturesOrderState.BuyingCanceled, FuturesOrderState.BuyingFailure,
-				FuturesOrderState.Unwind };
+		FuturesOrderState[] states = { FuturesOrderState.Unwind };
 		orderQuery.setStates(states);
 		orderQuery.setPage(page);
 		orderQuery.setSize(size);
@@ -303,8 +302,9 @@ public class FuturesOrderController {
 	@ApiOperation(value = "获取委托中总收益")
 	public Response<FuturesOrderProfitDto> entrustmentProfit(int page, int size) {
 		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
-		FuturesOrderState[] states = { FuturesOrderState.BuyingEntrust, FuturesOrderState.PartPosition,
-				FuturesOrderState.SellingEntrust, FuturesOrderState.PartUnwind };
+		FuturesOrderState[] states = { FuturesOrderState.BuyingEntrust, FuturesOrderState.BuyingCanceled,
+				FuturesOrderState.BuyingFailure, FuturesOrderState.PartPosition, FuturesOrderState.Position,
+				FuturesOrderState.SellingEntrust, FuturesOrderState.PartUnwind, FuturesOrderState.Unwind };
 		orderQuery.setStates(states);
 		orderQuery.setPage(page);
 		orderQuery.setSize(size);

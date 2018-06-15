@@ -68,13 +68,15 @@ public class QuoteMinuteKSchedule {
 		cal.set(Calendar.SECOND, 0);
 		cal.add(Calendar.MINUTE, -1);
 		Date before = cal.getTime();
+		cal.add(Calendar.MINUTE, 1);
+		Date currentMin = cal.getTime();
 		// step 3 : 遍历所有合约，计算分钟K
 		for (FuturesContract contract : contractList) {
 			String commodityNo = contract.getCommodityNo();
 			String contractNo = contract.getContractNo();
 			// step 3.1 : 判断之前是否有计算过
 			FuturesQuoteMinuteK beforeMinuteK = minuteKServcie.getByCommodityNoAndContractNoAndTime(commodityNo,
-					contractNo, before);
+					contractNo, currentMin);
 			if (beforeMinuteK != null) {
 				continue;
 			}
@@ -86,22 +88,22 @@ public class QuoteMinuteKSchedule {
 				beforeMinuteK = new FuturesQuoteMinuteK();
 				beforeMinuteK.setCommodityNo(commodityNo);
 				beforeMinuteK.setContractNo(contractNo);
-				beforeMinuteK.setTime(before);
-				beforeMinuteK.setTimeStr(fullSdf.format(before));
-				beforeMinuteK.setTotalVolume(quoteList.get(quoteList.size() - 1).getTotalQty());
+				beforeMinuteK.setTime(currentMin);
+				beforeMinuteK.setTimeStr(fullSdf.format(currentMin));
+				beforeMinuteK.setTotalVolume(quoteList.get(quoteList.size() - 1).getPositionQty());
 				beforeMinuteK
 						.setVolume(quoteList.get(quoteList.size() - 1).getTotalQty() - quoteList.get(0).getTotalQty());
-				beforeMinuteK.setOpenPrice(quoteList.get(0).getOpeningPrice());
-				beforeMinuteK.setClosePrice(quoteList.get(quoteList.size() - 1).getClosingPrice());
+				beforeMinuteK.setOpenPrice(quoteList.get(0).getLastPrice());
+				beforeMinuteK.setClosePrice(quoteList.get(quoteList.size() - 1).getLastPrice());
 				// step 3.4 : 计算最高价、最低价
-				BigDecimal highPrice = quoteList.get(0).getHighPrice();
-				BigDecimal lowPrice = quoteList.get(0).getLowPrice();
+				BigDecimal highPrice = quoteList.get(0).getLastPrice();
+				BigDecimal lowPrice = quoteList.get(0).getLastPrice();
 				for (FuturesQuote quote : quoteList) {
-					if (quote.getHighPrice().compareTo(highPrice) > 0) {
-						highPrice = quote.getHighPrice();
+					if (quote.getLastPrice().compareTo(highPrice) > 0) {
+						highPrice = quote.getLastPrice();
 					}
-					if (quote.getLowPrice().compareTo(lowPrice) < 0) {
-						lowPrice = quote.getLowPrice();
+					if (quote.getLastPrice().compareTo(lowPrice) < 0) {
+						lowPrice = quote.getLastPrice();
 					}
 				}
 				beforeMinuteK.setHighPrice(highPrice);
@@ -117,8 +119,6 @@ public class QuoteMinuteKSchedule {
 					producer.sendMessage(RabbitmqConfiguration.deleteQuoteQueueName, delQuote);
 					if (i == quoteList.size() - 1) {
 						// 判断当前分钟有没有行情数据，如果没有的话，将这条数据保存到FuturesQuoteLast中
-						cal.add(Calendar.MINUTE, 1);
-						Date currentMin = cal.getTime();
 						Long count = quoteService.countByTimeGreaterThanEqual(currentMin);
 						if (count <= 0) {
 							FuturesQuoteLast quoteLast = CopyBeanUtils.copyBeanProperties(FuturesQuoteLast.class, quote,

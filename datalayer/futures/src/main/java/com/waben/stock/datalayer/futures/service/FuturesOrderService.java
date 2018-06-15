@@ -570,6 +570,41 @@ public class FuturesOrderService {
 	}
 
 	/**
+	 * 订单失败
+	 * 
+	 * <p>
+	 * 通知是指令失败的情况出现，如委托价格不是最小波动的整数倍
+	 * </p>
+	 * 
+	 * @param id
+	 *            订单ID
+	 * @return 订单
+	 */
+	@Transactional
+	public FuturesOrder failureOrder(Long id) {
+		FuturesOrder order = orderDao.retrieve(id);
+		if (!(order.getState() == FuturesOrderState.Posted || order.getState() == FuturesOrderState.BuyingEntrust
+				|| order.getState() == FuturesOrderState.SellingEntrust)) {
+			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
+		}
+		if (order.getState() == FuturesOrderState.SellingEntrust) {
+			order.setState(FuturesOrderState.Position);
+			order.setUpdateTime(new Date());
+			orderDao.update(order);
+		} else {
+			// 撤单退款
+			accountBusiness.futuresOrderRevoke(order.getPublisherId(), order.getId(), order.getServiceFee());
+			// 修改订单状态
+			order.setState(FuturesOrderState.BuyingFailure);
+			order.setUpdateTime(new Date());
+			orderDao.update(order);
+			// 站外消息推送
+			sendOutsideMessage(order);
+		}
+		return order;
+	}
+
+	/**
 	 * 部分买入成功
 	 * 
 	 * @param id
