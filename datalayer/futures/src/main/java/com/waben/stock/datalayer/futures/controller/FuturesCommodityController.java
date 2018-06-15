@@ -121,10 +121,10 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 		FuturesCommodity oldCommodity = commodityService.retrieve(dto.getId());
 		FuturesExchange exchange = exchangeService.findById(dto.getExchangeId());
 		oldCommodity.setExchange(exchange);
-		oldCommodity.setEnable(false);
 		oldCommodity.setUpdateTime(new Date());
 		oldCommodity.setProductType(FuturesProductType.getByIndex(dto.getProductType()));
 		oldCommodity.setCreateTime(new Date());
+		oldCommodity.setEnable(dto.getEnable());
 
 		oldCommodity.setContractDesc(dto.getContractDesc());
 		oldCommodity.setCordon(dto.getCordon());
