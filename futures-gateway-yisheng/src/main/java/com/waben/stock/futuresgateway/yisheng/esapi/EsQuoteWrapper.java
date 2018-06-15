@@ -82,14 +82,15 @@ public class EsQuoteWrapper implements QuoteApiListener {
 
 	@Override
 	public void onAPIReady() {
+		logger.info("易盛行情API连接成功 ");
 		// api连接成功后，查询所有品种
 		api.qryCommodity();
 	}
 
 	@Override
 	public void onDisconnected(int reasonCode) {
-		// TODO Auto-generated method stub
-
+		logger.info("易盛行情API断开连接 " + reasonCode);
+		this.connect();
 	}
 
 	@Override

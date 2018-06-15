@@ -56,7 +56,7 @@ public class QuoteMinuteKSchedule {
 	/**
 	 * 每分钟计算上一分钟的分钟K
 	 */
-	@Scheduled(cron = "20 0/1 * * * ?")
+	@Scheduled(cron = "30 0/1 * * * ?")
 	public void computeMinuteK() {
 		SimpleDateFormat minSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:");
 		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

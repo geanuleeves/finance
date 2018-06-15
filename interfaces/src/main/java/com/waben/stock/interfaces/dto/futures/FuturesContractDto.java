@@ -3,8 +3,11 @@ package com.waben.stock.interfaces.dto.futures;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import io.swagger.annotations.ApiModelProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FuturesContractDto extends FuturesCommodityDto {
 
 	@ApiModelProperty(value = "合约ID")
