@@ -277,7 +277,7 @@ public class FuturesContractController implements FuturesContractInterface {
 		FuturesContract fcontract = CopyBeanUtils.copyBeanProperties(FuturesContract.class, contractDto, false);
 
 		fcontract.setCommodity(commodityService.retrieve(contractDto.getCommodityId()));
-		fcontract.setEnable(false);
+		fcontract.setEnable(contractDto.getEnable());
 		fcontract.setCreateTime(new Date());
 		FuturesContract result = futuresContractService.modifyExchange(fcontract);
 		FuturesContractAdminDto resultDto = CopyBeanUtils.copyBeanProperties(result, new FuturesContractAdminDto(),
