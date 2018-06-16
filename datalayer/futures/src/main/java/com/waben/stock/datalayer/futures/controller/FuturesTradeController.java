@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
@@ -25,6 +26,7 @@ import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHtt
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.dto.admin.futures.FutresOrderEntrustDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
@@ -124,7 +126,8 @@ public class FuturesTradeController implements FuturesTradeInterface {
 				Long hours = (current - date) / (60 * 60 * 1000);
 				result.getContent().get(i).setPositionDays(Math.abs(hours.intValue()));
 			}
-//			FuturesCurrencyRate rate = rateService.queryByName(order.getContract().getCommodity().getCurrency());
+			// FuturesCurrencyRate rate =
+			// rateService.queryByName(order.getContract().getCommodity().getCurrency());
 			if (order.getState().getIndex().equals("9")) {
 				result.getContent().get(i).setProfit(order.getProfitOrLoss());
 				result.getContent().get(i).setSellingProfit(order.getProfitOrLoss());
@@ -135,25 +138,25 @@ public class FuturesTradeController implements FuturesTradeInterface {
 					result.getContent().get(i).setPositionDays(Math.abs(hours.intValue()));
 				}
 			} else {
-				/*FuturesContractMarket market = RetriveFuturesOverHttp.market(order.getCommoditySymbol(),
-						order.getContractNo());
-				if (market != null) {
-					BigDecimal lastPrice = market.getLastPrice();
-					if (lastPrice != null) {
-						BigDecimal profit = futuresOrderService.computeProfitOrLoss(order.getOrderType(),
-								order.getTotalQuantity(), order.getBuyingPrice(), lastPrice,
-								order.getContract().getCommodity().getMinWave(),
-								order.getContract().getCommodity().getPerWaveMoney());
-						if (rate != null && rate.getRate() != null) {
-							result.getContent().get(i).setProfit(profit.multiply(rate.getRate()));
-						}
-					}
-				}*/
+				/*
+				 * FuturesContractMarket market =
+				 * RetriveFuturesOverHttp.market(order.getCommoditySymbol(),
+				 * order.getContractNo()); if (market != null) { BigDecimal
+				 * lastPrice = market.getLastPrice(); if (lastPrice != null) {
+				 * BigDecimal profit =
+				 * futuresOrderService.computeProfitOrLoss(order.getOrderType(),
+				 * order.getTotalQuantity(), order.getBuyingPrice(), lastPrice,
+				 * order.getContract().getCommodity().getMinWave(),
+				 * order.getContract().getCommodity().getPerWaveMoney()); if
+				 * (rate != null && rate.getRate() != null) {
+				 * result.getContent().get(i).setProfit(profit.multiply(rate.
+				 * getRate())); } } }
+				 */
 				List<FuturesTradeLimit> limit = limitService.findByContractId(order.getContract().getId());
 				if (limit != null) {
-//					Date da = new Date();
-//					String curreyDay = sdf.format(da);
-//					int weekDays = getWeekOfDate(da);
+					// Date da = new Date();
+					// String curreyDay = sdf.format(da);
+					// int weekDays = getWeekOfDate(da);
 					for (int j = 0; j < limit.size(); j++) {
 						// TODO 需求修改，风控限制关联到合约，开始和结束时间精确到日、时、分、秒
 						// if (limit.get(j).getWeekDay() == weekDays) {
@@ -197,16 +200,12 @@ public class FuturesTradeController implements FuturesTradeInterface {
 		return new Response<>(result);
 	}
 
-	/*private int getWeekOfDate(Date date) {
-		// String[] weekDays = { "星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"
-		// };
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		int w = cal.get(Calendar.DAY_OF_WEEK);
-		if (w < 0)
-			w = 0;
-		return w;
-	}*/
+	/*
+	 * private int getWeekOfDate(Date date) { // String[] weekDays = { "星期日",
+	 * "星期一", "星期二", "星期三", "星期四", "星期五", "星期六" // }; Calendar cal =
+	 * Calendar.getInstance(); cal.setTime(date); int w =
+	 * cal.get(Calendar.DAY_OF_WEEK); if (w < 0) w = 0; return w; }
+	 */
 
 	@Override
 	public Response<Object[]> countOrderState(String state) {
@@ -220,7 +219,7 @@ public class FuturesTradeController implements FuturesTradeInterface {
 			list.add(Integer.valueOf(state));
 		}
 		List<Object> map = futuresOrderService.queryByState(list);
-//		FuturesOrderCountDto dto = new FuturesOrderCountDto();
+		// FuturesOrderCountDto dto = new FuturesOrderCountDto();
 		Object[] bitge = (Object[]) map.get(0);
 		for (int i = 0; i < map.size(); i++) {
 			// Object[] bitge = (Object[])map.get(i);
@@ -238,6 +237,11 @@ public class FuturesTradeController implements FuturesTradeInterface {
 		res.setResult(bitge);
 		res.setMessage("响应成功");
 		return res;
+	}
+
+	@Override
+	public Response<FuturesOrderCountDto> getSUMOrder(@RequestParam String state) {
+		return new Response<>(limitService.getSUMOrder(state));
 	}
 
 }

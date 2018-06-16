@@ -53,8 +53,8 @@ public class FuturesOrderController {
 
 	@GetMapping("/countOrderState")
 	@ApiOperation(value = "订单总计")
-	public Response<FuturesOrderCountDto> countOrderState(FuturesTradeAdminQuery query) {
-		return business.countOrderState(query);
+	public Response<FuturesOrderCountDto> countOrderState(String state) {
+		return new Response<>(business.getSUMOrder(state));
 	}
 
 	@GetMapping("/pages")
@@ -146,12 +146,12 @@ public class FuturesOrderController {
 			if (dto.getBuyingPriceType() != null) {
 				if (dto.getBuyingPriceType().getIndex().equals("1")) {
 					buyingPriceType = "市价单";
-					positionEndTime = sdf.format(dto.getBuyingTime());
-					positionCJTime = sdf.format(dto.getBuyingTime());
+					positionEndTime = dto.getBuyingTime() == null ? "" : sdf.format(dto.getBuyingTime());
+					positionCJTime = dto.getSellingTime() == null ? "" : sdf.format(dto.getSellingTime());
 				} else {
 					buyingPriceType = "指定价单";
-					positionEndTime = sdf.format(dto.getBuyingEntrustTime());
-					positionCJTime = sdf.format(dto.getSellingEntrustTime());
+					positionEndTime = dto.getBuyingEntrustTime() == null ? "" : sdf.format(dto.getBuyingEntrustTime());
+					positionCJTime = dto.getSellingEntrustTime() == null ? "" : sdf.format(dto.getSellingEntrustTime());
 				}
 			}
 			if (type == 0) {

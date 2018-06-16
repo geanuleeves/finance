@@ -64,31 +64,31 @@ public class FuturesOrderBusiness {
 		if (query.getQueryType() == 0) {
 			PageInfo<FuturesOrderAdminDto> result = adminPagesByQuery(query);
 			if (result.getContent().size() > 0) {
-				double totalQuantity = 0.00;
-				double reserveFund = 0.00;
-				double serviceFee = 0.00;
-				double overnightServiceFee = 0.00;
+				BigDecimal totalQuantity = BigDecimal.ZERO;
+				BigDecimal reserveFund = BigDecimal.ZERO;
+				BigDecimal serviceFee = BigDecimal.ZERO;
+				BigDecimal overnightServiceFee = BigDecimal.ZERO;
 				for (FuturesOrderAdminDto adminDto : result.getContent()) {
 					if (adminDto.getTotalQuantity() != null) {
-						totalQuantity += adminDto.getTotalQuantity().doubleValue();
+						totalQuantity = totalQuantity.add(adminDto.getTotalQuantity());
 					}
 					if (adminDto.getReserveFund() != null) {
-						reserveFund += adminDto.getReserveFund().doubleValue();
+						reserveFund = reserveFund.add(adminDto.getReserveFund());
 					}
 					if (adminDto.getOpenwindServiceFee() != null) {
-						serviceFee += adminDto.getOpenwindServiceFee().doubleValue();
+						serviceFee = serviceFee.add(adminDto.getOpenwindServiceFee());
 					}
-					if (adminDto.getState().equals("已平仓")) {
-						serviceFee += adminDto.getUnwindServiceFee().doubleValue();
+					if (adminDto.getUnwindServiceFee() != null) {
+						serviceFee = serviceFee.add(adminDto.getUnwindServiceFee());
 					}
 					if (adminDto.getOvernightServiceFee() != null) {
-						overnightServiceFee += adminDto.getOvernightServiceFee().doubleValue();
+						overnightServiceFee = overnightServiceFee.add(adminDto.getOvernightServiceFee());
 					}
 				}
-				dto.setDeferred(new BigDecimal(overnightServiceFee));
-				dto.setQuantity(new BigDecimal(totalQuantity));
-				dto.setFee(new BigDecimal(serviceFee));
-				dto.setFund(new BigDecimal(reserveFund));
+				dto.setDeferred(overnightServiceFee);
+				dto.setQuantity(totalQuantity);
+				dto.setFee(serviceFee);
+				dto.setFund(reserveFund);
 			}
 		}
 		Response<FuturesOrderCountDto> res = new Response<FuturesOrderCountDto>();
@@ -221,6 +221,14 @@ public class FuturesOrderBusiness {
 
 	public FuturesCurrencyRateDto findByCurrency(String currency) {
 		Response<FuturesCurrencyRateDto> response = futuresCurrencyRateInterface.findByCurrency(currency);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public FuturesOrderCountDto getSUMOrder(String state) {
+		Response<FuturesOrderCountDto> response = reference.getSUMOrder(state);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}
