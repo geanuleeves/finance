@@ -60,14 +60,16 @@ public class AgentCapitalManageController {
 		query.setContractCodeOrName(contractCodeOrName);
 		query.setOrgCodeOrName(orgCodeOrName);
 		query.setTypes(types);
-		query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
+		// query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
+		query.setCurrentOrgId(SecurityUtil.getUserDetails().getOrgId());
 		return new Response<>(agentCapitalManageBusiness.pageAgentCapitalManage(query));
 	}
 
 	@RequestMapping(value = "/commission/settlement", method = RequestMethod.GET)
 	@ApiOperation(value = "佣金结算")
 	public Response<PageInfo<AgentCapitalManageDto>> pagesCommissionSettlement(AgentCapitalManageQuery query) {
-		query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
+		// query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
+		query.setCurrentOrgId(SecurityUtil.getUserDetails().getOrgId());
 		return new Response<>(agentCapitalManageBusiness.pageAgentCapitalManage(query));
 	}
 

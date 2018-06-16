@@ -77,7 +77,7 @@ public class OrganizationAccountFlowController implements OrganizationAccountFlo
 	public Response<PageInfo<AgentCapitalManageDto>> pageAgentCapitalManage(
 			@RequestBody AgentCapitalManageQuery query) {
 		return new Response<>(PageToPageInfo.pageToPageInfo(
-				organizationAccountFlowService.pageAgentCapitalManage(query), AgentCapitalManageDto.class));
+				organizationAccountFlowService.pageAgentCapitalManageNew(query), AgentCapitalManageDto.class));
 	}
 
 }

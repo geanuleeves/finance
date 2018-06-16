@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
-import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesTradeLimitTypeConverter;
 import com.waben.stock.datalayer.futures.service.FuturesContractService;
 import com.waben.stock.datalayer.futures.service.FuturesTradeLimitService;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeLimitDto;
@@ -62,9 +61,8 @@ public class FuturesTradeLimitController implements FuturesTradeLimitInterface {
 		FuturesContract contract = contractService.findByContractId(query.getContractId());
 		limit.setContract(contract);
 
-		FuturesTradeLimitTypeConverter converter = new FuturesTradeLimitTypeConverter();
 		if (query.getLimitType() != null && !"".equals(query.getLimitType())) {
-			limit.setLimitType(converter.convertToEntityAttribute(Integer.valueOf(query.getLimitType())));
+			limit.setLimitType(FuturesTradeLimitType.getByIndex(query.getLimitType()));
 		}
 
 		FuturesTradeLimit result = limitService.modify(limit);

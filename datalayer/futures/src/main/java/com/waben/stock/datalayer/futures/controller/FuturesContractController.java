@@ -322,7 +322,7 @@ public class FuturesContractController implements FuturesContractInterface {
 					Date expira = contract.get(i).getExpirationDate();
 					Date current = new Date();
 					if (current.getTime() > expira.getTime()) {
-						result.getContent().get(i).setState(3);
+						result.getContent().get(i).setEnable(null);
 					}
 				}
 			}

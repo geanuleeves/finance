@@ -151,7 +151,6 @@ public class FuturesOrderService {
 					CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
 
-				Join<FuturesOrder, FuturesContract> join = root.join("contract", JoinType.LEFT);
 				if (query.getPublisherIds().size() > 0) {
 					predicateList.add(criteriaBuilder.in(root.get("publisherId")).value(query.getPublisherIds()));
 				}
@@ -175,6 +174,11 @@ public class FuturesOrderService {
 				if (query.getName() != null && !"".equals(query.getName())) {
 					predicateList.add(criteriaBuilder.like(root.get("commodityName").as(String.class),
 							"%" + query.getName() + "%"));
+				}
+				if (!StringUtil.isEmpty(query.getPriceType())) {
+					FuturesTradePriceType type = FuturesTradePriceType.getByIndex(query.getPriceType());
+					predicateList.add(
+							criteriaBuilder.equal(root.get("buyingPriceType").as(FuturesTradePriceType.class), type));
 				}
 
 				if (query.getOrderState() != null) {
@@ -215,13 +219,15 @@ public class FuturesOrderService {
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
-				if (query.getOrderState().equals("6,9") || query.getOrderState().equals("6")
-						|| query.getOrderState().equals("9")) {
-					Order o = criteriaBuilder.desc(root.get("buyingTime").as(Date.class));
-					criteriaQuery.orderBy(o);
-				} else {
-					Order o = criteriaBuilder.desc(root.get("postTime").as(Date.class));
-					criteriaQuery.orderBy(o);
+				if (!StringUtil.isEmpty(query.getOrderState())) {
+					if (query.getOrderState().equals("6,9") || query.getOrderState().equals("6")
+							|| query.getOrderState().equals("9")) {
+						Order o = criteriaBuilder.desc(root.get("buyingTime").as(Date.class));
+						criteriaQuery.orderBy(o);
+					} else {
+						Order o = criteriaBuilder.desc(root.get("postTime").as(Date.class));
+						criteriaQuery.orderBy(o);
+					}
 				}
 				return criteriaQuery.getRestriction();
 			}

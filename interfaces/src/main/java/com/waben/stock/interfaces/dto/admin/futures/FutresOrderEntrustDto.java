@@ -3,15 +3,17 @@ package com.waben.stock.interfaces.dto.admin.futures;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.waben.stock.interfaces.enums.FuturesTradePriceType;
+
 public class FutresOrderEntrustDto {
 
 	/**
 	 * 交易ID
 	 */
 	private Long id;
-	
+
 	private Long publisherId;
-	
+
 	/**
 	 * 发布人姓名
 	 * <p>
@@ -19,67 +21,67 @@ public class FutresOrderEntrustDto {
 	 * </p>
 	 */
 	private String publisherName;
-	
+
 	/**
 	 * 发布人手机号
 	 */
 	private String publisherPhone;
-	
+
 	/**
 	 * 合约代码
 	 */
 	private String symbol;
-	
+
 	/**
 	 * 合约名称
 	 */
 	private String name;
-	
+
 	/**
 	 * 订单编号
 	 */
 	private String tradeNo;
-	
+
 	/**
 	 * 交易方向
 	 */
 	private String orderType;
-	
+
 	/**
 	 * 交易状态
 	 */
 	private String state;
-	
+
 	/**
 	 * 买入委托价格
 	 */
 	private BigDecimal entrustAppointPrice;
-	
+
 	/**
 	 * 当前价
 	 */
 	private BigDecimal lastPrice;
-	
+
 	/**
 	 * 数量（手）
 	 */
 	private BigDecimal totalQuantity;
-	
+
 	/**
 	 * 服务费（人民币）
 	 */
 	private BigDecimal serviceFee;
-	
+
 	/**
 	 * 隔夜手续费
 	 */
 	private BigDecimal overnightServiceFee;
-	
+
 	/**
 	 * 保证金（人民币）
 	 */
 	private BigDecimal reserveFund;
-	
+
 	/**
 	 * 触发止损类型（用户设置）
 	 * <ul>
@@ -92,7 +94,7 @@ public class FutresOrderEntrustDto {
 	 * 止损金额（用户设置）
 	 */
 	private BigDecimal perUnitLimitLossAmount;
-	
+
 	/**
 	 * 触发止盈类型（用户设置）
 	 * <ul>
@@ -105,18 +107,42 @@ public class FutresOrderEntrustDto {
 	 * 止盈金额（用户设置）
 	 */
 	private BigDecimal perUnitLimitProfitAmount;
-	
+
 	/**
 	 * 委托时间
 	 */
 	private Date postTime;
-	
+
 	/**
 	 * 成交时间
 	 */
 	private Date dealTime;
-	
+
 	private String orgName;
+
+	/**
+	 * 成交价
+	 */
+	private BigDecimal buyingPrice;
+
+	/**
+	 * 定单类型
+	 */
+	private FuturesTradePriceType buyingPriceType;
+
+	/**
+	 * 卖出委托价格
+	 */
+	private BigDecimal sellingEntrustPrice;
+
+	/**
+	 * 开仓手续费
+	 */
+	private BigDecimal openwindServiceFee;
+	/**
+	 * 平仓手续费
+	 */
+	private BigDecimal unwindServiceFee;
 
 	public Long getId() {
 		return id;
@@ -293,4 +319,45 @@ public class FutresOrderEntrustDto {
 	public void setOrgName(String orgName) {
 		this.orgName = orgName;
 	}
+
+	public BigDecimal getBuyingPrice() {
+		return buyingPrice;
+	}
+
+	public void setBuyingPrice(BigDecimal buyingPrice) {
+		this.buyingPrice = buyingPrice;
+	}
+
+	public FuturesTradePriceType getBuyingPriceType() {
+		return buyingPriceType;
+	}
+
+	public void setBuyingPriceType(FuturesTradePriceType buyingPriceType) {
+		this.buyingPriceType = buyingPriceType;
+	}
+
+	public BigDecimal getSellingEntrustPrice() {
+		return sellingEntrustPrice;
+	}
+
+	public void setSellingEntrustPrice(BigDecimal sellingEntrustPrice) {
+		this.sellingEntrustPrice = sellingEntrustPrice;
+	}
+
+	public BigDecimal getOpenwindServiceFee() {
+		return openwindServiceFee;
+	}
+
+	public void setOpenwindServiceFee(BigDecimal openwindServiceFee) {
+		this.openwindServiceFee = openwindServiceFee;
+	}
+
+	public BigDecimal getUnwindServiceFee() {
+		return unwindServiceFee;
+	}
+
+	public void setUnwindServiceFee(BigDecimal unwindServiceFee) {
+		this.unwindServiceFee = unwindServiceFee;
+	}
+
 }
