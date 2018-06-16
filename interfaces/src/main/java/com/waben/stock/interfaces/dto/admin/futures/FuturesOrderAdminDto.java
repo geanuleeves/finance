@@ -230,6 +230,11 @@ public class FuturesOrderAdminDto {
 	 */
 	private Date sellingEntrustTime;
 
+	/**
+	 * 盈亏（人民币）
+	 */
+	private BigDecimal profitOrLoss;
+
 	public Long getId() {
 		return id;
 	}
@@ -572,6 +577,14 @@ public class FuturesOrderAdminDto {
 
 	public void setSellingEntrustTime(Date sellingEntrustTime) {
 		this.sellingEntrustTime = sellingEntrustTime;
+	}
+
+	public BigDecimal getProfitOrLoss() {
+		return profitOrLoss;
+	}
+
+	public void setProfitOrLoss(BigDecimal profitOrLoss) {
+		this.profitOrLoss = profitOrLoss;
 	}
 
 }

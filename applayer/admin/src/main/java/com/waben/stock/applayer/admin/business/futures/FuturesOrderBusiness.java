@@ -197,9 +197,9 @@ public class FuturesOrderBusiness {
 					FuturesCurrencyRateDto rate = findByCurrency(dto.getCommodityCurrency());
 					if (market != null && contract != null && rate != null) {
 						dto.setLastPrice(market.getLastPrice());
-						dto.setFloatingProfitOrLoss(
-								market.getLastPrice().subtract(dto.getBuyingPrice()).divide(contract.getMinWave())
-										.multiply(contract.getPerWaveMoney()).multiply(rate.getRate()));
+						BigDecimal profitOrLoss = dto.getProfitOrLoss() == null ? new BigDecimal(0)
+								: dto.getProfitOrLoss();
+						dto.setFloatingProfitOrLoss(profitOrLoss.multiply(rate.getRate()));
 					}
 				}
 			}
