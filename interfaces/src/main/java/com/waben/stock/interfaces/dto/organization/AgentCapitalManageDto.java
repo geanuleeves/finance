@@ -3,8 +3,6 @@ package com.waben.stock.interfaces.dto.organization;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import com.waben.stock.interfaces.enums.OrganizationAccountFlowType;
-
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -34,19 +32,19 @@ public class AgentCapitalManageDto {
 	private String remark;
 
 	@ApiModelProperty(value = "客户姓名")
-	private String customerName;
+	private String publisherName;
 
 	@ApiModelProperty(value = "客户账号")
-	private String customerPhone;
+	private String publisherPhone;
 
 	@ApiModelProperty(value = "合约代码")
-	private String contractSymbol;
+	private String commoditySymbol;
 
 	@ApiModelProperty(value = "产品名称")
-	private String contractName;
+	private String commodityName;
 
 	@ApiModelProperty(value = "佣金及流水类型")
-	private OrganizationAccountFlowType type;
+	private Integer type;
 
 	@ApiModelProperty(value = "交易 佣金")
 	private BigDecimal commission;
@@ -55,10 +53,10 @@ public class AgentCapitalManageDto {
 	private BigDecimal amountRemaid;
 
 	@ApiModelProperty(value = "所属代理商代码")
-	private String agentCode;
+	private String orgCode;
 
 	@ApiModelProperty(value = "所属代理商名称")
-	private String agentName;
+	private String orgName;
 
 	public Long getId() {
 		return id;
@@ -108,43 +106,43 @@ public class AgentCapitalManageDto {
 		this.remark = remark;
 	}
 
-	public String getCustomerName() {
-		return customerName;
+	public String getPublisherName() {
+		return publisherName;
 	}
 
-	public void setCustomerName(String customerName) {
-		this.customerName = customerName;
+	public void setPublisherName(String publisherName) {
+		this.publisherName = publisherName;
 	}
 
-	public String getCustomerPhone() {
-		return customerPhone;
+	public String getPublisherPhone() {
+		return publisherPhone;
 	}
 
-	public void setCustomerPhone(String customerPhone) {
-		this.customerPhone = customerPhone;
+	public void setPublisherPhone(String publisherPhone) {
+		this.publisherPhone = publisherPhone;
 	}
 
-	public String getContractSymbol() {
-		return contractSymbol;
+	public String getCommoditySymbol() {
+		return commoditySymbol;
 	}
 
-	public void setContractSymbol(String contractSymbol) {
-		this.contractSymbol = contractSymbol;
+	public void setCommoditySymbol(String commoditySymbol) {
+		this.commoditySymbol = commoditySymbol;
 	}
 
-	public String getContractName() {
-		return contractName;
+	public String getCommodityName() {
+		return commodityName;
 	}
 
-	public void setContractName(String contractName) {
-		this.contractName = contractName;
+	public void setCommodityName(String commodityName) {
+		this.commodityName = commodityName;
 	}
 
-	public OrganizationAccountFlowType getType() {
+	public Integer getType() {
 		return type;
 	}
 
-	public void setType(OrganizationAccountFlowType type) {
+	public void setType(Integer type) {
 		this.type = type;
 	}
 
@@ -164,20 +162,20 @@ public class AgentCapitalManageDto {
 		this.amountRemaid = amountRemaid;
 	}
 
-	public String getAgentCode() {
-		return agentCode;
+	public String getOrgCode() {
+		return orgCode;
 	}
 
-	public void setAgentCode(String agentCode) {
-		this.agentCode = agentCode;
+	public void setOrgCode(String orgCode) {
+		this.orgCode = orgCode;
 	}
 
-	public String getAgentName() {
-		return agentName;
+	public String getOrgName() {
+		return orgName;
 	}
 
-	public void setAgentName(String agentName) {
-		this.agentName = agentName;
+	public void setOrgName(String orgName) {
+		this.orgName = orgName;
 	}
 
 }

@@ -20,6 +20,7 @@ import com.waben.stock.applayer.promotion.security.SecurityUtil;
 import com.waben.stock.applayer.promotion.util.PoiUtil;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.organization.AgentCapitalManageDto;
+import com.waben.stock.interfaces.enums.OrganizationAccountFlowType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
@@ -76,10 +77,12 @@ public class AgentCapitalManageController {
 	@RequestMapping(value = "/export", method = RequestMethod.GET)
 	@ApiOperation(value = "资金流水及佣金结算导出")
 	@ApiImplicitParam(paramType = "query", dataType = "int", name = "queryType", value = "1 资金流水，2 佣金结算", required = true)
-	public void export(AgentCapitalManageQuery query, Integer queryType, HttpServletResponse svrResponse) {
+	public void export(Integer queryType, HttpServletResponse svrResponse) {
+		AgentCapitalManageQuery query = new AgentCapitalManageQuery();
 		query.setPage(0);
 		query.setSize(Integer.MAX_VALUE);
-		query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
+		// query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
+		query.setCurrentOrgId(SecurityUtil.getUserDetails().getOrgId());
 		PageInfo<AgentCapitalManageDto> result = agentCapitalManageBusiness.pageAgentCapitalManage(query);
 		File file = null;
 		FileInputStream is = null;
@@ -126,14 +129,18 @@ public class AgentCapitalManageController {
 		List<List<String>> result = new ArrayList<>();
 		for (AgentCapitalManageDto trade : content) {
 			List<String> data = new ArrayList<>();
+			String type = "";
+			if (trade.getType() != null) {
+				type = OrganizationAccountFlowType.getByIndex(trade.getType().toString()).getType();
+			}
 			data.add(trade.getFlowNo() == null ? "" : trade.getFlowNo());
 			data.add(trade.getOccurrenceTime() != null ? sdf.format(trade.getOccurrenceTime()) : "");
-			data.add(trade.getType() == null ? "" : trade.getType().getType());
+			data.add(type);
 			data.add(String.valueOf(trade.getAmount() == null ? "" : trade.getAmount()));
 			data.add(String.valueOf(trade.getAvailableBalance() == null ? "" : trade.getAvailableBalance()));
-			data.add(trade.getContractSymbol() == null ? "" : trade.getContractSymbol());
-			data.add(trade.getContractName() == null ? "" : trade.getContractName());
-			data.add(trade.getAgentCode() + "/" + trade.getAgentName());
+			data.add(trade.getCommoditySymbol() == null ? "" : trade.getCommoditySymbol());
+			data.add(trade.getCommodityName() == null ? "" : trade.getCommodityName());
+			data.add(trade.getOrgCode() + "/" + trade.getOrgName());
 			result.add(data);
 		}
 		return result;
@@ -157,17 +164,21 @@ public class AgentCapitalManageController {
 		List<List<String>> result = new ArrayList<>();
 		for (AgentCapitalManageDto trade : content) {
 			List<String> data = new ArrayList<>();
+			String type = "";
+			if (trade.getType() != null) {
+				type = OrganizationAccountFlowType.getByIndex(trade.getType().toString()).getType();
+			}
 			data.add(String.valueOf(trade.getId() == null ? "" : trade.getId()));
 			data.add(trade.getFlowNo() == null ? "" : trade.getFlowNo());
-			data.add(trade.getCustomerName() == null ? "" : trade.getCustomerName());
-			data.add(trade.getCustomerPhone() == null ? "" : trade.getCustomerPhone());
-			data.add(trade.getContractSymbol() == null ? "" : trade.getContractSymbol());
-			data.add(trade.getContractName() == null ? "" : trade.getContractName());
-			data.add(trade.getType() == null ? "" : trade.getType().getType());
+			data.add(trade.getPublisherName() == null ? "" : trade.getPublisherName());
+			data.add(trade.getPublisherPhone() == null ? "" : trade.getPublisherPhone());
+			data.add(trade.getCommoditySymbol() == null ? "" : trade.getCommoditySymbol());
+			data.add(trade.getCommodityName() == null ? "" : trade.getCommodityName());
+			data.add(type);
 			data.add(String.valueOf(trade.getCommission() == null ? "" : trade.getCommission()));
 			data.add(String.valueOf(trade.getAmountRemaid() == null ? "" : trade.getAmountRemaid()));
 			data.add(trade.getOccurrenceTime() != null ? sdf.format(trade.getOccurrenceTime()) : "");
-			data.add(trade.getAgentCode() + "/" + trade.getAgentName());
+			data.add(trade.getOrgCode() + "/" + trade.getOrgName());
 			result.add(data);
 		}
 		return result;
