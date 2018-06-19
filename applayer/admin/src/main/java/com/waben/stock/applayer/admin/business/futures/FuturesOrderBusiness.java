@@ -100,31 +100,41 @@ public class FuturesOrderBusiness {
 
 	private List<Long> queryPublishIds(FuturesTradeAdminQuery query) {
 		List<Long> publisherIds = new ArrayList<Long>();
-		if (query.getPublisherPhone() != null) {
+		if (query.getPublisherPhone() != null && !"".equals(query.getPublisherPhone())) {
 			if (publisherInterface.fetchByPhone(query.getPublisherPhone()).getResult() != null) {
 				String publisherId = publisherInterface.fetchByPhone(query.getPublisherPhone()).getResult().getId()
 						.toString();
-				publisherIds.add(Long.valueOf(publisherId));
+				if (publisherId != null && !"".equals(publisherId)) {
+					publisherIds.add(Long.valueOf(publisherId));
+				} else {
+					return null;
+				}
+			} else {
+				return null;
 			}
 			;
-		}
-
-		if (query.getPublisherName() != null && !"".equals(query.getPublisherName())) {
-			if (publisherIds.size() == 0) {
-				List<RealNameDto> real = realnameInterface.findByName(query.getPublisherName()).getResult();
+		} else if (query.getPublisherName() != null && !"".equals(query.getPublisherName())) {
+			List<RealNameDto> real = realnameInterface.findByName(query.getPublisherName()).getResult();
+			if (real == null || real.size() == 0) {
+				return null;
+			} else {
 				for (RealNameDto realNameDto : real) {
 					publisherIds.add(Long.valueOf(realNameDto.getResourceId().toString()));
 				}
-			} else {
-				publisherIds.clear();
-				publisherIds.add(Long.valueOf("-1"));
 			}
+
 		}
 		return publisherIds;
 	}
 
 	public PageInfo<FutresOrderEntrustDto> pagesOrderEntrust(FuturesTradeAdminQuery query) {
-		query.setPublisherIds(queryPublishIds(query));
+		List<Long> publisherIds = queryPublishIds(query);
+		if(publisherIds==null){
+			return new PageInfo<FutresOrderEntrustDto>();
+		}else{
+			query.setPublisherIds(publisherIds);
+		}
+		
 		Response<PageInfo<FutresOrderEntrustDto>> response = reference.pagesOrderEntrust(query);
 		if (response.getResult() != null && response.getResult().getContent() != null) {
 			if (response.getResult().getContent().size() > 0) {
@@ -150,33 +160,12 @@ public class FuturesOrderBusiness {
 	}
 
 	public PageInfo<FuturesOrderAdminDto> adminPagesByQuery(FuturesTradeAdminQuery query) {
-		List<Long> publisherIds = new ArrayList<Long>();
-		if (query.getPublisherPhone() != null && !"".equals(query.getPublisherPhone())) {
-			if (publisherInterface.fetchByPhone(query.getPublisherPhone()).getResult() != null) {
-				String publisherId = publisherInterface.fetchByPhone(query.getPublisherPhone()).getResult().getId()
-						.toString();
-				if (publisherId != null && !"".equals(publisherId)) {
-					publisherIds.add(Long.valueOf(publisherId));
-				} else {
-					return new PageInfo<FuturesOrderAdminDto>();
-				}
-			} else {
-				return new PageInfo<FuturesOrderAdminDto>();
-			}
-			;
-		} else if (query.getPublisherName() != null && !"".equals(query.getPublisherName())) {
-			List<RealNameDto> real = realnameInterface.findByName(query.getPublisherName()).getResult();
-			if (real == null || real.size() == 0) {
-				return new PageInfo<FuturesOrderAdminDto>();
-			} else {
-				for (RealNameDto realNameDto : real) {
-					publisherIds.add(Long.valueOf(realNameDto.getResourceId().toString()));
-				}
-			}
-
+		List<Long> publisherIds = queryPublishIds(query);
+		if(publisherIds==null){
+			return new PageInfo<FuturesOrderAdminDto>();
+		}else{
+			query.setPublisherIds(publisherIds);
 		}
-
-		query.setPublisherIds(publisherIds);
 		Response<PageInfo<FuturesOrderAdminDto>> response = reference.adminPagesByQuery(query);
 		if (response.getResult() != null) {
 			for (FuturesOrderAdminDto dto : response.getResult().getContent()) {
