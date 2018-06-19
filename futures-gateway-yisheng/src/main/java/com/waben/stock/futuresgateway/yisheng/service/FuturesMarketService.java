@@ -79,6 +79,7 @@ public class FuturesMarketService {
 						JacksonUtil.getGenericType(List.class, BigDecimal.class));
 				List<Long> bidSizeList = JacksonUtil.decode(quote.getBidQty(),
 						JacksonUtil.getGenericType(List.class, Long.class));
+				result.setTime(quote.getTime());
 				result.setAskPrice(askPriceList.get(0).setScale(scale, RoundingMode.HALF_UP));
 				result.setAskSize(askSizeList.get(0));
 				result.setBidPrice(bidPriceList.get(0).setScale(scale, RoundingMode.HALF_UP));

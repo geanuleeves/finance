@@ -1,9 +1,12 @@
 package com.waben.stock.futuresgateway.yisheng.pojo;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 public class FuturesQuoteData {
 
+	/** 时间 */
+	private Date time;
 	/**
 	 * 品种编号
 	 */
@@ -171,6 +174,14 @@ public class FuturesQuoteData {
 
 	public void setTotalVolume(Long totalVolume) {
 		this.totalVolume = totalVolume;
+	}
+
+	public Date getTime() {
+		return time;
+	}
+
+	public void setTime(Date time) {
+		this.time = time;
 	}
 
 }
