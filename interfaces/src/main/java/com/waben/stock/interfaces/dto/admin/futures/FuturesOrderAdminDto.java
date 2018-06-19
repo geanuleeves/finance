@@ -128,6 +128,11 @@ public class FuturesOrderAdminDto {
 	 * 隔夜手续费
 	 */
 	private BigDecimal overnightServiceFee;
+	
+	/**
+	 * 隔夜保证金
+	 */
+	private BigDecimal overnightReserveFund;
 
 	/**
 	 * 触发止盈类型（用户设置）
@@ -353,6 +358,14 @@ public class FuturesOrderAdminDto {
 
 	public void setOvernightServiceFee(BigDecimal overnightServiceFee) {
 		this.overnightServiceFee = overnightServiceFee;
+	}
+
+	public BigDecimal getOvernightReserveFund() {
+		return overnightReserveFund;
+	}
+
+	public void setOvernightReserveFund(BigDecimal overnightReserveFund) {
+		this.overnightReserveFund = overnightReserveFund;
 	}
 
 	public BigDecimal getPerUnitLimitProfitAmount() {
