@@ -61,7 +61,7 @@ public class RetriveFuturesOverHttp {
 		if ("200".equals(responseObj.getCode())) {
 			return responseObj.getResult();
 		} else {
-			throw new RuntimeException("http根据品种编号和合约编号获取合约!" + responseObj.getCode());
+			throw new RuntimeException("http根据品种编号和合约编号获取合约异常!" + responseObj.getCode());
 		}
 	}
 
