@@ -21,7 +21,7 @@ public interface FuturesContractRepository extends Repository<FuturesContract, L
 	void delete(Long id);
 
 	Page<FuturesContract> findAll(Pageable pageable);
-	
+
 	List<FuturesContract> findAll();
 
 	FuturesContract findById(Long id);
@@ -29,5 +29,7 @@ public interface FuturesContractRepository extends Repository<FuturesContract, L
 	FuturesContract findByCommodityNoAndContractNo(String commodityNo, String contractNo);
 
 	List<FuturesContract> findByEnable(Boolean enable);
-	
+
+	List<FuturesContract> findByCommodityNoAndEnable(String commodityNo, boolean enable);
+
 }

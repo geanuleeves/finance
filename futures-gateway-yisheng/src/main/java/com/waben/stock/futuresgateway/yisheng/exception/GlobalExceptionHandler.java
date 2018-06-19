@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.waben.stock.futuresgateway.yisheng.pojo.Response;
 
-@ControllerAdvice(basePackages = { "com.waben.stock.futuresgateway.controller" })
+@ControllerAdvice(basePackages = { "com.waben.stock.futuresgateway.yisheng" })
 public class GlobalExceptionHandler {
 
 	Logger logger = LoggerFactory.getLogger(getClass());

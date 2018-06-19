@@ -63,4 +63,9 @@ public class FuturesContractDaoImpl implements FuturesContractDao {
 		return futuresContractRepository.findByEnable(enable);
 	}
 
+	@Override
+	public List<FuturesContract> retrieveByCommodityNoAndEnable(String commodityNo, boolean enable) {
+		return futuresContractRepository.findByCommodityNoAndEnable(commodityNo, enable);
+	}
+
 }
