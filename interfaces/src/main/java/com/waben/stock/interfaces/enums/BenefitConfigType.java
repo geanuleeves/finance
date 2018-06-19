@@ -12,11 +12,17 @@ import java.util.Map;
 public enum BenefitConfigType implements CommonalityEnum {
 
 	ServiceFee("1", "服务费分成配置"),
-	
+
 	DeferredFee("2", "递延费分成配置"),
-	
-	RightMoney("3", "权利金收益分成配置");
-	
+
+	RightMoney("3", "权利金收益分成配置"),
+
+	FuturesOpeningFee("4", "期货开仓分成配置"),
+
+	FuturesCloseFee("5", "期货平仓分成配置"),
+
+	FuturesDeferredFee("6", "期货递延分成配置");
+
 	private String index;
 	private String type;
 

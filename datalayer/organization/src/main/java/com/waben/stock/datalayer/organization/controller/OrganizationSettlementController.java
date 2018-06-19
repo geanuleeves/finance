@@ -51,4 +51,13 @@ public class OrganizationSettlementController implements OrganizationSettlementI
 		return response;
 	}
 
+	@Override
+	public Response<String> futuresSettlement(@PathVariable Long publisherId, @PathVariable Long futuresOrderId,
+			@PathVariable String tradeNo, @PathVariable Long futuresId, @PathVariable BigDecimal openingFee,
+			@PathVariable BigDecimal closeFee, @PathVariable BigDecimal deferredFee) {
+		logger.info("期货代理商结算交易{}，期货类型{}，开仓手续费{}，平仓手续费{}，递延费{}!", futuresOrderId, futuresId, openingFee, closeFee,
+				deferredFee);
+		return null;
+	}
+
 }

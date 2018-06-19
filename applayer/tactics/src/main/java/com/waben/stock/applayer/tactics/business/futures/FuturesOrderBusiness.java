@@ -216,7 +216,7 @@ public class FuturesOrderBusiness {
 					orderMarket.setMinWave(contract.getMinWave());
 					orderMarket.setLastPrice(market.getLastPrice());
 					// 用户盈亏 = （最新价 - 买入价） / 最小波动点 * 波动一次盈亏金额 * 汇率
-					orderMarket.setFloatingProfitOrLoss(
+					orderMarket.setPublisherProfitOrLoss(
 							market.getLastPrice().subtract(buyingPrice).divide(contract.getMinWave())
 									.multiply(contract.getPerWaveMoney()).multiply(rate.getRate()));
 				}
@@ -299,6 +299,7 @@ public class FuturesOrderBusiness {
 								: positionOrder.getTotalQuantity().intValue()) + "手");
 					}
 					position.setContractId(positionOrder.getContractId());
+					position.setContractNo(positionOrder.getContractNo());
 					position.setContractName(positionOrder.getCommodityName());
 					position.setContractSymbol(positionOrder.getCommoditySymbol());
 					position.setPublisherId(positionOrder.getPublisherId());
