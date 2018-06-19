@@ -144,8 +144,8 @@ public class FuturesContractBusiness {
 					throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
 				}
 
-				OrganizationPublisherDto publisher = fetchOrgPublisher(SecurityUtil.getUserDetails().getUserId());
-				if (publisher != null) {
+				// OrganizationPublisherDto publisher = fetchOrgPublisher(SecurityUtil.getUserDetails().getUserId());
+				// if (publisher != null) {
 					// FuturesAgentPriceDto agentPrice =
 					// getCurrentAgentPrice(publisher.getOrgId(),
 					// contractDto.getId());
@@ -155,7 +155,7 @@ public class FuturesContractBusiness {
 					// contractDto.setUnwindServiceFee(agentPrice.getSaleUnwindServiceFee());
 					// contractDto.setOvernightPerUnitDeferredFee(agentPrice.getSaleDeferredFee());
 					// }
-				}
+				// }
 			}
 
 			return contractDto;
