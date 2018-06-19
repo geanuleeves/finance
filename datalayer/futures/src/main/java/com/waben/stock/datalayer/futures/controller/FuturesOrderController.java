@@ -58,8 +58,9 @@ public class FuturesOrderController implements FuturesOrderInterface {
 
 	@Override
 	public Response<Integer> sumByListOrderContractIdAndPublisherId(@PathVariable Long contractId,
-			@PathVariable Long publisherId) {
-		return new Response<>(futuresOrderService.sumByListOrderContractIdAndPublisherId(contractId, publisherId));
+			@PathVariable Long publisherId, Integer type) {
+		return new Response<>(
+				futuresOrderService.sumByListOrderContractIdAndPublisherId(contractId, publisherId, type));
 	}
 
 	@Override

@@ -37,6 +37,17 @@ public class FuturesContractDto extends FuturesCommodityDto {
 	@ApiModelProperty(value = "该合约总计的可使用的额度（手）")
 	private BigDecimal userTotalLimit;
 	/**
+	 * 买涨持仓总额度
+	 */
+	@ApiModelProperty(value = "买涨持仓总额度")
+	private BigDecimal buyUpTotalLimit;
+
+	/**
+	 * 买跌持仓总额度
+	 */
+	@ApiModelProperty(value = "买跌持仓总额度")
+	private BigDecimal buyFullTotalLimit;
+	/**
 	 * 单笔订单额度限制（手）
 	 */
 	@ApiModelProperty(value = "单笔订单额度限制（手）")
@@ -348,6 +359,22 @@ public class FuturesContractDto extends FuturesCommodityDto {
 
 	public void setCommodityId(Long commodityId) {
 		this.commodityId = commodityId;
+	}
+
+	public BigDecimal getBuyUpTotalLimit() {
+		return buyUpTotalLimit;
+	}
+
+	public void setBuyUpTotalLimit(BigDecimal buyUpTotalLimit) {
+		this.buyUpTotalLimit = buyUpTotalLimit;
+	}
+
+	public BigDecimal getBuyFullTotalLimit() {
+		return buyFullTotalLimit;
+	}
+
+	public void setBuyFullTotalLimit(BigDecimal buyFullTotalLimit) {
+		this.buyFullTotalLimit = buyFullTotalLimit;
 	}
 
 }

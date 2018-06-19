@@ -60,9 +60,9 @@ public class FuturesOrderBusiness {
 	@Autowired
 	private AnalogDataBusiness analogDataBusiness;
 
-	public Integer sumUserNum(Long contractId, Long publisherId) {
+	public Integer sumUserNum(Long contractId, Long publisherId, Integer type) {
 		Response<Integer> response = futuresOrderInterface.sumByListOrderContractIdAndPublisherId(contractId,
-				publisherId);
+				publisherId, type);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}
@@ -216,9 +216,11 @@ public class FuturesOrderBusiness {
 					orderMarket.setMinWave(contract.getMinWave());
 					orderMarket.setLastPrice(market.getLastPrice());
 					// 用户盈亏 = （最新价 - 买入价） / 最小波动点 * 波动一次盈亏金额 * 汇率
-					orderMarket.setPublisherProfitOrLoss(
-							market.getLastPrice().subtract(buyingPrice).divide(contract.getMinWave())
-									.multiply(contract.getPerWaveMoney()).multiply(rate.getRate()));
+					if (orderMarket.getPublisherProfitOrLoss() == null) {
+						orderMarket.setPublisherProfitOrLoss(
+								market.getLastPrice().subtract(buyingPrice).divide(contract.getMinWave())
+										.multiply(contract.getPerWaveMoney()).multiply(rate.getRate()));
+					}
 				}
 
 			}

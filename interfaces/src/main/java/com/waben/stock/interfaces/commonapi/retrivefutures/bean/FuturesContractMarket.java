@@ -2,6 +2,7 @@ package com.waben.stock.interfaces.commonapi.retrivefutures.bean;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -18,6 +19,9 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(description = "期货合约行情")
 public class FuturesContractMarket {
 
+	/** 时间 */
+	@ApiModelProperty(value = "时间")
+	private Date time;
 	/**
 	 * 品种编号
 	 */
@@ -231,6 +235,14 @@ public class FuturesContractMarket {
 			return lastPrice.subtract(closePrice).divide(closePrice, 4, RoundingMode.DOWN);
 		}
 		return upDropSpeed;
+	}
+
+	public Date getTime() {
+		return time;
+	}
+
+	public void setTime(Date time) {
+		this.time = time;
 	}
 
 }

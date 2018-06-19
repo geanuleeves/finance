@@ -1,15 +1,12 @@
 package com.waben.stock.datalayer.futures.repository.impl.jpa;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
-import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 
@@ -24,9 +21,8 @@ public interface FuturesOrderRepository extends CustomJpaRepository<FuturesOrder
 	@Query(value = "SELECT count(*) FROM f_futures_order o LEFT JOIN f_futures_contract c ON o.contract_id = c.id  where c.id=?1 and o.order_type = ?2", nativeQuery = true)
 	Integer countOrderByType(Long contractId, FuturesOrderType orderType);
 
-	@Query(value = "SELECT IF(SUM(s.num) IS NULL,0,SUM(s.num)) AS  user_num FROM ("
-			+ "SELECT IF(f.order_type = 1,f.total_quantity,-f.total_quantity) as num FROM f_futures_order f where f.state in(2,4,5,6,7,8) AND f.publisher_id= ?2 AND f.contract_id = ?1) s", nativeQuery = true)
-	Integer sumByListOrderContractIdAndPublisherId(Long contractId, Long publisherId);
+	@Query(value = "SELECT SUM(IF(t1.order_type=1,t2.buy_up_total_limit,t2.buy_full_total_limit)) AS user_num FROM  f_futures_order t1 LEFT JOIN f_futures_contract t2 ON t2.id = t1.contract_id where t1.state in(2, 4, 5, 6, 7, 8) AND t1.publisher_id= ?2 AND t1.contract_id = ?1 AND t1.order_type =?3", nativeQuery = true)
+	Integer sumByListOrderContractIdAndPublisherId(Long contractId, Long publisherId, Integer type);
 
 	@Query(value = "select * from f_futures_order where contract_term_id in ?1 and state != '8'", nativeQuery = true)
 	List<FuturesOrder> findByContractTermId(@PathVariable("contractTermId") List<Long> contractTermId);

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.future.api.es.external.common.bean.TapAPICommodity;
 import com.future.api.es.external.common.bean.TapAPIExchangeInfo;
 import com.future.api.es.external.trade.TradeApi;
 import com.future.api.es.external.trade.bean.TapAPIAccountInfo;
@@ -18,6 +19,7 @@ import com.future.api.es.external.trade.bean.TapAPIOrderActionRsp;
 import com.future.api.es.external.trade.bean.TapAPIOrderInfo;
 import com.future.api.es.external.trade.bean.TapAPIOrderInfoNotice;
 import com.future.api.es.external.trade.bean.TapAPIPositionProfitNotice;
+import com.future.api.es.external.trade.bean.TapAPITradeContractInfo;
 import com.future.api.es.external.trade.bean.TapAPITradeLoginAuth;
 import com.future.api.es.external.trade.bean.TapAPITradeLoginRspInfo;
 import com.future.api.es.external.trade.listener.TradeApiAdapter;
@@ -115,6 +117,8 @@ public class EsTradeWrapper extends TradeApiAdapter {
 	 * 就绪后才可以进行后续正常操作
 	 */
 	public void onAPIReady() {
+		// api连接成功后，查询所有品种
+		api.qryCommodity();
 	}
 
 	/**
@@ -245,6 +249,18 @@ public class EsTradeWrapper extends TradeApiAdapter {
 	 *            指向返回的信息结构体。当errorCode不为0时，info为空。
 	 */
 	public void onRspQryCommodity(int sessionID, int errorCode, boolean isLast, TapAPICommodityInfo infoBytes) {
+		if (infoBytes.getCommodityType() == 'F'
+				&& EsEngine.testCommodityExchangeMap.containsKey(infoBytes.getCommodityNo())) {
+			TapAPICommodity commodity = new TapAPICommodity();
+			commodity.setCommodityNo(infoBytes.getCommodityNo());
+			commodity.setExchangeNo(infoBytes.getExchangeNo());
+			commodity.setCommodityType(infoBytes.getCommodityType());
+			api.qryContract(commodity);
+		}
+	}
+
+	public void onRspQryContract(int sessionID, int errorCode, boolean isLast, TapAPITradeContractInfo info) {
+		rabbitmqProducer.sendMessage(RabbitmqConfiguration.tradeContractQueueName, info);
 	}
 
 	/**

@@ -30,7 +30,7 @@ public interface FuturesOrderDao extends BaseDao<FuturesOrder, Long> {
 	 *            用户ID
 	 * @return 合约总数
 	 */
-	Integer sumByListOrderContractIdAndPublisherId(Long contractId, Long publisherId);
+	Integer sumByListOrderContractIdAndPublisherId(Long contractId, Long publisherId, Integer type);
 
 	/**
 	 * 判断合约期限是否在订单中使用

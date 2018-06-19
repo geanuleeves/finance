@@ -207,21 +207,6 @@ public class FuturesContractController implements FuturesContractInterface {
 		return tradeTime;
 	}
 
-	/*
-	 * private String retriveTradeTimeStrDesc(Integer timeZoneGap,
-	 * FuturesContractDto contract, Date date) { Calendar cal =
-	 * Calendar.getInstance(); cal.setTime(date); int week =
-	 * cal.get(Calendar.DAY_OF_WEEK); String tradeTimeDesc = null; if (week ==
-	 * 1) { tradeTimeDesc = contract.getSunTradeTimeDesc(); } else if (week ==
-	 * 2) { tradeTimeDesc = contract.getMonTradeTimeDesc(); } else if (week ==
-	 * 3) { tradeTimeDesc = contract.getTueTradeTimeDesc(); } else if (week ==
-	 * 4) { tradeTimeDesc = contract.getWedTradeTimeDesc(); } else if (week ==
-	 * 5) { tradeTimeDesc = contract.getThuTradeTimeDesc(); } else if (week ==
-	 * 6) { tradeTimeDesc = contract.getFriTradeTimeDesc(); } else if (week ==
-	 * 7) { tradeTimeDesc = contract.getSatTradeTimeDesc(); } return
-	 * tradeTimeDesc; }
-	 */
-
 	private String getNextTradingTime(Date localTime, FuturesContractDto contract) {
 		String nextTime = null;
 		Calendar cal = Calendar.getInstance();

@@ -1,6 +1,8 @@
 package com.waben.stock.futuresgateway.yisheng.esapi;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,6 +26,20 @@ public class EsEngine {
 	@Autowired
 	private EsTradeWrapper tradeWrapper;
 
+	public static Map<String, String> testCommodityExchangeMap = new HashMap<String, String>();
+	static {
+		testCommodityExchangeMap.put("BP", "CME");
+		testCommodityExchangeMap.put("CD", "CME");
+		testCommodityExchangeMap.put("NQ", "CME");
+		testCommodityExchangeMap.put("GC", "COMEX");
+		testCommodityExchangeMap.put("HG", "COMEX");
+		testCommodityExchangeMap.put("SI", "COMEX");
+		testCommodityExchangeMap.put("HSI", "HKEX");
+		testCommodityExchangeMap.put("MHI", "HKEX");
+		testCommodityExchangeMap.put("CL", "NYMEX");
+		testCommodityExchangeMap.put("CN", "SGX");
+	}
+
 	public int qryContract(TapAPICommodity commodity) {
 		return quoteWrapper.getApi().qryContract(commodity);
 	}
@@ -41,8 +57,8 @@ public class EsEngine {
 		TapAPINewOrder order = new TapAPINewOrder();
 		order.setAccountNo(tradeWrapper.getTradeUsername());
 		// TODO 测试账号先使用纽交所
-		if ("TAIFEX".equals(commodity.getExchangeNo())) {
-			order.setExchangeNo("COMEX");
+		if (testCommodityExchangeMap.containsKey(commodity.getCommodityNo())) {
+			order.setExchangeNo(testCommodityExchangeMap.get(commodity.getCommodityNo()));
 		} else {
 			order.setExchangeNo(commodity.getExchangeNo());
 		}
