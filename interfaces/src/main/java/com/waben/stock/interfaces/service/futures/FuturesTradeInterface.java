@@ -22,7 +22,6 @@ import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuer
 @FeignClient(name = "futures", path = "futuresTrade", qualifier = "futuresTradeInterface")
 public interface FuturesTradeInterface {
 
-	
 	/**
 	 * 分页查询期货订单（管理后台）
 	 * 
@@ -32,10 +31,13 @@ public interface FuturesTradeInterface {
 	 */
 	@RequestMapping(value = "/adminpages", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	Response<PageInfo<FuturesOrderAdminDto>> adminPagesByQuery(@RequestBody FuturesTradeAdminQuery query);
-	
+
 	@RequestMapping(value = "/pagesOrderEntrust", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	Response<PageInfo<FutresOrderEntrustDto>> pagesOrderEntrust(@RequestBody FuturesTradeAdminQuery query);
-	
+
 	@RequestMapping(value = "/countOrderState", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	Response<Object[]> countOrderState(@RequestParam(name = "state") String state);
+
+	@RequestMapping(value = "/getSUMOrder", method = RequestMethod.GET)
+	Response<FuturesOrderCountDto> getSUMOrder(@RequestParam(name = "state") String state);
 }

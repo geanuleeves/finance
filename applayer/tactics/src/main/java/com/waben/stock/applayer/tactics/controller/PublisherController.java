@@ -40,6 +40,7 @@ import com.waben.stock.interfaces.enums.ResourceType;
 import com.waben.stock.interfaces.enums.SmsType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.util.PasswordCrypt;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -210,7 +211,7 @@ public class PublisherController {
 	public Response<PublisherCapitalAccountDto> resetPassword(String oldPassword, String newPassword) {
 		// 验证原始密码是否正确
 		PublisherDto publisher = publisherBusiness.findById(SecurityUtil.getUserId());
-		if (!oldPassword.equals(publisher.getPassword())) {
+		if (!PasswordCrypt.match(oldPassword, publisher.getPassword())) {
 			throw new ServiceException(ExceptionConstant.ORIGINAL_PASSWORD_MISMATCH_EXCEPTION);
 		}
 		// 修改密码

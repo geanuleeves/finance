@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesExchange;
 import com.waben.stock.datalayer.futures.service.FuturesCommodityService;
-import com.waben.stock.datalayer.futures.service.FuturesContractService;
 import com.waben.stock.datalayer.futures.service.FuturesExchangeService;
 import com.waben.stock.interfaces.dto.futures.FuturesExchangeDto;
 import com.waben.stock.interfaces.pojo.Response;
@@ -32,9 +31,6 @@ public class FuturesExchangeController implements FuturesExchangeInterface {
 	@Autowired
 	private FuturesExchangeService exchangeService;
 
-	@Autowired
-	private FuturesContractService contractService;
-	
 	@Autowired
 	private FuturesCommodityService commodityService;
 
@@ -66,12 +62,12 @@ public class FuturesExchangeController implements FuturesExchangeInterface {
 	@Override
 	public Response<String> deleteExchange(@PathVariable Long id) {
 		Response<String> res = new Response<String>();
-		
+
 		List<FuturesCommodity> list = exchangeService.findByExchangId(id);
 		for (FuturesCommodity futures : list) {
 			commodityService.delete(futures.getId());
 		}
-		
+
 		exchangeService.deleteExchange(id);
 		res.setMessage("删除成功");
 		res.setResult(null);

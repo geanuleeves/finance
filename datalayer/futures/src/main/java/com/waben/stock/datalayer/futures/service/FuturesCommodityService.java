@@ -1,6 +1,7 @@
 package com.waben.stock.datalayer.futures.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -80,6 +81,8 @@ public class FuturesCommodityService {
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
+				
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("createTime").as(Date.class)));
 
 				return criteriaQuery.getRestriction();
 			}

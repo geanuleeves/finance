@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.waben.stock.applayer.tactics.dto.futures.FuturesContractQuotationDto;
-import com.waben.stock.applayer.tactics.security.SecurityUtil;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
@@ -143,19 +142,16 @@ public class FuturesContractBusiness {
 					// 该合约不在交易中
 					throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
 				}
-
-				// OrganizationPublisherDto publisher = fetchOrgPublisher(SecurityUtil.getUserDetails().getUserId());
-				// if (publisher != null) {
-					// FuturesAgentPriceDto agentPrice =
-					// getCurrentAgentPrice(publisher.getOrgId(),
-					// contractDto.getId());
-					// if (agentPrice != null) {
-					// contractDto.setPerUnitReserveFund(agentPrice.getCostReserveFund());
-					// contractDto.setOpenwindServiceFee(agentPrice.getSaleOpenwindServiceFee());
-					// contractDto.setUnwindServiceFee(agentPrice.getSaleUnwindServiceFee());
-					// contractDto.setOvernightPerUnitDeferredFee(agentPrice.getSaleDeferredFee());
-					// }
-				// }
+				/*OrganizationPublisherDto publisher = fetchOrgPublisher(SecurityUtil.getUserDetails().getUserId());
+				if (publisher != null) {
+					FuturesAgentPriceDto agentPrice = getCurrentAgentPrice(publisher.getOrgId(), contractDto.getId());
+					if (agentPrice != null) {
+						contractDto.setPerUnitReserveFund(agentPrice.getCostReserveFund());
+						contractDto.setOpenwindServiceFee(agentPrice.getSaleOpenwindServiceFee());
+						contractDto.setUnwindServiceFee(agentPrice.getSaleUnwindServiceFee());
+						contractDto.setOvernightPerUnitDeferredFee(agentPrice.getSaleDeferredFee());
+					}
+				}*/
 			}
 
 			return contractDto;

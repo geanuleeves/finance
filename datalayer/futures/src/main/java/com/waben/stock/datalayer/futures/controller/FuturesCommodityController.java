@@ -27,6 +27,7 @@ import com.waben.stock.interfaces.dto.admin.futures.FuturesCommodityAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesPreQuantityDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeTimeDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
+import com.waben.stock.interfaces.enums.FuturesProductType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
@@ -117,17 +118,36 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 
 	@Override
 	public Response<FuturesCommodityAdminDto> modify(@RequestBody FuturesCommodityAdminDto dto) {
-		FuturesProductTypeConverter converter = new FuturesProductTypeConverter();
-
-		FuturesCommodity commodity = CopyBeanUtils.copyBeanProperties(FuturesCommodity.class, dto, false);
-
+		FuturesCommodity oldCommodity = commodityService.retrieve(dto.getId());
 		FuturesExchange exchange = exchangeService.findById(dto.getExchangeId());
-		commodity.setExchange(exchange);
-		commodity.setEnable(false);
-		commodity.setUpdateTime(new Date());
-		commodity.setProductType(converter.convertToEntityAttribute(Integer.valueOf(dto.getProductType())));
-		commodity.setCreateTime(new Date());
-		FuturesCommodity result = commodityService.modify(commodity);
+		oldCommodity.setExchange(exchange);
+		oldCommodity.setUpdateTime(new Date());
+		oldCommodity.setProductType(FuturesProductType.getByIndex(dto.getProductType()));
+		oldCommodity.setCreateTime(new Date());
+		oldCommodity.setEnable(dto.getEnable());
+
+		oldCommodity.setContractDesc(dto.getContractDesc());
+		oldCommodity.setCordon(dto.getCordon());
+		oldCommodity.setSymbol(dto.getSymbol());
+		oldCommodity.setName(dto.getName());
+		oldCommodity.setCurrency(dto.getCurrency());
+		oldCommodity.setQutoteUnit(dto.getQutoteUnit());
+		oldCommodity.setTradeUnit(dto.getTradeUnit());
+		oldCommodity.setMinWave(dto.getMinWave());
+		oldCommodity.setPerWaveMoney(dto.getPerWaveMoney());
+		oldCommodity.setPerUnitReserveFund(dto.getPerUnitReserveFund());
+		oldCommodity.setPerUnitUnwindPoint(dto.getPerUnitUnwindPoint());
+		oldCommodity.setUnwindPointType(dto.getUnwindPointType());
+		oldCommodity.setOpenwindServiceFee(dto.getOpenwindServiceFee());
+		oldCommodity.setUnwindServiceFee(dto.getUnwindServiceFee());
+		oldCommodity.setOvernightTime(dto.getOvernightTime());
+		oldCommodity.setReturnOvernightReserveFundTime(dto.getReturnOvernightReserveFundTime());
+		oldCommodity.setIcon(dto.getIcon());
+		oldCommodity.setOvernightPerUnitReserveFund(dto.getOvernightPerUnitReserveFund());
+		oldCommodity.setOvernightPerUnitDeferredFee(dto.getOvernightPerUnitDeferredFee());
+		oldCommodity.setPerContractValue(dto.getPerContractValue());
+
+		FuturesCommodity result = commodityService.modify(oldCommodity);
 		FuturesCommodityAdminDto response = CopyBeanUtils.copyBeanProperties(result, new FuturesCommodityAdminDto(),
 				false);
 
@@ -211,7 +231,7 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 	@Override
 	public Response<String> isCurrency(@PathVariable("id") Long id) {
 		FuturesCommodity commodity = commodityService.retrieve(id);
-		boolean isCurrency = commodity.getEnable();
+		boolean isCurrency = commodity.getEnable() == null ? false : commodity.getEnable();
 		List<FuturesContract> list = contractService.findByCommodity(commodity.getId());
 		if (!isCurrency) {
 			for (FuturesContract contract : list) {

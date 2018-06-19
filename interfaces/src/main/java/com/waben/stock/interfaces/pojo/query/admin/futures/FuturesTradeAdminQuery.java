@@ -13,44 +13,48 @@ public class FuturesTradeAdminQuery extends PageAndSortQuery {
 	 * </p>
 	 */
 	private String publisherName;
-	
+
 	/**
 	 * 发布人手机号
 	 */
 	private String publisherPhone;
-	
+
 	/**
 	 * 合约代码
 	 */
 	private String symbol;
-	
+
 	/**
 	 * 合约名称
 	 */
 	private String name;
-	
+
 	/**
 	 * 订单/委托编号
 	 */
 	private String tradeNo;
-	
+
 	/**
 	 * 交易方向
 	 */
 	private String orderType;
-	
+
 	/**
 	 * 订单状态
 	 */
 	private String orderState;
-	
+
 	private String treeCode;
-	
+
 	private Long orgId;
-	
-	
+
+	/**
+	 * 定单类型，1、市价，2、限价
+	 */
+	private String priceType;
+
 	private List<Long> publisherIds;
-	
+
 	public String getPublisherName() {
 		return publisherName;
 	}
@@ -58,7 +62,6 @@ public class FuturesTradeAdminQuery extends PageAndSortQuery {
 	public void setPublisherName(String publisherName) {
 		this.publisherName = publisherName;
 	}
-
 
 	public String getPublisherPhone() {
 		return publisherPhone;
@@ -128,7 +131,7 @@ public class FuturesTradeAdminQuery extends PageAndSortQuery {
 	 * 风控类型
 	 */
 	private String windControlType;
-	
+
 	/**
 	 * 查询类型
 	 * <ul>
@@ -163,4 +166,13 @@ public class FuturesTradeAdminQuery extends PageAndSortQuery {
 	public void setOrgId(Long orgId) {
 		this.orgId = orgId;
 	}
+
+	public String getPriceType() {
+		return priceType;
+	}
+
+	public void setPriceType(String priceType) {
+		this.priceType = priceType;
+	}
+
 }

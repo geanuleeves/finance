@@ -145,6 +145,25 @@ public class OrganizationAccountFlowWithTradeInfoDto {
 	 */
 	private String sTradeNo;
 
+	/**
+	 * 合约代码
+	 */
+	private String commoditySymbol;
+	/**
+	 * 产品名称
+	 */
+	private String commodityName;
+
+	/**
+	 * 交易佣金
+	 */
+	private BigDecimal commission;
+
+	/**
+	 * 返佣金额
+	 */
+	private BigDecimal amountRemaid;
+
 	public Long getId() {
 		return id;
 	}
@@ -445,6 +464,38 @@ public class OrganizationAccountFlowWithTradeInfoDto {
 
 	public void setAvailableBalance(BigDecimal availableBalance) {
 		this.availableBalance = availableBalance;
+	}
+
+	public String getCommoditySymbol() {
+		return commoditySymbol;
+	}
+
+	public void setCommoditySymbol(String commoditySymbol) {
+		this.commoditySymbol = commoditySymbol;
+	}
+
+	public String getCommodityName() {
+		return commodityName;
+	}
+
+	public void setCommodityName(String commodityName) {
+		this.commodityName = commodityName;
+	}
+
+	public BigDecimal getCommission() {
+		return commission;
+	}
+
+	public void setCommission(BigDecimal commission) {
+		this.commission = commission;
+	}
+
+	public BigDecimal getAmountRemaid() {
+		return amountRemaid;
+	}
+
+	public void setAmountRemaid(BigDecimal amountRemaid) {
+		this.amountRemaid = amountRemaid;
 	}
 
 }
