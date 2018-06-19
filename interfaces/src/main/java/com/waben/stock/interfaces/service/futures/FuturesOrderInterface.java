@@ -118,11 +118,13 @@ public interface FuturesOrderInterface {
 	 *            合约ID
 	 * @param publisherId
 	 *            用户ID
+	 * @param type
+	 *            1：买涨，2：买跌
 	 * @return 合约总数
 	 */
 	@RequestMapping(value = "/sum/{contractId}/{publisherId}", method = RequestMethod.GET)
 	Response<Integer> sumByListOrderContractIdAndPublisherId(@PathVariable(name = "contractId") Long contractId,
-			@PathVariable(name = "publisherId") Long publisherId);
+			@PathVariable(name = "publisherId") Long publisherId, @RequestParam(name = "type") Integer type);
 
 	/**
 	 * 设置止盈止损

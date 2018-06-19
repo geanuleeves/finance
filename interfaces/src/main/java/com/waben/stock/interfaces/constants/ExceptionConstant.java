@@ -325,4 +325,8 @@ public class ExceptionConstant {
 	public static final String MAXIMUM_CAPACITY_USER_EMPTY_EXCEPTION = "13031";
 	// 用户单笔最大可交易数量为空
 	public static final String USER_SINGLE_MAXIMUM_CAPACITY_USER_EMPTY_EXCEPTION = "13032";
+	// 买涨持仓总额度已达上限
+	public static final String TOTAL_AMOUNT_BUYUP_CAPACITY_INSUFFICIENT_EXCEPTION = "13033";
+	// 买跌持仓总额度已达上限
+	public static final String TOTAL_AMOUNT_BUYFULL_CAPACITY_INSUFFICIENT_EXCEPTION = "13034";
 }

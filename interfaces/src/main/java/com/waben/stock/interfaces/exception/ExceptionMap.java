@@ -184,5 +184,8 @@ public class ExceptionMap {
 		exceptionMap.put(ExceptionConstant.MAXIMUM_CAPACITY_USER_EMPTY_EXCEPTION, "用户最大可持仓量为空");
 		exceptionMap.put(ExceptionConstant.USER_SINGLE_MAXIMUM_CAPACITY_USER_EMPTY_EXCEPTION, "用户单笔最大可交易数量为空");
 
+		exceptionMap.put(ExceptionConstant.TOTAL_AMOUNT_BUYUP_CAPACITY_INSUFFICIENT_EXCEPTION, "买涨持仓总额度已达上限");
+		exceptionMap.put(ExceptionConstant.TOTAL_AMOUNT_BUYFULL_CAPACITY_INSUFFICIENT_EXCEPTION, "买跌持仓总额度已达上限");
+
 	}
 }

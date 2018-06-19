@@ -89,42 +89,19 @@ public class FuturesOrderController {
 		query.setContractId(buysellDto.getContractId());
 		// 判断该合约是否可用是否在交易中、网关是否支持该合约、合约交易所是否可用、以及是否在交易时间内
 		FuturesContractDto contractDto = futuresContractBusiness.getContractByOne(query);
-
-		// TODO 检查期货网关是否支持该合约
-
 		// 用户单笔最大可交易数量
 		BigDecimal perNum = contractDto.getPerOrderLimit();
-		if (perNum == null) {
-			// 用户单笔最大可交易数量为空
-			throw new ServiceException(ExceptionConstant.USER_SINGLE_MAXIMUM_CAPACITY_USER_EMPTY_EXCEPTION);
-		}
 		// 用户最大可持仓量
 		BigDecimal userMaxNum = contractDto.getUserTotalLimit();
-		if (userMaxNum == null) {
-			// 用户最大可持仓量为空
-			throw new ServiceException(ExceptionConstant.MAXIMUM_CAPACITY_USER_EMPTY_EXCEPTION);
-		}
-		// 用户持仓总数量
-		// TODO 查询方法有误
-		Integer sumUser = futuresOrderBusiness.sumUserNum(buysellDto.getContractId(), SecurityUtil.getUserId());
-		BigDecimal sumUserNum = sumUser == null ? new BigDecimal(0) : new BigDecimal(sumUser).abs();
-		// 当前用户单笔持仓数量
-		BigDecimal userNum = buysellDto.getTotalQuantity();
-		// 用户已持仓量 + 当前买入持仓量
-		BigDecimal sumTotal = sumUserNum.add(buysellDto.getTotalQuantity());
+		// 用户买涨持仓总额度
+		Integer buyUp = futuresOrderBusiness.sumUserNum(buysellDto.getContractId(), SecurityUtil.getUserId(), 1);
+		BigDecimal buyUpNum = buyUp == null ? new BigDecimal(0) : new BigDecimal(buyUp).abs();
+		// 用户买跌持仓总额度
+		Integer buyFull = futuresOrderBusiness.sumUserNum(buysellDto.getContractId(), SecurityUtil.getUserId(), 2);
+		BigDecimal buyFullNum = buyFull == null ? new BigDecimal(0) : new BigDecimal(buyFull).abs();
 
-		if (userNum.compareTo(perNum) > 0) {
-			// 单笔交易数量过大
-			throw new ServiceException(ExceptionConstant.SINGLE_TRANSACTION_QUANTITY_EXCEPTION);
-		}
-		if (perNum.compareTo(userMaxNum) > 0) {
-			// 交易数量大于用户持仓总量
-			throw new ServiceException(ExceptionConstant.CONTRACT_HOLDING_CAPACITY_INSUFFICIENT_EXCEPTION);
-		}
-		if (sumUserNum.abs().compareTo(userMaxNum) > 0 || sumTotal.compareTo(userMaxNum) > 0) {
-			// 该用户持仓量已达上限
-			throw new ServiceException(ExceptionConstant.UPPER_LIMIT_HOLDING_CAPACITY_EXCEPTION);
-		}
+		// 判断当前下单手数是否满足条件
+		checkBuyUpAndFullSUM(buyUpNum, buyFullNum, perNum, userMaxNum, buysellDto, contractDto);
 
 		// 总金额
 		BigDecimal totalFee = new BigDecimal(0);
@@ -132,10 +109,8 @@ public class FuturesOrderController {
 		BigDecimal reserveAmount = contractDto.getPerUnitReserveFund().multiply(buysellDto.getTotalQuantity());
 		// 开仓手续费 + 平仓手续费
 		BigDecimal openUnwin = contractDto.getOpenwindServiceFee().add(contractDto.getUnwindServiceFee());
-
 		// 交易综合费 = (开仓手续费 + 平仓手续费)* 交易持仓数
 		BigDecimal comprehensiveAmount = openUnwin.multiply(buysellDto.getTotalQuantity());
-
 		// 总金额 = 保证金金额 + 交易综合费
 		totalFee = reserveAmount.add(comprehensiveAmount);
 
@@ -592,6 +567,59 @@ public class FuturesOrderController {
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		return cal.getTime();
+	}
+
+	/**
+	 * 判断当前下单手数是否满足条件
+	 * 
+	 * @param buyUpNum
+	 *            买涨数量
+	 * @param buyFullNum
+	 *            买跌数量
+	 * @param perNum
+	 *            用户单笔最大可交易数量
+	 * @param userMaxNum
+	 *            用户最大可持仓量
+	 * @param buysellDto
+	 *            当前订单详情
+	 * @param buysellDto
+	 *            当前合约详情
+	 */
+	public void checkBuyUpAndFullSUM(BigDecimal buyUpNum, BigDecimal buyFullNum, BigDecimal perNum,
+			BigDecimal userMaxNum, FuturesOrderBuysellDto buysellDto, FuturesContractDto contractDto) {
+		// 当前用户单笔持仓数量
+		BigDecimal userNum = buysellDto.getTotalQuantity();
+		BigDecimal buyUpTotal = buyUpNum.add(buysellDto.getTotalQuantity());
+		BigDecimal buyFullTotal = buyFullNum.add(buysellDto.getTotalQuantity());
+
+		if (buyUpTotal.compareTo(contractDto.getBuyUpTotalLimit()) > 0) {
+			// 买涨持仓总额度已达上限
+			throw new ServiceException(ExceptionConstant.TOTAL_AMOUNT_BUYUP_CAPACITY_INSUFFICIENT_EXCEPTION);
+		}
+		if (buyFullTotal.compareTo(contractDto.getBuyFullTotalLimit()) > 0) {
+			// 买跌持仓总额度已达上限
+			throw new ServiceException(ExceptionConstant.TOTAL_AMOUNT_BUYFULL_CAPACITY_INSUFFICIENT_EXCEPTION);
+		}
+		if (perNum != null) {
+			if (userNum.compareTo(perNum) > 0) {
+				// 单笔交易数量过大
+				throw new ServiceException(ExceptionConstant.SINGLE_TRANSACTION_QUANTITY_EXCEPTION);
+			}
+		}
+		if (userMaxNum != null) {
+			if (perNum.compareTo(userMaxNum) > 0) {
+				// 用户单笔交易数量大于用户持仓总量
+				throw new ServiceException(ExceptionConstant.CONTRACT_HOLDING_CAPACITY_INSUFFICIENT_EXCEPTION);
+			}
+			if (buyUpTotal.abs().compareTo(userMaxNum) > 0 || buyFullTotal.compareTo(userMaxNum) > 0) {
+				// 该用户持仓量已达上限
+				throw new ServiceException(ExceptionConstant.UPPER_LIMIT_HOLDING_CAPACITY_EXCEPTION);
+			}
+			if (buyUpTotal.add(buyFullTotal).compareTo(userMaxNum) > 0) {
+				// 该用户持仓量已达上限
+				throw new ServiceException(ExceptionConstant.UPPER_LIMIT_HOLDING_CAPACITY_EXCEPTION);
+			}
+		}
 	}
 
 }

@@ -541,8 +541,8 @@ public class FuturesOrderService {
 		return orderDao.countOrderByType(contractId, orderType);
 	}
 
-	public Integer sumByListOrderContractIdAndPublisherId(Long contractId, Long publisherId) {
-		return orderDao.sumByListOrderContractIdAndPublisherId(contractId, publisherId);
+	public Integer sumByListOrderContractIdAndPublisherId(Long contractId, Long publisherId, Integer type) {
+		return orderDao.sumByListOrderContractIdAndPublisherId(contractId, publisherId, type);
 	}
 
 	/**
