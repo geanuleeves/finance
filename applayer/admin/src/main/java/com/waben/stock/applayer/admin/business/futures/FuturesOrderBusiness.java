@@ -184,11 +184,15 @@ public class FuturesOrderBusiness {
 					FuturesContractDto contract = findByContractId(dto.getContractId());
 					// 获取汇率信息
 					FuturesCurrencyRateDto rate = findByCurrency(dto.getCommodityCurrency());
-					if (market != null && contract != null && rate != null) {
-						dto.setLastPrice(market.getLastPrice());
-						BigDecimal profitOrLoss = dto.getProfitOrLoss() == null ? new BigDecimal(0)
-								: dto.getProfitOrLoss();
-						dto.setFloatingProfitOrLoss(profitOrLoss.multiply(rate.getRate()));
+					if(dto.getPublisherProfitOrLoss()==null){
+						if (market != null && contract != null && rate != null) {
+							dto.setLastPrice(market.getLastPrice());
+							BigDecimal profitOrLoss = dto.getProfitOrLoss() == null ? new BigDecimal(0)
+									: dto.getProfitOrLoss();
+							dto.setFloatingProfitOrLoss(profitOrLoss.multiply(rate.getRate()));
+						}
+					}else{
+						dto.setFloatingProfitOrLoss(dto.getPublisherProfitOrLoss());
 					}
 				}
 			}

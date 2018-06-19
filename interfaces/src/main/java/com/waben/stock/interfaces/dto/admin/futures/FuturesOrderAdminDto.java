@@ -239,6 +239,11 @@ public class FuturesOrderAdminDto {
 	 * 盈亏（人民币）
 	 */
 	private BigDecimal profitOrLoss;
+	
+	/**
+	 * 发布人盈亏（人民币）
+	 */
+	private BigDecimal publisherProfitOrLoss;
 
 	public Long getId() {
 		return id;
@@ -598,6 +603,14 @@ public class FuturesOrderAdminDto {
 
 	public void setProfitOrLoss(BigDecimal profitOrLoss) {
 		this.profitOrLoss = profitOrLoss;
+	}
+
+	public BigDecimal getPublisherProfitOrLoss() {
+		return publisherProfitOrLoss;
+	}
+
+	public void setPublisherProfitOrLoss(BigDecimal publisherProfitOrLoss) {
+		this.publisherProfitOrLoss = publisherProfitOrLoss;
 	}
 
 }
