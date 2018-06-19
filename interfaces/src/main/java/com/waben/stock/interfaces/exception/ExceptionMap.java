@@ -182,6 +182,7 @@ public class ExceptionMap {
 				"%s成本递延费不能比全局设置的%s低");
 		exceptionMap.put(ExceptionConstant.CONTRACT_COMMODITYID_ISNULL_EXCEPTION, "合约没有选择品种");
 		exceptionMap.put(ExceptionConstant.MAXIMUM_CAPACITY_USER_EMPTY_EXCEPTION, "用户最大可持仓量为空");
+		exceptionMap.put(ExceptionConstant.USER_SINGLE_MAXIMUM_CAPACITY_USER_EMPTY_EXCEPTION, "用户单笔最大可交易数量为空");
 
 	}
 }
