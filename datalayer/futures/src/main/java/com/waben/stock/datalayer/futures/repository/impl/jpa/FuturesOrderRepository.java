@@ -21,7 +21,7 @@ public interface FuturesOrderRepository extends CustomJpaRepository<FuturesOrder
 	@Query(value = "SELECT count(*) FROM f_futures_order o LEFT JOIN f_futures_contract c ON o.contract_id = c.id  where c.id=?1 and o.order_type = ?2", nativeQuery = true)
 	Integer countOrderByType(Long contractId, FuturesOrderType orderType);
 
-	@Query(value = "SELECT SUM(IF(t1.order_type=1,t2.buy_up_total_limit,t2.buy_full_total_limit)) AS user_num FROM  f_futures_order t1 LEFT JOIN f_futures_contract t2 ON t2.id = t1.contract_id where t1.state in(2, 4, 5, 6, 7, 8) AND t1.publisher_id= ?2 AND t1.contract_id = ?1 AND t1.order_type =?3", nativeQuery = true)
+	@Query(value = "SELECT SUM(IF(t1.order_type=1,t1.total_quantity,t1.total_quantity)) AS user_num FROM  f_futures_order t1  where t1.state in(2, 4, 5, 6, 7, 8) AND t1.publisher_id= ?2 AND t1.contract_id = ?1 AND t1.order_type =?3", nativeQuery = true)
 	Integer sumByListOrderContractIdAndPublisherId(Long contractId, Long publisherId, Integer type);
 
 	@Query(value = "select * from f_futures_order where contract_term_id in ?1 and state != '8'", nativeQuery = true)
