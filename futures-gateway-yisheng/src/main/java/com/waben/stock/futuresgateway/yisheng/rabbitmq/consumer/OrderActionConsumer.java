@@ -4,9 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.future.api.es.external.util.JacksonUtil;
+import com.waben.stock.futuresgateway.yisheng.dao.FuturesOrderDao;
+import com.waben.stock.futuresgateway.yisheng.entity.FuturesOrder;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqConfiguration;
+import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.OrderActionMessage;
 
 @Component
 @RabbitListener(queues = { RabbitmqConfiguration.orderActionQueueName })
@@ -14,13 +19,24 @@ public class OrderActionConsumer {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
 
+	@Autowired
+	private FuturesOrderDao futuresOrderDao;
+
 	@RabbitHandler
 	public void handlerMessage(String message) {
 		logger.info("消费易盛OrderAction通知消息:" + message);
-		// OrderActionMessage msgObj = JacksonUtil.decode(message,
-		// OrderActionMessage.class);
+		OrderActionMessage msgObj = JacksonUtil.decode(message, OrderActionMessage.class);
 		try {
-			// TODO 消费消息
+			if (msgObj.getErrorCode() == 60011
+					|| (msgObj.getInfo() != null && msgObj.getInfo().getOrderInfo().getOrderState() == 'B')) {
+				// 下单无效的合约
+				int sessionId = msgObj.getSessionID();
+				FuturesOrder order = futuresOrderDao.retrieveByOrderSessionId(sessionId);
+				if (order.getOrderState() == 0) {
+					order.setOrderState(11);
+					futuresOrderDao.updateFuturesOrder(order);
+				}
+			}
 		} catch (Exception ex) {
 			logger.error("消费易盛OrderAction通知消息异常!", ex);
 		}

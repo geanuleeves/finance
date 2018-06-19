@@ -30,4 +30,6 @@ public interface FuturesContractDao {
 
 	public List<FuturesContract> retriveByEnable(Boolean enable);
 
+	public List<FuturesContract> retrieveByCommodityNoAndEnable(String commodityNo, boolean enable);
+
 }

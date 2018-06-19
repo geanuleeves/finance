@@ -13,7 +13,7 @@ public class ServiceException extends RuntimeException {
 	}
 
 	public ServiceException(ExceptionEnum exEnum) {
-		super();
+		super(exEnum.getErrorMsg());
 		this.code = exEnum.getCode();
 		this.errorMsg = exEnum.getErrorMsg();
 	}

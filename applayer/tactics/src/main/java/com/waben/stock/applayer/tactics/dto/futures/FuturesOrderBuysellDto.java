@@ -36,9 +36,6 @@ public class FuturesOrderBuysellDto {
 	@ApiModelProperty(value = "买入委托价格")
 	private BigDecimal buyingEntrustPrice;
 
-	@ApiModelProperty(value = "支付密码", required = true)
-	private String paymentPassword;
-
 	public Long getContractId() {
 		return contractId;
 	}
@@ -93,14 +90,6 @@ public class FuturesOrderBuysellDto {
 
 	public void setOrderType(FuturesOrderType orderType) {
 		this.orderType = orderType;
-	}
-
-	public String getPaymentPassword() {
-		return paymentPassword;
-	}
-
-	public void setPaymentPassword(String paymentPassword) {
-		this.paymentPassword = paymentPassword;
 	}
 
 	public FuturesTradePriceType getBuyingPriceType() {

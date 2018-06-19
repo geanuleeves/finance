@@ -48,15 +48,28 @@ public class FuturesContractController {
 	public Response<Page<FuturesContract>> futuresContracts(int page, int limit) {
 		return new Response<>((Page<FuturesContract>) futuresContractService.futuresContracts(page, limit));
 	}
-	
+
 	@GetMapping("/list")
 	@ApiOperation(value = "获取期货合约列表")
 	public Response<List<FuturesContract>> list() {
 		return new Response<>(futuresContractService.list());
 	}
-	
+
+	@GetMapping("/{commodityNo}/enableContractNo")
+	@ApiOperation(value = "根据品种编号获取可用的合约编号列表")
+	public Response<List<String>> fetchEnableContractNo(@PathVariable("commodityNo") String commodityNo) {
+		return new Response<>(futuresContractService.findEnableContractNo(commodityNo));
+	}
+
+	@GetMapping("/{commodityNo}/{contractNo}")
+	@ApiOperation(value = "根据品种编号和合约编号获取合约")
+	public Response<FuturesContract> fetchByCommodityNoAndContractNo(@PathVariable("commodityNo") String commodityNo,
+			@PathVariable("contractNo") String contractNo) {
+		return new Response<>(futuresContractService.findByCommodityNoAndContractNo(commodityNo, contractNo));
+	}
+
 	/******************************** 后台管理 **********************************/
-	
+
 	@PostMapping("/")
 	@ApiOperation(value = "添加期货合约", hidden = true)
 	public Response<FuturesContract> addition(FuturesContract futuresContract) {
@@ -75,14 +88,14 @@ public class FuturesContractController {
 		futuresContractService.deleteFuturesContract(id);
 		return new Response<Long>(id);
 	}
-	
+
 	@PostMapping("/deletes")
 	@ApiOperation(value = "批量删除期货合约（多个id以逗号分割）", hidden = true)
 	public Response<Boolean> deletes(String ids) {
 		futuresContractService.deleteFuturesContracts(ids);
 		return new Response<Boolean>(true);
 	}
-	
+
 	@GetMapping("/adminList")
 	@ApiOperation(value = "获取期货合约列表(后台管理)", hidden = true)
 	public Response<List<FuturesContract>> adminList() {
