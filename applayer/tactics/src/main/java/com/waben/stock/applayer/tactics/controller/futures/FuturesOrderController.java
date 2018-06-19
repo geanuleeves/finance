@@ -15,6 +15,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -64,6 +66,8 @@ import io.swagger.annotations.ApiOperation;
 @Api(description = "期货订单")
 public class FuturesOrderController {
 
+	Logger logger = LoggerFactory.getLogger(getClass());
+
 	@Autowired
 	private FuturesOrderBusiness futuresOrderBusiness;
 
@@ -90,6 +94,10 @@ public class FuturesOrderController {
 
 		// 用户单笔最大可交易数量
 		BigDecimal perNum = contractDto.getPerOrderLimit();
+		if (perNum == null) {
+			// 用户单笔最大可交易数量为空
+			throw new ServiceException(ExceptionConstant.USER_SINGLE_MAXIMUM_CAPACITY_USER_EMPTY_EXCEPTION);
+		}
 		// 用户最大可持仓量
 		BigDecimal userMaxNum = contractDto.getUserTotalLimit();
 		if (userMaxNum == null) {
@@ -210,13 +218,17 @@ public class FuturesOrderController {
 	@GetMapping("/holding")
 	@ApiOperation(value = "获取持仓中列表")
 	public Response<PageInfo<FuturesOrderMarketDto>> holdingList(int page, int size) {
+		long startTime = System.currentTimeMillis();
 		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
 		FuturesOrderState[] states = { FuturesOrderState.Position };
 		orderQuery.setStates(states);
 		orderQuery.setPage(page);
 		orderQuery.setSize(size);
 		orderQuery.setPublisherId(SecurityUtil.getUserId());
-		return new Response<>(futuresOrderBusiness.pageOrderMarket(orderQuery));
+		Response<PageInfo<FuturesOrderMarketDto>> result = new Response<>(
+				futuresOrderBusiness.pageOrderMarket(orderQuery));
+		logger.info("持仓列表耗时：" + (System.currentTimeMillis() - startTime));
+		return result;
 	}
 
 	@GetMapping("/entrustQueuing")

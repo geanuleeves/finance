@@ -79,40 +79,49 @@ public class FuturesOrderController {
 
 		List<String> columnDescList = null;
 		try {
-			String fileName = "futuresTrade_" + String.valueOf(System.currentTimeMillis());
-
-			file = File.createTempFile(fileName, ".xls");
+			String fileName = "";
 			List<List<String>> result = new ArrayList<>();
 			if (query.getQueryType() == 0) {// 成交订单
-				columnDescList = columnDescList();
 				PageInfo<FuturesOrderAdminDto> response = business.adminPagesByQuery(query);
+				fileName = "成交订单_" + String.valueOf(System.currentTimeMillis());
+				file = File.createTempFile(fileName, ".xls");
+				columnDescList = columnDescList();
 				result = dataList(response.getContent(), query.getQueryType());
 				PoiUtil.writeDataToExcel("成交数据", file, columnDescList, result);
 			} else if (query.getQueryType() == 1) {// 持仓中订单
 				columnDescList = positionDescList();
 				PageInfo<FuturesOrderAdminDto> response = business.adminPagesByQuery(query);
+				fileName = "开仓订单_" + String.valueOf(System.currentTimeMillis());
+				file = File.createTempFile(fileName, ".xls");
 				result = dataList(response.getContent(), query.getQueryType());
-				PoiUtil.writeDataToExcel("持仓中订单数据", file, columnDescList, result);
+				PoiUtil.writeDataToExcel("开仓订单数据", file, columnDescList, result);
 			} else if (query.getQueryType() == 2) {// 平仓订单
 				columnDescList = eveningDescList();
 				PageInfo<FuturesOrderAdminDto> response = business.adminPagesByQuery(query);
+				fileName = "平仓结算订单_" + String.valueOf(System.currentTimeMillis());
+				file = File.createTempFile(fileName, ".xls");
 				result = dataList(response.getContent(), query.getQueryType());
-				PoiUtil.writeDataToExcel("平仓订单数据", file, columnDescList, result);
+				PoiUtil.writeDataToExcel("平仓结算订单数据", file, columnDescList, result);
 			} else if (query.getQueryType() == 3) {// 委托订单
 				columnDescList = deputeDescList();
 				PageInfo<FutresOrderEntrustDto> response = business.pagesOrderEntrust(query);
+				fileName = "委托记录_" + String.valueOf(System.currentTimeMillis());
+				file = File.createTempFile(fileName, ".xls");
 				result = dataListEntrust(response.getContent(), query.getQueryType());
-				PoiUtil.writeDataToExcel("委托订单数据", file, columnDescList, result);
+				PoiUtil.writeDataToExcel("委托记录数据", file, columnDescList, result);
 			} else if (query.getQueryType() == 4) {// 退款订单
 				columnDescList = accountantList();
 				PageInfo<FutresOrderEntrustDto> response = business.pagesOrderEntrust(query);
+				fileName = "退款订单_" + String.valueOf(System.currentTimeMillis());
+				file = File.createTempFile(fileName, ".xls");
 				result = dataListEntrust(response.getContent(), query.getQueryType());
 				PoiUtil.writeDataToExcel("退款订单数据", file, columnDescList, result);
 			}
 
 			is = new FileInputStream(file);
 
-			svrResponse.setHeader("Content-Disposition", "attachment;filename=" + fileName + ".xls");
+			svrResponse.setHeader("Content-Disposition",
+					"attachment;filename=\"" + new String(fileName.getBytes("gb2312"), "ISO8859-1") + ".xls" + "\"");
 			svrResponse.setContentType("application/vnd.ms-excel");
 			IOUtils.copy(is, svrResponse.getOutputStream());
 			svrResponse.getOutputStream().flush();

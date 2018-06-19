@@ -115,7 +115,7 @@ public class FuturesContractService {
 					predicateList.add(
 							criteriaBuilder.equal(root.get("pcContract").as(Boolean.class), query.getPcContract()));
 				}
-				predicateList.add(criteriaBuilder.isNotNull(root.get("enable").as(Boolean.class)));
+				predicateList.add(criteriaBuilder.isTrue(root.get("enable").as(Boolean.class)));
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
