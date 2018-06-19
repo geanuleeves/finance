@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.waben.stock.datalayer.futures.entity.FuturesPreQuantity;
 import com.waben.stock.datalayer.futures.service.FuturesCommodityService;
-import com.waben.stock.datalayer.futures.service.FuturesContractService;
 import com.waben.stock.datalayer.futures.service.FuturesPreQuantityService;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesPreQuantityDto;
 import com.waben.stock.interfaces.pojo.Response;
@@ -29,9 +28,6 @@ public class FuturesPreQuantityController implements FuturesPreQuantityInterface
 	
 	@Autowired
 	private FuturesPreQuantityService service;
-	
-	@Autowired
-	private FuturesContractService contractService;
 	
 	@Autowired
 	private FuturesCommodityService commoditySerivce;

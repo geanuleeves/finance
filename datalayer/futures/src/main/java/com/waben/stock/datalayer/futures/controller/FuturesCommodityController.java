@@ -169,9 +169,13 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 	@Override
 	public Response<String> deleteCommodity(@PathVariable("id") Long id) {
 		List<FuturesContract> result = contractService.findByCommodity(id);
-		for (int i = 0; i < result.size(); i++) {
-			contractService.deleteContract(result.get(i).getId());
+		if(result!=null && result.size()>0){
+			throw new ServiceException(ExceptionConstant.COMMODITY_HAVING_CONTRACT_EXCEPTION);
 		}
+//		for (int i = 0; i < result.size(); i++) {
+//			contractService.deleteContract(result.get(i).getId());
+//		}
+		quantityService.deleteByCommodityId(id);
 		commodityService.delete(id);
 		Response<String> res = new Response<String>();
 		res.setCode("200");

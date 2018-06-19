@@ -41,6 +41,10 @@ public class FuturesPreQuantityService {
 		preQuantityDao.delete(id);
 	}
 	
+	public int deleteByCommodityId(Long commodityId){
+		return preQuantityDao.deleteByCommodityId(commodityId);
+	}
+	
 	public List<FuturesPreQuantity> findByCommodityId(Long commodityId){
 		return preQuantityDao.findByCommodityId(commodityId);
 	}

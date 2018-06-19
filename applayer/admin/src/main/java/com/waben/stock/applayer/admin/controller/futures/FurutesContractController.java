@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.waben.stock.applayer.admin.business.futures.FuturesContractBusiness;
+import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesGatewayContract;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesContractAdminDto;
-import com.waben.stock.interfaces.dto.admin.futures.FuturesContractTimeDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesPreQuantityDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
 import com.waben.stock.interfaces.dto.futures.FuturesExchangeDto;
@@ -53,8 +53,14 @@ public class FurutesContractController {
 
 	@GetMapping("/getContractTime")
 	@ApiOperation(value = "获取合约")
-	public Response<List<FuturesContractTimeDto>> getContractTime(String contractCode) {
-		return business.getcontractTime(contractCode);
+	public Response<FuturesGatewayContract> getContractTime(String contractNo, String commodityNo) {
+		return business.getcontractTime(contractNo, commodityNo);
+	}
+	
+	@GetMapping("/enableContractNo")
+	@ApiOperation(value = "根据品种ID获取合约编号")
+	public Response<List<String>> enableContractNo(String commodityNo){
+		return business.enableContractNo(commodityNo);
 	}
 
 	@GetMapping("/queryPreQuantity")

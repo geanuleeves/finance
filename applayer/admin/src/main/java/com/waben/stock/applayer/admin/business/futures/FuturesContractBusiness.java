@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
+import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesGatewayContract;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesContractAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesContractTimeDto;
@@ -43,25 +45,12 @@ public class FuturesContractBusiness {
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-	public Response<List<FuturesContractTimeDto>> getcontractTime(String contractCode) {
-		FuturesContractTimeDto dto = new FuturesContractTimeDto();
-		dto.setContractNo("1806");
-		dto.setExpirationDate(new Date());
-		dto.setFirstNoticeDate(new Date());
-		dto.setLastTradingDate(new Date());
-		List<FuturesContractTimeDto> result = new ArrayList<FuturesContractTimeDto>();
-		result.add(dto);
-		try {
-			FuturesContractTimeDto dto1 = new FuturesContractTimeDto();
-			dto1.setContractNo("1807");
-			dto1.setExpirationDate(sdf.parse("2018-06-22 00:00:00"));
-			dto1.setFirstNoticeDate(sdf.parse("2018-06-22 00:00:00"));
-			dto1.setLastTradingDate(sdf.parse("2018-06-22 00:00:00"));
-			result.add(dto1);
-		} catch (Exception e) {
-
-		}
-		return new Response<>(result);
+	public Response<FuturesGatewayContract> getcontractTime(String contractNo,String commodityNo) {
+		return new Response<>(RetriveFuturesOverHttp.fetchByCommodityNoAndContractNo(commodityNo, contractNo));
+	}
+	
+	public Response<List<String>> enableContractNo(String commodityNo){
+		return new Response<>(RetriveFuturesOverHttp.enableContractNo(commodityNo));
 	}
 
 	public Response<String> isEnable(Long contractId) {
