@@ -30,10 +30,10 @@ public interface OrganizationSettlementInterface {
 			@PathVariable("cycleId") Long cycleId, @RequestParam("rightMoneyProfit") BigDecimal rightMoneyProfit,
 			@RequestParam("rightMoney") BigDecimal rightMoney);
 
-//	@RequestMapping(value = "/futuressettlement/{publisherId}/{futuresOrderId}/{tradeNo}/{futuresId}/{serviceFee}/{deferredFee}", method = RequestMethod.POST)
-//	public Response<String> futuresSettlement(@PathVariable("publisherId") Long publisherId,
-//			@PathVariable("futuresOrderId") Long futuresOrderId, @PathVariable("tradeNo") String tradeNo,
-//			@PathVariable("futuresId") Long futuresId, @PathVariable("serviceFee") BigDecimal serviceFee,
-//			@PathVariable("deferredFee") BigDecimal deferredFee);
+	@RequestMapping(value = "/futuressettlement/{publisherId}/{futuresOrderId}/{tradeNo}/{futuresId}/{openingFee}/{closeFee}/{deferredFee}", method = RequestMethod.POST)
+	public Response<String> futuresSettlement(@PathVariable("publisherId") Long publisherId,
+			@PathVariable("futuresOrderId") Long futuresOrderId, @PathVariable("tradeNo") String tradeNo,
+			@PathVariable("futuresId") Long futuresId, @PathVariable("openingFee") BigDecimal openingFee,
+			@PathVariable("closeFee") BigDecimal closeFee, @PathVariable("deferredFee") BigDecimal deferredFee);
 
 }
