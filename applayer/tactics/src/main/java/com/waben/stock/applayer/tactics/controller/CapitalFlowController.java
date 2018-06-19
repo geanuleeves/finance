@@ -17,6 +17,7 @@ import com.waben.stock.applayer.tactics.business.CapitalFlowBusiness;
 import com.waben.stock.applayer.tactics.dto.publisher.CapitalFlowWithExtendDto;
 import com.waben.stock.applayer.tactics.security.SecurityUtil;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
+import com.waben.stock.interfaces.enums.CapitalFlowType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.CapitalFlowQuery;
@@ -63,7 +64,7 @@ public class CapitalFlowController {
 	@GetMapping("/pagesByTimeScope")
 	@ApiOperation(value = "用户资金流水（时间范围统计，PC桌面端）", notes = "startTime和endTime格式(yyyy-MM-dd HH:mm:ss)")
 	public Response<PageInfo<CapitalFlowWithExtendDto>> publisherCapitalFlow(int page, int size, String startTime,
-			String endTime) {
+			String endTime, String type) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		CapitalFlowQuery query = new CapitalFlowQuery(page, size);
 		Date startTimeObj = null;
@@ -81,6 +82,10 @@ public class CapitalFlowController {
 			} catch (ParseException e) {
 				throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION);
 			}
+		}
+		if (!StringUtil.isEmpty(type)) {
+			CapitalFlowType[] types = { CapitalFlowType.getByIndex(type) };
+			query.setTypes(types);
 		}
 		query.setStartTime(startTimeObj);
 		query.setEndTime(endTimeObj);

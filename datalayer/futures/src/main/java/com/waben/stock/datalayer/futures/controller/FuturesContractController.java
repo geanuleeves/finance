@@ -1,6 +1,7 @@
 package com.waben.stock.datalayer.futures.controller;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -106,7 +107,8 @@ public class FuturesContractController implements FuturesContractInterface {
 			Date now = new Date();
 			Integer timeZoneGap = contractDto.getTimeZoneGap();
 			// 当天交易时间描述
-			contractDto.setCurrentTradeTimeDesc(retriveTradeTimeStrDesc(timeZoneGap, contractDto, now));
+			// contractDto.setCurrentTradeTimeDesc(retriveTradeTimeStrDesc(timeZoneGap,
+			// contractDto, now));
 			// 转换后的当前时间
 			Date exchangeTime = retriveExchangeTime(now, timeZoneGap);
 			// 转换后当前时间的明天
@@ -123,20 +125,28 @@ public class FuturesContractController implements FuturesContractInterface {
 					if (fullStr.compareTo(dayStr + " " + tradeTimePointArr[0].trim()) >= 0
 							&& fullStr.compareTo(dayStr + " " + tradeTimePointArr[1].trim()) < 0) {
 						contractDto.setCurrentHoldingTime(dayStr + " " + tradeTimePointArr[1].trim());
+						contractDto.setCurrentTradeTimeDesc(timeZoneConversion(timeZoneGap, tradeTimePointArr[0].trim())
+								+ "-" + timeZoneConversion(timeZoneGap, tradeTimePointArr[1].trim()));
 						contractDto.setNextTradingTime("");
 						isTradeTime = true;
 						break;
 					} else {
 						if (fullStr.compareTo(dayStr + " " + tradeTimePointArr[0].trim()) < 0) {
 							contractDto.setNextTradingTime(dayStr + " " + tradeTimePointArr[0].trim());
+							contractDto.setCurrentTradeTimeDesc(
+									timeZoneConversion(timeZoneGap, tradeTimePointArr[0].trim()) + "-"
+											+ timeZoneConversion(timeZoneGap, tradeTimePointArr[1].trim()));
 							break;
 						} else {
 							String tomorrow = daySdf.format(nextTime);
 							String tomorrowHour = getNextTradingTime(exchangeTime, contractDto) == null ? ""
 									: getNextTradingTime(exchangeTime, contractDto);
 							// 获取转换后的明天时间交易开始时间
-							String tomorrowTime = tomorrow + " " + tomorrowHour;
+							String tomorrowTime = tomorrow + " " + tomorrowHour.substring(0, 5);
 							contractDto.setNextTradingTime(tomorrowTime);
+							contractDto.setCurrentTradeTimeDesc(
+									timeZoneConversion(timeZoneGap, tomorrowHour.substring(0, 5).trim()) + "-"
+											+ timeZoneConversion(timeZoneGap, tomorrowHour.substring(6, 11).trim()));
 						}
 					}
 				}
@@ -199,28 +209,20 @@ public class FuturesContractController implements FuturesContractInterface {
 		return tradeTime;
 	}
 
-	private String retriveTradeTimeStrDesc(Integer timeZoneGap, FuturesContractDto contract, Date date) {
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		int week = cal.get(Calendar.DAY_OF_WEEK);
-		String tradeTimeDesc = null;
-		if (week == 1) {
-			tradeTimeDesc = contract.getSunTradeTimeDesc();
-		} else if (week == 2) {
-			tradeTimeDesc = contract.getMonTradeTimeDesc();
-		} else if (week == 3) {
-			tradeTimeDesc = contract.getTueTradeTimeDesc();
-		} else if (week == 4) {
-			tradeTimeDesc = contract.getWedTradeTimeDesc();
-		} else if (week == 5) {
-			tradeTimeDesc = contract.getThuTradeTimeDesc();
-		} else if (week == 6) {
-			tradeTimeDesc = contract.getFriTradeTimeDesc();
-		} else if (week == 7) {
-			tradeTimeDesc = contract.getSatTradeTimeDesc();
-		}
-		return tradeTimeDesc;
-	}
+	/*
+	 * private String retriveTradeTimeStrDesc(Integer timeZoneGap,
+	 * FuturesContractDto contract, Date date) { Calendar cal =
+	 * Calendar.getInstance(); cal.setTime(date); int week =
+	 * cal.get(Calendar.DAY_OF_WEEK); String tradeTimeDesc = null; if (week ==
+	 * 1) { tradeTimeDesc = contract.getSunTradeTimeDesc(); } else if (week ==
+	 * 2) { tradeTimeDesc = contract.getMonTradeTimeDesc(); } else if (week ==
+	 * 3) { tradeTimeDesc = contract.getTueTradeTimeDesc(); } else if (week ==
+	 * 4) { tradeTimeDesc = contract.getWedTradeTimeDesc(); } else if (week ==
+	 * 5) { tradeTimeDesc = contract.getThuTradeTimeDesc(); } else if (week ==
+	 * 6) { tradeTimeDesc = contract.getFriTradeTimeDesc(); } else if (week ==
+	 * 7) { tradeTimeDesc = contract.getSatTradeTimeDesc(); } return
+	 * tradeTimeDesc; }
+	 */
 
 	private String getNextTradingTime(Date localTime, FuturesContractDto contract) {
 		String nextTime = null;
@@ -228,19 +230,19 @@ public class FuturesContractController implements FuturesContractInterface {
 		cal.setTime(localTime);
 		int dayForweek = cal.get(Calendar.DAY_OF_WEEK);
 		if (dayForweek == 1) {
-			nextTime = contract.getMonTradeTime().trim().substring(0, 5);
+			nextTime = contract.getMonTradeTime().trim().substring(0, 11);
 		} else if (dayForweek == 2) {
-			nextTime = contract.getTueTradeTime().trim().substring(0, 5);
+			nextTime = contract.getTueTradeTime().trim().substring(0, 11);
 		} else if (dayForweek == 3) {
-			nextTime = contract.getWedTradeTime().trim().substring(0, 5);
+			nextTime = contract.getWedTradeTime().trim().substring(0, 11);
 		} else if (dayForweek == 4) {
-			nextTime = contract.getThuTradeTime().trim().substring(0, 5);
+			nextTime = contract.getThuTradeTime().trim().substring(0, 11);
 		} else if (dayForweek == 5) {
-			nextTime = contract.getFriTradeTime().trim().substring(0, 5);
+			nextTime = contract.getFriTradeTime().trim().substring(0, 11);
 		} else if (dayForweek == 6) {
-			nextTime = contract.getSatTradeTime().trim().substring(0, 5);
+			nextTime = contract.getSatTradeTime().trim().substring(0, 11);
 		} else if (dayForweek == 7) {
-			nextTime = contract.getSunTradeTime().trim().substring(0, 5);
+			nextTime = contract.getSunTradeTime().trim().substring(0, 11);
 		}
 		return nextTime;
 	}
@@ -357,6 +359,37 @@ public class FuturesContractController implements FuturesContractInterface {
 	public Response<List<FuturesContractDto>> listByCommodityId(@PathVariable Long commodityId) {
 		return new Response<>(CopyBeanUtils.copyListBeanPropertiesToList(
 				futuresContractService.listByCommodityId(commodityId), FuturesContractDto.class));
+	}
+
+	/**
+	 * 将时间转成国内时间
+	 * 
+	 * @param timeZoneGap
+	 *            时差
+	 * @param time
+	 *            国外时间
+	 * @return 国内时间
+	 */
+	private String timeZoneConversion(Integer timeZoneGap, String time) {
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+		String timeStr = "";
+		try {
+			if (StringUtil.isEmpty(time)) {
+				return "";
+			}
+			timeStr = sdf.format(exchangeTime(sdf.parse(time.toString()), timeZoneGap));
+		} catch (ParseException e) {
+			return "";
+		}
+
+		return timeStr;
+	}
+
+	private Date exchangeTime(Date localTime, Integer timeZoneGap) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(localTime);
+		cal.add(Calendar.HOUR_OF_DAY, timeZoneGap);
+		return cal.getTime();
 	}
 
 }

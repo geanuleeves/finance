@@ -3,6 +3,7 @@ package com.waben.stock.applayer.admin.controller.futures;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +47,8 @@ public class FuturesCommodityController {
 
 	@Autowired
 	private FuturesCommodityBusiness business;
+
+	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@RequestMapping(value = "/lists/{exchangeId}", method = RequestMethod.GET)
 	@ApiOperation(value = "根据交易所ID获取品种")
@@ -147,9 +150,9 @@ public class FuturesCommodityController {
 			Boolean enable = dto.getEnable();
 			String enables = "";
 			if (enable != null && enable) {
-				enables = "已上线";
+				enables = "已生效";
 			} else {
-				enables = "未上线";
+				enables = "未生效";
 			}
 
 			String currencyRate = "";
@@ -188,15 +191,11 @@ public class FuturesCommodityController {
 				data.add(dto.getRate() == null ? "" : currencyRate);
 				data.add(dto.getTradeUnit() == null ? "" : dto.getTradeUnit());
 				data.add(dto.getQutoteUnit() == null ? "" : dto.getQutoteUnit());
-
 				data.add(dto.getMinWave() == null ? "" : dto.getMinWave().toString());
 				data.add(dto.getPerWaveMoney() == null ? "" : dto.getPerWaveMoney().toString());
-
 				data.add(dto.getPerContractValue() == null ? "" : dto.getPerContractValue().toString());
 				data.add(dto.getPerUnitReserveFund() == null ? "" : dto.getPerUnitReserveFund().toString());
 				data.add(dto.getPerUnitUnwindPoint() == null ? "" : unwindPoint);
-				// data.add(dto.getCordon() == null ? "" :
-				// dto.getCordon().toString());
 				data.add(dto.getOpenwindServiceFee() == null ? "" : dto.getOpenwindServiceFee().toString());
 				data.add(dto.getUnwindServiceFee() == null ? "" : dto.getUnwindServiceFee().toString());
 				data.add(dto.getOvernightPerUnitDeferredFee() == null ? ""
@@ -207,6 +206,7 @@ public class FuturesCommodityController {
 				data.add(
 						dto.getReturnOvernightReserveFundTime() == null ? "" : dto.getReturnOvernightReserveFundTime());
 				data.add(enables);
+				data.add(dto.getCreateTime() == null ? "" : sdf.format(dto.getCreateTime()));
 			}
 			result.add(data);
 		}
@@ -215,7 +215,7 @@ public class FuturesCommodityController {
 
 	private List<String> contractList() {
 		List<String> result = new ArrayList<>();
-		result.add("交易所类别/名称");
+		result.add("市场类别/名称");
 		result.add("境外标记");
 		result.add("交易代码");
 		result.add("交易品种");
@@ -229,7 +229,6 @@ public class FuturesCommodityController {
 		result.add("1手合约价值");
 		result.add("1手保证金");
 		result.add("1手强平点");
-		result.add("警戒线");
 		result.add("1手开仓手续费");
 		result.add("1手平仓手续费");
 		result.add("1手递延费");
@@ -237,6 +236,7 @@ public class FuturesCommodityController {
 		result.add("隔夜收取时间");
 		result.add("隔夜返还时间时间");
 		result.add("品种状态");
+		result.add("创建时间");
 		return result;
 	}
 }

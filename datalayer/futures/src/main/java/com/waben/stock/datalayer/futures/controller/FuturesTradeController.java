@@ -122,8 +122,7 @@ public class FuturesTradeController implements FuturesTradeInterface {
 			if (order.getBuyingTime() != null) {
 				Long date = order.getBuyingTime().getTime();
 				Long current = new Date().getTime();
-
-				Long hours = (current - date) / (60 * 60 * 1000);
+				Long hours = ((current - date) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
 				result.getContent().get(i).setPositionDays(Math.abs(hours.intValue()));
 			}
 			// FuturesCurrencyRate rate =
@@ -134,7 +133,7 @@ public class FuturesTradeController implements FuturesTradeInterface {
 				if (order.getSellingTime() != null) {
 					Long laseDate = order.getSellingTime().getTime();
 					Long date = order.getBuyingTime().getTime();
-					Long hours = (laseDate - date) / (60 * 60 * 1000);
+					Long hours = ((laseDate - date) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
 					result.getContent().get(i).setPositionDays(Math.abs(hours.intValue()));
 				}
 			} else {
