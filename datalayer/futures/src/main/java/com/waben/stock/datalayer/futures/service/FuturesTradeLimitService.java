@@ -91,7 +91,7 @@ public class FuturesTradeLimitService {
 
 	public FuturesOrderCountDto getSUMOrder(String state) {
 		String sql = String
-				.format("SELECT SUM(f.total_quantity) AS quantity, SUM(f.reserve_fund) as reserve_fund,SUM(f.openwind_service_fee + f.unwind_service_fee)AS zhf, SUM(f.overnight_per_unit_deferred_fee) AS deferred_record FROM f_futures_order f "
+				.format("SELECT SUM(f.total_quantity) AS quantity, SUM(f.reserve_fund * f.total_quantity) as reserve_fund,SUM((f.openwind_service_fee + f.unwind_service_fee) * f.total_quantity)AS zhf, SUM(f.overnight_per_unit_deferred_fee * f.total_quantity) AS deferred_record FROM f_futures_order f "
 						+ "where f.state in(" + state + ")");
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setQuantity", new Class<?>[] { BigDecimal.class }));

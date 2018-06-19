@@ -311,8 +311,8 @@ public class FuturesOrderController {
 		BigDecimal rate = BigDecimal.ZERO;
 		String sign = "";
 		for (FuturesOrderMarketDto futuresOrderMarketDto : list) {
-			totalIncome = totalIncome.add(futuresOrderMarketDto.getFloatingProfitOrLoss() == null ? new BigDecimal(0)
-					: futuresOrderMarketDto.getFloatingProfitOrLoss());
+			totalIncome = totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss() == null ? new BigDecimal(0)
+					: futuresOrderMarketDto.getPublisherProfitOrLoss());
 		}
 		if (list != null && list.size() > 0) {
 			sign = list.get(0).getCurrencySign();
@@ -342,8 +342,8 @@ public class FuturesOrderController {
 		BigDecimal rate = BigDecimal.ZERO;
 		String sign = "";
 		for (FuturesOrderMarketDto futuresOrderMarketDto : list) {
-			totalIncome = totalIncome.add(futuresOrderMarketDto.getFloatingProfitOrLoss() == null ? new BigDecimal(0)
-					: futuresOrderMarketDto.getFloatingProfitOrLoss());
+			totalIncome = totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss() == null ? new BigDecimal(0)
+					: futuresOrderMarketDto.getPublisherProfitOrLoss());
 		}
 		if (list != null && list.size() > 0) {
 			sign = list.get(0).getCurrencySign();
@@ -436,7 +436,7 @@ public class FuturesOrderController {
 		List<FuturesOrderMarketDto> list = futuresOrderBusiness.pageOrderMarket(orderQuery).getContent();
 		BigDecimal totalIncome = new BigDecimal(0);
 		for (FuturesOrderMarketDto futuresOrderMarketDto : list) {
-			totalIncome = totalIncome.add(futuresOrderMarketDto.getFloatingProfitOrLoss());
+			totalIncome = totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss());
 		}
 		return new Response<>(totalIncome.setScale(2, RoundingMode.DOWN));
 	}
@@ -551,7 +551,7 @@ public class FuturesOrderController {
 			data.add(String.valueOf(trade.getTotalQuantity() == null ? "" : trade.getTotalQuantity().intValue() + "手"));
 			data.add(trade.getBuyingTime() == null ? "" : exprotSdf.format(trade.getBuyingTime()));
 			data.add(buyPrice);
-			data.add(String.valueOf(trade.getFloatingProfitOrLoss() == null ? "" : trade.getFloatingProfitOrLoss()));
+			data.add(String.valueOf(trade.getPublisherProfitOrLoss() == null ? "" : trade.getPublisherProfitOrLoss()));
 			data.add(String.valueOf(trade.getOpenwindServiceFee() == null ? "" : trade.getOpenwindServiceFee()));
 			data.add(String.valueOf(trade.getReserveFund() == null ? "" : trade.getReserveFund()));
 			data.add(trade.getSellingTime() == null ? "" : exprotSdf.format(trade.getSellingTime()));

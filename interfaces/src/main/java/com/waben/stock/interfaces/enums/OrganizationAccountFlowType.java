@@ -23,11 +23,11 @@ public enum OrganizationAccountFlowType implements CommonalityEnum {
 
 	ProcessFee("6", "手续费"),
 
-	FuturesOpeningFee("7", "期货开仓手续费"),
+	FuturesOpeningFeeAssign("7", "期货开仓手续费分成"),
 
-	FuturesCloseFee("8", "期货平仓手续费"),
+	FuturesCloseFeeAssigne("8", "期货平仓手续费分成"),
 
-	FuturesDeferredFee("9", "期货递延费");
+	FuturesDeferredFeeAssign("9", "期货递延费分成");
 
 	private String index;
 

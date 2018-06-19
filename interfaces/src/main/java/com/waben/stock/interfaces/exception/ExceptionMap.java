@@ -183,6 +183,7 @@ public class ExceptionMap {
 		exceptionMap.put(ExceptionConstant.CONTRACT_COMMODITYID_ISNULL_EXCEPTION, "合约没有选择品种");
 		exceptionMap.put(ExceptionConstant.MAXIMUM_CAPACITY_USER_EMPTY_EXCEPTION, "用户最大可持仓量为空");
 		exceptionMap.put(ExceptionConstant.USER_SINGLE_MAXIMUM_CAPACITY_USER_EMPTY_EXCEPTION, "用户单笔最大可交易数量为空");
+		exceptionMap.put(ExceptionConstant.COMMODITY_HAVING_CONTRACT_EXCEPTION, "品种绑定有合约，请先删除合约");
 
 	}
 }

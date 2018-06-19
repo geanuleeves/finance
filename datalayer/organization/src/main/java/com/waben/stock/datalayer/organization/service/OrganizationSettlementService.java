@@ -55,6 +55,41 @@ public class OrganizationSettlementService {
 	private SettlementMethodDao settlementMethodDao;
 
 	@Transactional
+	public void futuresSettlement(Long publisherId, Long futuresOrderId, String tradeNo, Long futuresId,
+			BigDecimal openingFee, BigDecimal closeFee, BigDecimal deferredFee) {
+		// 结算开仓手续费
+		if (openingFee != null && openingFee.compareTo(BigDecimal.ZERO) > 0) {
+			List<OrganizationAccountFlow> checkFlowList = flowDao.retrieveByTypeAndResourceTypeAndResourceId(
+					OrganizationAccountFlowType.FuturesOpeningFeeAssign, ResourceType.FUTURESORDER, futuresOrderId);
+			// 判断之前是否结算过
+			if (checkFlowList == null || checkFlowList.size() == 0) {
+				futuresOrderSettlement(publisherId, BenefitConfigType.FuturesOpeningFee, openingFee, futuresId,
+						futuresOrderId, tradeNo);
+			}
+		}
+		// 结算平仓手续费
+		if (closeFee != null && closeFee.compareTo(BigDecimal.ZERO) > 0) {
+			List<OrganizationAccountFlow> checkFlowList = flowDao.retrieveByTypeAndResourceTypeAndResourceId(
+					OrganizationAccountFlowType.FuturesCloseFeeAssigne, ResourceType.FUTURESORDER, futuresOrderId);
+			// 判断之前是否结算过
+			if (checkFlowList == null || checkFlowList.size() == 0) {
+				futuresOrderSettlement(publisherId, BenefitConfigType.FuturesCloseFee, closeFee, futuresId,
+						futuresOrderId, tradeNo);
+			}
+		}
+		// 结算递延费
+		if (deferredFee != null && deferredFee.compareTo(BigDecimal.ZERO) > 0) {
+			List<OrganizationAccountFlow> checkFlowList = flowDao.retrieveByTypeAndResourceTypeAndResourceId(
+					OrganizationAccountFlowType.FuturesDeferredFeeAssign, ResourceType.FUTURESORDER, futuresOrderId);
+			// 判断之前是否结算过
+			if (checkFlowList == null || checkFlowList.size() == 0) {
+				futuresOrderSettlement(publisherId, BenefitConfigType.DeferredFee, deferredFee, futuresId,
+						futuresOrderId, tradeNo);
+			}
+		}
+	}
+
+	@Transactional
 	public void strategySettlement(Long publisherId, Long buyRecordId, String tradeNo, Long strategyTypeId,
 			BigDecimal serviceFee, BigDecimal deferredFee) {
 		// 结算服务费
@@ -252,6 +287,54 @@ public class OrganizationSettlementService {
 			}
 		}
 		return null;
+	}
+
+	private void futuresOrderSettlement(Long publisherId, BenefitConfigType benefitConfigType, BigDecimal amount,
+			Long benefitResourceId, Long flowResourceId, String tradeNo) {
+		OrganizationAccountFlowType flowType = null;
+		ResourceType flowResourceType = null;
+		Integer benefitResourceType = null;
+		if (BenefitConfigType.FuturesOpeningFee == benefitConfigType) {
+			flowType = OrganizationAccountFlowType.FuturesOpeningFeeAssign;
+			flowResourceType = ResourceType.FUTURESORDER;
+			benefitResourceType = 4;
+		} else if (BenefitConfigType.FuturesDeferredFee == benefitConfigType) {
+			flowType = OrganizationAccountFlowType.FuturesDeferredFeeAssign;
+			flowResourceType = ResourceType.FUTURESORDER;
+			benefitResourceType = 6;
+		} else if (BenefitConfigType.FuturesCloseFee == benefitConfigType) {
+			flowType = OrganizationAccountFlowType.FuturesCloseFeeAssigne;
+			flowResourceType = ResourceType.FUTURESORDER;
+			benefitResourceType = 5;
+		} else {
+			throw new RuntimeException("not supported benefitConfigType?");
+		}
+
+		List<Organization> orgTreeList = getPublisherOrgTreeList(publisherId);
+		if (orgTreeList != null) {
+			List<BenefitConfig> benefitConfigList = getBenefitConfigList(orgTreeList, benefitConfigType,
+					benefitResourceType, benefitResourceId);
+			if (benefitConfigList != null && benefitConfigList.size() > 0) {
+				BigDecimal currentServiceFee = amount;
+				for (int i = 0; i < benefitConfigList.size(); i++) {
+					BenefitConfig config = benefitConfigList.get(i);
+					BigDecimal ratio = config.getRatio();
+					BigDecimal childServiceFee = currentServiceFee.multiply(ratio.divide(new BigDecimal("100")))
+							.setScale(2, RoundingMode.DOWN);
+					// 先给上级结算
+					BigDecimal parentServiceFee = currentServiceFee.subtract(childServiceFee);
+					accountService.benefit(orgTreeList.get(i), amount, parentServiceFee, flowType, flowResourceType,
+							flowResourceId, tradeNo);
+					// 最后一个给最低级机构结算
+					if (i == benefitConfigList.size() - 1) {
+						accountService.benefit(orgTreeList.get(i + 1), amount, childServiceFee, flowType,
+								flowResourceType, flowResourceId, tradeNo);
+					}
+					currentServiceFee = childServiceFee;
+				}
+			}
+		}
+		accountService.benefit(null, amount, amount, flowType, flowResourceType, flowResourceId, tradeNo);
 	}
 
 }
