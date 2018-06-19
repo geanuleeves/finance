@@ -1,14 +1,15 @@
 package com.waben.stock.futuresgateway.yisheng.util;
 
-import net.sf.cglib.beans.BeanCopier;
-import net.sf.cglib.core.Converter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.DigestUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import net.sf.cglib.beans.BeanCopier;
+import net.sf.cglib.core.Converter;
 
 public class CopyBeanUtils {
 	/**
@@ -119,6 +120,7 @@ public class CopyBeanUtils {
 		return copyListBeanPropertiesToList(sourceObjs, targets, targetType);
 	}
 
+	@SuppressWarnings("unused")
 	private static String getHashKey(String str) {
 		if (str == null)
 			return null;

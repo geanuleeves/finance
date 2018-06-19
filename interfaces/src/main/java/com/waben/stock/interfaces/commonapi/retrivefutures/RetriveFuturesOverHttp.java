@@ -120,7 +120,7 @@ public class RetriveFuturesOverHttp {
 		}
 	}
 
-	public static void testMain(String[] args) {
+	public static void main(String[] args) {
 		System.out.println(enableContractNo("GC"));
 		System.out.println(fetchByCommodityNoAndContractNo("GC", "1808"));
 	}

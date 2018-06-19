@@ -21,6 +21,8 @@ public class RabbitmqConfiguration {
 
 	public static final String contractQueueName = "futures-gateway-yisheng-contract";
 
+	public static final String tradeContractQueueName = "futures-gateway-yisheng-tradecontract";
+
 	public static final String quoteQueueName = "futures-gateway-yisheng-quote";
 
 	public static final String deleteQuoteQueueName = "futures-gateway-yisheng-deletequote";
@@ -72,6 +74,14 @@ public class RabbitmqConfiguration {
 	@Bean
 	public Queue contractQueue() {
 		return new Queue(contractQueueName);
+	}
+
+	/**
+	 * 创建 交易合约 队列
+	 */
+	@Bean
+	public Queue tradeContractQueue() {
+		return new Queue(tradeContractQueueName);
 	}
 
 	/**
