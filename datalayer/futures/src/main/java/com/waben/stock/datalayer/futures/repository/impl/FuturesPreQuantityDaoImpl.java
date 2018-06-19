@@ -59,4 +59,9 @@ public class FuturesPreQuantityDaoImpl implements FuturesPreQuantityDao {
 		return repository.findByCommodityId(commodityId);
 	}
 
+	@Override
+	public int deleteByCommodityId(Long commodityId) {
+		return repository.deleteByCommodityId(commodityId);
+	}
+
 }

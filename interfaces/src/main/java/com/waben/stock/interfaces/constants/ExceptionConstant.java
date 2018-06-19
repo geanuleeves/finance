@@ -325,4 +325,6 @@ public class ExceptionConstant {
 	public static final String MAXIMUM_CAPACITY_USER_EMPTY_EXCEPTION = "13031";
 	// 用户单笔最大可交易数量为空
 	public static final String USER_SINGLE_MAXIMUM_CAPACITY_USER_EMPTY_EXCEPTION = "13032";
+	//品种下面绑定有合约，请先删除合约
+	public static final String COMMODITY_HAVING_CONTRACT_EXCEPTION = "13033";
 }
