@@ -90,6 +90,10 @@ public class FuturesOrderController {
 
 		// 用户单笔最大可交易数量
 		BigDecimal perNum = contractDto.getPerOrderLimit();
+		if (perNum == null) {
+			// 用户单笔最大可交易数量为空
+			throw new ServiceException(ExceptionConstant.MAXIMUM_CAPACITY_USER_EMPTY_EXCEPTION);
+		}
 		// 用户最大可持仓量
 		BigDecimal userMaxNum = contractDto.getUserTotalLimit();
 		if (userMaxNum == null) {
