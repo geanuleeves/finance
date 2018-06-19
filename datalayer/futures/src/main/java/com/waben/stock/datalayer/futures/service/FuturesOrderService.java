@@ -352,8 +352,18 @@ public class FuturesOrderService {
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
-				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("sellingTime").as(Date.class)),
-						criteriaBuilder.desc(root.get("buyingTime").as(Date.class)));
+				FuturesOrderState[] unwindStates = { FuturesOrderState.Unwind };
+				FuturesOrderState[] wtStates = { FuturesOrderState.BuyingEntrust, FuturesOrderState.BuyingCanceled,
+						FuturesOrderState.BuyingFailure, FuturesOrderState.PartPosition, FuturesOrderState.Position,
+						FuturesOrderState.SellingEntrust, FuturesOrderState.PartUnwind, FuturesOrderState.Unwind };
+				FuturesOrderState[] positionStates = { FuturesOrderState.Position };
+				if (query.getStates()[0].equals(unwindStates[0])) {
+					criteriaQuery.orderBy(criteriaBuilder.desc(root.get("sellingTime").as(Date.class)));
+				} else if (query.getStates()[0].equals(wtStates[0])) {
+					criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingEntrustTime").as(Date.class)));
+				} else if (query.getStates()[0].equals(positionStates[0])) {
+					criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingTime").as(Date.class)));
+				}
 
 				return criteriaQuery.getRestriction();
 			}
