@@ -592,19 +592,17 @@ public class FuturesOrderController {
 		BigDecimal buyUpTotal = buyUpNum.add(buysellDto.getTotalQuantity());
 		BigDecimal buyFullTotal = buyFullNum.add(buysellDto.getTotalQuantity());
 
-		if (buyUpTotal.compareTo(contractDto.getBuyUpTotalLimit()) > 0) {
+		if (contractDto.getBuyUpTotalLimit() != null && buyUpTotal.compareTo(contractDto.getBuyUpTotalLimit()) > 0) {
 			// 买涨持仓总额度已达上限
 			throw new ServiceException(ExceptionConstant.TOTAL_AMOUNT_BUYUP_CAPACITY_INSUFFICIENT_EXCEPTION);
 		}
-		if (buyFullTotal.compareTo(contractDto.getBuyFullTotalLimit()) > 0) {
+		if (contractDto.getBuyFullTotalLimit() != null && buyFullTotal.compareTo(contractDto.getBuyFullTotalLimit()) > 0) {
 			// 买跌持仓总额度已达上限
 			throw new ServiceException(ExceptionConstant.TOTAL_AMOUNT_BUYFULL_CAPACITY_INSUFFICIENT_EXCEPTION);
 		}
-		if (perNum != null) {
-			if (userNum.compareTo(perNum) > 0) {
-				// 单笔交易数量过大
-				throw new ServiceException(ExceptionConstant.SINGLE_TRANSACTION_QUANTITY_EXCEPTION);
-			}
+		if (perNum != null && userNum.compareTo(perNum) > 0) {
+			// 单笔交易数量过大
+			throw new ServiceException(ExceptionConstant.SINGLE_TRANSACTION_QUANTITY_EXCEPTION);
 		}
 		if (userMaxNum != null) {
 			if (perNum.compareTo(userMaxNum) > 0) {

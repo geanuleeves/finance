@@ -220,7 +220,7 @@ public class CapitalAccountController implements CapitalAccountInterface {
 
 	@Override
 	public Response<CapitalAccountDto> futuresReturnOvernightReserveFund(@PathVariable Long publisherId,
-			Long overnightId, @PathVariable BigDecimal reserveFund) {
+			@PathVariable Long overnightId, @PathVariable BigDecimal reserveFund) {
 		return new Response<>(CopyBeanUtils.copyBeanProperties(CapitalAccountDto.class,
 				capitalAccountService.futuresReturnOvernightReserveFund(publisherId, overnightId, reserveFund), false));
 	}

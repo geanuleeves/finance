@@ -36,6 +36,7 @@ import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.enums.FuturesWindControlType;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
+import com.waben.stock.interfaces.util.RandomUtil;
 
 /**
  * 风控作业
@@ -83,7 +84,9 @@ public class WindControlSchedule {
 			try {
 				// step 1 : 获取所有持仓中的正式单
 				List<FuturesOrder> content = retrivePositionOrders();
-				logger.info("监控持仓中的正式单数量：" + content.size());
+				if (RandomUtil.getRandomInt(100) % 51 == 0 && RandomUtil.getRandomInt(100) % 51 == 0) {
+					logger.info("监控持仓中的正式单数量：" + content.size());
+				}
 				// step 2 : 遍历所有订单，判断是否达到风控平仓条件
 				if (content != null && content.size() > 0) {
 					for (FuturesOrder order : content) {
@@ -121,7 +124,7 @@ public class WindControlSchedule {
 						}
 						// step 9 : 是否触发隔夜时间
 						if (orderService.isTradeTime(timeZoneGap, contract) && isTriggerOvernight(order, timeZoneGap)) {
-							orderService.overnight(order);
+							orderService.overnight(order, timeZoneGap);
 							continue;
 						}
 					}
@@ -379,6 +382,7 @@ public class WindControlSchedule {
 	 */
 	private boolean isTriggerOvernight(FuturesOrder order, Integer timeZoneGap) {
 		SimpleDateFormat daySdf = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		FuturesOvernightRecord record = overnightService.findNewestOvernightRecord(order);
 		Date now = new Date();
 		Date nowExchangeTime = orderService.retriveExchangeTime(now, timeZoneGap);
@@ -389,7 +393,7 @@ public class WindControlSchedule {
 			String overnightTime = contract.getCommodity().getOvernightTime();
 			try {
 				// 判断是否达到隔夜时间，隔夜时间~隔夜时间+1分钟
-				Date beginTime = daySdf.parse(nowStr + " " + overnightTime);
+				Date beginTime = fullSdf.parse(nowStr + " " + overnightTime);
 				Date endTime = new Date(beginTime.getTime() + 1 * 60 * 1000);
 				if (nowExchangeTime.getTime() >= beginTime.getTime() && nowExchangeTime.getTime() < endTime.getTime()) {
 					return true;
@@ -411,20 +415,21 @@ public class WindControlSchedule {
 	private void checkAndDoReturnOvernightReserveFund(FuturesOrder order, Integer timeZoneGap,
 			FuturesContract contract) {
 		SimpleDateFormat daySdf = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		// 判断当前时候+30分钟是否为交易时间段
 		Date now = new Date();
-		Date nowAfter30mins = new Date(now.getTime() + 30 * 60 * 1000);
-		boolean isTradeTime = orderService.isTradeTime(timeZoneGap, contract, nowAfter30mins);
-		if (!isTradeTime) {
-			return;
-		}
+//		Date nowAfter30mins = new Date(now.getTime() + 30 * 60 * 1000);
+//		boolean isTradeTime = orderService.isTradeTime(timeZoneGap, contract, nowAfter30mins);
+//		if (!isTradeTime) {
+//			return;
+//		}
 		// 获取退还隔夜保证金的时间
 		String returnOvernightReserveFundTime = contract.getCommodity().getReturnOvernightReserveFundTime();
 		Date nowExchangeTime = orderService.retriveExchangeTime(now, timeZoneGap);
 		String nowStr = daySdf.format(nowExchangeTime);
 		try {
 			// 判断是否到达退还隔夜保证金时间，退还隔夜保证金时间~退还隔夜保证金时间+1分钟
-			Date beginTime = daySdf.parse(nowStr + " " + returnOvernightReserveFundTime);
+			Date beginTime = fullSdf.parse(nowStr + " " + returnOvernightReserveFundTime);
 			Date endTime = new Date(beginTime.getTime() + 1 * 60 * 1000);
 			if (nowExchangeTime.getTime() >= beginTime.getTime() && nowExchangeTime.getTime() < endTime.getTime()) {
 				// 如果到达退还隔夜保证金时间

@@ -836,7 +836,7 @@ public class FuturesOrderService {
 	 * @return 订单
 	 */
 	@Transactional
-	public FuturesOrder overnight(FuturesOrder order) {
+	public FuturesOrder overnight(FuturesOrder order, Integer timeZoneGap) {
 		if (order.getState() != FuturesOrderState.Position) {
 			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
 		}
@@ -857,6 +857,7 @@ public class FuturesOrderService {
 			overnightRecord.setPublisherId(order.getPublisherId());
 			overnightRecord.setReduceTime(new Date());
 			Calendar cal = Calendar.getInstance();
+			cal.setTime(retriveExchangeTime(new Date(), timeZoneGap));
 			cal.set(Calendar.HOUR_OF_DAY, 0);
 			cal.set(Calendar.MINUTE, 0);
 			cal.set(Calendar.SECOND, 0);
