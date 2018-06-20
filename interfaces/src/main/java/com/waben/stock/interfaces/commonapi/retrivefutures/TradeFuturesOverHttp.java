@@ -128,27 +128,24 @@ public class TradeFuturesOverHttp {
 
 	public static FuturesGatewayOrder cancelOrder(String domain, Long gateOrderId) {
 		String url = getBaseUrl() + "futuresOrder/cancalOrder/" + domain + "/" + gateOrderId;
-		try {
-			HttpEntity<String> requestEntity = new HttpEntity<String>("");
-			String response = restTemplate.postForObject(url, requestEntity, String.class);
-			Response<FuturesGatewayOrder> responseObj = JacksonUtil.decode(response,
-					JacksonUtil.getGenericType(Response.class, FuturesGatewayOrder.class));
-			if ("200".equals(responseObj.getCode())) {
-				return responseObj.getResult();
-			} else if ("1001".equals(responseObj.getCode())) {
-				throw new ServiceException(ExceptionConstant.FUTURESAPI_NOTCONNECTED_EXCEPTION);
-			} else if ("1006".equals(responseObj.getCode())) {
-				throw new ServiceException(ExceptionConstant.FUTURESORDER_PARTSUCCESS_CANNOTCANCEL_EXCEPTION);
-			} else {
-				throw new ServiceException(ExceptionConstant.FUTURESAPI_CANCELFAILED_EXCEPTION);
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			throw new ServiceException(ExceptionConstant.FUTURESAPI_ABNORMAL_EXCEPTION, ex);
+		HttpEntity<String> requestEntity = new HttpEntity<String>("");
+		String response = restTemplate.postForObject(url, requestEntity, String.class);
+		Response<FuturesGatewayOrder> responseObj = JacksonUtil.decode(response,
+				JacksonUtil.getGenericType(Response.class, FuturesGatewayOrder.class));
+		if ("200".equals(responseObj.getCode())) {
+			return responseObj.getResult();
+		} else if ("1001".equals(responseObj.getCode())) {
+			throw new ServiceException(ExceptionConstant.FUTURESAPI_NOTCONNECTED_EXCEPTION);
+		} else if ("1006".equals(responseObj.getCode())) {
+			throw new ServiceException(ExceptionConstant.FUTURESORDER_PARTSUCCESS_CANNOTCANCEL_EXCEPTION);
+		} else if ("1007".equals(responseObj.getCode())) {
+			throw new ServiceException(ExceptionConstant.CURRENTSTATUS_CANNOTCANCEL_EXCEPTION);
+		} else {
+			throw new ServiceException(ExceptionConstant.FUTURESAPI_CANCELFAILED_EXCEPTION);
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void testMain(String[] args) {
 		placeOrder("zhangsan.com", "GC", "1808", 1L, FuturesActionType.BUY, new BigDecimal(1), 1, null);
 	}
 

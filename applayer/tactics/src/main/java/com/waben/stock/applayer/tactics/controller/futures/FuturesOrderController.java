@@ -150,11 +150,8 @@ public class FuturesOrderController {
 			orderDto.setLimitProfitType(buysellDto.getLimitProfitType());
 			orderDto.setPerUnitLimitProfitAmount(buysellDto.getPerUnitLimitProfitAmount());
 		}
-
 		// 委托买入价格
-		if (buysellDto.getBuyingPriceType() == FuturesTradePriceType.LMT) {
-			orderDto.setBuyingEntrustPrice(buysellDto.getBuyingEntrustPrice());
-		}
+		orderDto.setBuyingEntrustPrice(buysellDto.getBuyingEntrustPrice());
 		// 获取是否为测试单
 		PublisherDto publisher = publisherBusiness.findById(SecurityUtil.getUserId());
 		orderDto.setIsTest(publisher.getIsTest());
