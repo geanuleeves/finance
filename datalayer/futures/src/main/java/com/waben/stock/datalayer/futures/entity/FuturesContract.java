@@ -58,9 +58,9 @@ public class FuturesContract {
 	 */
 	private BigDecimal perOrderLimit;
 	/**
-	 * The first day on which a notice of intent to deliver a commodity can be
-	 * made by a clearinghouse to a buyer in order to fulfill a given futures
-	 * contract
+	 * 首次通知日 The first day on which a notice of intent to deliver a commodity
+	 * can be made by a clearinghouse to a buyer in order to fulfill a given
+	 * futures contract
 	 */
 	private Date firstNoticeDate;
 	/**
@@ -81,7 +81,7 @@ public class FuturesContract {
 	 */
 	private Date forceUnwindDate;
 	/**
-	 * ` 是否主力合约
+	 * 是否主力合约
 	 */
 	private Boolean mainForce;
 	/**

@@ -23,8 +23,8 @@ public class FuturesQuoteService {
 	@Autowired
 	private FuturesQuoteDao quoteDao;
 
-	public FuturesQuote getFuturesQuoteInfo(Long id) {
-		return quoteDao.retrieveFuturesQuoteById(id);
+	public FuturesQuote getFuturesQuoteInfo(String commodityNo, String contractNo, String id) {
+		return quoteDao.retrieveFuturesQuoteById(commodityNo, contractNo, id);
 	}
 
 	@Transactional
@@ -33,33 +33,28 @@ public class FuturesQuoteService {
 	}
 
 	@Transactional
-	public FuturesQuote modifyFuturesQuote(FuturesQuote futuresQuote) {
-		return quoteDao.updateFuturesQuote(futuresQuote);
+	public void deleteFuturesQuote(String commodityNo, String contractNo, String id) {
+		quoteDao.deleteFuturesQuoteById(commodityNo, contractNo, id);
 	}
 
 	@Transactional
-	public void deleteFuturesQuote(Long id) {
-		quoteDao.deleteFuturesQuoteById(id);
-	}
-
-	@Transactional
-	public void deleteFuturesQuotes(String ids) {
+	public void deleteFuturesQuotes(String commodityNo, String contractNo, String ids) {
 		if (ids != null) {
 			String[] idArr = ids.split(",");
 			for (String id : idArr) {
 				if (!"".equals(id.trim())) {
-					quoteDao.deleteFuturesQuoteById(Long.parseLong(id.trim()));
+					quoteDao.deleteFuturesQuoteById(commodityNo, contractNo, id);
 				}
 			}
 		}
 	}
 
-	public Page<FuturesQuote> futuresQuotes(int page, int limit) {
-		return quoteDao.pageFuturesQuote(page, limit);
+	public Page<FuturesQuote> futuresQuotes(String commodityNo, String contractNo, int page, int limit) {
+		return quoteDao.pageFuturesQuote(commodityNo, contractNo, page, limit);
 	}
 
-	public List<FuturesQuote> list() {
-		return quoteDao.listFuturesQuote();
+	public List<FuturesQuote> list(String commodityNo, String contractNo) {
+		return quoteDao.listFuturesQuote(commodityNo, contractNo);
 	}
 
 	public List<FuturesQuote> getByCommodityNoAndContractNoAndDateTimeStampLike(String commodityNo, String contractNo,
@@ -67,8 +62,8 @@ public class FuturesQuoteService {
 		return quoteDao.retrieveByCommodityNoAndContractNoAndDateTimeStampLike(commodityNo, contractNo, dateTimeStamp);
 	}
 
-	public Long countByTimeGreaterThanEqual(Date time) {
-		return quoteDao.countByTimeGreaterThanEqual(time);
+	public Long countByTimeGreaterThanEqual(String commodityNo, String contractNo, Date time) {
+		return quoteDao.countByTimeGreaterThanEqual(commodityNo, contractNo, time);
 	}
 
 }

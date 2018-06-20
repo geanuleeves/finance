@@ -1,13 +1,6 @@
 package com.waben.stock.futuresgateway.yisheng.entity;
 
-import java.math.BigDecimal;
 import java.util.Date;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 /**
  * 期货合约行情
@@ -15,13 +8,9 @@ import javax.persistence.Table;
  * @author luomengan
  *
  */
-@Entity
-@Table(name = "f_gateway_futures_es_quote")
 public class FuturesQuote {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private String id;
 	/** 品种ID */
 	private Long commodityId;
 	/** 品种编号 */
@@ -35,39 +24,39 @@ public class FuturesQuote {
 	/** 时间戳 */
 	private String dateTimeStamp;
 	/** 昨收盘价 */
-	private BigDecimal preClosingPrice;
+	private String preClosingPrice;
 	/** 昨结算价 */
-	private BigDecimal preSettlePrice;
+	private String preSettlePrice;
 	/** 昨持仓量 */
 	private long prePositionQty;
 	/** 开盘价 */
-	private BigDecimal openingPrice;
+	private String openingPrice;
 	/** 最新价 */
-	private BigDecimal lastPrice;
+	private String lastPrice;
 	/** 最高价 */
-	private BigDecimal highPrice;
+	private String highPrice;
 	/** 最低价 */
-	private BigDecimal lowPrice;
+	private String lowPrice;
 	/** 历史最高价 */
-	private BigDecimal hisHighPrice;
+	private String hisHighPrice;
 	/** 历史最低价 */
-	private BigDecimal hisLowPrice;
+	private String hisLowPrice;
 	/** 涨停价 */
-	private BigDecimal limitUpPrice;
+	private String limitUpPrice;
 	/** 跌停价 */
-	private BigDecimal limitDownPrice;
+	private String limitDownPrice;
 	/** 当日总成交量 */
 	private long totalQty;
 	/** 当日成交金额 */
-	private BigDecimal totalTurnover;
+	private String totalTurnover;
 	/** 持仓量 */
 	private long positionQty;
 	/** 均价 */
-	private BigDecimal averagePrice;
+	private String averagePrice;
 	/** 收盘价 */
-	private BigDecimal closingPrice;
+	private String closingPrice;
 	/** 结算价 */
-	private BigDecimal settlePrice;
+	private String settlePrice;
 	/** 最新成交量 */
 	private long lastQty;
 	/** 买价1-20档，逗号分隔 */
@@ -79,51 +68,51 @@ public class FuturesQuote {
 	/** 卖量1-20档 ，逗号分隔 */
 	private String askQty;
 	/** 隐含买价 */
-	private BigDecimal impliedBidPrice;
+	private String impliedBidPrice;
 	/** 隐含买量 */
 	private long impliedBidQty;
 	/** 隐含卖价 */
-	private BigDecimal impliedAskPrice;
+	private String impliedAskPrice;
 	/** 隐含卖量 */
 	private long impliedAskQty;
 	/** 昨虚实度 */
-	private BigDecimal preDelta;
+	private String preDelta;
 	/** 今虚实度 */
-	private BigDecimal currDelta;
+	private String currDelta;
 	/** 内盘量 */
 	private long insideQty;
 	/** 外盘量 */
 	private long outsideQty;
 	/** 换手率 */
-	private BigDecimal turnoverRate;
+	private String turnoverRate;
 	/** 五日均量 */
 	private long d5AvgQty;
 	/** 市盈率 */
-	private BigDecimal peRatio;
+	private String peRatio;
 	/** 总市值 */
-	private BigDecimal totalValue;
+	private String totalValue;
 	/** 流通市值 */
-	private BigDecimal negotiableValue;
+	private String negotiableValue;
 	/** 持仓走势 */
 	private long positionTrend;
 	/** 涨速 */
-	private BigDecimal changeSpeed;
+	private String changeSpeed;
 	/** 涨幅 */
-	private BigDecimal changeRate;
+	private String changeRate;
 	/** 涨跌值 */
-	private BigDecimal changeValue;
+	private String changeValue;
 	/** 振幅 */
-	private BigDecimal swing;
+	private String swing;
 	/** 委买总量 */
 	private long totalBidQty;
 	/** 委卖总量 */
 	private long totalAskQty;
 
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -151,6 +140,14 @@ public class FuturesQuote {
 		this.contractId = contractId;
 	}
 
+	public String getContractNo() {
+		return contractNo;
+	}
+
+	public void setContractNo(String contractNo) {
+		this.contractNo = contractNo;
+	}
+
 	public Date getTime() {
 		return time;
 	}
@@ -167,19 +164,19 @@ public class FuturesQuote {
 		this.dateTimeStamp = dateTimeStamp;
 	}
 
-	public BigDecimal getPreClosingPrice() {
+	public String getPreClosingPrice() {
 		return preClosingPrice;
 	}
 
-	public void setPreClosingPrice(BigDecimal preClosingPrice) {
+	public void setPreClosingPrice(String preClosingPrice) {
 		this.preClosingPrice = preClosingPrice;
 	}
 
-	public BigDecimal getPreSettlePrice() {
+	public String getPreSettlePrice() {
 		return preSettlePrice;
 	}
 
-	public void setPreSettlePrice(BigDecimal preSettlePrice) {
+	public void setPreSettlePrice(String preSettlePrice) {
 		this.preSettlePrice = preSettlePrice;
 	}
 
@@ -191,67 +188,67 @@ public class FuturesQuote {
 		this.prePositionQty = prePositionQty;
 	}
 
-	public BigDecimal getOpeningPrice() {
+	public String getOpeningPrice() {
 		return openingPrice;
 	}
 
-	public void setOpeningPrice(BigDecimal openingPrice) {
+	public void setOpeningPrice(String openingPrice) {
 		this.openingPrice = openingPrice;
 	}
 
-	public BigDecimal getLastPrice() {
+	public String getLastPrice() {
 		return lastPrice;
 	}
 
-	public void setLastPrice(BigDecimal lastPrice) {
+	public void setLastPrice(String lastPrice) {
 		this.lastPrice = lastPrice;
 	}
 
-	public BigDecimal getHighPrice() {
+	public String getHighPrice() {
 		return highPrice;
 	}
 
-	public void setHighPrice(BigDecimal highPrice) {
+	public void setHighPrice(String highPrice) {
 		this.highPrice = highPrice;
 	}
 
-	public BigDecimal getLowPrice() {
+	public String getLowPrice() {
 		return lowPrice;
 	}
 
-	public void setLowPrice(BigDecimal lowPrice) {
+	public void setLowPrice(String lowPrice) {
 		this.lowPrice = lowPrice;
 	}
 
-	public BigDecimal getHisHighPrice() {
+	public String getHisHighPrice() {
 		return hisHighPrice;
 	}
 
-	public void setHisHighPrice(BigDecimal hisHighPrice) {
+	public void setHisHighPrice(String hisHighPrice) {
 		this.hisHighPrice = hisHighPrice;
 	}
 
-	public BigDecimal getHisLowPrice() {
+	public String getHisLowPrice() {
 		return hisLowPrice;
 	}
 
-	public void setHisLowPrice(BigDecimal hisLowPrice) {
+	public void setHisLowPrice(String hisLowPrice) {
 		this.hisLowPrice = hisLowPrice;
 	}
 
-	public BigDecimal getLimitUpPrice() {
+	public String getLimitUpPrice() {
 		return limitUpPrice;
 	}
 
-	public void setLimitUpPrice(BigDecimal limitUpPrice) {
+	public void setLimitUpPrice(String limitUpPrice) {
 		this.limitUpPrice = limitUpPrice;
 	}
 
-	public BigDecimal getLimitDownPrice() {
+	public String getLimitDownPrice() {
 		return limitDownPrice;
 	}
 
-	public void setLimitDownPrice(BigDecimal limitDownPrice) {
+	public void setLimitDownPrice(String limitDownPrice) {
 		this.limitDownPrice = limitDownPrice;
 	}
 
@@ -263,11 +260,11 @@ public class FuturesQuote {
 		this.totalQty = totalQty;
 	}
 
-	public BigDecimal getTotalTurnover() {
+	public String getTotalTurnover() {
 		return totalTurnover;
 	}
 
-	public void setTotalTurnover(BigDecimal totalTurnover) {
+	public void setTotalTurnover(String totalTurnover) {
 		this.totalTurnover = totalTurnover;
 	}
 
@@ -279,27 +276,27 @@ public class FuturesQuote {
 		this.positionQty = positionQty;
 	}
 
-	public BigDecimal getAveragePrice() {
+	public String getAveragePrice() {
 		return averagePrice;
 	}
 
-	public void setAveragePrice(BigDecimal averagePrice) {
+	public void setAveragePrice(String averagePrice) {
 		this.averagePrice = averagePrice;
 	}
 
-	public BigDecimal getClosingPrice() {
+	public String getClosingPrice() {
 		return closingPrice;
 	}
 
-	public void setClosingPrice(BigDecimal closingPrice) {
+	public void setClosingPrice(String closingPrice) {
 		this.closingPrice = closingPrice;
 	}
 
-	public BigDecimal getSettlePrice() {
+	public String getSettlePrice() {
 		return settlePrice;
 	}
 
-	public void setSettlePrice(BigDecimal settlePrice) {
+	public void setSettlePrice(String settlePrice) {
 		this.settlePrice = settlePrice;
 	}
 
@@ -343,11 +340,11 @@ public class FuturesQuote {
 		this.askQty = askQty;
 	}
 
-	public BigDecimal getImpliedBidPrice() {
+	public String getImpliedBidPrice() {
 		return impliedBidPrice;
 	}
 
-	public void setImpliedBidPrice(BigDecimal impliedBidPrice) {
+	public void setImpliedBidPrice(String impliedBidPrice) {
 		this.impliedBidPrice = impliedBidPrice;
 	}
 
@@ -359,11 +356,11 @@ public class FuturesQuote {
 		this.impliedBidQty = impliedBidQty;
 	}
 
-	public BigDecimal getImpliedAskPrice() {
+	public String getImpliedAskPrice() {
 		return impliedAskPrice;
 	}
 
-	public void setImpliedAskPrice(BigDecimal impliedAskPrice) {
+	public void setImpliedAskPrice(String impliedAskPrice) {
 		this.impliedAskPrice = impliedAskPrice;
 	}
 
@@ -375,19 +372,19 @@ public class FuturesQuote {
 		this.impliedAskQty = impliedAskQty;
 	}
 
-	public BigDecimal getPreDelta() {
+	public String getPreDelta() {
 		return preDelta;
 	}
 
-	public void setPreDelta(BigDecimal preDelta) {
+	public void setPreDelta(String preDelta) {
 		this.preDelta = preDelta;
 	}
 
-	public BigDecimal getCurrDelta() {
+	public String getCurrDelta() {
 		return currDelta;
 	}
 
-	public void setCurrDelta(BigDecimal currDelta) {
+	public void setCurrDelta(String currDelta) {
 		this.currDelta = currDelta;
 	}
 
@@ -407,11 +404,11 @@ public class FuturesQuote {
 		this.outsideQty = outsideQty;
 	}
 
-	public BigDecimal getTurnoverRate() {
+	public String getTurnoverRate() {
 		return turnoverRate;
 	}
 
-	public void setTurnoverRate(BigDecimal turnoverRate) {
+	public void setTurnoverRate(String turnoverRate) {
 		this.turnoverRate = turnoverRate;
 	}
 
@@ -423,27 +420,27 @@ public class FuturesQuote {
 		this.d5AvgQty = d5AvgQty;
 	}
 
-	public BigDecimal getPeRatio() {
+	public String getPeRatio() {
 		return peRatio;
 	}
 
-	public void setPeRatio(BigDecimal peRatio) {
+	public void setPeRatio(String peRatio) {
 		this.peRatio = peRatio;
 	}
 
-	public BigDecimal getTotalValue() {
+	public String getTotalValue() {
 		return totalValue;
 	}
 
-	public void setTotalValue(BigDecimal totalValue) {
+	public void setTotalValue(String totalValue) {
 		this.totalValue = totalValue;
 	}
 
-	public BigDecimal getNegotiableValue() {
+	public String getNegotiableValue() {
 		return negotiableValue;
 	}
 
-	public void setNegotiableValue(BigDecimal negotiableValue) {
+	public void setNegotiableValue(String negotiableValue) {
 		this.negotiableValue = negotiableValue;
 	}
 
@@ -455,35 +452,35 @@ public class FuturesQuote {
 		this.positionTrend = positionTrend;
 	}
 
-	public BigDecimal getChangeSpeed() {
+	public String getChangeSpeed() {
 		return changeSpeed;
 	}
 
-	public void setChangeSpeed(BigDecimal changeSpeed) {
+	public void setChangeSpeed(String changeSpeed) {
 		this.changeSpeed = changeSpeed;
 	}
 
-	public BigDecimal getChangeRate() {
+	public String getChangeRate() {
 		return changeRate;
 	}
 
-	public void setChangeRate(BigDecimal changeRate) {
+	public void setChangeRate(String changeRate) {
 		this.changeRate = changeRate;
 	}
 
-	public BigDecimal getChangeValue() {
+	public String getChangeValue() {
 		return changeValue;
 	}
 
-	public void setChangeValue(BigDecimal changeValue) {
+	public void setChangeValue(String changeValue) {
 		this.changeValue = changeValue;
 	}
 
-	public BigDecimal getSwing() {
+	public String getSwing() {
 		return swing;
 	}
 
-	public void setSwing(BigDecimal swing) {
+	public void setSwing(String swing) {
 		this.swing = swing;
 	}
 
@@ -501,14 +498,6 @@ public class FuturesQuote {
 
 	public void setTotalAskQty(long totalAskQty) {
 		this.totalAskQty = totalAskQty;
-	}
-
-	public String getContractNo() {
-		return contractNo;
-	}
-
-	public void setContractNo(String contractNo) {
-		this.contractNo = contractNo;
 	}
 
 }

@@ -31,9 +31,9 @@ public class DeleteQuoteConsumer {
 		DeleteQuoteMessage msgObj = JacksonUtil.decode(message, DeleteQuoteMessage.class);
 		try {
 			if (msgObj.getType() != null && msgObj.getType() == 1) {
-				quoteService.deleteFuturesQuote(msgObj.getQuoteId());
+				quoteService.deleteFuturesQuote(msgObj.getCommodityNo(), msgObj.getContractNo(), msgObj.getQuoteId());
 			} else if (msgObj.getType() != null && msgObj.getType() == 2) {
-				minuteKService.deleteFuturesQuoteMinuteK(msgObj.getQuoteId());
+				minuteKService.deleteFuturesQuoteMinuteK(Long.parseLong(msgObj.getQuoteId()));
 			}
 		} catch (Exception ex) {
 			logger.error("消费删除易盛Quote消息异常!", ex);
