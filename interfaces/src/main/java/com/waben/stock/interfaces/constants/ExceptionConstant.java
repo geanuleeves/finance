@@ -333,5 +333,7 @@ public class ExceptionConstant {
 	public static final String COMMODITY_HAVING_CONTRACT_EXCEPTION = "13035";
 	// 当前订单状态已排队，不能被取消!
 	public static final String CURRENTSTATUS_CANNOTCANCEL_EXCEPTION = "13036";
-	
+	// 当前时间大于（等于）最后交易日和首次通知日中最小的时间，不能下单
+	public static final String MIN_PLACE_ORDER_EXCEPTION = "13037";
+
 }

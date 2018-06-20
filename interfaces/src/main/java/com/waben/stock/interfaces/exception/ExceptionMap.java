@@ -188,6 +188,7 @@ public class ExceptionMap {
 
 		exceptionMap.put(ExceptionConstant.TOTAL_AMOUNT_BUYUP_CAPACITY_INSUFFICIENT_EXCEPTION, "买涨持仓总额度已达上限");
 		exceptionMap.put(ExceptionConstant.TOTAL_AMOUNT_BUYFULL_CAPACITY_INSUFFICIENT_EXCEPTION, "买跌持仓总额度已达上限");
+		exceptionMap.put(ExceptionConstant.MIN_PLACE_ORDER_EXCEPTION, "当前时间大于（等于）最后交易日和首次通知日中最小的时间，不能下单");
 
 	}
 }

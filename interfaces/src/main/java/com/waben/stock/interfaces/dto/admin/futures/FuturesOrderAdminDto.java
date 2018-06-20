@@ -165,7 +165,7 @@ public class FuturesOrderAdminDto {
 	/**
 	 * 持仓天数
 	 */
-	private Integer positionDays;
+	private String positionDays;
 
 	/**
 	 * 持仓截止日期
@@ -389,11 +389,11 @@ public class FuturesOrderAdminDto {
 		this.perUnitLimitLossAmount = perUnitLimitLossAmount;
 	}
 
-	public Integer getPositionDays() {
+	public String getPositionDays() {
 		return positionDays;
 	}
 
-	public void setPositionDays(Integer positionDays) {
+	public void setPositionDays(String positionDays) {
 		this.positionDays = positionDays;
 	}
 

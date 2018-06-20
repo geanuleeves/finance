@@ -245,17 +245,12 @@ public class FuturesOrderController {
 			List<String> data = new ArrayList<String>();
 			String kaiping = "";
 			if (dto.getState() != null) {
-				if (dto.getState() != FuturesOrderState.Position.getType()
-						&& dto.getState() != FuturesOrderState.SellingEntrust.getType()
-						&& dto.getState() != FuturesOrderState.PartUnwind.getType()
-						&& dto.getState() != FuturesOrderState.Unwind.getType()) {
+				if (dto.getState() != FuturesOrderState.SellingEntrust.getType()&& dto.getState() != FuturesOrderState.PartUnwind.getType()) {
 					kaiping = "开仓";
-				}
-				if (dto.getState() != FuturesOrderState.SellingEntrust.getType()
-						|| dto.getState() != FuturesOrderState.PartUnwind.getType()
-						|| dto.getState() != FuturesOrderState.Unwind.getType()) {
+				}else{
 					kaiping = "平仓";
 				}
+				
 			}
 			if (type == 3) {
 				data.add(dto.getPublisherName() == null ? "" : dto.getPublisherName());
@@ -272,8 +267,8 @@ public class FuturesOrderController {
 				data.add(dto.getBuyingPriceType() == null ? "" : dto.getBuyingPriceType().getType());
 				data.add(dto.getPerUnitLimitLossAmount() == null ? "" : dto.getPerUnitLimitLossAmount().toString());
 				data.add(dto.getPerUnitLimitProfitAmount() == null ? "" : dto.getPerUnitLimitProfitAmount().toString());
-				data.add(dto.getReserveFund() == null ? "" : dto.getReserveFund().toString());
-				data.add(dto.getServiceFee() == null ? "" : dto.getServiceFee().toString());
+				data.add(dto.getReserveFund() == null ? "" : dto.getReserveFund().multiply(dto.getTotalQuantity()).toString());
+				data.add(String.valueOf(dto.getOpenwindServiceFee().add(dto.getUnwindServiceFee()).multiply(dto.getTotalQuantity())));
 				data.add(dto.getPostTime() == null ? "" : sdf.format(dto.getPostTime()));
 				data.add(dto.getDealTime() == null ? "" : sdf.format(dto.getDealTime()));
 			} else if (type == 4) {
@@ -285,14 +280,13 @@ public class FuturesOrderController {
 				data.add(dto.getOrderType() == null ? "" : dto.getOrderType());
 				data.add(dto.getState() == null ? "" : dto.getState());
 				data.add(kaiping);
-				data.add(dto.getEntrustAppointPrice() == null ? "" : dto.getEntrustAppointPrice().toString());
 				data.add(dto.getTotalQuantity() == null ? "" : dto.getTotalQuantity().toString());
-				data.add(String.valueOf(dto.getSellingEntrustPrice() == null ? "" : dto.getSellingEntrustPrice()));
+				data.add(dto.getEntrustPrice() == null ? "" : dto.getEntrustPrice().toString());
 				data.add(dto.getBuyingPriceType() == null ? "" : dto.getBuyingPriceType().getType());
 				data.add(dto.getPerUnitLimitLossAmount() == null ? "" : dto.getPerUnitLimitLossAmount().toString());
 				data.add(dto.getPerUnitLimitProfitAmount() == null ? "" : dto.getPerUnitLimitProfitAmount().toString());
-				data.add(dto.getServiceFee() == null ? "" : dto.getServiceFee().toString());
-				data.add(String.valueOf(dto.getOpenwindServiceFee().add(dto.getUnwindServiceFee())));
+				data.add(dto.getReserveFund() == null ? "" : dto.getReserveFund().multiply(dto.getTotalQuantity()).toString());
+				data.add(String.valueOf(dto.getOpenwindServiceFee().add(dto.getUnwindServiceFee()).multiply(dto.getTotalQuantity())));
 				data.add(dto.getPostTime() == null ? "" : sdf.format(dto.getPostTime()));
 				data.add(dto.getState() == null ? "" : dto.getState());
 			}
@@ -414,7 +408,6 @@ public class FuturesOrderController {
 		result.add("委托方向");
 		result.add("委托状态");
 		result.add("开平");
-		result.add("委托价格");
 		result.add("委托手数");
 		result.add("委托价");
 		result.add("定单类型");

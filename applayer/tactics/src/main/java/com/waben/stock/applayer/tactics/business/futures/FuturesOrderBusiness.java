@@ -215,11 +215,19 @@ public class FuturesOrderBusiness {
 					orderMarket.setPerWaveMoney(contract.getPerWaveMoney());
 					orderMarket.setMinWave(contract.getMinWave());
 					orderMarket.setLastPrice(market.getLastPrice());
-					// 用户盈亏 = （最新价 - 买入价） / 最小波动点 * 波动一次盈亏金额 * 汇率
+
 					if (orderMarket.getPublisherProfitOrLoss() == null) {
-						orderMarket.setPublisherProfitOrLoss(
-								market.getLastPrice().subtract(buyingPrice).divide(contract.getMinWave())
-										.multiply(contract.getPerWaveMoney()).multiply(rate.getRate()));
+						// 用户买涨盈亏 = （最新价 - 买入价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
+						if (orderMarket.getOrderType() == FuturesOrderType.BuyUp) {
+							orderMarket.setPublisherProfitOrLoss(market.getLastPrice().subtract(buyingPrice)
+									.divide(contract.getMinWave()).multiply(contract.getPerWaveMoney())
+									.multiply(rate.getRate()).multiply(orderMarket.getTotalQuantity()));
+						} else {
+							// 用户买跌盈亏 = （买入价 - 最新价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
+							orderMarket.setPublisherProfitOrLoss(buyingPrice.subtract(market.getLastPrice())
+									.divide(contract.getMinWave()).multiply(contract.getPerWaveMoney())
+									.multiply(rate.getRate()).multiply(orderMarket.getTotalQuantity()));
+						}
 					}
 				}
 
