@@ -70,6 +70,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		"/drawactivity/**",
 		"/futuresMarket/**",
 		"/futuresContract/pagesContract",
+		"/futuresContract/{contractId}/minWave",
 		"/futuresOrder/transaction/dynamics"
 	};
 
