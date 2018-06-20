@@ -161,6 +161,12 @@ public class FuturesContractDto extends FuturesCommodityDto {
 	@ApiModelProperty(value = "下一个交易时间")
 	private String nextTradingTime;
 
+	/**
+	 * 当日自动平仓时间
+	 */
+	@ApiModelProperty(value = "当日自动平仓时间")
+	private String automaticWarehouseTime;
+
 	public Long getId() {
 		return id;
 	}
@@ -375,6 +381,14 @@ public class FuturesContractDto extends FuturesCommodityDto {
 
 	public void setBuyFullTotalLimit(BigDecimal buyFullTotalLimit) {
 		this.buyFullTotalLimit = buyFullTotalLimit;
+	}
+
+	public String getAutomaticWarehouseTime() {
+		return automaticWarehouseTime;
+	}
+
+	public void setAutomaticWarehouseTime(String automaticWarehouseTime) {
+		this.automaticWarehouseTime = automaticWarehouseTime;
 	}
 
 }

@@ -334,7 +334,7 @@ public class FuturesOrderService {
 				}
 				// 结束日期
 				if (query.getEndBuyingTime() != null) {
-					Predicate endTime = criteriaBuilder.lessThanOrEqualTo(root.get("buyingTime").as(Date.class),
+					Predicate endTime = criteriaBuilder.lessThan(root.get("buyingTime").as(Date.class),
 							query.getEndBuyingTime());
 					predicateList.add(criteriaBuilder.and(endTime));
 				}
@@ -1168,9 +1168,10 @@ public class FuturesOrderService {
 		return order;
 	}
 
-	public TurnoverStatistyRecordDto getTurnoverStatisty() {
-		String sql = String.format(
-				"SELECT COUNT(o.id) AS number, SUM(o.total_quantity) AS total_quantity, SUM(o.openwind_service_fee + o.unwind_service_fee) AS service_fee,(SELECT SUM(f.publisher_profit_or_loss) AS user_profit_or_loss FROM f_futures_order f where f.state = 9) AS user_profit_or_loss FROM f_futures_order o where o.state in(6,9)");
+	public TurnoverStatistyRecordDto getTurnoverStatisty(Long publisherId) {
+		String sql = String
+				.format("SELECT COUNT(o.id) AS number, SUM(o.total_quantity) AS total_quantity, SUM(o.openwind_service_fee + o.unwind_service_fee) AS service_fee,(SELECT SUM(f.publisher_profit_or_loss) AS user_profit_or_loss FROM f_futures_order f where f.state = 9) AS user_profit_or_loss FROM f_futures_order o where o.state in(6,9) AND o.publisher_id="
+						+ publisherId);
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setTurnoverNum", new Class<?>[] { Integer.class }));
 		setMethodMap.put(new Integer(1), new MethodDesc("setTurnoverHandsNum", new Class<?>[] { Integer.class }));

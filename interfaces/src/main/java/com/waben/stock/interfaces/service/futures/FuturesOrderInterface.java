@@ -155,6 +155,6 @@ public interface FuturesOrderInterface {
 	 * @return 成交统计
 	 */
 	@RequestMapping(value = "/turnover/statisty/record", method = RequestMethod.GET)
-	Response<TurnoverStatistyRecordDto> getTurnoverStatisty();
+	Response<TurnoverStatistyRecordDto> getTurnoverStatisty(@RequestParam("publisherId") Long publisherId);
 
 }

@@ -114,9 +114,11 @@ public class FuturesContractController implements FuturesContractInterface {
 			// 转换后当前时间的明天
 			Date nextTime = nextTime(exchangeTime);
 			// 获取交易所提供时间
-			String tradeTime = retriveExchangeTradeTimeStr(timeZoneGap, contractDto, now);
 			boolean isTradeTime = false;
+			String tradeTime = retriveExchangeTradeTimeStr(timeZoneGap, contractDto, now);
 			if (!StringUtil.isEmpty(tradeTime)) {
+				contractDto.setAutomaticWarehouseTime(
+						timeZoneConversion(timeZoneGap, tradeTime.substring(tradeTime.lastIndexOf("-") + 1)));
 				String[] tradeTimeArr = tradeTime.split(",");
 				String dayStr = daySdf.format(exchangeTime);
 				String fullStr = fullSdf.format(exchangeTime);
@@ -190,19 +192,19 @@ public class FuturesContractController implements FuturesContractInterface {
 		int week = cal.get(Calendar.DAY_OF_WEEK);
 		String tradeTime = null;
 		if (week == 1) {
-			tradeTime = contract.getSunTradeTime().split(",")[0];
+			tradeTime = contract.getSunTradeTime();
 		} else if (week == 2) {
-			tradeTime = contract.getMonTradeTime().split(",")[0];
+			tradeTime = contract.getMonTradeTime();
 		} else if (week == 3) {
-			tradeTime = contract.getTueTradeTime().split(",")[0];
+			tradeTime = contract.getTueTradeTime();
 		} else if (week == 4) {
-			tradeTime = contract.getWedTradeTime().split(",")[0];
+			tradeTime = contract.getWedTradeTime();
 		} else if (week == 5) {
-			tradeTime = contract.getThuTradeTime().split(",")[0];
+			tradeTime = contract.getThuTradeTime();
 		} else if (week == 6) {
-			tradeTime = contract.getFriTradeTime().split(",")[0];
+			tradeTime = contract.getFriTradeTime();
 		} else if (week == 7) {
-			tradeTime = contract.getSatTradeTime().split(",")[0];
+			tradeTime = contract.getSatTradeTime();
 		}
 		return tradeTime;
 	}
