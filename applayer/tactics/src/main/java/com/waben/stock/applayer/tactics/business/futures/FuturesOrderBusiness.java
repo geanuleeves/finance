@@ -170,39 +170,6 @@ public class FuturesOrderBusiness {
 				FuturesCurrencyRateDto rate = findByCurrency(orderMarket.getCommodityCurrency());
 				orderMarket.setRate(rate.getRate());
 				orderMarket.setCurrencySign(rate.getCurrencySign());
-				// 买入价
-				BigDecimal buyingPrice = new BigDecimal(0);
-				if (orderMarket.getBuyingPriceType() == FuturesTradePriceType.MKT) {
-					buyingPrice = orderMarket.getBuyingPrice() == null ? new BigDecimal(0)
-							: orderMarket.getBuyingPrice();
-				} else {
-					buyingPrice = orderMarket.getBuyingEntrustPrice() == null ? new BigDecimal(0)
-							: orderMarket.getBuyingEntrustPrice();
-				}
-				// 止盈
-				if (orderMarket.getLimitProfitType() != null && orderMarket.getPerUnitLimitProfitAmount() != null) {
-					// 按用户设置价格计算止盈金额
-					if (orderMarket.getLimitProfitType() == 1) {
-						// | 止盈金额 = （设置价格 - 买入价）/ 最小波动点位 * 波动一次盈亏金额 * 汇率 |
-						orderMarket.setPerUnitLimitProfitPositon(orderMarket.getPerUnitLimitProfitAmount()
-								.subtract(buyingPrice).divide(contract.getMinWave())
-								.multiply(contract.getPerWaveMoney()).multiply(rate.getRate()).abs());
-					} else {
-						orderMarket.setPerUnitLimitProfitPositon(orderMarket.getPerUnitLimitProfitAmount());
-					}
-				}
-				// 止损
-				if (orderMarket.getLimitLossType() != null && orderMarket.getPerUnitLimitLossAmount() != null) {
-					// 按用户设置价格计算止损金额
-					if (orderMarket.getLimitLossType() == 1) {
-						// 止损金额 = （设置价格 - 买入价）/ 最小波动点位 * 波动一次盈亏金额 * 汇率
-						orderMarket.setPerUnitLimitLossPosition(orderMarket.getPerUnitLimitLossAmount()
-								.subtract(buyingPrice).divide(contract.getMinWave())
-								.multiply(contract.getPerWaveMoney()).multiply(rate.getRate()));
-					} else {
-						orderMarket.setPerUnitLimitLossPosition(orderMarket.getPerUnitLimitLossAmount());
-					}
-				}
 				// 订单结算状态为 已取消或委托失败时 不计算用户盈亏
 				if (orderMarket.getState() != FuturesOrderState.BuyingCanceled
 						&& orderMarket.getState() != FuturesOrderState.BuyingFailure) {
@@ -216,17 +183,19 @@ public class FuturesOrderBusiness {
 					orderMarket.setMinWave(contract.getMinWave());
 					orderMarket.setLastPrice(market.getLastPrice());
 
-					if (orderMarket.getPublisherProfitOrLoss() == null) {
+					if (orderMarket.getPublisherProfitOrLoss() == null && orderMarket.getBuyingPrice() != null) {
 						// 用户买涨盈亏 = （最新价 - 买入价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
 						if (orderMarket.getOrderType() == FuturesOrderType.BuyUp) {
-							orderMarket.setPublisherProfitOrLoss(market.getLastPrice().subtract(buyingPrice)
-									.divide(contract.getMinWave()).multiply(contract.getPerWaveMoney())
-									.multiply(rate.getRate()).multiply(orderMarket.getTotalQuantity()));
+							orderMarket.setPublisherProfitOrLoss(
+									market.getLastPrice().subtract(orderMarket.getBuyingPrice())
+											.divide(contract.getMinWave()).multiply(contract.getPerWaveMoney())
+											.multiply(rate.getRate()).multiply(orderMarket.getTotalQuantity()));
 						} else {
 							// 用户买跌盈亏 = （买入价 - 最新价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
-							orderMarket.setPublisherProfitOrLoss(buyingPrice.subtract(market.getLastPrice())
-									.divide(contract.getMinWave()).multiply(contract.getPerWaveMoney())
-									.multiply(rate.getRate()).multiply(orderMarket.getTotalQuantity()));
+							orderMarket.setPublisherProfitOrLoss(
+									orderMarket.getBuyingPrice().subtract(market.getLastPrice())
+											.divide(contract.getMinWave()).multiply(contract.getPerWaveMoney())
+											.multiply(rate.getRate()).multiply(orderMarket.getTotalQuantity()));
 						}
 					}
 				}
