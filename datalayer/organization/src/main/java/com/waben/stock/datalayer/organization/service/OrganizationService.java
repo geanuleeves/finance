@@ -723,7 +723,7 @@ public class OrganizationService {
 
 	public List<FuturesAgentPriceDto> getListByFuturesAgentPrice(Long orgId) {
 		String sql = String
-				.format("SELECT c1.id AS commodity_id ,c1.symbol,c1.`name`,c2.id , c2.cost_reserve_fund, c2.cost_openwind_service_fee,c2.cost_unwind_service_fee,c2.cost_deferred_fee,c2.sale_openwind_service_fee,c2.sale_unwind_service_fee,c2.sale_deferred_fee FROM f_futures_commodity c1 LEFT JOIN p_futures_agent_price c2 ON c2.contract_id = c1.id AND c2.org_id="
+				.format("SELECT c1.id AS commodity_id ,c1.symbol,c1.`name`,c2.id , c2.cost_reserve_fund, c2.cost_openwind_service_fee,c2.cost_unwind_service_fee,c2.cost_deferred_fee,c2.sale_openwind_service_fee,c2.sale_unwind_service_fee,c2.sale_deferred_fee FROM f_futures_commodity c1 LEFT JOIN p_futures_agent_price c2 ON c2.commodity_id = c1.id AND c2.org_id="
 						+ orgId);
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setCommodityId", new Class<?>[] { Long.class }));
