@@ -170,19 +170,18 @@ public class FuturesOrderBusiness {
 				FuturesCurrencyRateDto rate = findByCurrency(orderMarket.getCommodityCurrency());
 				orderMarket.setRate(rate.getRate());
 				orderMarket.setCurrencySign(rate.getCurrencySign());
+				orderMarket.setPerWaveMoney(contract.getPerWaveMoney());
+				orderMarket.setMinWave(contract.getMinWave());
+				// 获取行情信息
+				FuturesContractMarket market = RetriveFuturesOverHttp.market(orderMarket.getCommoditySymbol(),
+						orderMarket.getContractNo());
+				if (market == null) {
+					break;
+				}
+				orderMarket.setLastPrice(market.getLastPrice());
 				// 订单结算状态为 已取消或委托失败时 不计算用户盈亏
 				if (orderMarket.getState() != FuturesOrderState.BuyingCanceled
 						&& orderMarket.getState() != FuturesOrderState.BuyingFailure) {
-					// 获取行情信息
-					FuturesContractMarket market = RetriveFuturesOverHttp.market(orderMarket.getCommoditySymbol(),
-							orderMarket.getContractNo());
-					if (market == null) {
-						break;
-					}
-					orderMarket.setPerWaveMoney(contract.getPerWaveMoney());
-					orderMarket.setMinWave(contract.getMinWave());
-					orderMarket.setLastPrice(market.getLastPrice());
-
 					if (orderMarket.getPublisherProfitOrLoss() == null && orderMarket.getBuyingPrice() != null) {
 						// 用户买涨盈亏 = （最新价 - 买入价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
 						if (orderMarket.getOrderType() == FuturesOrderType.BuyUp) {
@@ -199,7 +198,6 @@ public class FuturesOrderBusiness {
 						}
 					}
 				}
-
 			}
 		}
 		return orderList;
