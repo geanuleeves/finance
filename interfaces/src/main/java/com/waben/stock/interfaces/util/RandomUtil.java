@@ -75,7 +75,7 @@ public class RandomUtil {
 		return UUID.randomUUID().toString().replaceAll("-", "").substring(0, 32);
 	}
 	
-	public static void main(String[] args) {
+	public static void testMain(String[] args) {
 		System.out.println(RandomUtil.getRandomInt(10));
 	}
 
