@@ -41,6 +41,11 @@ public class FutresOrderEntrustDto {
 	 * 订单编号
 	 */
 	private String tradeNo;
+	
+	/**
+	 * 合约编号
+	 */
+	private String contractNo;
 
 	/**
 	 * 交易方向
@@ -203,6 +208,14 @@ public class FutresOrderEntrustDto {
 
 	public void setTradeNo(String tradeNo) {
 		this.tradeNo = tradeNo;
+	}
+
+	public String getContractNo() {
+		return contractNo;
+	}
+
+	public void setContractNo(String contractNo) {
+		this.contractNo = contractNo;
 	}
 
 	public String getOrderType() {
