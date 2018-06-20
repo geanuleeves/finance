@@ -135,7 +135,7 @@ public class ExceptionMap {
 		exceptionMap.put(ExceptionConstant.CONTRACT_HOLDING_CAPACITY_INSUFFICIENT_EXCEPTION, "选择交易数量大于用户持仓总量");
 		exceptionMap.put(ExceptionConstant.CONTRACT_DOESNOT_EXIST_EXCEPTION, "该合约不存在");
 		exceptionMap.put(ExceptionConstant.CONTRACT_ABNORMALITY_EXCEPTION, "该合约异常不可用");
-		exceptionMap.put(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION, "该合约不在交易时间段");
+		exceptionMap.put(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION, "不在交易时间段，无法操作");
 		exceptionMap.put(ExceptionConstant.CONTRACTTERM_NOTAVAILABLE_EXCEPTION, "没有可用的期货合约期限，暂时不能交易");
 		exceptionMap.put(ExceptionConstant.EXCHANGE_ISNOT_AVAILABLE_EXCEPTION, "该合约交易所不可用");
 		exceptionMap.put(ExceptionConstant.GATEWAY_DOESNOT_SUPPORT_CONTRACT_EXCEPTION, "期货网关不支持该合约");

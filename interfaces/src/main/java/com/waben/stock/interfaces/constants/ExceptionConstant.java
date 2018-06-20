@@ -273,7 +273,7 @@ public class ExceptionConstant {
 	public static final String CONTRACT_DOESNOT_EXIST_EXCEPTION = "13005";
 	// 该合约异常
 	public static final String CONTRACT_ABNORMALITY_EXCEPTION = "13006";
-	// 该合约不在交易时间段
+	// 不在交易时间段，无法操作
 	public static final String CONTRACT_ISNOTIN_TRADE_EXCEPTION = "13007";
 	// 没有可用的期货合约期限，暂时不能交易
 	public static final String CONTRACTTERM_NOTAVAILABLE_EXCEPTION = "13008";
