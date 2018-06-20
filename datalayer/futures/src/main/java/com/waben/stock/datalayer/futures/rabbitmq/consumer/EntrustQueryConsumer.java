@@ -16,6 +16,7 @@ import com.waben.stock.datalayer.futures.service.FuturesOrderService;
 import com.waben.stock.interfaces.commonapi.retrivefutures.TradeFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesGatewayOrder;
 import com.waben.stock.interfaces.util.JacksonUtil;
+import com.waben.stock.interfaces.util.RandomUtil;
 
 @Component
 @RabbitListener(queues = { RabbitmqConfiguration.entrustQueryQueueName })
@@ -31,7 +32,9 @@ public class EntrustQueryConsumer {
 
 	@RabbitHandler
 	public void handlerMessage(String message) {
-		logger.info("消费期货委托查询消息:{}", message);
+		if (RandomUtil.getRandomInt(100) % 51 == 0 && RandomUtil.getRandomInt(100) % 51 == 0) {
+			logger.info("消费期货委托查询消息:{}", message);
+		}
 		EntrustQueryMessage messgeObj = JacksonUtil.decode(message, EntrustQueryMessage.class);
 		try {
 			Long orderId = messgeObj.getOrderId();
@@ -150,7 +153,7 @@ public class EntrustQueryConsumer {
 		try {
 			int consumeCount = messgeObj.getConsumeCount();
 			messgeObj.setConsumeCount(consumeCount + 1);
-			Thread.sleep(100);
+			Thread.sleep(50);
 			if (messgeObj.getMaxConsumeCount() > 0 && consumeCount < messgeObj.getMaxConsumeCount()) {
 				producer.sendMessage(RabbitmqConfiguration.entrustQueryQueueName, messgeObj);
 			} else if (messgeObj.getMaxConsumeCount() <= 0) {

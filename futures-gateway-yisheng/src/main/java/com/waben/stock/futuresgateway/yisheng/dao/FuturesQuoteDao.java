@@ -17,20 +17,18 @@ public interface FuturesQuoteDao {
 
 	public FuturesQuote createFuturesQuote(FuturesQuote futuresQuote);
 
-	public void deleteFuturesQuoteById(Long id);
+	public void deleteFuturesQuoteById(String commodityNo, String contractNo, String id);
 
-	public FuturesQuote updateFuturesQuote(FuturesQuote futuresQuote);
+	public FuturesQuote retrieveFuturesQuoteById(String commodityNo, String contractNo, String id);
 
-	public FuturesQuote retrieveFuturesQuoteById(Long id);
+	public Page<FuturesQuote> pageFuturesQuote(String commodityNo, String contractNo, int page, int limit);
 
-	public Page<FuturesQuote> pageFuturesQuote(int page, int limit);
-
-	public List<FuturesQuote> listFuturesQuote();
+	public List<FuturesQuote> listFuturesQuote(String commodityNo, String contractNo);
 
 	public List<FuturesQuote> retrieveByCommodityNoAndContractNoAndDateTimeStampLike(String commodityNo,
 			String contractNo, String dateTimeStamp);
 
-	public Long countByTimeGreaterThanEqual(Date time);
+	public Long countByTimeGreaterThanEqual(String commodityNo, String contractNo, Date time);
 
 	public FuturesQuote retriveNewest(String commodityNo, String contractNo);
 

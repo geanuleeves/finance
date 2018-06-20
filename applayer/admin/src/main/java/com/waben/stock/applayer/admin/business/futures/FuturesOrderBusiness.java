@@ -191,9 +191,11 @@ public class FuturesOrderBusiness {
 					if(dto.getPublisherProfitOrLoss()==null){
 						if (market != null && contract != null && rate != null) {
 							dto.setLastPrice(market.getLastPrice());
-							BigDecimal profitOrLoss = dto.getProfitOrLoss() == null ? new BigDecimal(0)
-									: dto.getProfitOrLoss();
-							dto.setFloatingProfitOrLoss(profitOrLoss.multiply(rate.getRate()));
+							if(dto.getOrderType()!=null && !"".equals(dto.getOrderType()) && "买涨".equals(dto.getOrderType())){
+								dto.setFloatingProfitOrLoss(dto.getLastPrice().subtract(dto.getBuyingPrice()).multiply(dto.getTotalQuantity()));
+							}else if(dto.getOrderType()!=null && !"".equals(dto.getOrderType()) && "买跌".equals(dto.getOrderType())){
+								dto.setFloatingProfitOrLoss(dto.getBuyingPrice().subtract(dto.getLastPrice()).multiply(dto.getTotalQuantity()));
+							}
 						}
 					}else{
 						dto.setFloatingProfitOrLoss(dto.getPublisherProfitOrLoss());
