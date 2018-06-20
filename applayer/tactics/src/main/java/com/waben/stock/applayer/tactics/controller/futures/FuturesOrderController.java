@@ -89,7 +89,7 @@ public class FuturesOrderController {
 		query.setContractId(buysellDto.getContractId());
 		// 判断该合约是否可用是否在交易中、网关是否支持该合约、合约交易所是否可用、以及是否在交易时间内
 		FuturesContractDto contractDto = futuresContractBusiness.getContractByOne(query);
-
+		// 根据最后交易日和首次通知日判断是否可以下单，可以下单计算公式：MIN（最后交易日，首次通知日）> 当前日期
 		checkedMinPlaceOrder(contractDto);
 		// 用户单笔最大可交易数量
 		BigDecimal perNum = contractDto.getPerOrderLimit();
@@ -103,7 +103,7 @@ public class FuturesOrderController {
 		BigDecimal buyFullNum = buyFull == null ? new BigDecimal(0) : new BigDecimal(buyFull).abs();
 
 		// 判断当前下单手数是否满足条件
-		checkBuyUpAndFullSUM(buyUpNum, buyFullNum, perNum, userMaxNum, buysellDto, contractDto);
+		checkBuyUpAndFullSUM(buyUpNum, buyFullNum, perNum, userMaxNum, buysellDto.getTotalQuantity(), contractDto);
 
 		// 总金额
 		BigDecimal totalFee = new BigDecimal(0);
@@ -189,6 +189,24 @@ public class FuturesOrderController {
 	@PostMapping("/backhandUnwind/{orderId}")
 	@ApiOperation(value = "用户市价反手")
 	public Response<FuturesOrderDto> backhandUnwind(@PathVariable Long orderId) {
+		FuturesOrderDto orderDto = futuresOrderBusiness.fetchByOrderId(orderId);
+		FuturesContractQuery query = new FuturesContractQuery();
+		query.setPage(0);
+		query.setSize(1);
+		query.setContractId(orderDto.getContractId());
+		// 判断该合约是否可用是否在交易中、网关是否支持该合约、合约交易所是否可用、以及是否在交易时间内
+		FuturesContractDto contractDto = futuresContractBusiness.getContractByOne(query);
+		checkedMinPlaceOrder(contractDto);
+		// 用户买涨持仓总额度
+		Integer buyUp = futuresOrderBusiness.sumUserNum(orderDto.getContractId(), SecurityUtil.getUserId(), 1);
+		BigDecimal buyUpNum = buyUp == null ? new BigDecimal(0) : new BigDecimal(buyUp).abs();
+		// 用户买跌持仓总额度
+		Integer buyFull = futuresOrderBusiness.sumUserNum(orderDto.getContractId(), SecurityUtil.getUserId(), 2);
+		BigDecimal buyFullNum = buyFull == null ? new BigDecimal(0) : new BigDecimal(buyFull).abs();
+		// 判断当前下单手数是否满足条件
+		checkBuyUpAndFullSUM(buyUpNum, buyFullNum, contractDto.getPerOrderLimit(), contractDto.getUserTotalLimit(),
+				orderDto.getTotalQuantity(), contractDto);
+
 		return new Response<>(futuresOrderBusiness.backhandUnwind(orderId, SecurityUtil.getUserId()));
 	}
 
@@ -589,11 +607,10 @@ public class FuturesOrderController {
 	 *            当前合约详情
 	 */
 	public void checkBuyUpAndFullSUM(BigDecimal buyUpNum, BigDecimal buyFullNum, BigDecimal perNum,
-			BigDecimal userMaxNum, FuturesOrderBuysellDto buysellDto, FuturesContractDto contractDto) {
-		// 当前用户单笔持仓数量
-		BigDecimal userNum = buysellDto.getTotalQuantity();
-		BigDecimal buyUpTotal = buyUpNum.add(buysellDto.getTotalQuantity());
-		BigDecimal buyFullTotal = buyFullNum.add(buysellDto.getTotalQuantity());
+			BigDecimal userMaxNum, BigDecimal totalQuantity, FuturesContractDto contractDto) {
+		BigDecimal userNum = totalQuantity;
+		BigDecimal buyUpTotal = buyUpNum.add(totalQuantity);
+		BigDecimal buyFullTotal = buyFullNum.add(totalQuantity);
 
 		if (contractDto.getBuyUpTotalLimit() != null && buyUpTotal.compareTo(contractDto.getBuyUpTotalLimit()) > 0) {
 			// 买涨持仓总额度已达上限
