@@ -273,7 +273,7 @@ public class ExceptionConstant {
 	public static final String CONTRACT_DOESNOT_EXIST_EXCEPTION = "13005";
 	// 该合约异常
 	public static final String CONTRACT_ABNORMALITY_EXCEPTION = "13006";
-	// 该合约不在交易时间段
+	// 不在交易时间段，无法操作
 	public static final String CONTRACT_ISNOTIN_TRADE_EXCEPTION = "13007";
 	// 没有可用的期货合约期限，暂时不能交易
 	public static final String CONTRACTTERM_NOTAVAILABLE_EXCEPTION = "13008";
@@ -331,6 +331,9 @@ public class ExceptionConstant {
 	public static final String TOTAL_AMOUNT_BUYFULL_CAPACITY_INSUFFICIENT_EXCEPTION = "13034";
 	// 品种下面绑定有合约，请先删除合约
 	public static final String COMMODITY_HAVING_CONTRACT_EXCEPTION = "13035";
+	// 当前订单状态已排队，不能被取消!
+	public static final String CURRENTSTATUS_CANNOTCANCEL_EXCEPTION = "13036";
 	// 当前时间大于（等于）最后交易日和首次通知日中最小的时间，不能下单
-	public static final String MIN_PLACE_ORDER_EXCEPTION = "13036";
+	public static final String MIN_PLACE_ORDER_EXCEPTION = "13037";
+
 }

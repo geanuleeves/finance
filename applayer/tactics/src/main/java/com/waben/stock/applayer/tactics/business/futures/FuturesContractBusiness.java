@@ -1,5 +1,6 @@
 package com.waben.stock.applayer.tactics.business.futures;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -142,16 +143,21 @@ public class FuturesContractBusiness {
 					// 该合约不在交易中
 					throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
 				}
-				/*OrganizationPublisherDto publisher = fetchOrgPublisher(SecurityUtil.getUserDetails().getUserId());
-				if (publisher != null) {
-					FuturesAgentPriceDto agentPrice = getCurrentAgentPrice(publisher.getOrgId(), contractDto.getId());
-					if (agentPrice != null) {
-						contractDto.setPerUnitReserveFund(agentPrice.getCostReserveFund());
-						contractDto.setOpenwindServiceFee(agentPrice.getSaleOpenwindServiceFee());
-						contractDto.setUnwindServiceFee(agentPrice.getSaleUnwindServiceFee());
-						contractDto.setOvernightPerUnitDeferredFee(agentPrice.getSaleDeferredFee());
-					}
-				}*/
+				/*
+				 * OrganizationPublisherDto publisher =
+				 * fetchOrgPublisher(SecurityUtil.getUserDetails().getUserId());
+				 * if (publisher != null) { FuturesAgentPriceDto agentPrice =
+				 * getCurrentAgentPrice(publisher.getOrgId(),
+				 * contractDto.getId()); if (agentPrice != null) {
+				 * contractDto.setPerUnitReserveFund(agentPrice.
+				 * getCostReserveFund());
+				 * contractDto.setOpenwindServiceFee(agentPrice.
+				 * getSaleOpenwindServiceFee());
+				 * contractDto.setUnwindServiceFee(agentPrice.
+				 * getSaleUnwindServiceFee());
+				 * contractDto.setOvernightPerUnitDeferredFee(agentPrice.
+				 * getSaleDeferredFee()); } }
+				 */
 			}
 
 			return contractDto;
@@ -218,6 +224,14 @@ public class FuturesContractBusiness {
 		Response<OrganizationPublisherDto> response = organizationPublisherInterface.fetchOrgPublisher(publisherId);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public BigDecimal findMinWave(Long contractId) {
+		Response<FuturesContractDto> response = futuresContractInterface.findByContractId(contractId);
+		if ("200".equals(response.getCode())) {
+			return response.getResult().getMinWave();
 		}
 		throw new ServiceException(response.getCode());
 	}

@@ -1,5 +1,6 @@
 package com.waben.stock.applayer.tactics.controller.futures;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -79,6 +80,12 @@ public class FuturesContractController {
 			}
 		});
 		return new Response<>(result);
+	}
+	
+	@GetMapping("/{contractId}/minWave")
+	@ApiOperation(value = "根据ID获取合约最小波动")
+	public Response<BigDecimal> fetchMinWave(@PathVariable Long contractId) {
+		return new Response<>(futuresContractBusiness.findMinWave(contractId));
 	}
 
 	@GetMapping("/{contractId}")

@@ -77,7 +77,7 @@ public class FuturesOrderController {
 	@Autowired
 	private PublisherBusiness publisherBusiness;
 
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	// private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	private SimpleDateFormat exprotSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@PostMapping("/buy")
@@ -152,11 +152,8 @@ public class FuturesOrderController {
 			orderDto.setLimitProfitType(buysellDto.getLimitProfitType());
 			orderDto.setPerUnitLimitProfitAmount(buysellDto.getPerUnitLimitProfitAmount());
 		}
-
 		// 委托买入价格
-		if (buysellDto.getBuyingPriceType() == FuturesTradePriceType.LMT) {
-			orderDto.setBuyingEntrustPrice(buysellDto.getBuyingEntrustPrice());
-		}
+		orderDto.setBuyingEntrustPrice(buysellDto.getBuyingEntrustPrice());
 		// 获取是否为测试单
 		PublisherDto publisher = publisherBusiness.findById(SecurityUtil.getUserId());
 		orderDto.setIsTest(publisher.getIsTest());
@@ -246,14 +243,14 @@ public class FuturesOrderController {
 		orderQuery.setContractName(contractName);
 		if (!StringUtil.isEmpty(startTime)) {
 			try {
-				orderQuery.setStartBuyingTime(sdf.parse(startTime));
+				orderQuery.setStartBuyingTime(exprotSdf.parse(startTime));
 			} catch (ParseException e) {
 				throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION);
 			}
 		}
 		if (!StringUtil.isEmpty(endTime)) {
 			try {
-				orderQuery.setEndBuyingTime(sdf.parse(endTime));
+				orderQuery.setEndBuyingTime(exprotSdf.parse(endTime));
 			} catch (ParseException e) {
 				throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION);
 			}
@@ -266,7 +263,8 @@ public class FuturesOrderController {
 	@ApiOperation(value = "获取已结算列表")
 	public Response<PageInfo<FuturesOrderMarketDto>> settledList(int page, int size) {
 		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
-		FuturesOrderState[] states = { FuturesOrderState.Unwind, FuturesOrderState.BuyingCanceled, FuturesOrderState.BuyingFailure };
+		FuturesOrderState[] states = { FuturesOrderState.Unwind, FuturesOrderState.BuyingCanceled,
+				FuturesOrderState.BuyingFailure };
 		orderQuery.setStates(states);
 		orderQuery.setPage(page);
 		orderQuery.setSize(size);
@@ -454,14 +452,14 @@ public class FuturesOrderController {
 		orderQuery.setContractName(contractName);
 		if (!StringUtil.isEmpty(startTime)) {
 			try {
-				orderQuery.setStartBuyingTime(sdf.parse(startTime));
+				orderQuery.setStartBuyingTime(exprotSdf.parse(startTime));
 			} catch (ParseException e) {
 				throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION);
 			}
 		}
 		if (!StringUtil.isEmpty(endTime)) {
 			try {
-				orderQuery.setEndBuyingTime(sdf.parse(endTime));
+				orderQuery.setEndBuyingTime(exprotSdf.parse(endTime));
 			} catch (ParseException e) {
 				throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION);
 			}
@@ -598,7 +596,8 @@ public class FuturesOrderController {
 			// 买涨持仓总额度已达上限
 			throw new ServiceException(ExceptionConstant.TOTAL_AMOUNT_BUYUP_CAPACITY_INSUFFICIENT_EXCEPTION);
 		}
-		if (contractDto.getBuyFullTotalLimit() != null && buyFullTotal.compareTo(contractDto.getBuyFullTotalLimit()) > 0) {
+		if (contractDto.getBuyFullTotalLimit() != null
+				&& buyFullTotal.compareTo(contractDto.getBuyFullTotalLimit()) > 0) {
 			// 买跌持仓总额度已达上限
 			throw new ServiceException(ExceptionConstant.TOTAL_AMOUNT_BUYFULL_CAPACITY_INSUFFICIENT_EXCEPTION);
 		}

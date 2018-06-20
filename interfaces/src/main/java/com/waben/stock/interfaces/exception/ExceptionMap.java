@@ -135,7 +135,7 @@ public class ExceptionMap {
 		exceptionMap.put(ExceptionConstant.CONTRACT_HOLDING_CAPACITY_INSUFFICIENT_EXCEPTION, "选择交易数量大于用户持仓总量");
 		exceptionMap.put(ExceptionConstant.CONTRACT_DOESNOT_EXIST_EXCEPTION, "该合约不存在");
 		exceptionMap.put(ExceptionConstant.CONTRACT_ABNORMALITY_EXCEPTION, "该合约异常不可用");
-		exceptionMap.put(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION, "该合约不在交易时间段");
+		exceptionMap.put(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION, "不在交易时间段，无法操作");
 		exceptionMap.put(ExceptionConstant.CONTRACTTERM_NOTAVAILABLE_EXCEPTION, "没有可用的期货合约期限，暂时不能交易");
 		exceptionMap.put(ExceptionConstant.EXCHANGE_ISNOT_AVAILABLE_EXCEPTION, "该合约交易所不可用");
 		exceptionMap.put(ExceptionConstant.GATEWAY_DOESNOT_SUPPORT_CONTRACT_EXCEPTION, "期货网关不支持该合约");
@@ -184,6 +184,7 @@ public class ExceptionMap {
 		exceptionMap.put(ExceptionConstant.MAXIMUM_CAPACITY_USER_EMPTY_EXCEPTION, "用户最大可持仓量为空");
 		exceptionMap.put(ExceptionConstant.USER_SINGLE_MAXIMUM_CAPACITY_USER_EMPTY_EXCEPTION, "用户单笔最大可交易数量为空");
 		exceptionMap.put(ExceptionConstant.COMMODITY_HAVING_CONTRACT_EXCEPTION, "品种绑定有合约，请先删除合约");
+		exceptionMap.put(ExceptionConstant.CURRENTSTATUS_CANNOTCANCEL_EXCEPTION, "当前订单状态已排队，不能被取消");
 
 		exceptionMap.put(ExceptionConstant.TOTAL_AMOUNT_BUYUP_CAPACITY_INSUFFICIENT_EXCEPTION, "买涨持仓总额度已达上限");
 		exceptionMap.put(ExceptionConstant.TOTAL_AMOUNT_BUYFULL_CAPACITY_INSUFFICIENT_EXCEPTION, "买跌持仓总额度已达上限");
