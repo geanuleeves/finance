@@ -158,15 +158,7 @@ public class FuturesTradeController {
 				data.add(dto.getOpenwindServiceFee() == null ? "" : dto.getOpenwindServiceFee().toString());
 				data.add(dto.getReserveFund() == null ? "" : dto.getReserveFund().toString());
 				data.add(dto.getOvernightServiceFee() == null ? "" : dto.getOvernightServiceFee().toString());
-//				if(dto.getLimitLossType()!=null&&dto.getLimitLossType() == 1){
-//					data.add(dto.getPerUnitLimitLossAmount() == null ? "" : dto.getPerUnitLimitLossAmount()+"%");
-//				}else{
-//				}
 				data.add(dto.getPerUnitLimitLossAmount() == null ? "" : dto.getPerUnitLimitLossAmount().toString());
-//				if(dto.getLimitProfitType()!=null&&dto.getLimitProfitType() == 1){
-//					data.add(dto.getPerUnitLimitProfitAmount() == null ? "" : dto.getPerUnitLimitProfitAmount()+"%");
-//				}else{
-//				}
 				data.add(dto.getPerUnitLimitProfitAmount() == null ? "" : dto.getPerUnitLimitProfitAmount().toString());
 				data.add(dto.getPositionDays() == null ? "" : dto.getPositionDays().toString());
 				data.add(dto.getPositionEndTime() == null ? "" : sdf.format(dto.getPositionEndTime()));
@@ -189,15 +181,7 @@ public class FuturesTradeController {
 				data.add(dto.getProfit() == null ? "" : dto.getProfit().toString());
 				data.add(dto.getOpenwindServiceFee() == null ? "" : dto.getOpenwindServiceFee().toString());
 				data.add(dto.getReserveFund() == null ? "" : dto.getReserveFund().toString());
-//				if(dto.getLimitLossType()!=null&&dto.getLimitLossType() == 1){
-//					data.add(dto.getPerUnitLimitLossAmount() == null ? "" : dto.getPerUnitLimitLossAmount()+"%");
-//				}else{
-//				}
 				data.add(dto.getPerUnitLimitLossAmount() == null ? "" : dto.getPerUnitLimitLossAmount().toString());
-//				if(dto.getLimitProfitType()!=null&&dto.getLimitProfitType() == 1){
-//					data.add(dto.getPerUnitLimitProfitAmount() == null ? "" : dto.getPerUnitLimitProfitAmount()+"%");
-//				}else{
-//				}
 				data.add(dto.getPerUnitLimitProfitAmount() == null ? "" : dto.getPerUnitLimitProfitAmount().toString());
 				data.add(dto.getOvernightServiceFee() == null ? "" : dto.getOvernightServiceFee().toString());
 				data.add("");
@@ -218,15 +202,7 @@ public class FuturesTradeController {
 				data.add(dto.getProfit() == null ? "" : dto.getProfit().toString());
 				data.add(dto.getOpenwindServiceFee() == null ? "" : dto.getOpenwindServiceFee().toString());
 				data.add(dto.getReserveFund() == null ? "" : dto.getReserveFund().toString());
-//				if(dto.getLimitLossType()!=null&&dto.getLimitLossType() == 1){
-//					data.add(dto.getPerUnitLimitLossAmount() == null ? "" : dto.getPerUnitLimitLossAmount()+"%");
-//				}else{
-//				}
 				data.add(dto.getPerUnitLimitLossAmount() == null ? "" : dto.getPerUnitLimitLossAmount().toString());
-//				if(dto.getLimitProfitType()!=null&&dto.getLimitProfitType() == 1){
-//					data.add(dto.getPerUnitLimitProfitAmount() == null ? "" : dto.getPerUnitLimitProfitAmount()+"%");
-//				}else{
-//				}
 				data.add(dto.getPerUnitLimitProfitAmount() == null ? "" : dto.getPerUnitLimitProfitAmount().toString());
 				data.add(dto.getOvernightServiceFee() == null ? "" : dto.getOvernightServiceFee().toString());
 				data.add(dto.getPositionDays() == null ? "" : dto.getPositionDays().toString());
@@ -261,15 +237,7 @@ public class FuturesTradeController {
 				data.add(dto.getTotalQuantity() == null ? "" : dto.getTotalQuantity().toString());
 				data.add(dto.getServiceFee() == null ? "" : dto.getServiceFee().toString());
 				data.add(dto.getReserveFund() == null ? "" : dto.getReserveFund().toString());
-//				if(dto.getLimitLossType() == 1){
-//					data.add(dto.getPerUnitLimitLossAmount() == null ? "" : dto.getPerUnitLimitLossAmount()+"%");
-//				}else{
-//				}
 				data.add(dto.getPerUnitLimitLossAmount() == null ? "" : dto.getPerUnitLimitLossAmount().toString());
-//				if(dto.getLimitProfitType() == 1){
-//					data.add(dto.getPerUnitLimitProfitAmount() == null ? "" : dto.getPerUnitLimitProfitAmount()+"%");
-//				}else{
-//				}
 				data.add(dto.getPerUnitLimitProfitAmount() == null ? "" : dto.getPerUnitLimitProfitAmount().toString());
 				data.add(dto.getPostTime() == null ? "" : sdf.format(dto.getPostTime()));
 				data.add(dto.getDealTime() == null ? "" : sdf.format(dto.getDealTime()));

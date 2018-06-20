@@ -3,15 +3,29 @@ package com.waben.stock.interfaces.dto.organization;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.waben.stock.interfaces.enums.FuturesTradePriceType;
+
+import io.swagger.annotations.ApiModelProperty;
+
 public class FuturesTradeOrganizationDto {
 
 	/**
 	 * 交易ID
 	 */
 	private Long id;
-	
+
 	private Long publisherId;
-	
+
+	/**
+	 * 合约ID
+	 */
+	private Long contractId;
+
+	/**
+	 * 合约编号
+	 */
+	private String contractNo;
+
 	/**
 	 * 发布人姓名
 	 * <p>
@@ -19,87 +33,107 @@ public class FuturesTradeOrganizationDto {
 	 * </p>
 	 */
 	private String publisherName;
-	
+
 	/**
 	 * 发布人手机号
 	 */
 	private String publisherPhone;
-	
+
 	/**
 	 * 合约代码
 	 */
 	private String symbol;
-	
+
 	/**
 	 * 合约名称
 	 */
 	private String name;
-	
+
 	/**
 	 * 订单编号
 	 */
 	private String tradeNo;
-	
+
 	/**
 	 * 开仓对应的交易编号
 	 */
-	private Long openGatewayOrderId; 
-	
+	private Long openGatewayOrderId;
+
 	/**
 	 * 开仓对应的交易编号
 	 */
 	private Long closeGatewayOrderId;
-	
+
 	/**
 	 * 交易方向
 	 */
 	private String orderType;
-	
+
 	/**
 	 * 交易状态
 	 */
 	private String state;
-	
+
+	/**
+	 * 合约代码（取期货合约设置快照）
+	 */
+	private String commoditySymbol;
+
+	/**
+	 * 合约名称（取期货合约设置快照）
+	 */
+	private String commodityName;
+
+	/**
+	 * 货币（取期货合约设置快照）
+	 */
+	private String commodityCurrency;
+
 	/**
 	 * 数量（手）
 	 */
 	private BigDecimal totalQuantity;
-	
+
 	/**
 	 * 买入时间
 	 */
 	private Date buyingTime;
-	
+
 	/**
 	 * 买入价格
 	 */
 	private BigDecimal buyingPrice;
-	
+
 	/**
 	 * 浮动盈亏
 	 */
 	private BigDecimal profit;
-	
+
 	/**
 	 * 开仓手续费
 	 */
 	private BigDecimal openwindServiceFee;
-	
+
 	/**
 	 * 保证金（人民币）
 	 */
 	private BigDecimal reserveFund;
-	
+
 	/**
 	 * 服务费（人民币）
 	 */
 	private BigDecimal serviceFee;
-	
+
 	/**
 	 * 隔夜手续费
 	 */
 	private BigDecimal overnightServiceFee;
 	
+	/**
+	 * 隔夜保证金
+	 */
+	private BigDecimal overnightReserveFund;
+
 	/**
 	 * 触发止盈类型（用户设置）
 	 * <ul>
@@ -108,12 +142,12 @@ public class FuturesTradeOrganizationDto {
 	 * </ul>
 	 */
 	private Integer limitProfitType;
-	
+
 	/**
 	 * 止盈金额
 	 */
 	private BigDecimal perUnitLimitProfitAmount;
-	
+
 	/**
 	 * 触发止损类型（用户设置）
 	 * <ul>
@@ -122,48 +156,94 @@ public class FuturesTradeOrganizationDto {
 	 * </ul>
 	 */
 	private Integer limitLossType;
-	
+
 	/**
 	 * 止损金额
 	 */
 	private BigDecimal perUnitLimitLossAmount;
-	
+
 	/**
 	 * 持仓天数
 	 */
-	private Integer positionDays;
-	
+	private String positionDays;
+
 	/**
 	 * 持仓截止日期
 	 */
 	private Date positionEndTime;
-	
+
 	/**
 	 * 平仓时间
 	 */
 	private Date sellingTime;
-	
+
 	/**
 	 * 平仓价格
 	 */
 	private BigDecimal sellingPrice;
-	
+
 	/**
 	 * 平仓盈亏
 	 */
 	private BigDecimal sellingProfit;
-	
+
 	/**
 	 * 平仓手续费
 	 */
 	private BigDecimal unwindServiceFee;
-	
+
 	private String windControlState;
-	
+
 	/**
 	 * 风控状态
 	 */
 	private String windControlType;
+
+	/**
+	 * 定单类型
+	 */
+	private FuturesTradePriceType buyingPriceType;
+
+	/**
+	 * 当前价
+	 */
+	private BigDecimal lastPrice;
+
+	/**
+	 * 浮动盈亏
+	 */
+	@ApiModelProperty(value = "浮动盈亏")
+	private BigDecimal floatingProfitOrLoss;
+
+	/**
+	 * 一手隔夜保证金
+	 */
+	private BigDecimal overnightPerUnitReserveFund;
+
+	/**
+	 * 一手隔夜递延费
+	 */
+	private BigDecimal overnightPerUnitDeferredFee;
+
+	/**
+	 * 买入委托时间
+	 */
+	private Date buyingEntrustTime;
+
+	/**
+	 * 卖出委托时间
+	 */
+	private Date sellingEntrustTime;
+
+	/**
+	 * 盈亏（人民币）
+	 */
+	private BigDecimal profitOrLoss;
+	
+	/**
+	 * 发布人盈亏（人民币）
+	 */
+	private BigDecimal publisherProfitOrLoss;
 	
 	/**
 	 * 所属代理商名称
@@ -354,14 +434,6 @@ public class FuturesTradeOrganizationDto {
 		this.perUnitLimitLossAmount = perUnitLimitLossAmount;
 	}
 
-	public Integer getPositionDays() {
-		return positionDays;
-	}
-
-	public void setPositionDays(Integer positionDays) {
-		this.positionDays = positionDays;
-	}
-
 	public Date getPositionEndTime() {
 		return positionEndTime;
 	}
@@ -424,5 +496,133 @@ public class FuturesTradeOrganizationDto {
 
 	public void setOrgName(String orgName) {
 		this.orgName = orgName;
+	}
+
+	public Long getContractId() {
+		return contractId;
+	}
+
+	public void setContractId(Long contractId) {
+		this.contractId = contractId;
+	}
+
+	public String getContractNo() {
+		return contractNo;
+	}
+
+	public void setContractNo(String contractNo) {
+		this.contractNo = contractNo;
+	}
+
+	public String getCommoditySymbol() {
+		return commoditySymbol;
+	}
+
+	public void setCommoditySymbol(String commoditySymbol) {
+		this.commoditySymbol = commoditySymbol;
+	}
+
+	public String getCommodityName() {
+		return commodityName;
+	}
+
+	public void setCommodityName(String commodityName) {
+		this.commodityName = commodityName;
+	}
+
+	public String getCommodityCurrency() {
+		return commodityCurrency;
+	}
+
+	public void setCommodityCurrency(String commodityCurrency) {
+		this.commodityCurrency = commodityCurrency;
+	}
+
+	public BigDecimal getOvernightReserveFund() {
+		return overnightReserveFund;
+	}
+
+	public void setOvernightReserveFund(BigDecimal overnightReserveFund) {
+		this.overnightReserveFund = overnightReserveFund;
+	}
+
+	public String getPositionDays() {
+		return positionDays;
+	}
+
+	public void setPositionDays(String positionDays) {
+		this.positionDays = positionDays;
+	}
+
+	public FuturesTradePriceType getBuyingPriceType() {
+		return buyingPriceType;
+	}
+
+	public void setBuyingPriceType(FuturesTradePriceType buyingPriceType) {
+		this.buyingPriceType = buyingPriceType;
+	}
+
+	public BigDecimal getLastPrice() {
+		return lastPrice;
+	}
+
+	public void setLastPrice(BigDecimal lastPrice) {
+		this.lastPrice = lastPrice;
+	}
+
+	public BigDecimal getFloatingProfitOrLoss() {
+		return floatingProfitOrLoss;
+	}
+
+	public void setFloatingProfitOrLoss(BigDecimal floatingProfitOrLoss) {
+		this.floatingProfitOrLoss = floatingProfitOrLoss;
+	}
+
+	public BigDecimal getOvernightPerUnitReserveFund() {
+		return overnightPerUnitReserveFund;
+	}
+
+	public void setOvernightPerUnitReserveFund(BigDecimal overnightPerUnitReserveFund) {
+		this.overnightPerUnitReserveFund = overnightPerUnitReserveFund;
+	}
+
+	public BigDecimal getOvernightPerUnitDeferredFee() {
+		return overnightPerUnitDeferredFee;
+	}
+
+	public void setOvernightPerUnitDeferredFee(BigDecimal overnightPerUnitDeferredFee) {
+		this.overnightPerUnitDeferredFee = overnightPerUnitDeferredFee;
+	}
+
+	public Date getBuyingEntrustTime() {
+		return buyingEntrustTime;
+	}
+
+	public void setBuyingEntrustTime(Date buyingEntrustTime) {
+		this.buyingEntrustTime = buyingEntrustTime;
+	}
+
+	public Date getSellingEntrustTime() {
+		return sellingEntrustTime;
+	}
+
+	public void setSellingEntrustTime(Date sellingEntrustTime) {
+		this.sellingEntrustTime = sellingEntrustTime;
+	}
+
+	public BigDecimal getProfitOrLoss() {
+		return profitOrLoss;
+	}
+
+	public void setProfitOrLoss(BigDecimal profitOrLoss) {
+		this.profitOrLoss = profitOrLoss;
+	}
+
+	public BigDecimal getPublisherProfitOrLoss() {
+		return publisherProfitOrLoss;
+	}
+
+	public void setPublisherProfitOrLoss(BigDecimal publisherProfitOrLoss) {
+		this.publisherProfitOrLoss = publisherProfitOrLoss;
 	}
 }
