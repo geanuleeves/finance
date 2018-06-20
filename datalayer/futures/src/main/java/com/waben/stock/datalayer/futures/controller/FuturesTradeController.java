@@ -124,9 +124,15 @@ public class FuturesTradeController implements FuturesTradeInterface {
 			}
 			if (order.getBuyingTime() != null) {
 				Long date = order.getBuyingTime().getTime();
+				System.out.println(new Date());
 				Long current = new Date().getTime();
-				Long hours = ((current - date) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
-				result.getContent().get(i).setPositionDays(Math.abs(hours.intValue()));
+				Long hours = ((current - date) % (1000 * 60 * 60 * 24)/(1000 * 60));
+				if(Math.abs(hours.intValue())>60){
+					Long stime = hours / 60;
+					result.getContent().get(i).setPositionDays(stime.toString()+"小时");
+				}else{
+					result.getContent().get(i).setPositionDays(hours.toString()+"分钟");
+				}
 			}
 			// FuturesCurrencyRate rate =
 			// rateService.queryByName(order.getContract().getCommodity().getCurrency());
@@ -136,8 +142,13 @@ public class FuturesTradeController implements FuturesTradeInterface {
 				if (order.getSellingTime() != null) {
 					Long laseDate = order.getSellingTime().getTime();
 					Long date = order.getBuyingTime().getTime();
-					Long hours = ((laseDate - date) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
-					result.getContent().get(i).setPositionDays(Math.abs(hours.intValue()));
+					Long hours = ((laseDate - date) % (1000 * 60 * 60 * 24)) / (1000 * 60);
+					if(Math.abs(hours.intValue())>60){
+						Long stime = hours / 60;
+						result.getContent().get(i).setPositionDays(stime.toString()+"小时");
+					}else{
+						result.getContent().get(i).setPositionDays(hours.toString()+"分钟");
+					}
 				}
 			} else {
 				/*
