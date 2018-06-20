@@ -264,7 +264,7 @@ public class FuturesOrderController {
 	@ApiOperation(value = "获取已结算列表")
 	public Response<PageInfo<FuturesOrderMarketDto>> settledList(int page, int size) {
 		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
-		FuturesOrderState[] states = { FuturesOrderState.Unwind };
+		FuturesOrderState[] states = { FuturesOrderState.Unwind, FuturesOrderState.BuyingCanceled, FuturesOrderState.BuyingFailure };
 		orderQuery.setStates(states);
 		orderQuery.setPage(page);
 		orderQuery.setSize(size);
