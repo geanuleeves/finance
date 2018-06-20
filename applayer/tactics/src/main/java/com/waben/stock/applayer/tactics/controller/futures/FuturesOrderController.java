@@ -395,7 +395,7 @@ public class FuturesOrderController {
 	@GetMapping("/turnover/statisty/record")
 	@ApiOperation(value = "获取成交统计记录")
 	public Response<TurnoverStatistyRecordDto> getTurnoverStatistyRecord() {
-		return new Response<>(futuresOrderBusiness.getTurnoverStatistyRecord());
+		return new Response<>(futuresOrderBusiness.getTurnoverStatistyRecord(SecurityUtil.getUserId()));
 	}
 
 	@GetMapping("/day/holding/profit")

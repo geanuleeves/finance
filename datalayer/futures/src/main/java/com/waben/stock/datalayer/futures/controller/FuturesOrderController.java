@@ -106,8 +106,8 @@ public class FuturesOrderController implements FuturesOrderInterface {
 	}
 
 	@Override
-	public Response<TurnoverStatistyRecordDto> getTurnoverStatisty() {
-		return new Response<>(futuresOrderService.getTurnoverStatisty());
+	public Response<TurnoverStatistyRecordDto> getTurnoverStatisty(Long publisherId) {
+		return new Response<>(futuresOrderService.getTurnoverStatisty(publisherId));
 	}
 
 }

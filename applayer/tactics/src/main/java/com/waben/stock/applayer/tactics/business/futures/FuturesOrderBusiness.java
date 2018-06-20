@@ -238,8 +238,8 @@ public class FuturesOrderBusiness {
 		throw new ServiceException(response.getCode());
 	}
 
-	public TurnoverStatistyRecordDto getTurnoverStatistyRecord() {
-		Response<TurnoverStatistyRecordDto> response = futuresOrderInterface.getTurnoverStatisty();
+	public TurnoverStatistyRecordDto getTurnoverStatistyRecord(Long publisherId) {
+		Response<TurnoverStatistyRecordDto> response = futuresOrderInterface.getTurnoverStatisty(publisherId);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}

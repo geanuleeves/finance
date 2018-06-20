@@ -128,6 +128,11 @@ public class FuturesOrderAdminDto {
 	 * 隔夜手续费
 	 */
 	private BigDecimal overnightServiceFee;
+	
+	/**
+	 * 隔夜保证金
+	 */
+	private BigDecimal overnightReserveFund;
 
 	/**
 	 * 触发止盈类型（用户设置）
@@ -234,6 +239,11 @@ public class FuturesOrderAdminDto {
 	 * 盈亏（人民币）
 	 */
 	private BigDecimal profitOrLoss;
+	
+	/**
+	 * 发布人盈亏（人民币）
+	 */
+	private BigDecimal publisherProfitOrLoss;
 
 	public Long getId() {
 		return id;
@@ -353,6 +363,14 @@ public class FuturesOrderAdminDto {
 
 	public void setOvernightServiceFee(BigDecimal overnightServiceFee) {
 		this.overnightServiceFee = overnightServiceFee;
+	}
+
+	public BigDecimal getOvernightReserveFund() {
+		return overnightReserveFund;
+	}
+
+	public void setOvernightReserveFund(BigDecimal overnightReserveFund) {
+		this.overnightReserveFund = overnightReserveFund;
 	}
 
 	public BigDecimal getPerUnitLimitProfitAmount() {
@@ -585,6 +603,14 @@ public class FuturesOrderAdminDto {
 
 	public void setProfitOrLoss(BigDecimal profitOrLoss) {
 		this.profitOrLoss = profitOrLoss;
+	}
+
+	public BigDecimal getPublisherProfitOrLoss() {
+		return publisherProfitOrLoss;
+	}
+
+	public void setPublisherProfitOrLoss(BigDecimal publisherProfitOrLoss) {
+		this.publisherProfitOrLoss = publisherProfitOrLoss;
 	}
 
 }
