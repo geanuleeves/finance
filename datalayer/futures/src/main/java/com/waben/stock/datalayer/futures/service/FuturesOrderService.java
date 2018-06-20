@@ -357,14 +357,15 @@ public class FuturesOrderService {
 						FuturesOrderState.BuyingFailure, FuturesOrderState.PartPosition, FuturesOrderState.Position,
 						FuturesOrderState.SellingEntrust, FuturesOrderState.PartUnwind, FuturesOrderState.Unwind };
 				FuturesOrderState[] positionStates = { FuturesOrderState.Position };
-				if (query.getStates()[0].equals(unwindStates[0])) {
-					criteriaQuery.orderBy(criteriaBuilder.desc(root.get("sellingTime").as(Date.class)));
-				} else if (query.getStates()[0].equals(wtStates[0])) {
-					criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingEntrustTime").as(Date.class)));
-				} else if (query.getStates()[0].equals(positionStates[0])) {
-					criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingTime").as(Date.class)));
+				if(query.getStates() != null) {
+					if (query.getStates()[0].equals(unwindStates[0])) {
+						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("sellingTime").as(Date.class)));
+					} else if (query.getStates()[0].equals(wtStates[0])) {
+						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingEntrustTime").as(Date.class)));
+					} else if (query.getStates()[0].equals(positionStates[0])) {
+						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingTime").as(Date.class)));
+					}
 				}
-
 				return criteriaQuery.getRestriction();
 			}
 		}, pageable);

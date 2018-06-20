@@ -84,12 +84,12 @@ public class FuturesMarketService {
 				result.setAskSize(askSizeList.get(0));
 				result.setBidPrice(bidPriceList.get(0).setScale(scale, RoundingMode.HALF_UP));
 				result.setBidSize(bidSizeList.get(0));
-				result.setClosePrice(new BigDecimal(quote.getClosingPrice()));
-				result.setHighPrice(new BigDecimal(quote.getHighPrice()));
-				result.setLastPrice(new BigDecimal(quote.getLastPrice()));
+				result.setClosePrice(new BigDecimal(quote.getClosingPrice()).setScale(scale, RoundingMode.HALF_UP));
+				result.setHighPrice(new BigDecimal(quote.getHighPrice()).setScale(scale, RoundingMode.HALF_UP));
+				result.setLastPrice(new BigDecimal(quote.getLastPrice()).setScale(scale, RoundingMode.HALF_UP));
 				result.setLastSize(quote.getLastQty());
-				result.setLowPrice(new BigDecimal(quote.getLowPrice()));
-				result.setOpenPrice(new BigDecimal(quote.getOpeningPrice()));
+				result.setLowPrice(new BigDecimal(quote.getLowPrice()).setScale(scale, RoundingMode.HALF_UP));
+				result.setOpenPrice(new BigDecimal(quote.getOpeningPrice()).setScale(scale, RoundingMode.HALF_UP));
 				result.setVolume(quote.getLastQty());
 				result.setTotalVolume(quote.getTotalQty());
 				return result;

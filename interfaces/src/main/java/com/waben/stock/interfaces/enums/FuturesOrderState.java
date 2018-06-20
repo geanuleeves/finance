@@ -10,7 +10,7 @@ import java.util.Map;
  *
  */
 public enum FuturesOrderState implements CommonalityEnum {
-
+	
 	Posted("1", "已发布"),
 
 	BuyingEntrust("2", "买入委托"),
