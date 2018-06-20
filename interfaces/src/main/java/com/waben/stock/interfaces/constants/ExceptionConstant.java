@@ -331,4 +331,6 @@ public class ExceptionConstant {
 	public static final String TOTAL_AMOUNT_BUYFULL_CAPACITY_INSUFFICIENT_EXCEPTION = "13034";
 	// 品种下面绑定有合约，请先删除合约
 	public static final String COMMODITY_HAVING_CONTRACT_EXCEPTION = "13035";
+	// 当前时间大于（等于）最后交易日和首次通知日中最小的时间，不能下单
+	public static final String MIN_PLACE_ORDER_EXCEPTION = "13036";
 }
