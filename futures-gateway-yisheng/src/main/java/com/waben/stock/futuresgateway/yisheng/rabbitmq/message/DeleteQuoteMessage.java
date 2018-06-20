@@ -2,8 +2,12 @@ package com.waben.stock.futuresgateway.yisheng.rabbitmq.message;
 
 public class DeleteQuoteMessage {
 
+	/** 品种编号 */
+	private String commodityNo;
+	/** 合约编号 */
+	private String contractNo;
 	/** 行情ID */
-	private Long quoteId;
+	private String quoteId;
 	/**
 	 * 类型
 	 * <ul>
@@ -13,11 +17,11 @@ public class DeleteQuoteMessage {
 	 */
 	private Integer type;
 
-	public Long getQuoteId() {
+	public String getQuoteId() {
 		return quoteId;
 	}
 
-	public void setQuoteId(Long quoteId) {
+	public void setQuoteId(String quoteId) {
 		this.quoteId = quoteId;
 	}
 
@@ -27,6 +31,22 @@ public class DeleteQuoteMessage {
 
 	public void setType(Integer type) {
 		this.type = type;
+	}
+
+	public String getCommodityNo() {
+		return commodityNo;
+	}
+
+	public void setCommodityNo(String commodityNo) {
+		this.commodityNo = commodityNo;
+	}
+
+	public String getContractNo() {
+		return contractNo;
+	}
+
+	public void setContractNo(String contractNo) {
+		this.contractNo = contractNo;
 	}
 
 }

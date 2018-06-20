@@ -108,7 +108,7 @@ public class QuoteMinuteKGroupSchedule {
 				// step 3.6 : 删除分K的行情数据
 				for (FuturesQuoteMinuteK minuteK : minuteKList) {
 					DeleteQuoteMessage delQuote = new DeleteQuoteMessage();
-					delQuote.setQuoteId(minuteK.getId());
+					delQuote.setQuoteId(String.valueOf(minuteK.getId()));
 					delQuote.setType(2);
 					producer.sendMessage(RabbitmqConfiguration.deleteQuoteQueueName, delQuote);
 				}

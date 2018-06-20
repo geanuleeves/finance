@@ -52,7 +52,7 @@ public class WindControlSchedule {
 	 * 如果是工作日，每间隔1秒中获取持仓中的股票，判断持仓中的股票
 	 * </p>
 	 */
-	public static final long Execute_Interval = 1 * 1000;
+	public static final long Execute_Interval = 10;
 
 	Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -107,13 +107,19 @@ public class WindControlSchedule {
 									FuturesTradePriceType.MKT, null);
 							continue;
 						}
-						// step 7 : 是否达到止损点
+						// step 7 : 是否达到强平点
+						if (orderService.isTradeTime(timeZoneGap, contract) && isReachStongPoint(order, market)) {
+							orderService.sellingEntrust(order, FuturesWindControlType.ReachStrongPoint,
+									FuturesTradePriceType.MKT, null);
+							continue;
+						}
+						// step 8 : 是否达到止损点
 						if (orderService.isTradeTime(timeZoneGap, contract) && isReachLossPoint(order, market)) {
 							orderService.sellingEntrust(order, FuturesWindControlType.ReachLossPoint,
 									FuturesTradePriceType.MKT, null);
 							continue;
 						}
-						// step 8 : 是否触发隔夜时间
+						// step 9 : 是否触发隔夜时间
 						if (orderService.isTradeTime(timeZoneGap, contract) && isTriggerOvernight(order, timeZoneGap)) {
 							orderService.overnight(order);
 							continue;
@@ -144,6 +150,131 @@ public class WindControlSchedule {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * 判断是否达到止盈点
+	 * 
+	 * @param order
+	 *            订单
+	 * @param market
+	 *            行情
+	 * @return 否达到止盈点
+	 */
+	private boolean isReachProfitPoint(FuturesOrder order, FuturesContractMarket market) {
+		BigDecimal lastPrice = market.getLastPrice();
+		FuturesOrderType orderType = order.getOrderType();
+		BigDecimal limitProfitPrice = computeLimitProfitPrice(order);
+		if (orderType == FuturesOrderType.BuyUp) {
+			if (lastPrice != null && limitProfitPrice != null && lastPrice.compareTo(limitProfitPrice) >= 0) {
+				return true;
+			}
+		} else {
+			if (lastPrice != null && limitProfitPrice != null && lastPrice.compareTo(limitProfitPrice) <= 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 计算订单止损价格
+	 * 
+	 * @param order
+	 *            订单
+	 * @return 止损价格
+	 */
+	private BigDecimal computeLimitLossPrice(FuturesOrder order) {
+		FuturesOrderType orderType = order.getOrderType();
+		BigDecimal buyingPrice = order.getBuyingPrice();
+		// 用户设置
+		Integer limitLossType = order.getLimitLossType();
+		BigDecimal perUnitLimitLossAmount = order.getPerUnitLimitLossAmount();
+		// 波动设置
+		BigDecimal minWave = order.getContract().getCommodity().getMinWave();
+		BigDecimal perWaveMoney = order.getContract().getCommodity().getPerWaveMoney();
+		// 货币汇率
+		FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
+		if (buyingPrice != null) {
+			// 获取用户设置的止损价格
+			BigDecimal userSetNeedWavePrice = null;
+			if (limitLossType != null && limitLossType == 1 && perUnitLimitLossAmount != null) {
+				// type为行情价格
+				if (orderType == FuturesOrderType.BuyUp && perUnitLimitLossAmount.compareTo(buyingPrice) < 0) {
+					userSetNeedWavePrice = buyingPrice.subtract(perUnitLimitLossAmount);
+				} else if (orderType == FuturesOrderType.BuyFall && perUnitLimitLossAmount.compareTo(buyingPrice) > 0) {
+					userSetNeedWavePrice = perUnitLimitLossAmount.subtract(buyingPrice);
+				}
+			} else if (limitLossType != null && limitLossType == 2 && rate != null && rate.getRate() != null
+					&& perUnitLimitLossAmount != null) {
+				// type为每手亏损剩余到金额
+				userSetNeedWavePrice = (order.getReserveFund().divide(order.getTotalQuantity())
+						.subtract(perUnitLimitLossAmount).divide(rate.getRate(), 2, RoundingMode.DOWN)
+						.divide(perWaveMoney, 2, RoundingMode.DOWN).multiply(minWave)
+						.setScale(minWave.scale(), RoundingMode.DOWN));
+			}
+			// 获取最终需要波动的价格
+			BigDecimal lastNeedWavePrice = userSetNeedWavePrice;
+			if (lastNeedWavePrice != null) {
+				if (orderType == FuturesOrderType.BuyUp) {
+					return buyingPrice.subtract(lastNeedWavePrice.abs());
+				} else if (orderType == FuturesOrderType.BuyFall) {
+					return buyingPrice.add(lastNeedWavePrice.abs());
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 计算订单强平价格
+	 * 
+	 * @param order
+	 *            订单
+	 * @return 强平价格
+	 */
+	private BigDecimal computeStrongPrice(FuturesOrder order) {
+		FuturesOrderType orderType = order.getOrderType();
+		BigDecimal buyingPrice = order.getBuyingPrice();
+		// 合约设置
+		Integer unwindPointType = order.getUnwindPointType();
+		BigDecimal perUnitUnwindPoint = order.getPerUnitUnwindPoint();
+		// 波动设置
+		BigDecimal minWave = order.getContract().getCommodity().getMinWave();
+		BigDecimal perWaveMoney = order.getContract().getCommodity().getPerWaveMoney();
+		// 货币汇率
+		FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
+		if (buyingPrice != null) {
+			// 获取合约设置的止损价格
+			BigDecimal contractSetNeedWavePrice = null;
+			if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 1) {
+				if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(new BigDecimal(1)) < 0
+						&& perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
+					contractSetNeedWavePrice = (order.getReserveFund().divide(order.getTotalQuantity())
+							.multiply(new BigDecimal(1).subtract(perUnitUnwindPoint))
+							.divide(rate.getRate(), 2, RoundingMode.DOWN).divide(perWaveMoney, 2, RoundingMode.DOWN)
+							.multiply(minWave).setScale(minWave.scale(), RoundingMode.DOWN));
+				}
+			} else if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 2) {
+				if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(BigDecimal.ZERO) >= 0
+						&& perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
+					contractSetNeedWavePrice = (order.getReserveFund().divide(order.getTotalQuantity())
+							.subtract(perUnitUnwindPoint).divide(rate.getRate(), 2, RoundingMode.DOWN)
+							.divide(perWaveMoney, 2, RoundingMode.DOWN).multiply(minWave)
+							.setScale(minWave.scale(), RoundingMode.DOWN));
+				}
+			}
+			// 获取最终需要波动的价格
+			BigDecimal lastNeedWavePrice = contractSetNeedWavePrice;
+			if (lastNeedWavePrice != null) {
+				if (orderType == FuturesOrderType.BuyUp) {
+					return buyingPrice.subtract(lastNeedWavePrice.abs());
+				} else if (orderType == FuturesOrderType.BuyFall) {
+					return buyingPrice.add(lastNeedWavePrice.abs());
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -190,110 +321,6 @@ public class WindControlSchedule {
 	}
 
 	/**
-	 * 判断是否达到止盈点
-	 * 
-	 * @param order
-	 *            订单
-	 * @param market
-	 *            行情
-	 * @return 否达到止盈点
-	 */
-	private boolean isReachProfitPoint(FuturesOrder order, FuturesContractMarket market) {
-		BigDecimal lastPrice = market.getLastPrice();
-		FuturesOrderType orderType = order.getOrderType();
-		BigDecimal limitProfitPrice = computeLimitProfitPrice(order);
-		if (orderType == FuturesOrderType.BuyUp) {
-			if (lastPrice != null && limitProfitPrice != null && lastPrice.compareTo(limitProfitPrice) >= 0) {
-				return true;
-			}
-		} else {
-			if (lastPrice != null && limitProfitPrice != null && lastPrice.compareTo(limitProfitPrice) <= 0) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * 计算订单止损价格
-	 * 
-	 * @param order
-	 *            订单
-	 * @return 止损价格
-	 */
-	private BigDecimal computeLimitLossPrice(FuturesOrder order) {
-		FuturesOrderType orderType = order.getOrderType();
-		BigDecimal buyingPrice = order.getBuyingPrice();
-		// 合约设置
-		Integer unwindPointType = order.getUnwindPointType();
-		BigDecimal perUnitUnwindPoint = order.getPerUnitUnwindPoint();
-		// 用户设置
-		Integer limitLossType = order.getLimitLossType();
-		BigDecimal perUnitLimitLossAmount = order.getPerUnitLimitLossAmount();
-		// 波动设置
-		BigDecimal minWave = order.getContract().getCommodity().getMinWave();
-		BigDecimal perWaveMoney = order.getContract().getCommodity().getPerWaveMoney();
-		// 货币汇率
-		FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
-		if (buyingPrice != null) {
-			// 获取合约设置的止损价格
-			BigDecimal contractSetNeedWavePrice = null;
-			if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 1) {
-				if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(new BigDecimal(1)) < 0
-						&& perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
-					contractSetNeedWavePrice = (order.getReserveFund().divide(order.getTotalQuantity())
-							.multiply(new BigDecimal(1).subtract(perUnitUnwindPoint))
-							.divide(rate.getRate(), 2, RoundingMode.DOWN).divide(perWaveMoney, 2, RoundingMode.DOWN)
-							.multiply(minWave).setScale(minWave.scale(), RoundingMode.DOWN));
-				}
-			} else if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 2) {
-				if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(BigDecimal.ZERO) >= 0
-						&& perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
-					contractSetNeedWavePrice = (order.getReserveFund().divide(order.getTotalQuantity())
-							.subtract(perUnitUnwindPoint).divide(rate.getRate(), 2, RoundingMode.DOWN)
-							.divide(perWaveMoney, 2, RoundingMode.DOWN).multiply(minWave)
-							.setScale(minWave.scale(), RoundingMode.DOWN));
-				}
-			}
-			// 获取用户设置的止损价格
-			BigDecimal userSetNeedWavePrice = null;
-			if (limitLossType != null && limitLossType == 1 && perUnitLimitLossAmount != null) {
-				// type为行情价格
-				if (orderType == FuturesOrderType.BuyUp && perUnitLimitLossAmount.compareTo(buyingPrice) < 0) {
-					userSetNeedWavePrice = buyingPrice.subtract(perUnitLimitLossAmount);
-				} else if (orderType == FuturesOrderType.BuyFall && perUnitLimitLossAmount.compareTo(buyingPrice) > 0) {
-					userSetNeedWavePrice = perUnitLimitLossAmount.subtract(buyingPrice);
-				}
-			} else if (limitLossType != null && limitLossType == 2 && rate != null && rate.getRate() != null
-					&& perUnitLimitLossAmount != null) {
-				// type为每手亏损剩余到金额
-				userSetNeedWavePrice = (order.getReserveFund().divide(order.getTotalQuantity())
-						.subtract(perUnitLimitLossAmount).divide(rate.getRate(), 2, RoundingMode.DOWN)
-						.divide(perWaveMoney, 2, RoundingMode.DOWN).multiply(minWave)
-						.setScale(minWave.scale(), RoundingMode.DOWN));
-			}
-			// 获取最终需要波动的价格
-			BigDecimal lastNeedWavePrice = null;
-			if (contractSetNeedWavePrice != null && userSetNeedWavePrice == null) {
-				lastNeedWavePrice = contractSetNeedWavePrice;
-			} else if (contractSetNeedWavePrice == null && userSetNeedWavePrice != null) {
-				lastNeedWavePrice = userSetNeedWavePrice;
-			} else if (contractSetNeedWavePrice != null && userSetNeedWavePrice != null) {
-				lastNeedWavePrice = contractSetNeedWavePrice.abs().compareTo(userSetNeedWavePrice.abs()) > 0
-						? contractSetNeedWavePrice : userSetNeedWavePrice;
-			}
-			if (lastNeedWavePrice != null) {
-				if (orderType == FuturesOrderType.BuyUp) {
-					return buyingPrice.subtract(lastNeedWavePrice.abs());
-				} else if (orderType == FuturesOrderType.BuyFall) {
-					return buyingPrice.add(lastNeedWavePrice.abs());
-				}
-			}
-		}
-		return null;
-	}
-
-	/**
 	 * 判断是否达到止损点
 	 * 
 	 * @param order
@@ -306,6 +333,31 @@ public class WindControlSchedule {
 		BigDecimal lastPrice = market.getLastPrice();
 		FuturesOrderType orderType = order.getOrderType();
 		BigDecimal limitLossPrice = computeLimitLossPrice(order);
+		if (orderType == FuturesOrderType.BuyUp) {
+			if (lastPrice != null && limitLossPrice != null && lastPrice.compareTo(limitLossPrice) <= 0) {
+				return true;
+			}
+		} else {
+			if (lastPrice != null && limitLossPrice != null && lastPrice.compareTo(limitLossPrice) >= 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 判断是否达到强平点
+	 * 
+	 * @param order
+	 *            订单
+	 * @param market
+	 *            行情
+	 * @return 是否达到强平点
+	 */
+	private boolean isReachStongPoint(FuturesOrder order, FuturesContractMarket market) {
+		BigDecimal lastPrice = market.getLastPrice();
+		FuturesOrderType orderType = order.getOrderType();
+		BigDecimal limitLossPrice = computeStrongPrice(order);
 		if (orderType == FuturesOrderType.BuyUp) {
 			if (lastPrice != null && limitLossPrice != null && lastPrice.compareTo(limitLossPrice) <= 0) {
 				return true;

@@ -2,17 +2,21 @@ package com.waben.stock.futuresgateway.yisheng.dao.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import com.waben.stock.futuresgateway.yisheng.dao.FuturesQuoteDao;
-import com.waben.stock.futuresgateway.yisheng.dao.impl.jpa.FuturesQuoteRepository;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuote;
 
 /**
@@ -25,60 +29,80 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuote;
 public class FuturesQuoteDaoImpl implements FuturesQuoteDao {
 
 	@Autowired
-	private FuturesQuoteRepository futuresQuoteRepository;
+	private MongoTemplate mongoTemplate;
+
+	private static String quoteCollectionNamePrefix = "quote-";
 
 	@Override
 	public FuturesQuote createFuturesQuote(FuturesQuote futuresQuote) {
-		return futuresQuoteRepository.save(futuresQuote);
+		futuresQuote.setId(new ObjectId().toString());
+		mongoTemplate.save(futuresQuote,
+				quoteCollectionNamePrefix + futuresQuote.getCommodityNo() + "-" + futuresQuote.getContractNo());
+		return futuresQuote;
 	}
 
 	@Override
-	public void deleteFuturesQuoteById(Long id) {
-		futuresQuoteRepository.delete(id);
+	public void deleteFuturesQuoteById(String commodityNo, String contractNo, String id) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("id").is(id));
+		mongoTemplate.remove(query, FuturesQuote.class, quoteCollectionNamePrefix + commodityNo + "-" + contractNo);
 	}
 
 	@Override
-	public FuturesQuote updateFuturesQuote(FuturesQuote futuresQuote) {
-		return futuresQuoteRepository.save(futuresQuote);
+	public FuturesQuote retrieveFuturesQuoteById(String commodityNo, String contractNo, String id) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("id").is(id));
+		return mongoTemplate.findOne(query, FuturesQuote.class,
+				quoteCollectionNamePrefix + commodityNo + "-" + contractNo);
 	}
 
 	@Override
-	public FuturesQuote retrieveFuturesQuoteById(Long id) {
-		return futuresQuoteRepository.findById(id);
+	public Page<FuturesQuote> pageFuturesQuote(String commodityNo, String contractNo, int page, int limit) {
+		Query query = new Query();
+		query.skip(page * limit);
+		query.limit(limit);
+		List<FuturesQuote> content = mongoTemplate.find(query, FuturesQuote.class,
+				quoteCollectionNamePrefix + commodityNo + "-" + contractNo);
+		long total = mongoTemplate.count(query, FuturesQuote.class,
+				quoteCollectionNamePrefix + commodityNo + "-" + contractNo);
+		Page<FuturesQuote> result = new PageImpl<>(content, new PageRequest(page, limit), total);
+		return result;
 	}
 
 	@Override
-	public Page<FuturesQuote> pageFuturesQuote(int page, int limit) {
-		return futuresQuoteRepository.findAll(new PageRequest(page, limit));
-	}
-
-	@Override
-	public List<FuturesQuote> listFuturesQuote() {
-		return futuresQuoteRepository.findAll();
+	public List<FuturesQuote> listFuturesQuote(String commodityNo, String contractNo) {
+		Query query = new Query();
+		return mongoTemplate.find(query, FuturesQuote.class,
+				quoteCollectionNamePrefix + commodityNo + "-" + contractNo);
 	}
 
 	@Override
 	public List<FuturesQuote> retrieveByCommodityNoAndContractNoAndDateTimeStampLike(String commodityNo,
 			String contractNo, String dateTimeStamp) {
-		Sort sort = new Sort(new Sort.Order(Direction.ASC, "dateTimeStamp"));
-		return futuresQuoteRepository.findByCommodityNoAndContractNoAndDateTimeStampLike(commodityNo, contractNo,
-				dateTimeStamp, sort);
+		Query query = new Query();
+		Pattern pattern = Pattern.compile("^" + dateTimeStamp + ".*", Pattern.CASE_INSENSITIVE);
+		query.addCriteria(Criteria.where("dateTimeStamp").regex(pattern));
+		query.with(new Sort(new Sort.Order(Direction.ASC, "dateTimeStamp")));
+		return mongoTemplate.find(query, FuturesQuote.class,
+				quoteCollectionNamePrefix + commodityNo + "-" + contractNo);
 	}
 
 	@Override
-	public Long countByTimeGreaterThanEqual(Date time) {
-		return futuresQuoteRepository.countByTimeGreaterThanEqual(time);
+	public Long countByTimeGreaterThanEqual(String commodityNo, String contractNo, Date time) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("time").gte(time));
+		return mongoTemplate.count(query, FuturesQuote.class,
+				quoteCollectionNamePrefix + commodityNo + "-" + contractNo);
 	}
 
 	@Override
 	public FuturesQuote retriveNewest(String commodityNo, String contractNo) {
-		Pageable pageable = new PageRequest(0, 1, new Sort(new Sort.Order(Direction.DESC, "dateTimeStamp")));
-		Page<FuturesQuote> pages = futuresQuoteRepository.findByCommodityNoAndContractNo(commodityNo, contractNo,
-				pageable);
-		if (pages.getContent() != null && pages.getContent().size() > 0) {
-			return pages.getContent().get(0);
-		}
-		return null;
+		Query query = new Query();
+		query.skip(0);
+		query.limit(1);
+		query.with(new Sort(new Sort.Order(Direction.DESC, "dateTimeStamp")));
+		return mongoTemplate.findOne(query, FuturesQuote.class,
+				quoteCollectionNamePrefix + commodityNo + "-" + contractNo);
 	}
 
 }

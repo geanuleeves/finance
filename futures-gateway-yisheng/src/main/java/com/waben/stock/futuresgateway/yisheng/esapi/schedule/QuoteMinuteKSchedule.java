@@ -82,7 +82,7 @@ public class QuoteMinuteKSchedule {
 			}
 			// step 3.2 : 根据时间获取所有的行情
 			List<FuturesQuote> quoteList = quoteService.getByCommodityNoAndContractNoAndDateTimeStampLike(commodityNo,
-					contractNo, minSdf.format(before) + "%");
+					contractNo, minSdf.format(before));
 			if (quoteList != null && quoteList.size() > 0) {
 				// step 3.3 : 初始化部分数据
 				beforeMinuteK = new FuturesQuoteMinuteK();
@@ -93,17 +93,17 @@ public class QuoteMinuteKSchedule {
 				beforeMinuteK.setTotalVolume(quoteList.get(quoteList.size() - 1).getPositionQty());
 				beforeMinuteK
 						.setVolume(quoteList.get(quoteList.size() - 1).getTotalQty() - quoteList.get(0).getTotalQty());
-				beforeMinuteK.setOpenPrice(quoteList.get(0).getLastPrice());
-				beforeMinuteK.setClosePrice(quoteList.get(quoteList.size() - 1).getLastPrice());
+				beforeMinuteK.setOpenPrice(new BigDecimal(quoteList.get(0).getLastPrice()));
+				beforeMinuteK.setClosePrice(new BigDecimal(quoteList.get(quoteList.size() - 1).getLastPrice()));
 				// step 3.4 : 计算最高价、最低价
-				BigDecimal highPrice = quoteList.get(0).getLastPrice();
-				BigDecimal lowPrice = quoteList.get(0).getLastPrice();
+				BigDecimal highPrice = new BigDecimal(quoteList.get(0).getLastPrice());
+				BigDecimal lowPrice = new BigDecimal(quoteList.get(0).getLastPrice());
 				for (FuturesQuote quote : quoteList) {
-					if (quote.getLastPrice().compareTo(highPrice) > 0) {
-						highPrice = quote.getLastPrice();
+					if (new BigDecimal(quote.getLastPrice()).compareTo(highPrice) > 0) {
+						highPrice = new BigDecimal(quote.getLastPrice());
 					}
-					if (quote.getLastPrice().compareTo(lowPrice) < 0) {
-						lowPrice = quote.getLastPrice();
+					if (new BigDecimal(quote.getLastPrice()).compareTo(lowPrice) < 0) {
+						lowPrice = new BigDecimal(quote.getLastPrice());
 					}
 				}
 				beforeMinuteK.setHighPrice(highPrice);
@@ -114,12 +114,14 @@ public class QuoteMinuteKSchedule {
 				for (int i = 0; i < quoteList.size(); i++) {
 					FuturesQuote quote = quoteList.get(i);
 					DeleteQuoteMessage delQuote = new DeleteQuoteMessage();
+					delQuote.setCommodityNo(commodityNo);
+					delQuote.setContractNo(contractNo);
 					delQuote.setQuoteId(quote.getId());
 					delQuote.setType(1);
 					producer.sendMessage(RabbitmqConfiguration.deleteQuoteQueueName, delQuote);
 					if (i == quoteList.size() - 1) {
 						// 判断当前分钟有没有行情数据，如果没有的话，将这条数据保存到FuturesQuoteLast中
-						Long count = quoteService.countByTimeGreaterThanEqual(currentMin);
+						Long count = quoteService.countByTimeGreaterThanEqual(commodityNo, contractNo, currentMin);
 						if (count <= 0) {
 							FuturesQuoteLast quoteLast = CopyBeanUtils.copyBeanProperties(FuturesQuoteLast.class, quote,
 									false);
