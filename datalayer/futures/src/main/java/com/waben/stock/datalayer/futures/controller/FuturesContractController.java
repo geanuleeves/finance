@@ -117,8 +117,9 @@ public class FuturesContractController implements FuturesContractInterface {
 			boolean isTradeTime = false;
 			String tradeTime = retriveExchangeTradeTimeStr(timeZoneGap, contractDto, now);
 			if (!StringUtil.isEmpty(tradeTime)) {
-				contractDto.setAutomaticWarehouseTime(
-						timeZoneConversion(timeZoneGap, tradeTime.substring(tradeTime.lastIndexOf("-") + 1)));
+				// 当天最后一个时间节点 tradeTime.substring(tradeTime.lastIndexOf("-") +
+				// 1))
+				contractDto.setAutomaticWarehouseTime(timeZoneConversion(timeZoneGap, contractDto.getOvernightTime()));
 				String[] tradeTimeArr = tradeTime.split(",");
 				String dayStr = daySdf.format(exchangeTime);
 				String fullStr = fullSdf.format(exchangeTime);

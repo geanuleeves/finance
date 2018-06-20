@@ -89,6 +89,8 @@ public class FuturesOrderController {
 		query.setContractId(buysellDto.getContractId());
 		// 判断该合约是否可用是否在交易中、网关是否支持该合约、合约交易所是否可用、以及是否在交易时间内
 		FuturesContractDto contractDto = futuresContractBusiness.getContractByOne(query);
+
+		checkedMinPlaceOrder(contractDto);
 		// 用户单笔最大可交易数量
 		BigDecimal perNum = contractDto.getPerOrderLimit();
 		// 用户最大可持仓量
@@ -618,6 +620,47 @@ public class FuturesOrderController {
 				throw new ServiceException(ExceptionConstant.UPPER_LIMIT_HOLDING_CAPACITY_EXCEPTION);
 			}
 		}
+	}
+
+	/**
+	 * 根据最后交易日和首次通知日判断是否可以下单，可以下单计算公式：MIN（最后交易日，首次通知日）> 当前日期
+	 * 
+	 * @param contractDto
+	 *            合约信息
+	 */
+	public void checkedMinPlaceOrder(FuturesContractDto contractDto) {
+		Long minTime = null;
+		if (contractDto.getFirstNoticeDate() != null && contractDto.getLastTradingDate() != null) {
+			minTime = Math.min(contractDto.getFirstNoticeDate().getTime(), contractDto.getLastTradingDate().getTime());
+		} else if (contractDto.getFirstNoticeDate() != null) {
+			minTime = contractDto.getFirstNoticeDate().getTime();
+		} else if (contractDto.getLastTradingDate() != null) {
+			minTime = contractDto.getLastTradingDate().getTime();
+		}
+		if (minTime != null) {
+			Date exchangeTime = contractDto.getTimeZoneGap() == null ? new Date()
+					: retriveExchangeTime(new Date(), contractDto.getTimeZoneGap());
+			if (minTime.compareTo(exchangeTime.getTime()) < 0) {
+				// 当前时间大于（等于）最后交易日和首次通知日中的最小时间，不能下单
+				throw new ServiceException(ExceptionConstant.MIN_PLACE_ORDER_EXCEPTION);
+			}
+		}
+	}
+
+	/**
+	 * 获取交易所的对应时间
+	 * 
+	 * @param localTime
+	 *            日期
+	 * @param timeZoneGap
+	 *            和交易所的时差
+	 * @return 交易所的对应时间
+	 */
+	private Date retriveExchangeTime(Date localTime, Integer timeZoneGap) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(localTime);
+		cal.add(Calendar.HOUR_OF_DAY, timeZoneGap * -1);
+		return cal.getTime();
 	}
 
 }
