@@ -56,6 +56,11 @@ public class FutresOrderEntrustDto {
 	 * 买入委托价格
 	 */
 	private BigDecimal entrustAppointPrice;
+	
+	/**
+	 * 委托价
+	 */
+	private BigDecimal entrustPrice;
 
 	/**
 	 * 当前价
@@ -222,6 +227,14 @@ public class FutresOrderEntrustDto {
 
 	public void setEntrustAppointPrice(BigDecimal entrustAppointPrice) {
 		this.entrustAppointPrice = entrustAppointPrice;
+	}
+
+	public BigDecimal getEntrustPrice() {
+		return entrustPrice;
+	}
+
+	public void setEntrustPrice(BigDecimal entrustPrice) {
+		this.entrustPrice = entrustPrice;
 	}
 
 	public BigDecimal getLastPrice() {

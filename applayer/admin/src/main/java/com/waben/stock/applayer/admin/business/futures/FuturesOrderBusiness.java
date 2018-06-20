@@ -19,6 +19,7 @@ import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCurrencyRateDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
 import com.waben.stock.interfaces.dto.publisher.RealNameDto;
+import com.waben.stock.interfaces.enums.FuturesOrderState;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
@@ -151,6 +152,14 @@ public class FuturesOrderBusiness {
 					}
 					
 					if(dto.getDealTime()==null){
+						
+					}
+					if (dto.getState() != null) {
+						if (dto.getState() != FuturesOrderState.SellingEntrust.getType()&& dto.getState() != FuturesOrderState.PartUnwind.getType()) {
+							dto.setEntrustPrice(dto.getEntrustAppointPrice());
+						}else{
+							dto.setEntrustPrice(dto.getSellingEntrustPrice());
+						}
 						
 					}
 				}
