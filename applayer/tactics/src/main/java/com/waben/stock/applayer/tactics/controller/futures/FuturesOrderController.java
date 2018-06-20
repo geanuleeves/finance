@@ -200,6 +200,20 @@ public class FuturesOrderController {
 		// 用户买跌持仓总额度
 		Integer buyFull = futuresOrderBusiness.sumUserNum(orderDto.getContractId(), SecurityUtil.getUserId(), 2);
 		BigDecimal buyFullNum = buyFull == null ? new BigDecimal(0) : new BigDecimal(buyFull).abs();
+		if (orderDto.getOrderType() == FuturesOrderType.BuyUp) {
+			if (contractDto.getBuyFullTotalLimit() != null
+					&& buyFullNum.add(orderDto.getTotalQuantity()).compareTo(contractDto.getBuyFullTotalLimit()) > 0) {
+				// 买跌持仓总额度已达上限
+				throw new ServiceException(ExceptionConstant.TOTAL_AMOUNT_BUYFULL_CAPACITY_INSUFFICIENT_EXCEPTION);
+			}
+		} else {
+			if (contractDto.getBuyUpTotalLimit() != null
+					&& buyUpNum.add(orderDto.getTotalQuantity()).compareTo(contractDto.getBuyUpTotalLimit()) > 0) {
+				// 买涨持仓总额度已达上限
+				throw new ServiceException(ExceptionConstant.TOTAL_AMOUNT_BUYUP_CAPACITY_INSUFFICIENT_EXCEPTION);
+			}
+		}
+
 		// 判断当前下单手数是否满足条件
 		checkBuyUpAndFullSUM(buyUpNum, buyFullNum, contractDto.getPerOrderLimit(), contractDto.getUserTotalLimit(),
 				orderDto.getTotalQuantity(), contractDto);
