@@ -149,6 +149,10 @@ public class FuturesOrderBusiness {
 							dto.setPublisherName(re.getName());
 						}
 					}
+					
+					if(dto.getDealTime()==null){
+						
+					}
 				}
 			}
 
