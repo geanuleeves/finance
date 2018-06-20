@@ -340,4 +340,12 @@ public class FuturesOrderBusiness {
 		throw new ServiceException(response.getCode());
 	}
 
+	public FuturesOrderDto fetchByOrderId(Long orderId) {
+		Response<FuturesOrderDto> response = futuresOrderInterface.fetchById(orderId);
+		if (response.getCode().equals("200")) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
 }
