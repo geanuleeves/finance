@@ -1005,7 +1005,6 @@ public class FuturesOrderService {
 			// 判断该交易平仓时是否在后台设置的期货交易限制内
 			checkedLimitUnwind(limitList, retriveExchangeTime(new Date(), this.retriveTimeZoneGap(order)));
 		}
-
 		// 委托卖出
 		return sellingEntrust(order, FuturesWindControlType.UserApplyUnwind, priceType, sellingEntrustPrice);
 	}
