@@ -82,6 +82,7 @@ public class EsEngine {
 		} else {
 			order.setOrderSide(Constants.TAPI_SIDE_SELL);
 		}
+		order.setTimeInForce(Constants.TAPI_ORDER_TIMEINFORCE_GTC);
 		return tradeWrapper.getApi().insertOrder(order);
 	}
 

@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.waben.stock.interfaces.dto.admin.publisher.CapitalFlowAdminDto;
+import com.waben.stock.interfaces.dto.admin.publisher.CapitalFlowFuturesAdminDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.CapitalFlowQuery;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.admin.publisher.CapitalFlowAdminQuery;
+import com.waben.stock.interfaces.pojo.query.admin.publisher.CapitalFlowFuturesAdminQuery;
 
 /**
  * 资金流水 reference服务接口
@@ -36,7 +38,27 @@ public interface CapitalFlowInterface {
 	 */
 	@RequestMapping(value = "/adminpages", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	Response<PageInfo<CapitalFlowAdminDto>> adminPagesByQuery(@RequestBody CapitalFlowAdminQuery query);
+	
+	/**
+	 * 分页查询资金流水（管理后台-期货）
+	 * 
+	 * @param query
+	 *            查询条件
+	 * @return 资金流水
+	 */
+	@RequestMapping(value = "/adminFuturesPagesByQuery", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	Response<PageInfo<CapitalFlowFuturesAdminDto>> adminFuturesPagesByQuery(@RequestBody CapitalFlowFuturesAdminQuery query);
 
+	/**
+	 * 查询流水累积金额（管理后台-期货）
+	 * 
+	 * @param query
+	 *            查询条件
+	 * @return 资金流水累积金额
+	 */
+	@RequestMapping(value = "/adminAccumulateFuturesAmount", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	Response<BigDecimal> adminAccumulateFuturesAmountByQuery(@RequestBody CapitalFlowFuturesAdminQuery query);
+	
 	/**
 	 * 查询流水累积金额（管理后台）
 	 * 

@@ -75,4 +75,14 @@ public class FuturesOrderDaoImpl implements FuturesOrderDao {
 		return futuresOrderRepository.findByOrderNo(orderNo);
 	}
 
+	@Override
+	public FuturesOrder retriveByYtTwsOrderId(int ytTwsOrderId) {
+		Sort sort = new Sort(new Sort.Order(Direction.DESC, "createTime"));
+		List<FuturesOrder> orderList = futuresOrderRepository.findByYtTwsOrderId(ytTwsOrderId, sort);
+		if (orderList != null && orderList.size() > 0) {
+			return orderList.get(0);
+		}
+		return null;
+	}
+
 }

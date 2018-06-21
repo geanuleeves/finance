@@ -31,6 +31,12 @@ public class RabbitmqConfiguration {
 
 	public static final String orderActionQueueName = "futures-gateway-yisheng-orderaction";
 
+	public static final String tickPriceQueueName = "futures-gateway-yingtou-tickPrice";
+
+	public static final String tickSizeQueueName = "futures-gateway-yingtou-tickSize";
+
+	public static final String historicalDataQueueName = "futures-gateway-yingtou-historicalData";
+
 	@Autowired
 	private ConnectionFactory connectionFactory;
 
@@ -57,6 +63,15 @@ public class RabbitmqConfiguration {
 		factory.setConnectionFactory(connectionFactory);
 		factory.setConcurrentConsumers(10);
 		factory.setMaxConcurrentConsumers(25);
+		return factory;
+	}
+
+	@Bean(name = { "historicalDataListenerContainerFactory" })
+	public SimpleRabbitListenerContainerFactory historicalDataListenerContainerFactory() {
+		SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+		factory.setConnectionFactory(connectionFactory);
+		factory.setConcurrentConsumers(2);
+		factory.setMaxConcurrentConsumers(5);
 		return factory;
 	}
 

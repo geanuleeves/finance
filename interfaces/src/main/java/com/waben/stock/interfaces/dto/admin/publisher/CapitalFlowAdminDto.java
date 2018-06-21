@@ -31,6 +31,45 @@ public class CapitalFlowAdminDto extends CapitalFlowDto {
 	 * 股票名称（点买记录）
 	 */
 	private String bStockName;
+	
+	public String getCommoditySymbol() {
+		return commoditySymbol;
+	}
+
+	public void setCommoditySymbol(String commoditySymbol) {
+		this.commoditySymbol = commoditySymbol;
+	}
+
+	public String getCommodityName() {
+		return commodityName;
+	}
+
+	public void setCommodityName(String commodityName) {
+		this.commodityName = commodityName;
+	}
+
+	public String getContractNo() {
+		return contractNo;
+	}
+
+	public void setContractNo(String contractNo) {
+		this.contractNo = contractNo;
+	}
+
+	/**
+	 * 交易代码（期货交易）
+	 */
+	private String commoditySymbol;
+	
+	/**
+	 * 交易品种（期货交易）
+	 */
+	private String commodityName;
+	
+	/**
+	 * 合约代码
+	 */
+	private String contractNo;
 	/**
 	 * 股票代码（期权交易）
 	 */

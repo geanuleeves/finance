@@ -18,7 +18,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteK;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteKGroup;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqProducer;
-import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.DeleteQuoteMessage;
+import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.EsDeleteQuoteMessage;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesContractService;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteMinuteKGroupService;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteMinuteKService;
@@ -107,7 +107,7 @@ public class QuoteMinuteKGroupSchedule {
 				minuteKGroupServcie.addFuturesQuoteMinuteKGroup(minuteKGroup);
 				// step 3.6 : 删除分K的行情数据
 				for (FuturesQuoteMinuteK minuteK : minuteKList) {
-					DeleteQuoteMessage delQuote = new DeleteQuoteMessage();
+					EsDeleteQuoteMessage delQuote = new EsDeleteQuoteMessage();
 					delQuote.setQuoteId(String.valueOf(minuteK.getId()));
 					delQuote.setType(2);
 					producer.sendMessage(RabbitmqConfiguration.deleteQuoteQueueName, delQuote);

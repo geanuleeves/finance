@@ -24,6 +24,14 @@ public class FuturesOrder {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	/**
+	 * 下单通道类型
+	 * <ul>
+	 * <li>1易盛</li>
+	 * <li>2盈透</li>
+	 * <ul>
+	 */
+	private Integer brokerType;
 	/** 所属域 */
 	private String domain;
 	/** 品种ID */
@@ -65,6 +73,8 @@ public class FuturesOrder {
 	 */
 	private String account;
 	/**
+	 * 订单状态(易盛)
+	 * 
 	 * @see Constants#TAPI_ORDER_STATE_SUBMIT
 	 * @see Constants#TAPI_ORDER_STATE_ACCEPT
 	 * @see Constants#TAPI_ORDER_STATE_TRIGGERING
@@ -84,6 +94,14 @@ public class FuturesOrder {
 	 * @see Constants#TAPI_ORDER_STATE_APPLY
 	 */
 	private Integer orderState;
+	/**
+	 * 订单状态(盈透)
+	 */
+	private String orderStatus;
+	/**
+	 * tws订单ID(盈透)
+	 */
+	private Integer ytTwsOrderId;
 	/**
 	 * 总量
 	 */
@@ -279,6 +297,30 @@ public class FuturesOrder {
 
 	public void setOrderSessionId(Integer orderSessionId) {
 		this.orderSessionId = orderSessionId;
+	}
+
+	public String getOrderStatus() {
+		return orderStatus;
+	}
+
+	public void setOrderStatus(String orderStatus) {
+		this.orderStatus = orderStatus;
+	}
+
+	public Integer getYtTwsOrderId() {
+		return ytTwsOrderId;
+	}
+
+	public void setYtTwsOrderId(Integer ytTwsOrderId) {
+		this.ytTwsOrderId = ytTwsOrderId;
+	}
+
+	public Integer getBrokerType() {
+		return brokerType;
+	}
+
+	public void setBrokerType(Integer brokerType) {
+		this.brokerType = brokerType;
 	}
 
 }

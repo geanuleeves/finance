@@ -5,16 +5,18 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.waben.stock.interfaces.pojo.query.PageAndSortQuery;
 
-public class CapitalFlowAdminQuery extends PageAndSortQuery {
+public class CapitalFlowFuturesAdminQuery extends PageAndSortQuery {
 
 	/**
 	 * 客户ID
 	 */
 	private Long publisherId;
+	
 	/**
 	 * 客户手机号
 	 */
 	private String pulisherPhone;
+	
 	/**
 	 * 客户姓名
 	 * <p>
@@ -22,40 +24,45 @@ public class CapitalFlowAdminQuery extends PageAndSortQuery {
 	 * </p>
 	 */
 	private String publisherName;
+	
 	/**
 	 * 流水时间-查询开始时间
 	 */
 	@JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date startTime;
+	
 	/**
 	 * 流水时间-查询结束时间
 	 */
 	@JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date endTime;
+	
 	/**
 	 * 流水类型，多个流水类型使用,号分割
 	 */
 	private String flowTypes;
-	/**
-	 * 股票代码
-	 */
-	private String stockCode;
-	/**
-	 * 充值方式
-	 */
-	private Integer paymentType;
+	
 	/**
 	 * 交易代码
 	 */
 	private String symbol;
+	
 	/**
 	 * 交易品种
 	 */
-	private String commodityName;
+	private String name;
+	
+	
+	/**
+	 * 充值方式
+	 */
+	private Integer paymentType;
+	
 	/**
 	 * 是否为测试单
 	 */
 	private Boolean isTest;
+	
 	/**
 	 * 查询类型
 	 * <ul>
@@ -67,12 +74,12 @@ public class CapitalFlowAdminQuery extends PageAndSortQuery {
 	 */
 	private Integer queryType;
 
-	public String getPublisherName() {
-		return publisherName;
+	public Long getPublisherId() {
+		return publisherId;
 	}
 
-	public void setPublisherName(String publisherName) {
-		this.publisherName = publisherName;
+	public void setPublisherId(Long publisherId) {
+		this.publisherId = publisherId;
 	}
 
 	public String getPulisherPhone() {
@@ -81,6 +88,14 @@ public class CapitalFlowAdminQuery extends PageAndSortQuery {
 
 	public void setPulisherPhone(String pulisherPhone) {
 		this.pulisherPhone = pulisherPhone;
+	}
+
+	public String getPublisherName() {
+		return publisherName;
+	}
+
+	public void setPublisherName(String publisherName) {
+		this.publisherName = publisherName;
 	}
 
 	public Date getStartTime() {
@@ -99,44 +114,12 @@ public class CapitalFlowAdminQuery extends PageAndSortQuery {
 		this.endTime = endTime;
 	}
 
-	public String getStockCode() {
-		return stockCode;
-	}
-
-	public void setStockCode(String stockCode) {
-		this.stockCode = stockCode;
-	}
-
 	public String getFlowTypes() {
 		return flowTypes;
 	}
 
 	public void setFlowTypes(String flowTypes) {
 		this.flowTypes = flowTypes;
-	}
-
-	public Integer getPaymentType() {
-		return paymentType;
-	}
-
-	public void setPaymentType(Integer paymentType) {
-		this.paymentType = paymentType;
-	}
-
-	public Long getPublisherId() {
-		return publisherId;
-	}
-
-	public void setPublisherId(Long publisherId) {
-		this.publisherId = publisherId;
-	}
-
-	public Integer getQueryType() {
-		return queryType;
-	}
-
-	public void setQueryType(Integer queryType) {
-		this.queryType = queryType;
 	}
 
 	public String getSymbol() {
@@ -147,12 +130,20 @@ public class CapitalFlowAdminQuery extends PageAndSortQuery {
 		this.symbol = symbol;
 	}
 
-	public String getCommodityName() {
-		return commodityName;
+	public String getName() {
+		return name;
 	}
 
-	public void setCommodityName(String commodityName) {
-		this.commodityName = commodityName;
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Integer getPaymentType() {
+		return paymentType;
+	}
+
+	public void setPaymentType(Integer paymentType) {
+		this.paymentType = paymentType;
 	}
 
 	public Boolean getIsTest() {
@@ -163,4 +154,11 @@ public class CapitalFlowAdminQuery extends PageAndSortQuery {
 		this.isTest = isTest;
 	}
 
+	public Integer getQueryType() {
+		return queryType;
+	}
+
+	public void setQueryType(Integer queryType) {
+		this.queryType = queryType;
+	}
 }

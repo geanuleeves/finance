@@ -33,4 +33,6 @@ public interface FuturesOrderRepository extends Repository<FuturesOrder, Long> {
 
 	FuturesOrder findByDomainAndOuterOrderId(String domain, Long outerOrderId);
 
+	List<FuturesOrder> findByYtTwsOrderId(int ytTwsOrderId, Sort sort);
+
 }

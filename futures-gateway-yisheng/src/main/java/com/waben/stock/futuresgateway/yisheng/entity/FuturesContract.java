@@ -21,6 +21,14 @@ public class FuturesContract {
 	private Long id;
 	/** 合约编号 */
 	private String contractNo;
+	/** tws本地名称(盈透专用) */
+	private String ytLocalSymbolName;
+	/** 安全类型(盈透专用) */
+	private String ytSecType;
+	/** 货币(盈透专用) */
+	private String ytCurrency;
+	/** 交易所编号(盈透专用) */
+	private String ytExchange;
 	/** 合约名称 */
 	private String contractName;
 	/** 首次通知日期 */
@@ -106,6 +114,38 @@ public class FuturesContract {
 
 	public void setEnable(Boolean enable) {
 		this.enable = enable;
+	}
+
+	public String getYtLocalSymbolName() {
+		return ytLocalSymbolName;
+	}
+
+	public void setYtLocalSymbolName(String ytLocalSymbolName) {
+		this.ytLocalSymbolName = ytLocalSymbolName;
+	}
+
+	public String getYtSecType() {
+		return ytSecType;
+	}
+
+	public void setYtSecType(String ytSecType) {
+		this.ytSecType = ytSecType;
+	}
+
+	public String getYtCurrency() {
+		return ytCurrency;
+	}
+
+	public void setYtCurrency(String ytCurrency) {
+		this.ytCurrency = ytCurrency;
+	}
+
+	public String getYtExchange() {
+		return ytExchange;
+	}
+
+	public void setYtExchange(String ytExchange) {
+		this.ytExchange = ytExchange;
 	}
 
 }

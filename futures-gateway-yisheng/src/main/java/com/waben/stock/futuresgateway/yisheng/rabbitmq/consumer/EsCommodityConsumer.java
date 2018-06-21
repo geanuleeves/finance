@@ -18,7 +18,7 @@ import com.waben.stock.futuresgateway.yisheng.util.JacksonUtil;
 
 @Component
 @RabbitListener(queues = { RabbitmqConfiguration.commodityQueueName })
-public class CommodityConsumer {
+public class EsCommodityConsumer {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
 
