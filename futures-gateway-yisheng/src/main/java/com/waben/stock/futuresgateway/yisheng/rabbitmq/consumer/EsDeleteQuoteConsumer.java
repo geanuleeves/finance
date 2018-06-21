@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqConfiguration;
-import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.DeleteQuoteMessage;
+import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.EsDeleteQuoteMessage;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteService;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteMinuteKService;
 import com.waben.stock.futuresgateway.yisheng.util.JacksonUtil;
@@ -16,7 +16,7 @@ import com.waben.stock.futuresgateway.yisheng.util.JacksonUtil;
 @Component
 @RabbitListener(queues = {
 		RabbitmqConfiguration.deleteQuoteQueueName }, containerFactory = "deleteQuoteListenerContainerFactory")
-public class DeleteQuoteConsumer {
+public class EsDeleteQuoteConsumer {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -28,7 +28,7 @@ public class DeleteQuoteConsumer {
 
 	@RabbitHandler
 	public void handlerMessage(String message) {
-		DeleteQuoteMessage msgObj = JacksonUtil.decode(message, DeleteQuoteMessage.class);
+		EsDeleteQuoteMessage msgObj = JacksonUtil.decode(message, EsDeleteQuoteMessage.class);
 		try {
 			if (msgObj.getType() != null && msgObj.getType() == 1) {
 				quoteService.deleteFuturesQuote(msgObj.getCommodityNo(), msgObj.getContractNo(), msgObj.getQuoteId());

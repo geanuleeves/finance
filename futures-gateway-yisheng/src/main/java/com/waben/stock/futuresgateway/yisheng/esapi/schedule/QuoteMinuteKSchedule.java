@@ -19,7 +19,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteLast;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteK;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqProducer;
-import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.DeleteQuoteMessage;
+import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.EsDeleteQuoteMessage;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesContractService;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteLastService;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteMinuteKService;
@@ -113,7 +113,7 @@ public class QuoteMinuteKSchedule {
 				// step 3.6 : 删除该分钟的行情数据
 				for (int i = 0; i < quoteList.size(); i++) {
 					FuturesQuote quote = quoteList.get(i);
-					DeleteQuoteMessage delQuote = new DeleteQuoteMessage();
+					EsDeleteQuoteMessage delQuote = new EsDeleteQuoteMessage();
 					delQuote.setCommodityNo(commodityNo);
 					delQuote.setContractNo(contractNo);
 					delQuote.setQuoteId(quote.getId());

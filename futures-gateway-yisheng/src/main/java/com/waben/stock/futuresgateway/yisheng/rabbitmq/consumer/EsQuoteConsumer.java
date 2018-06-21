@@ -18,7 +18,7 @@ import com.waben.stock.futuresgateway.yisheng.util.JacksonUtil;
 
 @Component
 @RabbitListener(queues = { RabbitmqConfiguration.quoteQueueName }, containerFactory = "quoteListenerContainerFactory")
-public class QuoteConsumer {
+public class EsQuoteConsumer {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
 

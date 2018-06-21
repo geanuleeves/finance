@@ -30,6 +30,12 @@ public class RabbitmqConfiguration {
 	public static final String orderStateQueueName = "futures-gateway-yisheng-orderstate";
 
 	public static final String orderActionQueueName = "futures-gateway-yisheng-orderaction";
+	
+	public static final String tickPriceQueueName = "futures-gateway-yingtou-tickPrice";
+
+	public static final String tickSizeQueueName = "futures-gateway-yingtou-tickSize";
+
+	public static final String historicalDataQueueName = "futures-gateway-yingtou-historicalData";
 
 	@Autowired
 	private ConnectionFactory connectionFactory;
