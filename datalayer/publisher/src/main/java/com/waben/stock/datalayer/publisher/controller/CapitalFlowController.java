@@ -15,12 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.waben.stock.datalayer.publisher.entity.CapitalFlow;
 import com.waben.stock.datalayer.publisher.service.CapitalFlowService;
 import com.waben.stock.interfaces.dto.admin.publisher.CapitalFlowAdminDto;
+import com.waben.stock.interfaces.dto.admin.publisher.CapitalFlowFuturesAdminDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
 import com.waben.stock.interfaces.enums.CapitalFlowExtendType;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.CapitalFlowQuery;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.admin.publisher.CapitalFlowAdminQuery;
+import com.waben.stock.interfaces.pojo.query.admin.publisher.CapitalFlowFuturesAdminQuery;
 import com.waben.stock.interfaces.service.publisher.CapitalFlowInterface;
 import com.waben.stock.interfaces.util.CopyBeanUtils;
 import com.waben.stock.interfaces.util.PageToPageInfo;
@@ -76,6 +78,18 @@ public class CapitalFlowController implements CapitalFlowInterface {
 		List<CapitalFlow> flowList = capitalFlowService
 				.findByExtendTypeAndExtendId(CapitalFlowExtendType.getByIndex(extendTypeIndex), extendId);
 		return new Response<>(CopyBeanUtils.copyListBeanPropertiesToList(flowList, CapitalFlowDto.class));
+	}
+
+	@Override
+	public Response<PageInfo<CapitalFlowFuturesAdminDto>> adminFuturesPagesByQuery(CapitalFlowFuturesAdminQuery query) {
+		Page<CapitalFlowFuturesAdminDto> page = capitalFlowService.adminFuturesPagesByQuery(query);
+		PageInfo<CapitalFlowFuturesAdminDto> result = PageToPageInfo.pageToPageInfo(page, CapitalFlowFuturesAdminDto.class);
+		return new Response<>(result);
+	}
+
+	@Override
+	public Response<BigDecimal> adminAccumulateFuturesAmountByQuery(CapitalFlowFuturesAdminQuery query) {
+		return new Response<>(capitalFlowService.adminAccumulateFuturesAmountByquery(query));
 	}
 
 }

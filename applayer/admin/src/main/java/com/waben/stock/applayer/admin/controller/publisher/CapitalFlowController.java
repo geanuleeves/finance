@@ -23,11 +23,13 @@ import com.waben.stock.applayer.admin.business.publisher.CapitalFlowBusiness;
 import com.waben.stock.applayer.admin.util.PoiUtil;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.publisher.CapitalFlowAdminDto;
+import com.waben.stock.interfaces.dto.admin.publisher.CapitalFlowFuturesAdminDto;
 import com.waben.stock.interfaces.enums.PaymentType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.admin.publisher.CapitalFlowAdminQuery;
+import com.waben.stock.interfaces.pojo.query.admin.publisher.CapitalFlowFuturesAdminQuery;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -54,6 +56,17 @@ public class CapitalFlowController {
 	@ApiOperation(value = "查询资金流水")
 	public Response<PageInfo<CapitalFlowAdminDto>> pages(CapitalFlowAdminQuery query) {
 		return new Response<>(business.adminPagesByQuery(query));
+	}
+	@GetMapping("/pagesFutures")
+	@ApiOperation(value = "查询期货资金流水")
+	public Response<PageInfo<CapitalFlowFuturesAdminDto>> pagesFutures(CapitalFlowFuturesAdminQuery query){
+		return new Response<>(business.adminFuturesPagesByQuery(query));
+	}
+	
+	@GetMapping("/accumulateFuturesAmount")
+	@ApiOperation(value = "查询期货流水累积金额")
+	public Response<BigDecimal> accumulateFuturesAmount(CapitalFlowFuturesAdminQuery query) {
+		return new Response<>(business.adminAccumulateFuturesAmountByQuery(query));
 	}
 	
 	@GetMapping("/accumulateAmount")
