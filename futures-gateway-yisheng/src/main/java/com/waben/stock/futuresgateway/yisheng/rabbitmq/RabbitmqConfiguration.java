@@ -131,4 +131,30 @@ public class RabbitmqConfiguration {
 		return new Queue(orderActionQueueName);
 	}
 
+	/************************* 盈透 **************************/
+
+	/**
+	 * 创建 处理行情价格 队列
+	 */
+	@Bean
+	public Queue tickSizeQueue() {
+		return new Queue(tickSizeQueueName);
+	}
+
+	/**
+	 * 创建 处理行情价格 队列
+	 */
+	@Bean
+	public Queue tickPriceQueue() {
+		return new Queue(tickPriceQueueName);
+	}
+
+	/**
+	 * 创建 处理历史数据 队列
+	 */
+	@Bean
+	public Queue historicalDataQueue() {
+		return new Queue(historicalDataQueueName);
+	}
+
 }

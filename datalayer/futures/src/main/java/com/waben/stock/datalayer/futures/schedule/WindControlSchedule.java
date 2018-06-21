@@ -471,7 +471,7 @@ public class WindControlSchedule {
 	 * @return 持仓中的正式订单
 	 */
 	private List<FuturesOrder> retrivePositionOrders() {
-		FuturesOrderState[] states = { FuturesOrderState.Position };
+		FuturesOrderState[] states = { FuturesOrderState.Position, FuturesOrderState.SellingEntrust };
 		FuturesOrderQuery query = new FuturesOrderQuery();
 		query.setPage(0);
 		query.setSize(Integer.MAX_VALUE);
