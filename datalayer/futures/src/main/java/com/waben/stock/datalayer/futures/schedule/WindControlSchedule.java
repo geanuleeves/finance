@@ -90,6 +90,10 @@ public class WindControlSchedule {
 				// step 2 : 遍历所有订单，判断是否达到风控平仓条件
 				if (content != null && content.size() > 0) {
 					for (FuturesOrder order : content) {
+						if (order.getState() == FuturesOrderState.SellingEntrust
+								&& order.getSellingPriceType() == FuturesTradePriceType.MKT) {
+							continue;
+						}
 						Integer timeZoneGap = orderService.retriveTimeZoneGap(order);
 						FuturesContract contract = order.getContract();
 						// step 3 : 是否触发退还隔夜保证金时间
@@ -97,6 +101,10 @@ public class WindControlSchedule {
 						// step 4 : 是否合约到期
 						if (orderService.isTradeTime(timeZoneGap, contract)
 								&& isReachContractExpiration(timeZoneGap, contract)) {
+							if (order.getState() == FuturesOrderState.SellingEntrust) {
+								orderService.canceledOrder(order.getId());
+								continue;
+							}
 							orderService.sellingEntrust(order, FuturesWindControlType.ReachContractExpiration,
 									FuturesTradePriceType.MKT, null);
 							continue;
@@ -106,18 +114,30 @@ public class WindControlSchedule {
 								order.getContractNo());
 						// step 6 : 是否达到止盈点
 						if (orderService.isTradeTime(timeZoneGap, contract) && isReachProfitPoint(order, market)) {
+							if (order.getState() == FuturesOrderState.SellingEntrust) {
+								orderService.canceledOrder(order.getId());
+								continue;
+							}
 							orderService.sellingEntrust(order, FuturesWindControlType.ReachProfitPoint,
 									FuturesTradePriceType.MKT, null);
 							continue;
 						}
 						// step 7 : 是否达到强平点
 						if (orderService.isTradeTime(timeZoneGap, contract) && isReachStongPoint(order, market)) {
+							if (order.getState() == FuturesOrderState.SellingEntrust) {
+								orderService.canceledOrder(order.getId());
+								continue;
+							}
 							orderService.sellingEntrust(order, FuturesWindControlType.ReachStrongPoint,
 									FuturesTradePriceType.MKT, null);
 							continue;
 						}
 						// step 8 : 是否达到止损点
 						if (orderService.isTradeTime(timeZoneGap, contract) && isReachLossPoint(order, market)) {
+							if (order.getState() == FuturesOrderState.SellingEntrust) {
+								orderService.canceledOrder(order.getId());
+								continue;
+							}
 							orderService.sellingEntrust(order, FuturesWindControlType.ReachLossPoint,
 									FuturesTradePriceType.MKT, null);
 							continue;
@@ -129,12 +149,15 @@ public class WindControlSchedule {
 						}
 					}
 				}
-			} catch (Exception ex) {
+			} catch (
+
+			Exception ex) {
 				logger.error("监控持仓订单发生异常!", ex);
 			} finally {
 				initTask();
 			}
 		}
+
 	}
 
 	/**
@@ -471,7 +494,7 @@ public class WindControlSchedule {
 	 * @return 持仓中的正式订单
 	 */
 	private List<FuturesOrder> retrivePositionOrders() {
-		FuturesOrderState[] states = { FuturesOrderState.Position };
+		FuturesOrderState[] states = { FuturesOrderState.Position, FuturesOrderState.SellingEntrust };
 		FuturesOrderQuery query = new FuturesOrderQuery();
 		query.setPage(0);
 		query.setSize(Integer.MAX_VALUE);

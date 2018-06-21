@@ -23,7 +23,7 @@ import com.waben.stock.futuresgateway.yisheng.twsapi.TwsEngine;
  * @author luomengan
  *
  */
-@Component
+// @Component
 public class LineDataSchedule {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
