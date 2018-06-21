@@ -112,9 +112,12 @@ public class FuturesContractController {
 						result.getCommodityId());
 				if (agentPrice != null) {
 					result.setPerUnitReserveFund(agentPrice.getCostReserveFund());
-					result.setOpenwindServiceFee(agentPrice.getSaleOpenwindServiceFee());
-					result.setUnwindServiceFee(agentPrice.getSaleUnwindServiceFee());
-					result.setOvernightPerUnitDeferredFee(agentPrice.getSaleDeferredFee());
+					result.setOpenwindServiceFee(agentPrice.getSaleOpenwindServiceFee() == null
+							? agentPrice.getCostOpenwindServiceFee() : agentPrice.getSaleOpenwindServiceFee());
+					result.setUnwindServiceFee(agentPrice.getSaleUnwindServiceFee() == null
+							? agentPrice.getCostUnwindServiceFee() : agentPrice.getSaleUnwindServiceFee());
+					result.setOvernightPerUnitDeferredFee(agentPrice.getSaleDeferredFee() == null
+							? agentPrice.getCostDeferredFee() : agentPrice.getSaleDeferredFee());
 				}
 			}
 		}
