@@ -103,7 +103,7 @@ public class FuturesOrderController {
 		BigDecimal buyFullNum = buyFull == null ? new BigDecimal(0) : new BigDecimal(buyFull).abs();
 
 		// 判断当前下单手数是否满足条件
-		checkBuyUpAndFullSUM(buyUpNum, buyFullNum, perNum, userMaxNum, buysellDto.getTotalQuantity(), contractDto);
+		checkBuyUpAndFullSUM(buyUpNum, buyFullNum, perNum, userMaxNum, buysellDto, contractDto);
 
 		// 总金额
 		BigDecimal totalFee = new BigDecimal(0);
@@ -213,10 +213,12 @@ public class FuturesOrderController {
 				throw new ServiceException(ExceptionConstant.TOTAL_AMOUNT_BUYUP_CAPACITY_INSUFFICIENT_EXCEPTION);
 			}
 		}
-
+		FuturesOrderBuysellDto buysellDto = new FuturesOrderBuysellDto();
+		buysellDto.setTotalQuantity(orderDto.getTotalQuantity());
+		buysellDto.setOrderType(orderDto.getOrderType());
 		// 判断当前下单手数是否满足条件
 		checkBuyUpAndFullSUM(buyUpNum, buyFullNum, contractDto.getPerOrderLimit(), contractDto.getUserTotalLimit(),
-				orderDto.getTotalQuantity(), contractDto);
+				buysellDto, contractDto);
 
 		return new Response<>(futuresOrderBusiness.backhandUnwind(orderId, SecurityUtil.getUserId()));
 	}
@@ -618,10 +620,15 @@ public class FuturesOrderController {
 	 *            当前合约详情
 	 */
 	public void checkBuyUpAndFullSUM(BigDecimal buyUpNum, BigDecimal buyFullNum, BigDecimal perNum,
-			BigDecimal userMaxNum, BigDecimal totalQuantity, FuturesContractDto contractDto) {
-		BigDecimal userNum = totalQuantity;
-		BigDecimal buyUpTotal = buyUpNum.add(totalQuantity);
-		BigDecimal buyFullTotal = buyFullNum.add(totalQuantity);
+			BigDecimal userMaxNum, FuturesOrderBuysellDto buysellDto, FuturesContractDto contractDto) {
+		BigDecimal userNum = buysellDto.getTotalQuantity();
+		BigDecimal buyUpTotal = BigDecimal.ZERO;
+		BigDecimal buyFullTotal = BigDecimal.ZERO;
+		if (buysellDto.getOrderType() == FuturesOrderType.BuyUp) {
+			buyUpTotal = buyUpNum.add(buysellDto.getTotalQuantity());
+		} else {
+			buyFullTotal = buyFullNum.add(buysellDto.getTotalQuantity());
+		}
 
 		if (contractDto.getBuyUpTotalLimit() != null && buyUpTotal.compareTo(contractDto.getBuyUpTotalLimit()) > 0) {
 			// 买涨持仓总额度已达上限
