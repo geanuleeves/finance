@@ -20,6 +20,7 @@ import com.waben.stock.interfaces.dto.futures.FuturesCurrencyRateDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
 import com.waben.stock.interfaces.dto.publisher.RealNameDto;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
+import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
@@ -197,13 +198,22 @@ public class FuturesOrderBusiness {
 					FuturesContractDto contract = findByContractId(dto.getContractId());
 					// 获取汇率信息
 					FuturesCurrencyRateDto rate = findByCurrency(dto.getCommodityCurrency());
-					if(dto.getPublisherProfitOrLoss()==null){
+					if(dto.getPublisherProfitOrLoss()==null && dto.getBuyingPrice()!=null){
 						if (market != null && contract != null && rate != null) {
 							dto.setLastPrice(market.getLastPrice());
-							if(dto.getOrderType()!=null && !"".equals(dto.getOrderType()) && "买涨".equals(dto.getOrderType())){
-								dto.setFloatingProfitOrLoss(dto.getLastPrice().subtract(dto.getBuyingPrice()).multiply(dto.getTotalQuantity()));
-							}else if(dto.getOrderType()!=null && !"".equals(dto.getOrderType()) && "买跌".equals(dto.getOrderType())){
-								dto.setFloatingProfitOrLoss(dto.getBuyingPrice().subtract(dto.getLastPrice()).multiply(dto.getTotalQuantity()));
+							
+							// 用户买涨盈亏 = （最新价 - 买入价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
+							if (dto.getOrderType()!=null && !"".equals(dto.getOrderType()) && "买涨".equals(dto.getOrderType())) {
+								dto.setPublisherProfitOrLoss(
+										market.getLastPrice().subtract(dto.getBuyingPrice())
+												.divide(contract.getMinWave(),2, BigDecimal.ROUND_HALF_EVEN).multiply(contract.getPerWaveMoney())
+												.multiply(rate.getRate()).multiply(dto.getTotalQuantity()));
+							} else if(dto.getOrderType()!=null && !"".equals(dto.getOrderType()) && "买跌".equals(dto.getOrderType())){
+								// 用户买跌盈亏 = （买入价 - 最新价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
+								dto.setPublisherProfitOrLoss(
+										dto.getBuyingPrice().subtract(market.getLastPrice())
+												.divide(contract.getMinWave(),2, BigDecimal.ROUND_HALF_EVEN).multiply(contract.getPerWaveMoney())
+												.multiply(rate.getRate()).multiply(dto.getTotalQuantity()));
 							}
 						}
 					}else{
