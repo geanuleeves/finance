@@ -424,9 +424,21 @@ public class FuturesOrderService {
 		FuturesActionType action = order.getOrderType() == FuturesOrderType.BuyUp ? FuturesActionType.BUY
 				: FuturesActionType.SELL;
 		Integer orderType = order.getBuyingPriceType() == FuturesTradePriceType.MKT ? 1 : 2;
+		// 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
+		BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
+		if (("".equals(order.getCommoditySymbol()) || "".equals(order.getCommoditySymbol())) && orderType == 1) {
+			orderType = 2;
+			if (action == FuturesActionType.BUY) {
+				gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
+						.add(new BigDecimal("3").multiply(contract.getCommodity().getMinWave()));
+			} else {
+				gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
+						.subtract(new BigDecimal("3").multiply(contract.getCommodity().getMinWave()));
+			}
+		}
 		FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.placeOrder(domain, order.getCommoditySymbol(),
 				order.getContractNo(), order.getId(), action, order.getTotalQuantity(), orderType,
-				order.getBuyingEntrustPrice());
+				gatewayBuyingEntrustPrice);
 		// TODO 委托下单异常情况处理，此处默认为所有的委托都能成功
 		// step 7 : 更新订单状态
 		order.setState(FuturesOrderState.BuyingEntrust);
@@ -809,9 +821,21 @@ public class FuturesOrderService {
 		FuturesActionType action = order.getOrderType() == FuturesOrderType.BuyUp ? FuturesActionType.SELL
 				: FuturesActionType.BUY;
 		Integer orderType = priceType == FuturesTradePriceType.MKT ? 1 : 2;
+		// 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
+		BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
+		if (("".equals(order.getCommoditySymbol()) || "".equals(order.getCommoditySymbol())) && orderType == 1) {
+			orderType = 2;
+			if (action == FuturesActionType.BUY) {
+				gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
+						.add(new BigDecimal("3").multiply(order.getContract().getCommodity().getMinWave()));
+			} else {
+				gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
+						.subtract(new BigDecimal("3").multiply(order.getContract().getCommodity().getMinWave()));
+			}
+		}
 		FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.placeOrder(domain, order.getCommoditySymbol(),
 				order.getContractNo(), order.getId(), action, order.getTotalQuantity(), orderType,
-				order.getBuyingEntrustPrice());
+				gatewayBuyingEntrustPrice);
 		order.setCloseGatewayOrderId(gatewayOrder.getId());
 		// TODO 委托下单异常情况处理，此处默认为所有的委托都能成功
 		// 放入委托查询队列（平仓）
