@@ -454,7 +454,7 @@ public class WindControlSchedule {
 						}
 						if (hasOvernightReserveFund && !hasReturnOvernightReserveFund) {
 							// 退还隔夜保证金
-							accountBusiness.futuresReturnOvernightReserveFund(order.getId(), record.getId(),
+							accountBusiness.futuresReturnOvernightReserveFund(order.getPublisherId(), record.getId(),
 									reserveFund);
 						}
 					}

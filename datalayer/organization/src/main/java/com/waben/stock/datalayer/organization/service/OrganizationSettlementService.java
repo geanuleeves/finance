@@ -312,26 +312,41 @@ public class OrganizationSettlementService {
 
 		List<Organization> orgTreeList = getPublisherOrgTreeList(publisherId);
 		if (orgTreeList != null) {
-			List<BenefitConfig> benefitConfigList = getBenefitConfigList(orgTreeList, benefitConfigType,
+			List<BenefitConfig> benefitConfigList = getRakeBackBenefitConfigList(orgTreeList, benefitConfigType,
 					benefitResourceType, benefitResourceId);
-			if (benefitConfigList != null && benefitConfigList.size() > 0) {
-				BigDecimal currentServiceFee = amount;
-				for (int i = 0; i < benefitConfigList.size(); i++) {
+			if (benefitConfigList != null && benefitConfigList.size() > 0
+					&& benefitConfigList.get(0).getRatio().compareTo(BigDecimal.ZERO) > 0) {
+				int length = benefitConfigList.size();
+				// 检查分佣比例是否正确，必须保证
+				for (int i = length - 1; i > 0; i--) {
+					BigDecimal childRatio = benefitConfigList.get(i).getRatio();
+					BigDecimal parentRatio = benefitConfigList.get(i - 1).getRatio();
+					if (childRatio.compareTo(parentRatio) > 0) {
+						throw new ServiceException(ExceptionConstant.RAKEBACK_RATIO_WRONG_EXCEPTION);
+					}
+				}
+				// 自底向上结算
+				for (int i = length - 1; i >= 0; i--) {
 					BenefitConfig config = benefitConfigList.get(i);
 					BigDecimal ratio = config.getRatio();
-					BigDecimal childServiceFee = currentServiceFee.multiply(ratio.divide(new BigDecimal("100")))
-							.setScale(2, RoundingMode.DOWN);
-					// 先给上级结算
-					BigDecimal parentServiceFee = currentServiceFee.subtract(childServiceFee);
-					accountService.benefit(orgTreeList.get(i), amount, parentServiceFee, flowType, flowResourceType,
-							flowResourceId, tradeNo);
-					// 最后一个给最低级机构结算
-					if (i == benefitConfigList.size() - 1) {
-						accountService.benefit(orgTreeList.get(i + 1), amount, childServiceFee, flowType,
-								flowResourceType, flowResourceId, tradeNo);
+					BigDecimal computeRatio = ratio;
+					if (i != length - 1) {
+						computeRatio = ratio.subtract(benefitConfigList.get(i + 1).getRatio());
 					}
-					currentServiceFee = childServiceFee;
+					// 给当前机构计算
+					BigDecimal childFee = amount.multiply(computeRatio.divide(new BigDecimal("100"))).setScale(2,
+							RoundingMode.DOWN);
+					if (childFee.compareTo(BigDecimal.ZERO) > 0) {
+						accountService.benefit(config.getOrg(), amount, childFee, flowType, flowResourceType,
+								flowResourceId, tradeNo);
+					}
 				}
+				// 剩余的结算给一级机构
+				BigDecimal platformFee = amount.multiply(new BigDecimal("100")
+						.subtract(benefitConfigList.get(0).getRatio()).divide(new BigDecimal("100")))
+						.setScale(2, RoundingMode.DOWN);
+				accountService.benefit(orgTreeList.get(0), amount, platformFee, flowType, flowResourceType,
+						flowResourceId, tradeNo);
 			}
 		}
 		accountService.benefit(null, amount, amount, flowType, flowResourceType, flowResourceId, tradeNo);

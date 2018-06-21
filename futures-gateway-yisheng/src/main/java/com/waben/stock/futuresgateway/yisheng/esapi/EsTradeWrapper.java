@@ -79,6 +79,19 @@ public class EsTradeWrapper extends TradeApiAdapter {
 	public void connect() {
 		api.login(new TapAPITradeLoginAuth(tradeUsername, 'N', tradePassword, null));
 	}
+	
+	/**
+	 * 重新连接
+	 */
+	public void reconnect() {
+		try {
+			api.disconnect();
+			api.destory();
+		} finally {
+			logger.info("重新开始连接易盛交易API。。。 ");
+			init();
+		}
+	}
 
 	/************************** 以下方法为setter和getter ***********************/
 

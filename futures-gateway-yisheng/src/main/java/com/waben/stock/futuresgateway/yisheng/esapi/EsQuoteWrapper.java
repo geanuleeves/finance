@@ -72,6 +72,20 @@ public class EsQuoteWrapper implements QuoteApiListener {
 		api.login(new TapAPIQuoteLoginAuth(quoteUsername, 'N', quotePassword, null, null, 'N', null));
 	}
 
+	/**
+	 * 重新连接
+	 */
+	public void reconnect() {
+		try {
+			
+			api.disconnect();
+			api.destory();
+		} finally {
+			logger.info("重新开始连接易盛行情API。。。 ");
+			init();
+		}
+	}
+
 	/************************** 以下方法为setter和getter ***********************/
 
 	public QuoteApi getApi() {
