@@ -251,13 +251,14 @@ public class WindControlSchedule {
 			// 获取合约设置的止损价格
 			BigDecimal contractSetNeedWavePrice = null;
 			if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 1) {
-				if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(new BigDecimal(1)) < 0
+				if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(new BigDecimal(100)) < 0
 						&& perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
 					contractSetNeedWavePrice = (order.getReserveFund().divide(order.getTotalQuantity())
-							.multiply(new BigDecimal(1).subtract(perUnitUnwindPoint))
+							.multiply(new BigDecimal(100).subtract(perUnitUnwindPoint).divide(new BigDecimal(100)))
 							.divide(rate.getRate(), 2, RoundingMode.DOWN).divide(perWaveMoney, 2, RoundingMode.DOWN)
 							.multiply(minWave).setScale(minWave.scale(), RoundingMode.DOWN));
 				}
+
 			} else if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 2) {
 				if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(BigDecimal.ZERO) >= 0
 						&& perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
@@ -418,11 +419,12 @@ public class WindControlSchedule {
 		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		// 判断当前时候+30分钟是否为交易时间段
 		Date now = new Date();
-//		Date nowAfter30mins = new Date(now.getTime() + 30 * 60 * 1000);
-//		boolean isTradeTime = orderService.isTradeTime(timeZoneGap, contract, nowAfter30mins);
-//		if (!isTradeTime) {
-//			return;
-//		}
+		// Date nowAfter30mins = new Date(now.getTime() + 30 * 60 * 1000);
+		// boolean isTradeTime = orderService.isTradeTime(timeZoneGap, contract,
+		// nowAfter30mins);
+		// if (!isTradeTime) {
+		// return;
+		// }
 		// 获取退还隔夜保证金的时间
 		String returnOvernightReserveFundTime = contract.getCommodity().getReturnOvernightReserveFundTime();
 		Date nowExchangeTime = orderService.retriveExchangeTime(now, timeZoneGap);
