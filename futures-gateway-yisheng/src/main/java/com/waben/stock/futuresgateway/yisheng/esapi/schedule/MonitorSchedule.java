@@ -29,12 +29,20 @@ public class MonitorSchedule {
 	private EsTradeWrapper tradeWrapper;
 
 	/**
-	 * 每分钟计算上一分钟的分钟K
+	 * 5点50的时候重新连接行情api和交易api
 	 */
-	@Scheduled(cron = "0 0/5 * * * ?")
+	@Scheduled(cron = "0 55 5 * * ?")
 	public void monitor() {
-		quoteWrapper.connect();
-		tradeWrapper.connect();
+		try {
+			quoteWrapper.reconnect();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		try {
+			tradeWrapper.reconnect();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 
 }
