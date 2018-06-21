@@ -7,10 +7,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.waben.stock.interfaces.dto.admin.publisher.CapitalFlowAdminDto;
+import com.waben.stock.interfaces.dto.admin.publisher.CapitalFlowFuturesAdminDto;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.admin.publisher.CapitalFlowAdminQuery;
+import com.waben.stock.interfaces.pojo.query.admin.publisher.CapitalFlowFuturesAdminQuery;
 import com.waben.stock.interfaces.service.publisher.CapitalFlowInterface;
 
 /**
@@ -35,6 +37,22 @@ public class CapitalFlowBusiness {
 
 	public BigDecimal adminAccumulateAmountByQuery(CapitalFlowAdminQuery query) {
 		Response<BigDecimal> response = reference.adminAccumulateAmountByQuery(query);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+	
+	public BigDecimal adminAccumulateFuturesAmountByQuery(CapitalFlowFuturesAdminQuery query) {
+		Response<BigDecimal> response = reference.adminAccumulateFuturesAmountByQuery(query);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+	
+	public PageInfo<CapitalFlowFuturesAdminDto> adminFuturesPagesByQuery(CapitalFlowFuturesAdminQuery query){
+		Response<PageInfo<CapitalFlowFuturesAdminDto>> response = reference.adminFuturesPagesByQuery(query);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}
