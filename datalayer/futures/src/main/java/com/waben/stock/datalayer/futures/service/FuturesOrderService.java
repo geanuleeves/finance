@@ -1172,7 +1172,7 @@ public class FuturesOrderService {
 
 	public TurnoverStatistyRecordDto getTurnoverStatisty(Long publisherId) {
 		String sql = String
-				.format("SELECT COUNT(o.id) AS number, SUM(o.total_quantity) AS total_quantity, SUM(o.openwind_service_fee + o.unwind_service_fee) AS service_fee,(SELECT SUM(f.publisher_profit_or_loss) AS user_profit_or_loss FROM f_futures_order f where f.state = 9 AND f.publisher_id="
+				.format("SELECT COUNT(o.id) AS number, SUM(o.total_quantity) AS total_quantity, SUM((o.openwind_service_fee + o.unwind_service_fee) * o.total_quantity) AS service_fee,(SELECT SUM(f.publisher_profit_or_loss) AS user_profit_or_loss FROM f_futures_order f where f.state = 9 AND f.publisher_id="
 						+ publisherId
 						+ ") AS user_profit_or_loss FROM f_futures_order o where o.state in(6,9) AND o.publisher_id="
 						+ publisherId);
