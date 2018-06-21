@@ -363,7 +363,8 @@ public class FuturesOrderService {
 					} else if (query.getStates()[0].equals(wtStates[0])) {
 						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingEntrustTime").as(Date.class)));
 					} else if (query.getStates()[0].equals(positionStates[0])) {
-						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingTime").as(Date.class)));
+						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingTime").as(Date.class)),
+								criteriaBuilder.desc(root.get("updateTime").as(Date.class)));
 					}
 				}
 				return criteriaQuery.getRestriction();
