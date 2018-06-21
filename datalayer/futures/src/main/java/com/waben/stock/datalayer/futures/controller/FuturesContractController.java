@@ -399,4 +399,26 @@ public class FuturesContractController implements FuturesContractInterface {
 		return stateT + "-" + endT;
 	}
 
+	/**
+	 * 自动平仓时间
+	 * 
+	 * @param exchangeTime
+	 *            转换后的当前时间
+	 * @param overnightTime
+	 *            隔夜强平时间
+	 * @param timeZoneGap
+	 *            时差
+	 * @return 自动平仓时间
+	 */
+	public String automaticWarehouseTime(Date exchangeTime, String overnightTime, Integer timeZoneGap) {
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+		String currentTime = sdf.format(exchangeTime);
+		if (currentTime.compareTo("24:00:00") < 0 && currentTime.compareTo(overnightTime) > 0) {
+			return timeZoneConversion(timeZoneGap, overnightTime) + "（次日）";
+		} else {
+			return timeZoneConversion(timeZoneGap, overnightTime);
+		}
+
+	}
+
 }
