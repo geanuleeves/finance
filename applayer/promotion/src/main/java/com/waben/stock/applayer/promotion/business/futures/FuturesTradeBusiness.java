@@ -94,31 +94,31 @@ public class FuturesTradeBusiness {
 		if("200".equals(result.getCode())&&result.getResult()!=null){
 			if(result.getResult().getContent().size()>0){
 				List<FuturesTradeOrganizationDto> orgDto = result.getResult().getContent();
-				double totalQuantity = 0.00;
-				double reserveFund =0.00;
-				double serviceFee = 0.00;
-				double overnightServiceFee = 0.00;
+				BigDecimal totalQuantity = BigDecimal.ZERO;
+				BigDecimal reserveFund = BigDecimal.ZERO;
+				BigDecimal serviceFee = BigDecimal.ZERO;
+				BigDecimal overnightServiceFee = BigDecimal.ZERO;
 				for(FuturesTradeOrganizationDto futures : orgDto){
 					if(futures.getTotalQuantity()!=null){
-						totalQuantity+=futures.getTotalQuantity().doubleValue();
+						totalQuantity.add(futures.getTotalQuantity());
 					}
 					if(futures.getReserveFund()!=null){
-						reserveFund+=futures.getReserveFund().doubleValue();
+						reserveFund.add(futures.getReserveFund());
 					}
 					if(futures.getOpenwindServiceFee()!=null){
-						serviceFee+=futures.getOpenwindServiceFee().doubleValue();
+						serviceFee.add(futures.getOpenwindServiceFee());
 					}
 					if(futures.getState().equals("已平仓")){
-						serviceFee+=futures.getUnwindServiceFee().doubleValue();
+						serviceFee.add(futures.getUnwindServiceFee());
 					}
 					if(futures.getOvernightServiceFee()!=null){
-						overnightServiceFee+=futures.getOvernightServiceFee().doubleValue();
+						overnightServiceFee.add(futures.getOvernightServiceFee());
 					}
 				}
-				dto.setDeferred(new BigDecimal(overnightServiceFee));
-				dto.setQuantity(new BigDecimal(totalQuantity));
-				dto.setFee(new BigDecimal(serviceFee));
-				dto.setFund(new BigDecimal(reserveFund));
+				dto.setDeferred(overnightServiceFee);
+				dto.setQuantity(totalQuantity);
+				dto.setFee(serviceFee);
+				dto.setFund(reserveFund);
 			}
 		}
 		Response<FuturesOrderCountDto> res = new Response<FuturesOrderCountDto>();

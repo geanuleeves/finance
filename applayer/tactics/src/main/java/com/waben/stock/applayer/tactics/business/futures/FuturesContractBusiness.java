@@ -143,21 +143,18 @@ public class FuturesContractBusiness {
 					// 该合约不在交易中
 					throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
 				}
-				/*
-				 * OrganizationPublisherDto publisher =
-				 * fetchOrgPublisher(SecurityUtil.getUserDetails().getUserId());
-				 * if (publisher != null) { FuturesAgentPriceDto agentPrice =
-				 * getCurrentAgentPrice(publisher.getOrgId(),
-				 * contractDto.getId()); if (agentPrice != null) {
-				 * contractDto.setPerUnitReserveFund(agentPrice.
-				 * getCostReserveFund());
-				 * contractDto.setOpenwindServiceFee(agentPrice.
-				 * getSaleOpenwindServiceFee());
-				 * contractDto.setUnwindServiceFee(agentPrice.
-				 * getSaleUnwindServiceFee());
-				 * contractDto.setOvernightPerUnitDeferredFee(agentPrice.
-				 * getSaleDeferredFee()); } }
-				 */
+
+				/*OrganizationPublisherDto publisher = fetchOrgPublisher(SecurityUtil.getUserDetails().getUserId());
+				if (publisher != null) {
+					FuturesAgentPriceDto agentPrice = getCurrentAgentPrice(publisher.getOrgId(), contractDto.getId());
+					if (agentPrice != null) {
+						contractDto.setPerUnitReserveFund(agentPrice.getCostReserveFund());
+						contractDto.setOpenwindServiceFee(agentPrice.getSaleOpenwindServiceFee());
+						contractDto.setUnwindServiceFee(agentPrice.getSaleUnwindServiceFee());
+						contractDto.setOvernightPerUnitDeferredFee(agentPrice.getSaleDeferredFee());
+					}
+				}*/
+
 			}
 
 			return contractDto;
@@ -205,8 +202,8 @@ public class FuturesContractBusiness {
 	 *            合约ID
 	 * @return 期货代理价格
 	 */
-	public FuturesAgentPriceDto getCurrentAgentPrice(Long orgId, Long contractId) {
-		Response<FuturesAgentPriceDto> response = organizationInterface.getCurrentAgentPrice(orgId, contractId);
+	public FuturesAgentPriceDto getCurrentAgentPrice(Long orgId, Long commodityId) {
+		Response<FuturesAgentPriceDto> response = organizationInterface.getCurrentAgentPrice(orgId, commodityId);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}
