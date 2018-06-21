@@ -124,7 +124,6 @@ public class FuturesTradeController implements FuturesTradeInterface {
 			}
 			if (order.getBuyingTime() != null) {
 				Long date = order.getBuyingTime().getTime();
-				System.out.println(new Date());
 				Long current = new Date().getTime();
 				Long hours = ((current - date) % (1000 * 60 * 60 * 24)/(1000 * 60));
 				if(Math.abs(hours.intValue())>60){

@@ -60,6 +60,7 @@ import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
 import com.waben.stock.interfaces.dto.publisher.FrozenCapitalDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
 import com.waben.stock.interfaces.enums.CapitalFlowExtendType;
+import com.waben.stock.interfaces.enums.CapitalFlowType;
 import com.waben.stock.interfaces.enums.FuturesActionType;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
@@ -94,6 +95,9 @@ public class FuturesOrderService {
 
 	@Autowired
 	private FuturesContractDao contractDao;
+
+	@Autowired
+	private FuturesOvernightRecordService overnightService;
 
 	@Autowired
 	private FuturesCurrencyRateService rateService;
@@ -752,9 +756,42 @@ public class FuturesOrderService {
 		order.setState(FuturesOrderState.Unwind);
 		order.setUpdateTime(date);
 		orderDao.update(order);
+		unwindReturnOvernightReserveFund(order);
 		// 站外消息推送
 		sendOutsideMessage(order);
 		return order;
+	}
+
+	private void unwindReturnOvernightReserveFund(FuturesOrder order) {
+		try {
+			// 平仓时退还隔夜保证金
+			FuturesOvernightRecord record = overnightService.findNewestOvernightRecord(order);
+			if (record != null) {
+				List<CapitalFlowDto> flowList = flowBusiness
+						.fetchByExtendTypeAndExtendId(CapitalFlowExtendType.FUTURESOVERNIGHTRECORD, record.getId());
+				if (flowList != null && flowList.size() > 0) {
+					boolean hasOvernightReserveFund = false;
+					boolean hasReturnOvernightReserveFund = false;
+					BigDecimal reserveFund = BigDecimal.ZERO;
+					for (CapitalFlowDto flow : flowList) {
+						if (flow.getType() == CapitalFlowType.FuturesOvernightReserveFund) {
+							hasOvernightReserveFund = true;
+							reserveFund = flow.getAmount();
+						}
+						if (flow.getType() == CapitalFlowType.FuturesReturnOvernightReserveFund) {
+							hasReturnOvernightReserveFund = true;
+						}
+					}
+					if (hasOvernightReserveFund && !hasReturnOvernightReserveFund) {
+						// 退还隔夜保证金
+						accountBusiness.futuresReturnOvernightReserveFund(order.getPublisherId(), record.getId(),
+								reserveFund);
+					}
+				}
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 
 	/**
