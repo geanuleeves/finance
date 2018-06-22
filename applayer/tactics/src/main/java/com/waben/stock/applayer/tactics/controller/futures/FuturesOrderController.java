@@ -89,6 +89,7 @@ public class FuturesOrderController {
 		query.setContractId(buysellDto.getContractId());
 		// 判断该合约是否可用是否在交易中、网关是否支持该合约、合约交易所是否可用、以及是否在交易时间内
 		FuturesContractDto contractDto = futuresContractBusiness.getContractByOne(query);
+		futuresContractBusiness.wrapperAgentPrice(contractDto);
 		// 根据最后交易日和首次通知日判断是否可以下单，可以下单计算公式：MIN（最后交易日，首次通知日）> 当前日期
 		checkedMinPlaceOrder(contractDto);
 		// 用户单笔最大可交易数量
@@ -126,9 +127,7 @@ public class FuturesOrderController {
 		orderDto.setOrderType(buysellDto.getOrderType());
 		orderDto.setContractId(buysellDto.getContractId());
 		orderDto.setTotalQuantity(buysellDto.getTotalQuantity());
-		// 保证金
 		orderDto.setReserveFund(reserveAmount);
-		// 服务费
 		orderDto.setServiceFee(comprehensiveAmount);
 		orderDto.setCommoditySymbol(contractDto.getSymbol());
 		orderDto.setCommodityName((contractDto.getName()));
@@ -140,7 +139,6 @@ public class FuturesOrderController {
 		orderDto.setUnwindPointType(contractDto.getUnwindPointType());
 		orderDto.setOvernightPerUnitReserveFund(contractDto.getOvernightPerUnitReserveFund());
 		orderDto.setOvernightPerUnitDeferredFee(contractDto.getOvernightPerUnitDeferredFee());
-		// 买入价格类型
 		orderDto.setBuyingPriceType(buysellDto.getBuyingPriceType());
 		// 止损类型及金额点位
 		if (buysellDto.getLimitLossType() != null && buysellDto.getLimitLossType() > 0) {

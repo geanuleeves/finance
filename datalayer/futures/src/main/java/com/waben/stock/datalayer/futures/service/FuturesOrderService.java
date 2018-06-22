@@ -702,6 +702,8 @@ public class FuturesOrderService {
 		order.setState(FuturesOrderState.Position);
 		order.setUpdateTime(date);
 		orderDao.update(order);
+		// 给代理商结算
+		
 		// 站外消息推送
 		sendOutsideMessage(order);
 		return order;

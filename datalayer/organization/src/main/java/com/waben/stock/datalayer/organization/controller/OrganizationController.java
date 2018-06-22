@@ -255,10 +255,10 @@ public class OrganizationController implements OrganizationInterface {
 	}
 
 	@Override
-	public Response<FuturesAgentPriceDto> getCurrentAgentPrice(@PathVariable Long orgId,
+	public Response<FuturesAgentPriceDto> getCurrentAgentPrice(@PathVariable Long publisherId,
 			@PathVariable Long commodityId) {
 		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesAgentPriceDto.class,
-				organizationService.currentAgentPrice(orgId, commodityId), false));
+				organizationService.currentAgentPrice(publisherId, commodityId), false));
 	}
 
 	@Override
