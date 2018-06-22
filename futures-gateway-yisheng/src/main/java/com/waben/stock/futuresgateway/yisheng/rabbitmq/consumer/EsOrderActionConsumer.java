@@ -11,11 +11,11 @@ import com.future.api.es.external.util.JacksonUtil;
 import com.waben.stock.futuresgateway.yisheng.dao.FuturesOrderDao;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesOrder;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqConfiguration;
-import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.OrderActionMessage;
+import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.EsOrderActionMessage;
 
 @Component
 @RabbitListener(queues = { RabbitmqConfiguration.orderActionQueueName })
-public class OrderActionConsumer {
+public class EsOrderActionConsumer {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -25,7 +25,7 @@ public class OrderActionConsumer {
 	@RabbitHandler
 	public void handlerMessage(String message) {
 		logger.info("消费易盛OrderAction通知消息:" + message);
-		OrderActionMessage msgObj = JacksonUtil.decode(message, OrderActionMessage.class);
+		EsOrderActionMessage msgObj = JacksonUtil.decode(message, EsOrderActionMessage.class);
 		try {
 			if (msgObj.getErrorCode() == 60011
 					|| (msgObj.getInfo() != null && msgObj.getInfo().getOrderInfo().getOrderState() == 'B')) {

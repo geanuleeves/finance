@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.future.api.es.external.trade.bean.TapAPIOrderActionRsp;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class OrderActionMessage {
+public class EsOrderActionMessage {
 
 	private int sessionID;
 

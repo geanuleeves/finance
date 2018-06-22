@@ -162,6 +162,7 @@ public class FuturesOrderService {
 		order.setOrderState(0);
 		order.setOrderType(orderType);
 		order.setOuterOrderId(outerOrderId);
+		order.setBrokerType(1);
 		order.setTotalQuantity(totalQuantity);
 		order.setUpdateTime(new Date());
 		order = futuresOrderDao.createFuturesOrder(order);
@@ -170,6 +171,10 @@ public class FuturesOrderService {
 		order.setOrderSessionId(orderSessionId);
 		order.setUpdateTime(new Date());
 		return futuresOrderDao.updateFuturesOrder(order);
+	}
+
+	public FuturesOrder getByYtTwsOrderId(int ytTwsOrderId) {
+		return futuresOrderDao.retriveByYtTwsOrderId(ytTwsOrderId);
 	}
 
 }

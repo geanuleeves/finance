@@ -25,7 +25,7 @@ import com.future.api.es.external.trade.bean.TapAPITradeLoginRspInfo;
 import com.future.api.es.external.trade.listener.TradeApiAdapter;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqProducer;
-import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.OrderActionMessage;
+import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.EsOrderActionMessage;
 
 /**
  * 易盛交易
@@ -147,7 +147,7 @@ public class EsTradeWrapper extends TradeApiAdapter {
 	 *            订单应答具体类型，包含订单操作类型和订单信息。订单信息部分情况下可能为空，如果为空，可以通过SessiuonID找到对应请求获取请求类型。
 	 */
 	public void onRspOrderAction(int sessionID, int errorCode, TapAPIOrderActionRsp info) {
-		OrderActionMessage actionMsg = new OrderActionMessage();
+		EsOrderActionMessage actionMsg = new EsOrderActionMessage();
 		actionMsg.setSessionID(sessionID);
 		actionMsg.setErrorCode(errorCode);
 		actionMsg.setInfo(info);

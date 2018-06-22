@@ -1,6 +1,6 @@
 package com.waben.stock.futuresgateway.yisheng.rabbitmq.message;
 
-public class DeleteQuoteMessage {
+public class EsDeleteQuoteMessage {
 
 	/** 品种编号 */
 	private String commodityNo;

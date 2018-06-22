@@ -162,9 +162,9 @@ public class FuturesContractDto extends FuturesCommodityDto {
 	private String nextTradingTime;
 
 	/**
-	 * 当日自动平仓时间
+	 * 自动平仓时间
 	 */
-	@ApiModelProperty(value = "当日自动平仓时间")
+	@ApiModelProperty(value = "自动平仓时间")
 	private String automaticWarehouseTime;
 
 	public Long getId() {

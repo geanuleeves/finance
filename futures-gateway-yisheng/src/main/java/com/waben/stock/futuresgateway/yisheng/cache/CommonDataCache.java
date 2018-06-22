@@ -32,7 +32,7 @@ public class CommonDataCache {
 	}
 
 	public void initContractMap() {
-		List<FuturesContract> contractList = futuresContractService.list();
+		List<FuturesContract> contractList = futuresContractService.getByEnable(true);
 		if (contractList != null && contractList.size() > 0) {
 			for (FuturesContract contract : contractList) {
 				contractMap.put(contract.getId(), contract);

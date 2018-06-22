@@ -19,7 +19,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteLast;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteK;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqProducer;
-import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.DeleteQuoteMessage;
+import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.EsDeleteQuoteMessage;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesContractService;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteLastService;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteMinuteKService;
@@ -113,7 +113,7 @@ public class QuoteMinuteKSchedule {
 				// step 3.6 : 删除该分钟的行情数据
 				for (int i = 0; i < quoteList.size(); i++) {
 					FuturesQuote quote = quoteList.get(i);
-					DeleteQuoteMessage delQuote = new DeleteQuoteMessage();
+					EsDeleteQuoteMessage delQuote = new EsDeleteQuoteMessage();
 					delQuote.setCommodityNo(commodityNo);
 					delQuote.setContractNo(contractNo);
 					delQuote.setQuoteId(quote.getId());
@@ -123,8 +123,7 @@ public class QuoteMinuteKSchedule {
 						// 判断当前分钟有没有行情数据，如果没有的话，将这条数据保存到FuturesQuoteLast中
 						Long count = quoteService.countByTimeGreaterThanEqual(commodityNo, contractNo, currentMin);
 						if (count <= 0) {
-							FuturesQuoteLast quoteLast = CopyBeanUtils.copyBeanProperties(FuturesQuoteLast.class, quote,
-									false);
+							FuturesQuoteLast quoteLast = convertToQuoteLast(quote);
 							quoteLast.setId(null);
 							quoteLastService.addFuturesQuoteLast(quoteLast);
 						}
@@ -133,6 +132,41 @@ public class QuoteMinuteKSchedule {
 			}
 		}
 		logger.info("计算分K数据结束:" + fullSdf.format(new Date()));
+	}
+
+	private FuturesQuoteLast convertToQuoteLast(FuturesQuote quote) {
+		FuturesQuoteLast result = CopyBeanUtils.copyBeanProperties(FuturesQuoteLast.class, quote, false);
+		result.setPreClosingPrice(
+				quote.getPreClosingPrice() != null ? new BigDecimal(quote.getPreClosingPrice()) : null);
+		result.setPreSettlePrice(quote.getPreSettlePrice() != null ? new BigDecimal(quote.getPreSettlePrice()) : null);
+		result.setOpeningPrice(quote.getOpeningPrice() != null ? new BigDecimal(quote.getOpeningPrice()) : null);
+		result.setLastPrice(quote.getLastPrice() != null ? new BigDecimal(quote.getLastPrice()) : null);
+		result.setHighPrice(quote.getHighPrice() != null ? new BigDecimal(quote.getHighPrice()) : null);
+		result.setLowPrice(quote.getLowPrice() != null ? new BigDecimal(quote.getLowPrice()) : null);
+		result.setHisHighPrice(quote.getHisHighPrice() != null ? new BigDecimal(quote.getHisHighPrice()) : null);
+		result.setHisLowPrice(quote.getHisLowPrice() != null ? new BigDecimal(quote.getHisLowPrice()) : null);
+		result.setLimitUpPrice(quote.getLimitUpPrice() != null ? new BigDecimal(quote.getLimitUpPrice()) : null);
+		result.setLimitDownPrice(quote.getLimitDownPrice() != null ? new BigDecimal(quote.getLimitDownPrice()) : null);
+		result.setTotalTurnover(quote.getTotalTurnover() != null ? new BigDecimal(quote.getTotalTurnover()) : null);
+		result.setAveragePrice(quote.getAveragePrice() != null ? new BigDecimal(quote.getAveragePrice()) : null);
+		result.setClosingPrice(quote.getClosingPrice() != null ? new BigDecimal(quote.getClosingPrice()) : null);
+		result.setSettlePrice(quote.getSettlePrice() != null ? new BigDecimal(quote.getSettlePrice()) : null);
+		result.setImpliedBidPrice(
+				quote.getImpliedBidPrice() != null ? new BigDecimal(quote.getImpliedBidPrice()) : null);
+		result.setImpliedAskPrice(
+				quote.getImpliedAskPrice() != null ? new BigDecimal(quote.getImpliedAskPrice()) : null);
+		result.setPreDelta(quote.getPreDelta() != null ? new BigDecimal(quote.getPreDelta()) : null);
+		result.setCurrDelta(quote.getCurrDelta() != null ? new BigDecimal(quote.getCurrDelta()) : null);
+		result.setTurnoverRate(quote.getTurnoverRate() != null ? new BigDecimal(quote.getTurnoverRate()) : null);
+		result.setPeRatio(quote.getPeRatio() != null ? new BigDecimal(quote.getPeRatio()) : null);
+		result.setTotalValue(quote.getTotalValue() != null ? new BigDecimal(quote.getTotalValue()) : null);
+		result.setNegotiableValue(
+				quote.getNegotiableValue() != null ? new BigDecimal(quote.getNegotiableValue()) : null);
+		result.setChangeSpeed(quote.getChangeSpeed() != null ? new BigDecimal(quote.getChangeSpeed()) : null);
+		result.setChangeRate(quote.getChangeRate() != null ? new BigDecimal(quote.getChangeRate()) : null);
+		result.setChangeValue(quote.getChangeValue() != null ? new BigDecimal(quote.getChangeValue()) : null);
+		result.setSwing(quote.getSwing() != null ? new BigDecimal(quote.getSwing()) : null);
+		return result;
 	}
 
 	@SuppressWarnings("unused")
