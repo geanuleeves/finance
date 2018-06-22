@@ -13,11 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.waben.stock.applayer.admin.business.futures.FuturesCurrencyRateBusiness;
 import com.waben.stock.applayer.admin.business.futures.FuturesTradeLimitBusiness;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesGlobalConfigDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeLimitDto;
 import com.waben.stock.interfaces.dto.admin.futures.PutForwardDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCurrencyRateDto;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesGlobalConfigQuery;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeLimitQuery;
 
 import io.swagger.annotations.Api;
@@ -42,6 +44,20 @@ public class FurutesRiskController {
 		FuturesCurrencyRateDto result = business.save(query);
         return new Response<>(result);
     }
+	
+	@RequestMapping(value = "/futuresGlobalConfig/Frozen", method = RequestMethod.POST)
+    @ApiOperation(value = "提现冻结设置")
+	public Response<FuturesGlobalConfigDto> saveAndModify(FuturesGlobalConfigDto global){
+		FuturesGlobalConfigDto result = limitBusiness.saveAndModify(global);
+		return new Response<>(result);
+	}
+	
+	@RequestMapping(value = "/futuresGlobalConfig/queryFrozen", method = RequestMethod.POST)
+    @ApiOperation(value = "查询提现冻结设置")
+	public Response<PageInfo<FuturesGlobalConfigDto>> pageConfig(FuturesGlobalConfigQuery query){
+		PageInfo<FuturesGlobalConfigDto> result = limitBusiness.pageConfig(query);
+		return new Response<>(result);
+	}
 	
 	@RequestMapping(value = "/currencyRate/modify", method = RequestMethod.POST)
     @ApiOperation(value = "修改汇率")

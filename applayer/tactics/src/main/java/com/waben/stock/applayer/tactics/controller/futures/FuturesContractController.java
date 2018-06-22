@@ -101,24 +101,11 @@ public class FuturesContractController {
 		PageInfo<FuturesContractDto> contractPage = futuresContractBusiness.pagesContract(query);
 		List<FuturesContractQuotationDto> quotationList = futuresContractBusiness
 				.pagesQuotations(contractPage.getContent());
-
-		FuturesContractQuotationDto result = null;
+		FuturesContractQuotationDto contract = null;
 		if (quotationList != null && quotationList.size() > 0) {
-			result = quotationList.get(0);
-			OrganizationPublisherDto publisher = futuresContractBusiness
-					.fetchOrgPublisher(SecurityUtil.getUserDetails().getUserId());
-			if (publisher != null) {
-				FuturesAgentPriceDto agentPrice = futuresContractBusiness.getCurrentAgentPrice(publisher.getOrgId(),
-						result.getCommodityId());
-				if (agentPrice != null) {
-					result.setPerUnitReserveFund(agentPrice.getCostReserveFund());
-					result.setOpenwindServiceFee(agentPrice.getSaleOpenwindServiceFee());
-					result.setUnwindServiceFee(agentPrice.getSaleUnwindServiceFee());
-					result.setOvernightPerUnitDeferredFee(agentPrice.getSaleDeferredFee());
-				}
-			}
+			contract = quotationList.get(0);
 		}
-		return new Response<>(result);
+		return new Response<>((FuturesContractQuotationDto) futuresContractBusiness.wrapperAgentPrice(contract));
 	}
 
 }

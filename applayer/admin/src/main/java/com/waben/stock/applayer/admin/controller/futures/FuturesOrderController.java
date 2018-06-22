@@ -53,8 +53,8 @@ public class FuturesOrderController {
 
 	@GetMapping("/countOrderState")
 	@ApiOperation(value = "订单总计")
-	public Response<FuturesOrderCountDto> countOrderState(String state) {
-		return new Response<>(business.getSUMOrder(state));
+	public Response<FuturesOrderCountDto> countOrderState(FuturesTradeAdminQuery query) {
+		return new Response<>(business.countOrderState(query).getResult());
 	}
 
 	@GetMapping("/pages")
@@ -177,12 +177,12 @@ public class FuturesOrderController {
 				data.add(dto.getLastPrice() == null ? "" : dto.getLastPrice().toString());
 				data.add(dto.getProfit() == null ? "" : dto.getProfit().toString());
 				data.add(buyingPriceType);
-				data.add(String.valueOf(dto.getOpenwindServiceFee().add(dto.getUnwindServiceFee())));
+				data.add(String.valueOf(dto.getOpenwindServiceFee().add(dto.getUnwindServiceFee()).multiply(dto.getTotalQuantity())));
 				data.add(dto.getReserveFund() == null ? "" : dto.getReserveFund().toString());
-				data.add(dto.getOvernightPerUnitDeferredFee() == null ? ""
-						: dto.getOvernightPerUnitDeferredFee().toString());
-				data.add(dto.getOvernightPerUnitReserveFund() == null ? ""
-						: dto.getOvernightPerUnitReserveFund().toString());
+				data.add(dto.getOvernightServiceFee() == null ? ""
+						: dto.getOvernightServiceFee().toString());
+				data.add(dto.getOvernightReserveFund() == null ? ""
+						: dto.getOvernightReserveFund().toString());
 				data.add(dto.getPerUnitLimitLossAmount() == null ? "" : dto.getPerUnitLimitLossAmount().toString());
 				data.add(dto.getPerUnitLimitProfitAmount() == null ? "" : dto.getPerUnitLimitProfitAmount().toString());
 				data.add(dto.getPositionDays() == null ? "" : dto.getPositionDays().toString());
@@ -206,13 +206,14 @@ public class FuturesOrderController {
 				data.add(dto.getLastPrice() == null ? "" : dto.getLastPrice().toString());
 				data.add(dto.getProfit() == null ? "" : dto.getProfit().toString());
 				data.add(buyingPriceType);
+				data.add(String.valueOf(dto.getOpenwindServiceFee().add(dto.getUnwindServiceFee()).multiply(dto.getTotalQuantity())));
 				data.add(dto.getReserveFund() == null ? "" : dto.getReserveFund().toString());
 				data.add(dto.getPerUnitLimitLossAmount() == null ? "" : dto.getPerUnitLimitLossAmount().toString());
 				data.add(dto.getPerUnitLimitProfitAmount() == null ? "" : dto.getPerUnitLimitProfitAmount().toString());
-				data.add(dto.getOvernightPerUnitDeferredFee() == null ? ""
-						: dto.getOvernightPerUnitDeferredFee().toString());
-				data.add(dto.getOvernightPerUnitReserveFund() == null ? ""
-						: dto.getOvernightPerUnitReserveFund().toString());
+				data.add(dto.getOvernightServiceFee() == null ? ""
+						: dto.getOvernightServiceFee().toString());
+				data.add(dto.getOvernightReserveFund() == null ? ""
+						: dto.getOvernightReserveFund().toString());
 				data.add(positionEndTime);
 				data.add(dto.getPositionDays() == null ? "" : dto.getPositionDays().toString());
 				data.add(dto.getWindControlType() == null ? "" : dto.getWindControlType());
@@ -342,6 +343,7 @@ public class FuturesOrderController {
 		result.add("当前价格");
 		result.add("浮动盈亏");
 		result.add("定单类型");
+		result.add("交易综合费");
 		result.add("保证金");
 		result.add("止损金额");
 		result.add("止盈金额");

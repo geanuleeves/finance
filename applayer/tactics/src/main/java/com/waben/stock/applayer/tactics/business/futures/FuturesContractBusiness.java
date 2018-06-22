@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.waben.stock.applayer.tactics.dto.futures.FuturesContractQuotationDto;
+import com.waben.stock.applayer.tactics.security.SecurityUtil;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
@@ -144,16 +145,21 @@ public class FuturesContractBusiness {
 					throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
 				}
 
-				/*OrganizationPublisherDto publisher = fetchOrgPublisher(SecurityUtil.getUserDetails().getUserId());
-				if (publisher != null) {
-					FuturesAgentPriceDto agentPrice = getCurrentAgentPrice(publisher.getOrgId(), contractDto.getId());
-					if (agentPrice != null) {
-						contractDto.setPerUnitReserveFund(agentPrice.getCostReserveFund());
-						contractDto.setOpenwindServiceFee(agentPrice.getSaleOpenwindServiceFee());
-						contractDto.setUnwindServiceFee(agentPrice.getSaleUnwindServiceFee());
-						contractDto.setOvernightPerUnitDeferredFee(agentPrice.getSaleDeferredFee());
-					}
-				}*/
+				/*
+				 * OrganizationPublisherDto publisher =
+				 * fetchOrgPublisher(SecurityUtil.getUserDetails().getUserId());
+				 * if (publisher != null) { FuturesAgentPriceDto agentPrice =
+				 * getCurrentAgentPrice(publisher.getOrgId(),
+				 * contractDto.getId()); if (agentPrice != null) {
+				 * contractDto.setPerUnitReserveFund(agentPrice.
+				 * getCostReserveFund());
+				 * contractDto.setOpenwindServiceFee(agentPrice.
+				 * getSaleOpenwindServiceFee());
+				 * contractDto.setUnwindServiceFee(agentPrice.
+				 * getSaleUnwindServiceFee());
+				 * contractDto.setOvernightPerUnitDeferredFee(agentPrice.
+				 * getSaleDeferredFee()); } }
+				 */
 
 			}
 
@@ -194,16 +200,16 @@ public class FuturesContractBusiness {
 	}
 
 	/**
-	 * 获取当前期货代理价格数据
+	 * 获取用户的期货代理商价格数据
 	 * 
-	 * @param orgId
-	 *            代理商ID
-	 * @param contractId
-	 *            合约ID
+	 * @param publisherId
+	 *            发布人ID
+	 * @param commodityId
+	 *            品种ID
 	 * @return 期货代理价格
 	 */
-	public FuturesAgentPriceDto getCurrentAgentPrice(Long orgId, Long commodityId) {
-		Response<FuturesAgentPriceDto> response = organizationInterface.getCurrentAgentPrice(orgId, commodityId);
+	public FuturesAgentPriceDto getCurrentAgentPrice(Long publisherId, Long commodityId) {
+		Response<FuturesAgentPriceDto> response = organizationInterface.getCurrentAgentPrice(publisherId, commodityId);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}
@@ -231,6 +237,44 @@ public class FuturesContractBusiness {
 			return response.getResult().getMinWave();
 		}
 		throw new ServiceException(response.getCode());
+	}
+
+	/**
+	 * 包装代理商销售价格到合约信息
+	 * 
+	 * @param contract
+	 *            合约信息
+	 */
+	public FuturesContractDto wrapperAgentPrice(FuturesContractDto contract) {
+		if (contract != null) {
+			// 获取代理商设置的销售价格
+			FuturesAgentPriceDto agentPrice = this.getCurrentAgentPrice(SecurityUtil.getUserDetails().getUserId(),
+					contract.getCommodityId());
+			if (agentPrice != null) {
+				// 保证金
+				if (agentPrice.getCostReserveFund() != null
+						&& agentPrice.getCostReserveFund().compareTo(BigDecimal.ZERO) > 0) {
+					contract.setPerUnitReserveFund(agentPrice.getCostReserveFund());
+				}
+				// 开仓手续费
+				if (!(agentPrice.getCostOpenwindServiceFee() == null
+						&& agentPrice.getSaleOpenwindServiceFee() == null)) {
+					contract.setOpenwindServiceFee(agentPrice.getSaleOpenwindServiceFee() != null
+							? agentPrice.getSaleOpenwindServiceFee() : agentPrice.getCostOpenwindServiceFee());
+				}
+				// 平仓手续费
+				if (!(agentPrice.getCostUnwindServiceFee() == null && agentPrice.getSaleUnwindServiceFee() == null)) {
+					contract.setUnwindServiceFee(agentPrice.getSaleUnwindServiceFee() != null
+							? agentPrice.getSaleUnwindServiceFee() : agentPrice.getCostUnwindServiceFee());
+				}
+				// 隔夜递延费
+				if (!(agentPrice.getCostDeferredFee() == null && agentPrice.getSaleDeferredFee() == null)) {
+					contract.setOvernightPerUnitDeferredFee(agentPrice.getSaleDeferredFee() != null
+							? agentPrice.getSaleDeferredFee() : agentPrice.getCostDeferredFee());
+				}
+			}
+		}
+		return contract;
 	}
 
 }

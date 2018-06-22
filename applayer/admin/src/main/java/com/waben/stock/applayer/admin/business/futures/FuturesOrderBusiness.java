@@ -78,10 +78,10 @@ public class FuturesOrderBusiness {
 						reserveFund = reserveFund.add(adminDto.getReserveFund());
 					}
 					if (adminDto.getOpenwindServiceFee() != null) {
-						serviceFee = serviceFee.add(adminDto.getOpenwindServiceFee());
+						serviceFee = serviceFee.add(adminDto.getOpenwindServiceFee().multiply(adminDto.getTotalQuantity()));
 					}
 					if (adminDto.getUnwindServiceFee() != null) {
-						serviceFee = serviceFee.add(adminDto.getUnwindServiceFee());
+						serviceFee = serviceFee.add(adminDto.getUnwindServiceFee().multiply(adminDto.getTotalQuantity()));
 					}
 					if (adminDto.getOvernightServiceFee() != null) {
 						overnightServiceFee = overnightServiceFee.add(adminDto.getOvernightServiceFee());
@@ -198,9 +198,11 @@ public class FuturesOrderBusiness {
 					FuturesContractDto contract = findByContractId(dto.getContractId());
 					// 获取汇率信息
 					FuturesCurrencyRateDto rate = findByCurrency(dto.getCommodityCurrency());
+					if(market != null){
+						dto.setLastPrice(market.getLastPrice());
+					}
 					if(dto.getPublisherProfitOrLoss()==null && dto.getBuyingPrice()!=null){
 						if (market != null && contract != null && rate != null) {
-							dto.setLastPrice(market.getLastPrice());
 							
 							// 用户买涨盈亏 = （最新价 - 买入价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
 							if (dto.getOrderType()!=null && !"".equals(dto.getOrderType()) && "买涨".equals(dto.getOrderType())) {

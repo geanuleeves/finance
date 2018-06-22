@@ -204,16 +204,16 @@ public interface OrganizationInterface {
 	Response<Integer> saveFuturesAgentPrice(@RequestBody List<FuturesAgentPriceDto> futuresAgentPricedto);
 
 	/**
-	 * 获取当前期货代理价格数据
+	 * 获取用户的期货代理商价格数据
 	 * 
-	 * @param orgId
-	 *            代理商ID
-	 * @param contractId
-	 *            合约ID
+	 * @param publisherId
+	 *            发布人ID
+	 * @param commodityId
+	 *            品种ID
 	 * @return 期货代理价格
 	 */
-	@RequestMapping(value = "/current/{orgId}/{commodityId}", method = RequestMethod.GET)
-	Response<FuturesAgentPriceDto> getCurrentAgentPrice(@PathVariable("orgId") Long orgId,
+	@RequestMapping(value = "/current/{publisherId}/{commodityId}", method = RequestMethod.GET)
+	Response<FuturesAgentPriceDto> getCurrentAgentPrice(@PathVariable("publisherId") Long publisherId,
 			@PathVariable("commodityId") Long commodityId);
 
 	/**

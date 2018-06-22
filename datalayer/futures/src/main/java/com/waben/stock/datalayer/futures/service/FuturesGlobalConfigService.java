@@ -45,6 +45,10 @@ public class FuturesGlobalConfigService {
 		return globalConfigDao.list();
 	}
 	
+	public FuturesGlobalConfig saveAndModif(FuturesGlobalConfig global){
+		return globalConfigDao.create(global);
+	}
+	
 	public Page<FuturesGlobalConfig> pagesGlobal(final FuturesGlobalConfigQuery query){
 		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
 		Page<FuturesGlobalConfig> pages = globalConfigDao.page(new Specification<FuturesGlobalConfig>() {
@@ -53,6 +57,10 @@ public class FuturesGlobalConfigService {
 			public Predicate toPredicate(Root<FuturesGlobalConfig> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
 				
+				if(query.getType()!=null && !"".equals(query.getType())){
+					predicateList.add(
+							criteriaBuilder.equal(root.get("type").as(String.class), query.getType()));
+				}
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}

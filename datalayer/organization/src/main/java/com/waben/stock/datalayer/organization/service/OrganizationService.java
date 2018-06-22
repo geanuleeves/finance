@@ -30,11 +30,13 @@ import com.waben.stock.datalayer.organization.business.FuturesAgentPriceBusiness
 import com.waben.stock.datalayer.organization.entity.FuturesAgentPrice;
 import com.waben.stock.datalayer.organization.entity.Organization;
 import com.waben.stock.datalayer.organization.entity.OrganizationAccount;
+import com.waben.stock.datalayer.organization.entity.OrganizationPublisher;
 import com.waben.stock.datalayer.organization.entity.SettlementMethod;
 import com.waben.stock.datalayer.organization.repository.DynamicQuerySqlDao;
 import com.waben.stock.datalayer.organization.repository.FuturesAgentPriceDao;
 import com.waben.stock.datalayer.organization.repository.OrganizationAccountDao;
 import com.waben.stock.datalayer.organization.repository.OrganizationDao;
+import com.waben.stock.datalayer.organization.repository.OrganizationPublisherDao;
 import com.waben.stock.datalayer.organization.repository.SettlementMethodDao;
 import com.waben.stock.datalayer.organization.repository.impl.MethodDesc;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
@@ -78,6 +80,9 @@ public class OrganizationService {
 
 	@Autowired
 	private DynamicQuerySqlDao sqlDao;
+
+	@Autowired
+	public OrganizationPublisherDao orgPublisherDao;
 
 	@Autowired
 	public OrganizationService organizationService;
@@ -926,9 +931,55 @@ public class OrganizationService {
 	 *            品种ID
 	 * @return 货代理价格数据
 	 */
-	public FuturesAgentPrice currentAgentPrice(Long orgId, Long commodityId) {
+	public FuturesAgentPrice currentAgentPrice(Long publisherId, Long commodityId) {
+		OrganizationPublisher orgPublisher = orgPublisherDao.retrieveByPublisherId(publisherId);
+		if (orgPublisher == null) {
+			return null;
+		}
+		return this.cycleAgentPrice(orgPublisher.getOrgId(), commodityId, null, true);
+	}
 
-		return agentPriceDao.findByCommodityIdAndOrgId(commodityId, orgId);
+	/**
+	 * 循环获取代理价格
+	 * <p>
+	 * 销售价使用最后一级设置的销售价，成本价如果当前层级未设置则逐级往上查找
+	 * </p>
+	 * 
+	 * @return 代理价格
+	 */
+	public FuturesAgentPrice cycleAgentPrice(Long orgId, Long commodityId, FuturesAgentPrice beforePrice,
+			boolean isLast) {
+		FuturesAgentPrice agentPrice = agentPriceDao.findByCommodityIdAndOrgId(commodityId, orgId);
+		if (beforePrice == null) {
+			beforePrice = agentPrice;
+			// 如果进入到这个判断中，并且不是最后一级，说明最后一级没有agentPrice记录，把销售价置空
+			if (!isLast) {
+				beforePrice.setSaleDeferredFee(null);
+				beforePrice.setSaleOpenwindServiceFee(null);
+				beforePrice.setSaleUnwindServiceFee(null);
+			}
+		} else if (agentPrice != null) {
+			if (beforePrice.getCostDeferredFee() == null) {
+				beforePrice.setCostDeferredFee(agentPrice.getCostDeferredFee());
+			}
+			if (beforePrice.getCostOpenwindServiceFee() == null) {
+				beforePrice.setCostOpenwindServiceFee(agentPrice.getCostOpenwindServiceFee());
+			}
+			if (beforePrice.getCostReserveFund() == null) {
+				beforePrice.setCostReserveFund(agentPrice.getCostReserveFund());
+			}
+			if (beforePrice.getCostUnwindServiceFee() == null) {
+				beforePrice.setCostUnwindServiceFee(agentPrice.getCostUnwindServiceFee());
+			}
+		}
+		Organization org = organizationDao.retrieve(orgId);
+		if (org.getLevel() <= 2 || (beforePrice != null && beforePrice.getCostDeferredFee() != null
+				&& beforePrice.getCostOpenwindServiceFee() != null && beforePrice.getCostReserveFund() != null
+				&& beforePrice.getCostUnwindServiceFee() != null)) {
+			return beforePrice;
+		} else {
+			return cycleAgentPrice(org.getParentId(), commodityId, beforePrice, false);
+		}
 	}
 
 	/**
