@@ -720,47 +720,47 @@ public class FuturesOrderService {
 	 */
 	public FuturesOrder unwindOrder(Long id, BigDecimal sellingPrice) {
 		FuturesOrder order = orderDao.retrieve(id);
-//		if (!(order.getState() == FuturesOrderState.Position || order.getState() == FuturesOrderState.SellingEntrust
-//				|| order.getState() == FuturesOrderState.PartUnwind)) {
-//			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
-//		}
-//		// 盈亏（交易所货币）
-//		BigDecimal currencyProfitOrLoss = computeProfitOrLoss(order.getOrderType(), order.getTotalQuantity(),
-//				order.getBuyingPrice(), sellingPrice, order.getContract().getCommodity().getMinWave(),
-//				order.getContract().getCommodity().getPerWaveMoney());
-//		// 盈亏（人民币）
-//		BigDecimal rate = rateService.findByCurrency(order.getCommodityCurrency()).getRate();
-//		BigDecimal profitOrLoss = currencyProfitOrLoss.multiply(rate).setScale(2, RoundingMode.DOWN);
-//		// 给用户结算
-//		CapitalAccountDto account = accountBusiness.futuresOrderSettlement(order.getPublisherId(), order.getId(),
-//				profitOrLoss);
-//		// 发布人盈亏（人民币）、平台盈亏（人民币）
-//		BigDecimal publisherProfitOrLoss = BigDecimal.ZERO;
-//		BigDecimal platformProfitOrLoss = BigDecimal.ZERO;
-//		if (profitOrLoss.compareTo(BigDecimal.ZERO) > 0) {
-//			publisherProfitOrLoss = profitOrLoss;
-//		} else if (profitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
-//			publisherProfitOrLoss = account.getRealProfitOrLoss();
-//			if (profitOrLoss.abs().compareTo(publisherProfitOrLoss.abs()) > 0) {
-//				platformProfitOrLoss = profitOrLoss.abs().subtract(publisherProfitOrLoss.abs())
-//						.multiply(new BigDecimal(-1));
-//			}
-//		}
-//		// 修改订单状态
-//		Date date = new Date();
-//		order.setCurrencyProfitOrLoss(currencyProfitOrLoss);
-//		order.setProfitOrLoss(profitOrLoss);
-//		order.setPublisherProfitOrLoss(publisherProfitOrLoss);
-//		order.setPlatformProfitOrLoss(platformProfitOrLoss);
-//		order.setSettlementRate(rate);
-//		order.setSellingPrice(sellingPrice);
-//		order.setSellingTime(date);
-//		order.setState(FuturesOrderState.Unwind);
-//		order.setUpdateTime(date);
-//		orderDao.update(order);
-//		unwindReturnOvernightReserveFund(order);
-//		// 站外消息推送
-//		sendOutsideMessage(order);
+		if (!(order.getState() == FuturesOrderState.Position || order.getState() == FuturesOrderState.SellingEntrust
+				|| order.getState() == FuturesOrderState.PartUnwind)) {
+			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
+		}
+		// 盈亏（交易所货币）
+		BigDecimal currencyProfitOrLoss = computeProfitOrLoss(order.getOrderType(), order.getTotalQuantity(),
+				order.getBuyingPrice(), sellingPrice, order.getContract().getCommodity().getMinWave(),
+				order.getContract().getCommodity().getPerWaveMoney());
+		// 盈亏（人民币）
+		BigDecimal rate = rateService.findByCurrency(order.getCommodityCurrency()).getRate();
+		BigDecimal profitOrLoss = currencyProfitOrLoss.multiply(rate).setScale(2, RoundingMode.DOWN);
+		// 给用户结算
+		CapitalAccountDto account = accountBusiness.futuresOrderSettlement(order.getPublisherId(), order.getId(),
+				profitOrLoss);
+		// 发布人盈亏（人民币）、平台盈亏（人民币）
+		BigDecimal publisherProfitOrLoss = BigDecimal.ZERO;
+		BigDecimal platformProfitOrLoss = BigDecimal.ZERO;
+		if (profitOrLoss.compareTo(BigDecimal.ZERO) > 0) {
+			publisherProfitOrLoss = profitOrLoss;
+		} else if (profitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+			publisherProfitOrLoss = account.getRealProfitOrLoss();
+			if (profitOrLoss.abs().compareTo(publisherProfitOrLoss.abs()) > 0) {
+				platformProfitOrLoss = profitOrLoss.abs().subtract(publisherProfitOrLoss.abs())
+						.multiply(new BigDecimal(-1));
+			}
+		}
+		// 修改订单状态
+		Date date = new Date();
+		order.setCurrencyProfitOrLoss(currencyProfitOrLoss);
+		order.setProfitOrLoss(profitOrLoss);
+		order.setPublisherProfitOrLoss(publisherProfitOrLoss);
+		order.setPlatformProfitOrLoss(platformProfitOrLoss);
+		order.setSettlementRate(rate);
+		order.setSellingPrice(sellingPrice);
+		order.setSellingTime(date);
+		order.setState(FuturesOrderState.Unwind);
+		order.setUpdateTime(date);
+		orderDao.update(order);
+		unwindReturnOvernightReserveFund(order);
+		// 站外消息推送
+		sendOutsideMessage(order);
 		return order;
 	}
 
