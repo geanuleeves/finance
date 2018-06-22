@@ -2,6 +2,7 @@ package com.waben.stock.datalayer.futures.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,7 +28,7 @@ public class FuturesGlobalConfigController implements FuturesGlobalConfigInterfa
 	private FuturesGlobalConfigService configService;
 	
 	@Override
-	public Response<FuturesGlobalConfigDto> addConfig(FuturesGlobalConfigDto global) {
+	public Response<FuturesGlobalConfigDto> addConfig(@RequestBody FuturesGlobalConfigDto global) {
 		FuturesGlobalConfig config = CopyBeanUtils.copyBeanProperties(FuturesGlobalConfig.class, global,false);
 		FuturesGlobalConfig result = configService.save(config);
 		FuturesGlobalConfigDto response = CopyBeanUtils.copyBeanProperties(result, new FuturesGlobalConfigDto(),false);
@@ -35,7 +36,7 @@ public class FuturesGlobalConfigController implements FuturesGlobalConfigInterfa
 	}
 
 	@Override
-	public Response<FuturesGlobalConfigDto> modifyConfig(FuturesGlobalConfigDto global) {
+	public Response<FuturesGlobalConfigDto> modifyConfig(@RequestBody FuturesGlobalConfigDto global) {
 		FuturesGlobalConfig config = CopyBeanUtils.copyBeanProperties(FuturesGlobalConfig.class, global,false);
 		FuturesGlobalConfig result = configService.modify(config);
 		FuturesGlobalConfigDto response = CopyBeanUtils.copyBeanProperties(result, new FuturesGlobalConfigDto(),false);
@@ -48,9 +49,14 @@ public class FuturesGlobalConfigController implements FuturesGlobalConfigInterfa
 	}
 
 	@Override
-	public Response<PageInfo<FuturesGlobalConfigDto>> pagesConfig(FuturesGlobalConfigQuery query) {
+	public Response<PageInfo<FuturesGlobalConfigDto>> pagesConfig(@RequestBody FuturesGlobalConfigQuery query) {
 		Page<FuturesGlobalConfig> result = configService.pagesGlobal(query);
 		PageInfo<FuturesGlobalConfigDto> response = PageToPageInfo.pageToPageInfo(result, FuturesGlobalConfigDto.class);
+		if(response.getContent()!=null){
+			for(int i=0;i<result.getContent().size();i++){
+				response.getContent().get(i).setType(result.getContent().get(i).getType().getType());
+			}
+		}
 		return new Response<>(response);
 	}
 
@@ -60,12 +66,13 @@ public class FuturesGlobalConfigController implements FuturesGlobalConfigInterfa
 	}
 
 	@Override
-	public Response<FuturesGlobalConfigDto> saveAndModify(FuturesGlobalConfigDto global) {
+	public Response<FuturesGlobalConfigDto> saveAndModify(@RequestBody FuturesGlobalConfigDto global) {
 		FuturesGlobalConfigTypeConverter convert = new FuturesGlobalConfigTypeConverter();
 		FuturesGlobalConfig config = CopyBeanUtils.copyBeanProperties(FuturesGlobalConfig.class, global,false);
-		config.setType(convert.convertToEntityAttribute(global.getType()));
+		config.setType(convert.convertToEntityAttribute(Integer.valueOf(global.getType())));
 		FuturesGlobalConfig result = configService.saveAndModif(config);
 		FuturesGlobalConfigDto response = CopyBeanUtils.copyBeanProperties(result, new FuturesGlobalConfigDto(),false);
+		response.setType(result.getType().getType());
 		return new Response<>(response);
 	}
 

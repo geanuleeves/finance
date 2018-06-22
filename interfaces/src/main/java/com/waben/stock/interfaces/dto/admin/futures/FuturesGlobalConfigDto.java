@@ -9,7 +9,7 @@ public class FuturesGlobalConfigDto {
 	 */
 	private String windControlParameters;
 	
-	private Integer type;
+	private String type;
 
 	public Long getId() {
 		return id;
@@ -27,11 +27,11 @@ public class FuturesGlobalConfigDto {
 		this.windControlParameters = windControlParameters;
 	}
 
-	public Integer getType() {
+	public String getType() {
 		return type;
 	}
 
-	public void setType(Integer type) {
+	public void setType(String type) {
 		this.type = type;
 	}
 	

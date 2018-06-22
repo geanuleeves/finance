@@ -53,8 +53,8 @@ public class FuturesOrderController {
 
 	@GetMapping("/countOrderState")
 	@ApiOperation(value = "订单总计")
-	public Response<FuturesOrderCountDto> countOrderState(String state) {
-		return new Response<>(business.getSUMOrder(state));
+	public Response<FuturesOrderCountDto> countOrderState(FuturesTradeAdminQuery query) {
+		return new Response<>(business.countOrderState(query).getResult());
 	}
 
 	@GetMapping("/pages")

@@ -10,6 +10,8 @@ public class FuturesGlobalConfigQuery extends PageAndSortQuery {
 	 * 风控参数
 	 */
 	private String windControlParameters;
+	
+	private String type;
 
 	public Long getId() {
 		return id;
@@ -25,6 +27,14 @@ public class FuturesGlobalConfigQuery extends PageAndSortQuery {
 
 	public void setWindControlParameters(String windControlParameters) {
 		this.windControlParameters = windControlParameters;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 	
 	
