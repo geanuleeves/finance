@@ -450,14 +450,14 @@ public class FuturesOrderService {
 		order.setOpenGatewayOrderId(gatewayOrder.getId());
 		order.setBuyingEntrustTime(date);
 		order = orderDao.update(order);
-		// step 8 : 放入委托查询队列（开仓）
+		// step 8 : 站外消息推送
+		sendOutsideMessage(order);
+		// step 9 : 放入委托查询队列（开仓）
 		EntrustQueryMessage msg = new EntrustQueryMessage();
 		msg.setOrderId(order.getId());
 		msg.setGatewayOrderId(gatewayOrder.getId());
 		msg.setEntrustType(1);
 		producer.sendMessage(RabbitmqConfiguration.entrustQueryQueueName, msg);
-		// step 9 : 站外消息推送
-		sendOutsideMessage(order);
 		return order;
 	}
 
@@ -876,6 +876,9 @@ public class FuturesOrderService {
 				gatewayBuyingEntrustPrice);
 		order.setCloseGatewayOrderId(gatewayOrder.getId());
 		// TODO 委托下单异常情况处理，此处默认为所有的委托都能成功
+		// 消息推送
+		sendOutsideMessage(order);
+		order = orderDao.update(order);
 		// 放入委托查询队列（平仓）
 		EntrustQueryMessage msg = new EntrustQueryMessage();
 		if (windControlType == FuturesWindControlType.BackhandUnwind) {
@@ -886,9 +889,7 @@ public class FuturesOrderService {
 		msg.setOrderId(order.getId());
 		msg.setGatewayOrderId(gatewayOrder.getId());
 		producer.sendMessage(RabbitmqConfiguration.entrustQueryQueueName, msg);
-		// 消息推送
-		sendOutsideMessage(order);
-		return orderDao.update(order);
+		return order;
 	}
 
 	/**

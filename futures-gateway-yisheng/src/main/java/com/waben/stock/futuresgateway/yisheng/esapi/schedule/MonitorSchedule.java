@@ -29,7 +29,7 @@ public class MonitorSchedule {
 	private EsTradeWrapper tradeWrapper;
 
 	/**
-	 * 5点50的时候重新连接行情api和交易api
+	 * 5点55的时候重新连接行情api和交易api
 	 */
 	@Scheduled(cron = "0 55 5 * * ?")
 	public void monitor() {
