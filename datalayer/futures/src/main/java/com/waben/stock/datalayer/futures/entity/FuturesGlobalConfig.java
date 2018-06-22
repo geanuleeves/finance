@@ -2,11 +2,16 @@ package com.waben.stock.datalayer.futures.entity;
 
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesGlobalConfigTypeConverter;
+import com.waben.stock.interfaces.enums.FuturesGlobalConfigType;
 /**
  * 全局设置
  * @author pzl
@@ -24,6 +29,13 @@ public class FuturesGlobalConfig {
 	 * 风控参数
 	 */
 	private String windControlParameters;
+	
+	/**
+	 * 设置类型
+	 */
+	@Column(name = "type")
+	@Convert(converter = FuturesGlobalConfigTypeConverter.class)
+	private FuturesGlobalConfigType type;
 	
 	/**
 	 * 更新时间
@@ -52,6 +64,14 @@ public class FuturesGlobalConfig {
 
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
+	}
+
+	public FuturesGlobalConfigType getType() {
+		return type;
+	}
+
+	public void setType(FuturesGlobalConfigType type) {
+		this.type = type;
 	}
 
 }

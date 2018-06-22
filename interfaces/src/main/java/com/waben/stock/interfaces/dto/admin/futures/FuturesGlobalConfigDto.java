@@ -8,6 +8,8 @@ public class FuturesGlobalConfigDto {
 	 * 风控参数
 	 */
 	private String windControlParameters;
+	
+	private Integer type;
 
 	public Long getId() {
 		return id;
@@ -23,6 +25,14 @@ public class FuturesGlobalConfigDto {
 
 	public void setWindControlParameters(String windControlParameters) {
 		this.windControlParameters = windControlParameters;
+	}
+
+	public Integer getType() {
+		return type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
 	}
 	
 	
