@@ -45,6 +45,10 @@ public class FuturesGlobalConfigService {
 		return globalConfigDao.list();
 	}
 	
+	public FuturesGlobalConfig saveAndModif(FuturesGlobalConfig global){
+		return globalConfigDao.create(global);
+	}
+	
 	public Page<FuturesGlobalConfig> pagesGlobal(final FuturesGlobalConfigQuery query){
 		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
 		Page<FuturesGlobalConfig> pages = globalConfigDao.page(new Specification<FuturesGlobalConfig>() {

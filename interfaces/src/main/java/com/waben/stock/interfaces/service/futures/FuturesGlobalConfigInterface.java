@@ -17,6 +17,9 @@ public interface FuturesGlobalConfigInterface {
 	@RequestMapping(value = "/addGlobalConfig", method = RequestMethod.POST, consumes = "application/json")
 	Response<FuturesGlobalConfigDto> addConfig(@RequestBody FuturesGlobalConfigDto query);
 	
+	@RequestMapping(value = "/saveAndModify", method = RequestMethod.POST, consumes = "application/json")
+	Response<FuturesGlobalConfigDto> saveAndModify(@RequestBody FuturesGlobalConfigDto query);
+	
 	@RequestMapping(value = "/modifyGlobalConfig", method = RequestMethod.POST, consumes = "application/json")
 	Response<FuturesGlobalConfigDto> modifyConfig(@RequestBody FuturesGlobalConfigDto query);
 	
