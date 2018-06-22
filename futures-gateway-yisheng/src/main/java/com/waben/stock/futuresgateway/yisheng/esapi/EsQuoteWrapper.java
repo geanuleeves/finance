@@ -77,7 +77,6 @@ public class EsQuoteWrapper implements QuoteApiListener {
 	 */
 	public void reconnect() {
 		try {
-			
 			api.disconnect();
 			api.destory();
 		} finally {
