@@ -78,10 +78,10 @@ public class FuturesOrderBusiness {
 						reserveFund = reserveFund.add(adminDto.getReserveFund());
 					}
 					if (adminDto.getOpenwindServiceFee() != null) {
-						serviceFee = serviceFee.add(adminDto.getOpenwindServiceFee());
+						serviceFee = serviceFee.add(adminDto.getOpenwindServiceFee().multiply(adminDto.getTotalQuantity()));
 					}
 					if (adminDto.getUnwindServiceFee() != null) {
-						serviceFee = serviceFee.add(adminDto.getUnwindServiceFee());
+						serviceFee = serviceFee.add(adminDto.getUnwindServiceFee().multiply(adminDto.getTotalQuantity()));
 					}
 					if (adminDto.getOvernightServiceFee() != null) {
 						overnightServiceFee = overnightServiceFee.add(adminDto.getOvernightServiceFee());
