@@ -141,6 +141,16 @@ public class PaymentController {
         }
 	}
 
+	@RequestMapping("/unionpaytempfronturl")
+	@ApiOperation(value = "网贝网银支付H5跳转临时地址")
+	@ResponseBody
+	public void unionpayTempFrontUrl(HttpServletResponse httpResp) {
+		try {
+			httpResp.sendRedirect(wbConfig.getUnionpayFrontUrl());
+		} catch (IOException e) {
+		}
+	}
+	
 	@RequestMapping("/wabennetbankpay/h5wbreturn")
 	@ApiOperation(value = "网贝收银台同步回调接口")
 	@ResponseBody
