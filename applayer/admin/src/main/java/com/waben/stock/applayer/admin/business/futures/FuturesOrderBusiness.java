@@ -198,9 +198,11 @@ public class FuturesOrderBusiness {
 					FuturesContractDto contract = findByContractId(dto.getContractId());
 					// 获取汇率信息
 					FuturesCurrencyRateDto rate = findByCurrency(dto.getCommodityCurrency());
+					if(market != null){
+						dto.setLastPrice(market.getLastPrice());
+					}
 					if(dto.getPublisherProfitOrLoss()==null && dto.getBuyingPrice()!=null){
 						if (market != null && contract != null && rate != null) {
-							dto.setLastPrice(market.getLastPrice());
 							
 							// 用户买涨盈亏 = （最新价 - 买入价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
 							if (dto.getOrderType()!=null && !"".equals(dto.getOrderType()) && "买涨".equals(dto.getOrderType())) {
