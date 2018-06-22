@@ -616,7 +616,7 @@ public class OrganizationService {
 						+ " IF(t12.symbol IS NULL,t2.stock_code,t12.symbol) AS symbol,  IF(t12.name IS NULL,t2.stock_name,t12.name) AS contract_name,"
 						+ " t10.code AS agentCode,t10.name AS agentName " + " from capital_flow t1 "
 						+ " LEFT JOIN buy_record t2 on t1.extend_type=1 and t1.extend_id=t2.id "
-						+ " LEFT JOIN f_futures_order t3 on t1.extend_type=3 and t1.extend_id=t3.id "
+						+ " LEFT JOIN f_futures_order t3 on t1.extend_type=6 and t1.extend_id=t3.id "
 						+ " LEFT JOIN real_name t4 on t4.resource_type=2 and t1.publisher_id=t4.resource_id "
 						+ " LEFT JOIN publisher t5 on t5.id=t1.publisher_id "
 						+ " LEFT JOIN payment_order t6 on t1.extend_type=4 and t1.extend_id=t6.id"

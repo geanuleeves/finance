@@ -253,6 +253,14 @@ public class FuturesOrderController {
 				}
 				
 			}
+			String buyingPriceType = "";
+			if (dto.getBuyingPriceType() != null) {
+				if (dto.getBuyingPriceType().getIndex().equals("1")) {
+					buyingPriceType = "市价单";
+				} else {
+					buyingPriceType = "指定价单";
+				}
+			}
 			if (type == 3) {
 				data.add(dto.getPublisherName() == null ? "" : dto.getPublisherName());
 				data.add(dto.getPublisherPhone() == null ? "" : dto.getPublisherPhone());
@@ -265,7 +273,7 @@ public class FuturesOrderController {
 				data.add(dto.getEntrustAppointPrice() == null ? "" : dto.getEntrustAppointPrice().toString());
 				data.add(dto.getTotalQuantity() == null ? "" : dto.getTotalQuantity().toString());
 				data.add(dto.getBuyingPrice() == null ? "" : dto.getBuyingPrice().toString());
-				data.add(dto.getBuyingPriceType() == null ? "" : dto.getBuyingPriceType().getType());
+				data.add(buyingPriceType);
 				data.add(dto.getPerUnitLimitLossAmount() == null ? "" : dto.getPerUnitLimitLossAmount().toString());
 				data.add(dto.getPerUnitLimitProfitAmount() == null ? "" : dto.getPerUnitLimitProfitAmount().toString());
 				data.add(dto.getReserveFund() == null ? "" : dto.getReserveFund().multiply(dto.getTotalQuantity()).toString());
@@ -283,7 +291,7 @@ public class FuturesOrderController {
 				data.add(kaiping);
 				data.add(dto.getTotalQuantity() == null ? "" : dto.getTotalQuantity().toString());
 				data.add(dto.getEntrustPrice() == null ? "" : dto.getEntrustPrice().toString());
-				data.add(dto.getBuyingPriceType() == null ? "" : dto.getBuyingPriceType().getType());
+				data.add(buyingPriceType);
 				data.add(dto.getPerUnitLimitLossAmount() == null ? "" : dto.getPerUnitLimitLossAmount().toString());
 				data.add(dto.getPerUnitLimitProfitAmount() == null ? "" : dto.getPerUnitLimitProfitAmount().toString());
 				data.add(dto.getReserveFund() == null ? "" : dto.getReserveFund().multiply(dto.getTotalQuantity()).toString());
