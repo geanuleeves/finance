@@ -75,4 +75,10 @@ public class FuturesQuoteMinuteKService {
 		return futuresQuoteMinuteKDao.retriveByCommodityNoAndContractNoAndTimeStrLike(commodityNo, contractNo, timeStr);
 	}
 
+	public List<FuturesQuoteMinuteK> retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(
+			String commodityNo, String contractNo, Date startTime, Date endTime) {
+		return futuresQuoteMinuteKDao.retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(
+				commodityNo, contractNo, startTime, endTime);
+	}
+
 }
