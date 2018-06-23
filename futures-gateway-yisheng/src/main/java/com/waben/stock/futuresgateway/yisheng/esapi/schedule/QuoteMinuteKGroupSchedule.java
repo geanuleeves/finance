@@ -53,7 +53,7 @@ public class QuoteMinuteKGroupSchedule {
 	 */
 	@Scheduled(cron = "0 10 0/1 * * ?")
 	public void computeMinuteKGroup() {
-		SimpleDateFormat hourSdf = new SimpleDateFormat("yyyy-MM-dd HH:");
+		// SimpleDateFormat hourSdf = new SimpleDateFormat("yyyy-MM-dd HH:");
 		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		// step 1 : 获取可用的合约
 		List<FuturesContract> contractList = contractService.getByEnable(true);
@@ -62,8 +62,12 @@ public class QuoteMinuteKGroupSchedule {
 		cal.set(Calendar.MILLISECOND, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MINUTE, 0);
-		cal.add(Calendar.HOUR_OF_DAY, -1);
 		Date time = cal.getTime();
+		cal.set(Calendar.MINUTE, 1);
+		cal.add(Calendar.HOUR_OF_DAY, -1);
+		Date beforeTime = cal.getTime();
+		cal.add(Calendar.HOUR_OF_DAY, 1);
+		Date afterTime = cal.getTime();
 		// step 3 : 遍历所有合约，计算小时K
 		for (FuturesContract contract : contractList) {
 			String commodityNo = contract.getCommodityNo();
@@ -76,7 +80,8 @@ public class QuoteMinuteKGroupSchedule {
 			}
 			// step 3.2 : 根据时间获取上一小时的分钟K
 			List<FuturesQuoteMinuteK> minuteKList = minuteKServcie
-					.getByCommodityNoAndContractNoAndTimeStrLike(commodityNo, contractNo, hourSdf.format(time) + "%");
+					.retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(commodityNo, contractNo,
+							beforeTime, afterTime);
 			if (minuteKList != null && minuteKList.size() > 0) {
 				// step 3.3 : 初始化部分数据
 				minuteKGroup = new FuturesQuoteMinuteKGroup();

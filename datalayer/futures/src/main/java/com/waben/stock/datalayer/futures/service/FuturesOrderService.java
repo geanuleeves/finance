@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
 import com.waben.stock.datalayer.futures.business.CapitalFlowBusiness;
+import com.waben.stock.datalayer.futures.business.OrganizationBusiness;
 import com.waben.stock.datalayer.futures.business.OutsideMessageBusiness;
 import com.waben.stock.datalayer.futures.business.PublisherBusiness;
 import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
@@ -55,6 +56,7 @@ import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesGatewayOr
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
 import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
+import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
 import com.waben.stock.interfaces.dto.publisher.FrozenCapitalDto;
@@ -113,6 +115,9 @@ public class FuturesOrderService {
 
 	@Autowired
 	private PublisherBusiness publisherBusiness;
+
+	@Autowired
+	private OrganizationBusiness orgBusiness;
 
 	@Autowired
 	private OutsideMessageBusiness outsideMessageBusiness;
@@ -702,8 +707,8 @@ public class FuturesOrderService {
 		order.setState(FuturesOrderState.Position);
 		order.setUpdateTime(date);
 		orderDao.update(order);
-		// 给代理商结算
-		
+		// TODO 给代理商结算
+
 		// 站外消息推送
 		sendOutsideMessage(order);
 		return order;
@@ -1034,6 +1039,43 @@ public class FuturesOrderService {
 		}
 	}
 
+	/**
+	 * 包装代理商销售价格到合约信息
+	 * 
+	 * @param contract
+	 *            合约信息
+	 */
+	public FuturesCommodity wrapperAgentPrice(Long publisherId, Long commodityId, FuturesCommodity commodity) {
+		if (commodity != null) {
+			// 获取代理商设置的销售价格
+			FuturesAgentPriceDto agentPrice = orgBusiness.getCurrentAgentPrice(publisherId, commodityId);
+			if (agentPrice != null) {
+				// 保证金
+				if (agentPrice.getCostReserveFund() != null
+						&& agentPrice.getCostReserveFund().compareTo(BigDecimal.ZERO) > 0) {
+					commodity.setPerUnitReserveFund(agentPrice.getCostReserveFund());
+				}
+				// 开仓手续费
+				if (!(agentPrice.getCostOpenwindServiceFee() == null
+						&& agentPrice.getSaleOpenwindServiceFee() == null)) {
+					commodity.setOpenwindServiceFee(agentPrice.getSaleOpenwindServiceFee() != null
+							? agentPrice.getSaleOpenwindServiceFee() : agentPrice.getCostOpenwindServiceFee());
+				}
+				// 平仓手续费
+				if (!(agentPrice.getCostUnwindServiceFee() == null && agentPrice.getSaleUnwindServiceFee() == null)) {
+					commodity.setUnwindServiceFee(agentPrice.getSaleUnwindServiceFee() != null
+							? agentPrice.getSaleUnwindServiceFee() : agentPrice.getCostUnwindServiceFee());
+				}
+				// 隔夜递延费
+				if (!(agentPrice.getCostDeferredFee() == null && agentPrice.getSaleDeferredFee() == null)) {
+					commodity.setOvernightPerUnitDeferredFee(agentPrice.getSaleDeferredFee() != null
+							? agentPrice.getSaleDeferredFee() : agentPrice.getCostDeferredFee());
+				}
+			}
+		}
+		return commodity;
+	}
+
 	public FuturesOrder backhandPlaceOrder(Long orderId) {
 		FuturesOrder order = orderDao.retrieve(orderId);
 		if (order.getState() != FuturesOrderState.Unwind) {
@@ -1046,6 +1088,10 @@ public class FuturesOrderService {
 		// 反手下单
 		FuturesOrder backhandOrder = new FuturesOrder();
 		FuturesContract contract = order.getContract();
+		FuturesCommodity commodity = contract.getCommodity();
+		Long commodityId = commodity.getId();
+		commodity.setId(null);
+		wrapperAgentPrice(order.getPublisherId(), commodityId, commodity);
 		// 计算服务费和保证金
 		BigDecimal serviceFee = order.getTotalQuantity().multiply(
 				contract.getCommodity().getOpenwindServiceFee().add(contract.getCommodity().getUnwindServiceFee()));
@@ -1057,7 +1103,6 @@ public class FuturesOrderService {
 		backhandOrder.setTotalQuantity(order.getTotalQuantity());
 		backhandOrder.setReserveFund(reserveFund);
 		backhandOrder.setServiceFee(serviceFee);
-		FuturesCommodity commodity = contract.getCommodity();
 		backhandOrder.setCommoditySymbol(commodity.getSymbol());
 		backhandOrder.setCommodityName(commodity.getName());
 		backhandOrder.setCommodityCurrency(commodity.getCurrency());

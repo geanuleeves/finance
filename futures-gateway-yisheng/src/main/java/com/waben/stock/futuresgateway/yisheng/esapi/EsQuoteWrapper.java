@@ -1,5 +1,9 @@
 package com.waben.stock.futuresgateway.yisheng.esapi;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
@@ -16,8 +20,11 @@ import com.future.api.es.external.quote.bean.TapAPIQuoteContractInfo;
 import com.future.api.es.external.quote.bean.TapAPIQuoteLoginAuth;
 import com.future.api.es.external.quote.bean.TapAPIQuoteWhole;
 import com.future.api.es.external.quote.listener.QuoteApiListener;
+import com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData;
+import com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqProducer;
+import com.waben.stock.futuresgateway.yisheng.util.JacksonUtil;
 
 /**
  * 易盛行情
@@ -57,7 +64,7 @@ public class EsQuoteWrapper implements QuoteApiListener {
 	/**
 	 * 初始化
 	 */
-	@PostConstruct
+	// @PostConstruct
 	public void init() {
 		api = new QuoteApi(quoteAuthCode, "", true);
 		api.setHostAddress(quoteIp, quotePort);
@@ -135,7 +142,27 @@ public class EsQuoteWrapper implements QuoteApiListener {
 
 	@Override
 	public void onRtnQuote(TapAPIQuoteWhole info) {
+		// 放入队列
 		rabbitmqProducer.sendMessage(RabbitmqConfiguration.quoteQueueName, info);
+		String commodityNo = info.getContract().getCommodity().getCommodityNo();
+		if(EsEngine.commodityScaleMap.containsKey(commodityNo)) {
+			Integer scale = EsEngine.commodityScaleMap.get(commodityNo);
+			// 构建行情推送对象
+			FuturesQuoteDataBase data = FuturesQuoteDataBase.newBuilder()
+			.setTime(info.getDateTimeStamp().substring(0, info.getDateTimeStamp().length() - 4))
+			.setAskPrice(new BigDecimal(info.getQAskPrice()[0]).setScale(scale, RoundingMode.HALF_UP).toString())
+			.setAskSize(info.getQAskQty()[0])
+			.setBidPrice(new BigDecimal(info.getQBidPrice()[0]).setScale(scale, RoundingMode.HALF_UP).toString())
+			.setBidSize(info.getQBidQty()[0])
+			.setClosePrice(new BigDecimal(info.getQClosingPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+			.setHighPrice(new BigDecimal(info.getQHighPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+			.setLastPrice(new BigDecimal(info.getQLastPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+			.setLastSize(info.getQLastQty())
+			.setLowPrice(new BigDecimal(info.getQLowPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+			.setOpenPrice(new BigDecimal(info.getQOpeningPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+			.setVolume(info.getQLastQty())
+			.setTotalVolume(info.getQTotalQty()).build();
+		}
 	}
 
 }

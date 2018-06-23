@@ -116,6 +116,8 @@ public class FuturesContractService {
 							criteriaBuilder.equal(root.get("pcContract").as(Boolean.class), query.getPcContract()));
 				}
 				predicateList.add(criteriaBuilder.isTrue(root.get("enable").as(Boolean.class)));
+				predicateList.add(criteriaBuilder.greaterThan(root.get("expirationDate").as(Date.class), new Date()));
+
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}

@@ -110,7 +110,6 @@ public class EntrustQueryConsumer {
 	}
 
 	private boolean checkYishengOrder(FuturesGatewayOrder gatewayOrder, Integer entrustType, Long orderId) {
-		logger.info("检查订单状态:" + gatewayOrder + "_" + entrustType + "_" + orderId);
 		boolean isNeedRetry = true;
 		Integer state = gatewayOrder.getOrderState();
 		if (entrustType == 1 || entrustType == 2 || entrustType == 3) {
