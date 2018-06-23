@@ -27,7 +27,7 @@ public class TradeFuturesOverHttp {
 	/**
 	 * 易盛api基础路径
 	 */
-	private static String yishengBaseUrl = "http://10.0.0.99:9093/";
+	private static String yishengBaseUrl = "http://47.75.55.10:9093/";
 	/**
 	 * api类型
 	 * <ul>
