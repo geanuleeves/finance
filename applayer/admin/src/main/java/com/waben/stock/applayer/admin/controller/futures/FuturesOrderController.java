@@ -272,6 +272,9 @@ public class FuturesOrderController {
 				data.add(kaiping);
 				data.add(dto.getEntrustAppointPrice() == null ? "" : dto.getEntrustAppointPrice().toString());
 				data.add(dto.getTotalQuantity() == null ? "" : dto.getTotalQuantity().toString());
+				if(dto.getPostTime()!=null){
+					data.add(dto.getTotalQuantity() == null ? "" : dto.getTotalQuantity().toString());
+				}
 				data.add(dto.getBuyingPrice() == null ? "" : dto.getBuyingPrice().toString());
 				data.add(buyingPriceType);
 				data.add(dto.getPerUnitLimitLossAmount() == null ? "" : dto.getPerUnitLimitLossAmount().toString());
@@ -396,6 +399,7 @@ public class FuturesOrderController {
 		result.add("开平");
 		result.add("委托价格");
 		result.add("委托手数");
+		result.add("成交手数");
 		result.add("成交价");
 		result.add("定单类型");
 		result.add("止损金额");
