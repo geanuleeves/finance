@@ -397,10 +397,11 @@ public class FuturesOrderService {
 		}
 		// step 3 : 获取期货合约和期货合约期限
 		FuturesContract contract = contractDao.retrieve(contractId);
-		List<FuturesTradeLimit> limitList = futuresTradeLimitService.findByContractId(order.getContractId());
+		List<FuturesTradeLimit> limitList = futuresTradeLimitService.findByContractId(contract.getId());
 		if (limitList != null && limitList.size() > 0) {
 			// 判断该交易在开仓时是否在后台设置的期货交易限制内
-			checkedLimitOpenwind(limitList, retriveExchangeTime(new Date(), this.retriveTimeZoneGap(order)));
+			checkedLimitOpenwind(limitList,
+					retriveExchangeTime(new Date(), contract.getCommodity().getExchange().getTimeZoneGap()));
 		}
 		// step 4 : 初始化订单
 		order.setTradeNo(UniqueCodeGenerator.generateTradeNo());
@@ -475,23 +476,31 @@ public class FuturesOrderService {
 	 *            当前时间
 	 */
 	public void checkedLimitOpenwind(List<FuturesTradeLimit> limitList, Date exchangeTime) {
-		String dayStr = sdf.format(exchangeTime);
 		String fullStr = fullSdf.format(exchangeTime);
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(exchangeTime);
-		Integer week = cal.get(Calendar.DAY_OF_WEEK);
 		for (FuturesTradeLimit limit : limitList) {
 			if (limit.getEnable()) {
 				if (limit.getLimitType() == FuturesTradeLimitType.LimitOpenwind) {
-					if (limit.getWeekDay() == week) {
-						if (fullStr.compareTo(dayStr + " " + limit.getStartLimitTime()) >= 0
-								&& fullStr.compareTo(dayStr + " " + limit.getEndLimitTime()) < 0) {
-							throw new ServiceException(ExceptionConstant.NOT_OPEN_GRANARY_PROVIDE_RELIEF_EXCEPTION);
-						}
+					if (fullStr.compareTo(limit.getStartLimitTime()) >= 0
+							&& fullStr.compareTo(limit.getEndLimitTime()) < 0) {
+						throw new ServiceException(ExceptionConstant.NOT_OPEN_GRANARY_PROVIDE_RELIEF_EXCEPTION);
 					}
 				}
 			}
 		}
+
+		/*
+		 * String dayStr = sdf.format(exchangeTime); String fullStr =
+		 * fullSdf.format(exchangeTime); Calendar cal = Calendar.getInstance();
+		 * cal.setTime(exchangeTime); Integer week =
+		 * cal.get(Calendar.DAY_OF_WEEK); for (FuturesTradeLimit limit :
+		 * limitList) { if (limit.getEnable()) { if (limit.getLimitType() ==
+		 * FuturesTradeLimitType.LimitOpenwind) { if (limit.getWeekDay() ==
+		 * week) { if (fullStr.compareTo(dayStr + " " +
+		 * limit.getStartLimitTime()) >= 0 && fullStr.compareTo(dayStr + " " +
+		 * limit.getEndLimitTime()) < 0) { throw new
+		 * ServiceException(ExceptionConstant.
+		 * NOT_OPEN_GRANARY_PROVIDE_RELIEF_EXCEPTION); } } } } }
+		 */
 	}
 
 	/**
@@ -503,23 +512,31 @@ public class FuturesOrderService {
 	 *            当前时间
 	 */
 	public void checkedLimitUnwind(List<FuturesTradeLimit> limitList, Date exchangeTime) {
-		String dayStr = sdf.format(exchangeTime);
 		String fullStr = fullSdf.format(exchangeTime);
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(exchangeTime);
-		Integer week = cal.get(Calendar.DAY_OF_WEEK);
 		for (FuturesTradeLimit limit : limitList) {
 			if (limit.getEnable()) {
 				if (limit.getLimitType() == FuturesTradeLimitType.LimitUnwind) {
-					if (limit.getWeekDay() == week) {
-						if (fullStr.compareTo(dayStr + " " + limit.getStartLimitTime()) >= 0
-								&& fullStr.compareTo(dayStr + " " + limit.getEndLimitTime()) < 0) {
-							throw new ServiceException(ExceptionConstant.CLOSE_POSITION_EXCEPTION);
-						}
+					if (fullStr.compareTo(limit.getStartLimitTime()) >= 0
+							&& fullStr.compareTo(limit.getEndLimitTime()) < 0) {
+						throw new ServiceException(ExceptionConstant.CLOSE_POSITION_EXCEPTION);
 					}
 				}
 			}
 		}
+
+		/*
+		 * String dayStr = sdf.format(exchangeTime); String fullStr =
+		 * fullSdf.format(exchangeTime); Calendar cal = Calendar.getInstance();
+		 * cal.setTime(exchangeTime); Integer week =
+		 * cal.get(Calendar.DAY_OF_WEEK); for (FuturesTradeLimit limit :
+		 * limitList) { if (limit.getEnable()) { if (limit.getLimitType() ==
+		 * FuturesTradeLimitType.LimitUnwind) { if (limit.getWeekDay() == week)
+		 * { if (fullStr.compareTo(dayStr + " " + limit.getStartLimitTime()) >=
+		 * 0 && fullStr.compareTo(dayStr + " " + limit.getEndLimitTime()) < 0) {
+		 * throw new
+		 * ServiceException(ExceptionConstant.CLOSE_POSITION_EXCEPTION); } } } }
+		 * }
+		 */
 	}
 
 	private void sendOutsideMessage(FuturesOrder order) {

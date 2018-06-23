@@ -664,6 +664,9 @@ public class FuturesOrderController {
 	 *            合约信息
 	 */
 	public void checkedMinPlaceOrder(FuturesContractDto contractDto) {
+		if (contractDto == null) {
+			throw new ServiceException(ExceptionConstant.CONTRACT_DOESNOT_EXIST_EXCEPTION);
+		}
 		Long minTime = null;
 		if (contractDto.getFirstNoticeDate() != null && contractDto.getLastTradingDate() != null) {
 			minTime = Math.min(contractDto.getFirstNoticeDate().getTime(), contractDto.getLastTradingDate().getTime());
