@@ -10,21 +10,28 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
+import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
+import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FutresOrderEntrustDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
+import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
+import com.waben.stock.interfaces.dto.futures.FuturesCurrencyRateDto;
 import com.waben.stock.interfaces.dto.organization.FuturesFowDto;
 import com.waben.stock.interfaces.dto.organization.FuturesTradeOrganizationDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationPublisherDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
 import com.waben.stock.interfaces.dto.publisher.RealNameDto;
+import com.waben.stock.interfaces.enums.FuturesOrderState;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
 import com.waben.stock.interfaces.pojo.query.organization.FuturesFowQuery;
+import com.waben.stock.interfaces.service.futures.FuturesContractInterface;
+import com.waben.stock.interfaces.service.futures.FuturesCurrencyRateInterface;
 import com.waben.stock.interfaces.service.futures.FuturesTradeInterface;
 import com.waben.stock.interfaces.service.organization.OrganizationInterface;
 import com.waben.stock.interfaces.service.organization.OrganizationPublisherInterface;
@@ -50,6 +57,14 @@ public class FuturesTradeBusiness {
 	
 	@Autowired
 	private OrganizationInterface orgReference;
+	
+	@Autowired
+	@Qualifier("futurescontractInterface")
+	private FuturesContractInterface futuresContractInterface;
+
+	@Autowired
+	@Qualifier("futuresCurrencyRateInterface")
+	private FuturesCurrencyRateInterface futuresCurrencyRateInterface;
 	
 	public PageInfo<FuturesFowDto> futuresFowPageByQuery(FuturesFowQuery query){
 		if(query.getCurrentOrgId()!=null){
@@ -98,21 +113,21 @@ public class FuturesTradeBusiness {
 				BigDecimal reserveFund = BigDecimal.ZERO;
 				BigDecimal serviceFee = BigDecimal.ZERO;
 				BigDecimal overnightServiceFee = BigDecimal.ZERO;
-				for(FuturesTradeOrganizationDto futures : orgDto){
-					if(futures.getTotalQuantity()!=null){
-						totalQuantity.add(futures.getTotalQuantity());
+				for (FuturesTradeOrganizationDto adminDto : orgDto) {
+					if (adminDto.getTotalQuantity() != null) {
+						totalQuantity = totalQuantity.add(adminDto.getTotalQuantity());
 					}
-					if(futures.getReserveFund()!=null){
-						reserveFund.add(futures.getReserveFund());
+					if (adminDto.getReserveFund() != null) {
+						reserveFund = reserveFund.add(adminDto.getReserveFund());
 					}
-					if(futures.getOpenwindServiceFee()!=null){
-						serviceFee.add(futures.getOpenwindServiceFee());
+					if (adminDto.getOpenwindServiceFee() != null) {
+						serviceFee = serviceFee.add(adminDto.getOpenwindServiceFee().multiply(adminDto.getTotalQuantity()));
 					}
-					if(futures.getState().equals("已平仓")){
-						serviceFee.add(futures.getUnwindServiceFee());
+					if (adminDto.getUnwindServiceFee() != null) {
+						serviceFee = serviceFee.add(adminDto.getUnwindServiceFee().multiply(adminDto.getTotalQuantity()));
 					}
-					if(futures.getOvernightServiceFee()!=null){
-						overnightServiceFee.add(futures.getOvernightServiceFee());
+					if (adminDto.getOvernightServiceFee() != null) {
+						overnightServiceFee = overnightServiceFee.add(adminDto.getOvernightServiceFee());
 					}
 				}
 				dto.setDeferred(overnightServiceFee);
@@ -131,28 +146,31 @@ public class FuturesTradeBusiness {
 	private List<Long> queryPublishIds(FuturesTradeAdminQuery query){
 		List<Long> orgPublisher = getOrgId(query);
 		List<Long> publisherIds = new ArrayList<Long>();
-		if(query.getPublisherPhone()!=null){
-			if(publisherInterface.fetchByPhone(query.getPublisherPhone()).getResult()!=null){
-				String publisherId = publisherInterface.fetchByPhone(query.getPublisherPhone()).getResult().getId().toString();
-				publisherIds.add(Long.valueOf(publisherId));
-				publisherIds = getRepetition(orgPublisher, publisherIds);
-			};
-		}
-		
-		if(query.getPublisherName()!=null && !"".equals(query.getPublisherName())){
-			if(publisherIds.size()==0 ){
-				List<RealNameDto> real = realnameInterface.findByName(query.getPublisherName()).getResult();
+		if (query.getPublisherPhone() != null && !"".equals(query.getPublisherPhone())) {
+			if (publisherInterface.fetchByPhone(query.getPublisherPhone()).getResult() != null) {
+				String publisherId = publisherInterface.fetchByPhone(query.getPublisherPhone()).getResult().getId()
+						.toString();
+				if (publisherId != null && !"".equals(publisherId)) {
+					publisherIds.add(Long.valueOf(publisherId));
+				} else {
+					return null;
+				}
+			} else {
+				return null;
+			}
+			;
+		} else if (query.getPublisherName() != null && !"".equals(query.getPublisherName())) {
+			List<RealNameDto> real = realnameInterface.findByName(query.getPublisherName()).getResult();
+			if (real == null || real.size() == 0) {
+				return null;
+			} else {
 				for (RealNameDto realNameDto : real) {
 					publisherIds.add(Long.valueOf(realNameDto.getResourceId().toString()));
 				}
-				
-			}else{
-				publisherIds.clear();
 			}
-			publisherIds = getRepetition(orgPublisher, publisherIds);
+
 		}
-		
-		
+		publisherIds = getRepetition(orgPublisher, publisherIds);
 		return publisherIds;
 	}
 	public static List<Long> getRepetition(List<Long> list1,  
@@ -167,7 +185,12 @@ public class FuturesTradeBusiness {
     }  
 	
 	public Response<PageInfo<FuturesTradeOrganizationDto>> pagesOrganizationOrder(FuturesTradeAdminQuery query){
-		query.setPublisherIds(queryPublishIds(query));
+		List<Long> publisherIds = queryPublishIds(query);
+		if(publisherIds==null){
+			return new Response<>();
+		}else{
+			query.setPublisherIds(publisherIds);
+		}
 		Response<PageInfo<FuturesTradeOrganizationDto>> pagesResponse = new Response<PageInfo<FuturesTradeOrganizationDto>>();
 		Response<PageInfo<FuturesOrderAdminDto>> response = reference.adminPagesByQuery(query);
 		if(response!=null && response.getResult()!=null){
@@ -190,6 +213,36 @@ public class FuturesTradeBusiness {
 							dto.setOrgName(org.getResult().getCode()+"/"+org.getResult().getName());
 						}
 					}
+					
+					// 获取行情信息
+					FuturesContractMarket market = RetriveFuturesOverHttp.market(dto.getSymbol(), dto.getContractNo());
+					// 获取合约信息
+					FuturesContractDto contract = findByContractId(dto.getContractId());
+					// 获取汇率信息
+					FuturesCurrencyRateDto rate = findByCurrency(dto.getCommodityCurrency());
+					if(market != null){
+						dto.setLastPrice(market.getLastPrice());
+					}
+					if(dto.getPublisherProfitOrLoss()==null && dto.getBuyingPrice()!=null){
+						if (market != null && contract != null && rate != null) {
+							
+							// 用户买涨盈亏 = （最新价 - 买入价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
+							if (dto.getOrderType()!=null && !"".equals(dto.getOrderType()) && "买涨".equals(dto.getOrderType())) {
+								dto.setPublisherProfitOrLoss(
+										market.getLastPrice().subtract(dto.getBuyingPrice())
+												.divide(contract.getMinWave(),2, BigDecimal.ROUND_HALF_EVEN).multiply(contract.getPerWaveMoney())
+												.multiply(rate.getRate()).multiply(dto.getTotalQuantity()));
+							} else if(dto.getOrderType()!=null && !"".equals(dto.getOrderType()) && "买跌".equals(dto.getOrderType())){
+								// 用户买跌盈亏 = （买入价 - 最新价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
+								dto.setPublisherProfitOrLoss(
+										dto.getBuyingPrice().subtract(market.getLastPrice())
+												.divide(contract.getMinWave(),2, BigDecimal.ROUND_HALF_EVEN).multiply(contract.getPerWaveMoney())
+												.multiply(rate.getRate()).multiply(dto.getTotalQuantity()));
+							}
+						}
+					}else{
+						dto.setFloatingProfitOrLoss(dto.getPublisherProfitOrLoss());
+					}
 				}
 			}
 			PageInfo<FuturesTradeOrganizationDto> pageInfo = new PageInfo<>(result, response.getResult().getTotalPages(), response.getResult().getLast(), response.getResult().getTotalElements(), query.getSize(), query.getPage(), response.getResult().getFrist());
@@ -201,7 +254,12 @@ public class FuturesTradeBusiness {
 	}
 	
 	public Response<PageInfo<FutresOrderEntrustDto>> pagesOrganizationEntrustOrder(FuturesTradeAdminQuery query){
-		query.setPublisherIds(queryPublishIds(query));
+		List<Long> publisherIds = queryPublishIds(query);
+		if(publisherIds==null){
+			return new Response<>();
+		}else{
+			query.setPublisherIds(publisherIds);
+		}
 		Response<PageInfo<FutresOrderEntrustDto>> response = reference.pagesOrderEntrust(query);
 		if(response.getCode().equals("200")&&response.getResult()!=null&&response.getResult().getContent()!=null){
 			for(FutresOrderEntrustDto dto : response.getResult().getContent()){
@@ -221,9 +279,34 @@ public class FuturesTradeBusiness {
 							dto.setOrgName(org.getResult().getCode()+"/"+org.getResult().getName());
 						}
 					}
+					
+					if (dto.getState() != null) {
+						if (dto.getState() != FuturesOrderState.SellingEntrust.getType()&& dto.getState() != FuturesOrderState.PartUnwind.getType()) {
+							dto.setEntrustPrice(dto.getEntrustAppointPrice());
+						}else{
+							dto.setEntrustPrice(dto.getSellingEntrustPrice());
+						}
+						
+					}
 				}
 			}
 		}
 		return response;
+	}
+	
+	public FuturesContractDto findByContractId(Long contractId) {
+		Response<FuturesContractDto> response = futuresContractInterface.findByContractId(contractId);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public FuturesCurrencyRateDto findByCurrency(String currency) {
+		Response<FuturesCurrencyRateDto> response = futuresCurrencyRateInterface.findByCurrency(currency);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
 	}
 }
