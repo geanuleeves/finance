@@ -11,6 +11,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.waben.stock.datalayer.organization.business.FuturesCommodityBusiness;
 import com.waben.stock.datalayer.organization.entity.BenefitConfig;
 import com.waben.stock.datalayer.organization.entity.FuturesAgentPrice;
 import com.waben.stock.datalayer.organization.entity.Organization;
@@ -24,6 +25,7 @@ import com.waben.stock.datalayer.organization.repository.OrganizationDao;
 import com.waben.stock.datalayer.organization.repository.OrganizationPublisherDao;
 import com.waben.stock.datalayer.organization.repository.SettlementMethodDao;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
+import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
 import com.waben.stock.interfaces.enums.BenefitConfigType;
 import com.waben.stock.interfaces.enums.OrganizationAccountFlowType;
 import com.waben.stock.interfaces.enums.ResourceType;
@@ -55,21 +57,24 @@ public class OrganizationSettlementService {
 
 	@Autowired
 	private SettlementMethodDao settlementMethodDao;
-	
+
 	@Autowired
 	private FuturesAgentPriceDao agentPriceDao;
 
+	@Autowired
+	private FuturesCommodityBusiness commodityBusiness;
+
 	@Transactional
-	public void futuresSettlement(Long publisherId, Long futuresOrderId, String tradeNo, Long futuresId,
-			BigDecimal openingFee, BigDecimal closeFee, BigDecimal deferredFee) {
-		/*// 结算开仓手续费
+	public void futuresSettlement(Long publisherId, Long commodityId, Long futuresOrderId, String tradeNo,
+			BigDecimal totalQuantity, BigDecimal openingFee, BigDecimal closeFee) {
+		// 结算开仓手续费
 		if (openingFee != null && openingFee.compareTo(BigDecimal.ZERO) > 0) {
 			List<OrganizationAccountFlow> checkFlowList = flowDao.retrieveByTypeAndResourceTypeAndResourceId(
 					OrganizationAccountFlowType.FuturesOpeningFeeAssign, ResourceType.FUTURESORDER, futuresOrderId);
 			// 判断之前是否结算过
 			if (checkFlowList == null || checkFlowList.size() == 0) {
-				futuresOrderSettlement(publisherId, BenefitConfigType.FuturesOpeningFee, openingFee, futuresId,
-						futuresOrderId, tradeNo);
+				futuresOrderSettlement(commodityId, publisherId, OrganizationAccountFlowType.FuturesOpeningFeeAssign,
+						openingFee, totalQuantity, futuresOrderId, tradeNo);
 			}
 		}
 		// 结算平仓手续费
@@ -78,20 +83,26 @@ public class OrganizationSettlementService {
 					OrganizationAccountFlowType.FuturesCloseFeeAssigne, ResourceType.FUTURESORDER, futuresOrderId);
 			// 判断之前是否结算过
 			if (checkFlowList == null || checkFlowList.size() == 0) {
-				futuresOrderSettlement(publisherId, BenefitConfigType.FuturesCloseFee, closeFee, futuresId,
-						futuresOrderId, tradeNo);
+				futuresOrderSettlement(commodityId, publisherId, OrganizationAccountFlowType.FuturesCloseFeeAssigne,
+						closeFee, totalQuantity, futuresOrderId, tradeNo);
 			}
 		}
+	}
+
+	@Transactional
+	public void futuresDeferredSettlement(Long publisherId, Long commodityId, Long overnightRecordId, String tradeNo,
+			BigDecimal totalQuantity, BigDecimal deferredFee) {
 		// 结算递延费
 		if (deferredFee != null && deferredFee.compareTo(BigDecimal.ZERO) > 0) {
 			List<OrganizationAccountFlow> checkFlowList = flowDao.retrieveByTypeAndResourceTypeAndResourceId(
-					OrganizationAccountFlowType.FuturesDeferredFeeAssign, ResourceType.FUTURESORDER, futuresOrderId);
+					OrganizationAccountFlowType.FuturesDeferredFeeAssign, ResourceType.FUTURESOVERNIGHTRECORD,
+					overnightRecordId);
 			// 判断之前是否结算过
 			if (checkFlowList == null || checkFlowList.size() == 0) {
-				futuresOrderSettlement(publisherId, BenefitConfigType.DeferredFee, deferredFee, futuresId,
-						futuresOrderId, tradeNo);
+				futuresOrderSettlement(commodityId, publisherId, OrganizationAccountFlowType.FuturesDeferredFeeAssign,
+						deferredFee, totalQuantity, overnightRecordId, tradeNo);
 			}
-		}*/
+		}
 	}
 
 	@Transactional
@@ -293,59 +304,128 @@ public class OrganizationSettlementService {
 		}
 		return null;
 	}
-	
+
 	public List<FuturesAgentPrice> getAgentPriceList(Long commodityId, List<Organization> orgTreeList) {
 		List<FuturesAgentPrice> result = new ArrayList<>();
 		for (int i = 1; i < orgTreeList.size(); i++) {
 			Organization org = orgTreeList.get(i);
 			FuturesAgentPrice agentPrice = agentPriceDao.findByCommodityIdAndOrgId(commodityId, org.getId());
-			if(agentPrice != null) {
+			if (agentPrice != null) {
 				result.add(agentPrice);
 			} else {
 				agentPrice = new FuturesAgentPrice();
+				agentPrice.setOrgId(org.getId());
 				result.add(agentPrice);
 			}
 		}
 		return result;
 	}
 
-	/*private void futuresOrderSettlement(Long commodityId, Long publisherId, OrganizationAccountFlowType flowType, BigDecimal amount,
-			Long flowResourceId, String tradeNo) {
+	/**
+	 * 获取代理商成本价
+	 * 
+	 * @param agentPriceList
+	 *            代理商设置价格列表
+	 * @param flowType
+	 *            期货结算流水类型
+	 * @param index
+	 *            当前代理商索引
+	 * @return 代理商成本价
+	 */
+	private BigDecimal retriveCostPrice(List<FuturesAgentPrice> agentPriceList, OrganizationAccountFlowType flowType,
+			int index) {
+		BigDecimal costPrice = null;
+		for (int i = index; i >= 0; i--) {
+			FuturesAgentPrice agentPrice = agentPriceList.get(i);
+			if (flowType == OrganizationAccountFlowType.FuturesOpeningFeeAssign) {
+				if (agentPrice.getCostOpenwindServiceFee() != null) {
+					costPrice = agentPrice.getCostOpenwindServiceFee();
+					break;
+				}
+			} else if (flowType == OrganizationAccountFlowType.FuturesCloseFeeAssigne) {
+				if (agentPrice.getCostUnwindServiceFee() != null) {
+					costPrice = agentPrice.getCostUnwindServiceFee();
+					break;
+				}
+			} else if (flowType == OrganizationAccountFlowType.FuturesDeferredFeeAssign) {
+				if (agentPrice.getCostDeferredFee() != null) {
+					costPrice = agentPrice.getCostDeferredFee();
+					break;
+				}
+			}
+		}
+		return costPrice;
+	}
+
+	/**
+	 * 获取系统设置的统一成本价
+	 * 
+	 * @param commodity
+	 *            品种
+	 * @param flowType
+	 *            期货结算流水类型
+	 * @return 系统设置的统一成本价
+	 */
+	private BigDecimal retriveSystemCostPrice(FuturesCommodityDto commodity, OrganizationAccountFlowType flowType) {
+		BigDecimal systemCostPrice = null;
+		if (flowType == OrganizationAccountFlowType.FuturesOpeningFeeAssign) {
+			if (commodity.getOpenwindServiceFee() != null) {
+				systemCostPrice = commodity.getOpenwindServiceFee();
+			}
+		} else if (flowType == OrganizationAccountFlowType.FuturesCloseFeeAssigne) {
+			if (commodity.getUnwindServiceFee() != null) {
+				systemCostPrice = commodity.getUnwindServiceFee();
+			}
+		} else if (flowType == OrganizationAccountFlowType.FuturesDeferredFeeAssign) {
+			if (commodity.getOvernightPerUnitDeferredFee() != null) {
+				systemCostPrice = commodity.getOvernightPerUnitDeferredFee();
+			}
+		}
+		return systemCostPrice;
+	}
+
+	private void futuresOrderSettlement(Long commodityId, Long publisherId, OrganizationAccountFlowType flowType,
+			BigDecimal salePrice, BigDecimal totalQuantity, Long flowResourceId, String tradeNo) {
 		ResourceType flowResourceType = ResourceType.FUTURESORDER;
 		List<Organization> orgTreeList = getPublisherOrgTreeList(publisherId);
 		if (orgTreeList != null) {
+			// 获取品种
+			FuturesCommodityDto commodity = commodityBusiness.getFuturesByCommodityId(commodityId);
+			if (commodity == null) {
+				return;
+			}
+			// 获取代理商价格
 			List<FuturesAgentPrice> agentPriceList = getAgentPriceList(commodityId, orgTreeList);
 			int length = agentPriceList.size();
 			// 自底向上结算
 			for (int i = length - 1; i >= 0; i--) {
-				
-				if(i == length - 1) {
-					
+				Organization org = orgDao.findByOrgId(agentPriceList.get(i).getOrgId());
+				if (i == length - 1) {
+					// 给最后一级结算，销售价-成本价
+					BigDecimal costPrice = retriveCostPrice(agentPriceList, flowType, i);
+					if (costPrice == null) {
+						costPrice = retriveSystemCostPrice(commodity, flowType);
+					}
+					if (costPrice != null && costPrice.compareTo(salePrice) < 0) {
+						accountService.benefit(org, salePrice.multiply(totalQuantity),
+								salePrice.subtract(costPrice).multiply(totalQuantity), flowType, flowResourceType,
+								flowResourceId, tradeNo);
+					}
 				} else {
-					
-				}
-				FuturesAgentPrice config = agentPriceList.get(i);
-				BigDecimal ratio = config.getRatio();
-				BigDecimal computeRatio = ratio;
-				if (i != length - 1) {
-					computeRatio = ratio.subtract(benefitConfigList.get(i + 1).getRatio());
-				}
-				// 给当前机构计算
-				BigDecimal childFee = amount.multiply(computeRatio.divide(new BigDecimal("100"))).setScale(2,
-						RoundingMode.DOWN);
-				if (childFee.compareTo(BigDecimal.ZERO) > 0) {
-					accountService.benefit(config.getOrg(), amount, childFee, flowType, flowResourceType,
-							flowResourceId, tradeNo);
+					// 给其他级结算，下级的成本价-自己的成本价
+					BigDecimal selfCostPrice = retriveCostPrice(agentPriceList, flowType, i);
+					BigDecimal childCostPrice = retriveCostPrice(agentPriceList, flowType, i + 1);
+					if (selfCostPrice != null && childCostPrice != null
+							&& selfCostPrice.compareTo(childCostPrice) < 0) {
+						accountService.benefit(org, salePrice.multiply(totalQuantity),
+								childCostPrice.subtract(selfCostPrice).multiply(totalQuantity), flowType,
+								flowResourceType, flowResourceId, tradeNo);
+					}
 				}
 			}
-			// 剩余的结算给一级机构
-			BigDecimal platformFee = amount.multiply(new BigDecimal("100")
-					.subtract(benefitConfigList.get(0).getRatio()).divide(new BigDecimal("100")))
-					.setScale(2, RoundingMode.DOWN);
-			accountService.benefit(orgTreeList.get(0), amount, platformFee, flowType, flowResourceType,
-					flowResourceId, tradeNo);
 		}
-		accountService.benefit(null, amount, amount, flowType, flowResourceType, flowResourceId, tradeNo);
-	}*/
+		accountService.benefit(null, salePrice.multiply(totalQuantity), salePrice.multiply(totalQuantity), flowType,
+				flowResourceType, flowResourceId, tradeNo);
+	}
 
 }

@@ -724,8 +724,12 @@ public class FuturesOrderService {
 		order.setState(FuturesOrderState.Position);
 		order.setUpdateTime(date);
 		orderDao.update(order);
-		// TODO 给代理商结算
-
+		// 给渠道推广机构结算
+		if (order.getIsTest() == null || order.getIsTest() == false) {
+			orgBusiness.futuresSettlement(order.getPublisherId(), order.getContract().getCommodity().getId(),
+					order.getId(), order.getTradeNo(), order.getTotalQuantity(), order.getOpenwindServiceFee(),
+					order.getUnwindServiceFee());
+		}
 		// 站外消息推送
 		sendOutsideMessage(order);
 		return order;
@@ -961,6 +965,12 @@ public class FuturesOrderService {
 				try {
 					accountBusiness.futuresOrderOvernight(order.getPublisherId(), overnightRecord.getId(), deferredFee,
 							reserveFund);
+					// 给渠道推广机构结算
+					if (order.getIsTest() == null || order.getIsTest() == false) {
+						orgBusiness.futuresDeferredSettlement(order.getPublisherId(),
+								order.getContract().getCommodity().getId(), overnightRecord.getId(), order.getTradeNo(),
+								order.getTotalQuantity(), order.getOvernightPerUnitDeferredFee());
+					}
 				} catch (ServiceException ex) {
 					if (ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION.equals(ex.getType())) {
 						// step 1.1 : 余额不足，强制平仓
@@ -974,6 +984,14 @@ public class FuturesOrderService {
 									CapitalFlowExtendType.FUTURESOVERNIGHTRECORD, overnightRecord.getId());
 							if (list == null || list.size() == 0) {
 								throw ex;
+							} else {
+								// 给渠道推广机构结算
+								if (order.getIsTest() == null || order.getIsTest() == false) {
+									orgBusiness.futuresDeferredSettlement(order.getPublisherId(),
+											order.getContract().getCommodity().getId(), overnightRecord.getId(),
+											order.getTradeNo(), order.getTotalQuantity(),
+											order.getOvernightPerUnitDeferredFee());
+								}
 							}
 						} catch (ServiceException frozenEx) {
 							throw ex;
