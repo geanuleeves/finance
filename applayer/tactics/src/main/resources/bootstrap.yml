@@ -35,9 +35,12 @@ ribbon:
   ConnectTimeout: 1500
   ReadTimeout: 2000
 hystrix:
+  threadpool:
+    default:
+      coreSize: 60
   command:
     default:
       execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 2000
+            timeoutInMilliseconds: 30000
