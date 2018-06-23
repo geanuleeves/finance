@@ -2,7 +2,10 @@ package com.waben.stock.futuresgateway.yisheng.esapi;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,6 +15,7 @@ import com.future.api.es.external.common.bean.TapAPIContract;
 import com.future.api.es.external.common.constants.Constants;
 import com.future.api.es.external.trade.bean.TapAPINewOrder;
 import com.future.api.es.external.trade.bean.TapAPIOrderCancelReq;
+import com.waben.stock.futuresgateway.yisheng.dao.FuturesCommodityDao;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesCommodity;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesContract;
 import com.waben.stock.futuresgateway.yisheng.exception.ExceptionEnum;
@@ -26,6 +30,9 @@ public class EsEngine {
 	@Autowired
 	private EsTradeWrapper tradeWrapper;
 
+	@Autowired
+	private FuturesCommodityDao commodifyDao;
+
 	public static Map<String, String> testCommodityExchangeMap = new HashMap<String, String>();
 	static {
 		testCommodityExchangeMap.put("BP", "CME");
@@ -38,6 +45,18 @@ public class EsEngine {
 		testCommodityExchangeMap.put("MHI", "HKEX");
 		testCommodityExchangeMap.put("CL", "NYMEX");
 		testCommodityExchangeMap.put("CN", "SGX");
+	}
+
+	public static Map<String, Integer> commodityScaleMap = new HashMap<String, Integer>();
+
+	@PostConstruct
+	public void initCommodityScale() {
+		List<FuturesCommodity> commodityList = commodifyDao.listFuturesCommodity();
+		for (FuturesCommodity commodity : commodityList) {
+			if (commodity.getCommodityTickSize() != null && "F".equals(commodity.getCommodityType())) {
+				commodityScaleMap.put(commodity.getCommodityNo(), getScale(commodity.getCommodityTickSize()));
+			}
+		}
 	}
 
 	public int qryContract(TapAPICommodity commodity) {
@@ -90,6 +109,19 @@ public class EsEngine {
 		TapAPIOrderCancelReq req = new TapAPIOrderCancelReq();
 		req.setOrderNo(orderNo);
 		return tradeWrapper.getApi().cancelOrder(req);
+	}
+
+	private int getScale(BigDecimal num) {
+		StringBuilder numStrBuilder = new StringBuilder(num.toString());
+		while (true) {
+			char last = numStrBuilder.charAt(numStrBuilder.length() - 1);
+			if (last == 48) {
+				numStrBuilder.deleteCharAt(numStrBuilder.length() - 1);
+			} else {
+				break;
+			}
+		}
+		return new BigDecimal(numStrBuilder.toString()).scale();
 	}
 
 }
