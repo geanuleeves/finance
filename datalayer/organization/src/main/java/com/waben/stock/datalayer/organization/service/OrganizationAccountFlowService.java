@@ -343,15 +343,17 @@ public class OrganizationAccountFlowService {
 						+ "IF(t1.type = 7,t12.cost_openwind_service_fee,IF(t1.type=8,t12.cost_unwind_service_fee,IF(t1.type=9,t12.cost_deferred_fee,0)))) AS maid_fee, "
 						+ "IF(t1.type = 7,t11.sale_openwind_service_fee,IF(t1.type=8,t11.sale_unwind_service_fee,IF(t1.type=9,t11.sale_deferred_fee,0))) AS commission "*/
 
-						+ "IF(MAX(t11.org_id)=t11.org_id, CASE "
-						+ "WHEN t1.type = 7 THEN t11.sale_openwind_service_fee - t11.cost_openwind_service_fee "
-						+ "WHEN t1.type = 8 THEN t11.sale_unwind_service_fee - t11.cost_unwind_service_fee "
-						+ "WHEN t1.type = 9 THEN t11.sale_deferred_fee - t11.cost_deferred_fee " + "ELSE 0 END, "
+						
 						+ "CASE "
+						+ "WHEN t1.type = 7 AND (SELECT MAX(t13.id) FROM p_organization t13 WHERE t13.tree_code LIKE CONCAT(t4.tree_code,'%%') = t11.org_id) THEN t11.sale_openwind_service_fee - t11.cost_openwind_service_fee "
+						+ "WHEN t1.type = 8 AND (SELECT MAX(t13.id) FROM p_organization t13 WHERE t13.tree_code LIKE CONCAT(t4.tree_code,'%%') = t11.org_id) THEN t11.sale_unwind_service_fee - t11.cost_unwind_service_fee "
+						+ "WHEN t1.type = 9 AND (SELECT MAX(t13.id) FROM p_organization t13 WHERE t13.tree_code LIKE CONCAT(t4.tree_code,'%%') = t11.org_id) THEN t11.sale_deferred_fee - t11.cost_deferred_fee "
 						+ "WHEN t1.type = 7 THEN t11.cost_openwind_service_fee - t12.cost_openwind_service_fee "
 						+ "WHEN t1.type = 8 THEN t11.cost_unwind_service_fee - t12.cost_unwind_service_fee "
-						+ "WHEN t1.type = 9 THEN t11.cost_deferred_fee - t12.cost_deferred_fee ELSE 0 END "
-						+ ") as maid_fee, CASE WHEN t1.type = 7 THEN t11.sale_openwind_service_fee "
+						+ "WHEN t1.type = 9 THEN t11.cost_deferred_fee - t12.cost_deferred_fee "
+						+ "ELSE 0 END as maid_fee, "
+						
+						+ "CASE WHEN t1.type = 7 THEN t11.sale_openwind_service_fee "
 						+ "WHEN t1.type = 8 THEN t11.sale_unwind_service_fee "
 						+ "WHEN t1.type = 9 THEN t11.sale_deferred_fee ELSE 0 END AS commission "
 
