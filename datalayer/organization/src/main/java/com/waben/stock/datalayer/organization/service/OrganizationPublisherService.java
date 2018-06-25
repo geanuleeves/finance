@@ -1,11 +1,20 @@
 package com.waben.stock.datalayer.organization.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.waben.stock.datalayer.organization.business.StockOptionTradeBusiness;
@@ -78,5 +87,28 @@ public class OrganizationPublisherService {
 
 	public List<OrganizationPublisher> findByOrgId(List<Long> orgId) {
 		return dao.findByOrdId(orgId);
+	}
+	
+	public List<OrganizationPublisher> findByOrgCode(final String orgCode) {
+		Pageable pageable = new PageRequest(Integer.valueOf("0"), Integer.MAX_VALUE);
+		Page<OrganizationPublisher> page = dao.page(new Specification<OrganizationPublisher>() {
+			
+			@Override
+			public Predicate toPredicate(Root<OrganizationPublisher> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+				List<Predicate> predicateList = new ArrayList<>();
+				
+				if (orgCode != null && !"".equals(orgCode)) {
+					predicateList.add(criteriaBuilder.like(root.get("orgCode").as(String.class),
+							"%" + orgCode + "%"));
+				}
+				
+				if (predicateList.size() > 0) {
+					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
+				}
+				return criteriaQuery.getRestriction();
+			}
+		}, pageable);
+		
+		return page.getContent();
 	}
 }
