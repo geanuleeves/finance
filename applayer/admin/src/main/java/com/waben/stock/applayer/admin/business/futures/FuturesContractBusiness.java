@@ -1,19 +1,17 @@
 package com.waben.stock.applayer.admin.business.futures;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.waben.stock.applayer.admin.business.ProfileBusiness;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesGatewayContract;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesContractAdminDto;
-import com.waben.stock.interfaces.dto.admin.futures.FuturesContractTimeDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesPreQuantityDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
 import com.waben.stock.interfaces.dto.futures.FuturesExchangeDto;
@@ -42,15 +40,18 @@ public class FuturesContractBusiness {
 	@Autowired
 	@Qualifier("futuresPreQuantityInterface")
 	private FuturesPreQuantityInterface preQuantityReference;
+	
+	@Autowired
+	private ProfileBusiness profileBusiness;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	public Response<FuturesGatewayContract> getcontractTime(String contractNo,String commodityNo) {
-		return new Response<>(RetriveFuturesOverHttp.fetchByCommodityNoAndContractNo(commodityNo, contractNo));
+		return new Response<>(RetriveFuturesOverHttp.fetchByCommodityNoAndContractNo(profileBusiness.isProd(), commodityNo, contractNo));
 	}
 	
 	public Response<List<String>> enableContractNo(String commodityNo){
-		return new Response<>(RetriveFuturesOverHttp.enableContractNo(commodityNo));
+		return new Response<>(RetriveFuturesOverHttp.enableContractNo(profileBusiness.isProd(), commodityNo));
 	}
 
 	public Response<String> isEnable(Long contractId) {

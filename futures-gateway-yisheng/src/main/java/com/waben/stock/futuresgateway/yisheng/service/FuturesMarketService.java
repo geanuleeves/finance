@@ -204,12 +204,18 @@ public class FuturesMarketService {
 		// 统计
 		List<FuturesContractLineData> result = new ArrayList<>();
 		for (FuturesQuoteMinuteK minuteK : minuteKList) {
-			result.add(CopyBeanUtils.copyBeanProperties(FuturesContractLineData.class, minuteK, false));
+			if(minuteK.getOpenPrice() != null && minuteK.getOpenPrice().compareTo(BigDecimal.ZERO) > 0) {
+				result.add(CopyBeanUtils.copyBeanProperties(FuturesContractLineData.class, minuteK, false));
+			}
 		}
 		for (FuturesQuoteMinuteKGroup minuteKGoup : minuteKGoupList) {
-			List<FuturesContractLineData> data = JacksonUtil.decode(minuteKGoup.getGroupData(),
+			List<FuturesContractLineData> dataList = JacksonUtil.decode(minuteKGoup.getGroupData(),
 					JacksonUtil.getGenericType(ArrayList.class, FuturesContractLineData.class));
-			result.addAll(data);
+			for(FuturesContractLineData data : dataList) {
+				if(data.getOpenPrice() != null && data.getOpenPrice().compareTo(BigDecimal.ZERO) > 0) {
+					result.add(data);
+				}
+			}
 		}
 		// 排序
 		Collections.sort(result);

@@ -4,16 +4,12 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.waben.stock.applayer.promotion.business.ProfileBusiness;
 import com.waben.stock.applayer.promotion.security.SecurityUtil;
-import com.waben.stock.applayer.promotion.security.filter.JwtTokenUtil;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
@@ -69,6 +65,9 @@ public class FuturesTradeBusiness {
 	@Autowired
 	@Qualifier("futuresCurrencyRateInterface")
 	private FuturesCurrencyRateInterface futuresCurrencyRateInterface;
+	
+	@Autowired
+	private ProfileBusiness profileBusiness;
 	
 	public PageInfo<FuturesFowDto> futuresFowPageByQuery(FuturesFowQuery query){
 		if(query.getCurrentOrgId()!=null){
@@ -235,7 +234,7 @@ public class FuturesTradeBusiness {
 					}
 					
 					// 获取行情信息
-					FuturesContractMarket market = RetriveFuturesOverHttp.market(dto.getSymbol(), dto.getContractNo());
+					FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(), dto.getSymbol(), dto.getContractNo());
 					// 获取合约信息
 					FuturesContractDto contract = findByContractId(dto.getContractId());
 					// 获取汇率信息

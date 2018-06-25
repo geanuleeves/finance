@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
 import com.waben.stock.datalayer.futures.business.CapitalFlowBusiness;
+import com.waben.stock.datalayer.futures.business.ProfileBusiness;
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
@@ -72,6 +73,9 @@ public class WindControlSchedule {
 	@Autowired
 	private CapitalFlowBusiness flowBusiness;
 
+	@Autowired
+	private ProfileBusiness profileBusiness;
+
 	@PostConstruct
 	public void initTask() {
 		Timer timer = new Timer();
@@ -101,7 +105,10 @@ public class WindControlSchedule {
 						// step 4 : 是否合约到期
 						if (orderService.isTradeTime(timeZoneGap, contract)
 								&& isReachContractExpiration(timeZoneGap, contract)) {
-							if (order.getState() == FuturesOrderState.SellingEntrust) {
+							if (order.getState() == FuturesOrderState.SellingEntrust && (order
+									.getWindControlType() == null
+									|| order.getWindControlType() == FuturesWindControlType.InitPosition
+									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
 								orderService.canceledOrder(order.getId());
 								continue;
 							}
@@ -110,11 +117,14 @@ public class WindControlSchedule {
 							continue;
 						}
 						// step 5 : 获取合约行情
-						FuturesContractMarket market = RetriveFuturesOverHttp.market(order.getCommoditySymbol(),
-								order.getContractNo());
+						FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(),
+								order.getCommoditySymbol(), order.getContractNo());
 						// step 6 : 是否达到止盈点
 						if (orderService.isTradeTime(timeZoneGap, contract) && isReachProfitPoint(order, market)) {
-							if (order.getState() == FuturesOrderState.SellingEntrust) {
+							if (order.getState() == FuturesOrderState.SellingEntrust && (order
+									.getWindControlType() == null
+									|| order.getWindControlType() == FuturesWindControlType.InitPosition
+									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
 								orderService.canceledOrder(order.getId());
 								continue;
 							}
@@ -124,7 +134,10 @@ public class WindControlSchedule {
 						}
 						// step 7 : 是否达到强平点
 						if (orderService.isTradeTime(timeZoneGap, contract) && isReachStongPoint(order, market)) {
-							if (order.getState() == FuturesOrderState.SellingEntrust) {
+							if (order.getState() == FuturesOrderState.SellingEntrust && (order
+									.getWindControlType() == null
+									|| order.getWindControlType() == FuturesWindControlType.InitPosition
+									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
 								orderService.canceledOrder(order.getId());
 								continue;
 							}
@@ -134,7 +147,10 @@ public class WindControlSchedule {
 						}
 						// step 8 : 是否达到止损点
 						if (orderService.isTradeTime(timeZoneGap, contract) && isReachLossPoint(order, market)) {
-							if (order.getState() == FuturesOrderState.SellingEntrust) {
+							if (order.getState() == FuturesOrderState.SellingEntrust && (order
+									.getWindControlType() == null
+									|| order.getWindControlType() == FuturesWindControlType.InitPosition
+									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
 								orderService.canceledOrder(order.getId());
 								continue;
 							}
@@ -144,14 +160,20 @@ public class WindControlSchedule {
 						}
 						// step 9 : 是否触发隔夜时间
 						if (orderService.isTradeTime(timeZoneGap, contract) && isTriggerOvernight(order, timeZoneGap)) {
+							if (order.getState() == FuturesOrderState.SellingEntrust && (order
+									.getWindControlType() == null
+									|| order.getWindControlType() == FuturesWindControlType.InitPosition
+									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
+								orderService.canceledOrder(order.getId());
+								continue;
+							}
 							orderService.overnight(order, timeZoneGap);
 							continue;
 						}
 					}
 				}
-			} catch (
-
-			Exception ex) {
+			} catch (Exception ex) {
+				ex.printStackTrace();
 				logger.error("监控持仓订单发生异常!", ex);
 			} finally {
 				initTask();

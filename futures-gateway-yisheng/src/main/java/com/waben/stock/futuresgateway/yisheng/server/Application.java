@@ -39,7 +39,7 @@ public class Application{
     @PropertySource({"classpath:/application.properties"})
     static class Local
     { }
-	public static void main(String[] args) throws Exception {
+	public static void testMain(String[] args) throws Exception {
 		ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
         TCPServer tcpServer = context.getBean(TCPServer.class);
         tcpServer.start();

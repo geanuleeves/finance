@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.waben.stock.applayer.tactics.business.AnalogDataBusiness;
+import com.waben.stock.applayer.tactics.business.ProfileBusiness;
 import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderMarketDto;
 import com.waben.stock.applayer.tactics.dto.futures.TransactionDynamicsDto;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
@@ -59,6 +60,9 @@ public class FuturesOrderBusiness {
 
 	@Autowired
 	private AnalogDataBusiness analogDataBusiness;
+	
+	@Autowired
+	private ProfileBusiness profileBusiness;
 
 	public Integer sumUserNum(Long contractId, Long publisherId, Integer type) {
 		Response<Integer> response = futuresOrderInterface.sumByListOrderContractIdAndPublisherId(contractId,
@@ -173,7 +177,7 @@ public class FuturesOrderBusiness {
 				orderMarket.setPerWaveMoney(contract.getPerWaveMoney());
 				orderMarket.setMinWave(contract.getMinWave());
 				// 获取行情信息
-				FuturesContractMarket market = RetriveFuturesOverHttp.market(orderMarket.getCommoditySymbol(),
+				FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(), orderMarket.getCommoditySymbol(),
 						orderMarket.getContractNo());
 				if (market == null) {
 					break;

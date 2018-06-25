@@ -9,6 +9,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.waben.stock.datalayer.futures.business.ProfileBusiness;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqProducer;
 import com.waben.stock.datalayer.futures.rabbitmq.message.EntrustQueryMessage;
@@ -29,6 +30,9 @@ public class EntrustQueryConsumer {
 
 	@Autowired
 	private FuturesOrderService orderService;
+	
+	@Autowired
+	private ProfileBusiness profileBusiness;
 
 	@RabbitHandler
 	public void handlerMessage(String message) {
@@ -40,7 +44,7 @@ public class EntrustQueryConsumer {
 			Long orderId = messgeObj.getOrderId();
 			Integer entrustType = messgeObj.getEntrustType();
 			Long gatewayOrderId = messgeObj.getGatewayOrderId();
-			FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.retriveByGatewayId(gatewayOrderId);
+			FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.retriveByGatewayId(profileBusiness.isProd(), gatewayOrderId);
 			boolean isNeedRetry = true;
 			if (TradeFuturesOverHttp.apiType == 1) {
 				isNeedRetry = checkYingtouOrder(gatewayOrder, entrustType, orderId);
@@ -110,6 +114,10 @@ public class EntrustQueryConsumer {
 	}
 
 	private boolean checkYishengOrder(FuturesGatewayOrder gatewayOrder, Integer entrustType, Long orderId) {
+		if(gatewayOrder == null) {
+			logger.info("异常的订单，期货网关未查询到该订单：" + orderId);
+			return false;
+		}
 		boolean isNeedRetry = true;
 		Integer state = gatewayOrder.getOrderState();
 		if (entrustType == 1 || entrustType == 2 || entrustType == 3) {

@@ -35,6 +35,7 @@ import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
 import com.waben.stock.datalayer.futures.business.CapitalFlowBusiness;
 import com.waben.stock.datalayer.futures.business.OrganizationBusiness;
 import com.waben.stock.datalayer.futures.business.OutsideMessageBusiness;
+import com.waben.stock.datalayer.futures.business.ProfileBusiness;
 import com.waben.stock.datalayer.futures.business.PublisherBusiness;
 import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
@@ -124,6 +125,9 @@ public class FuturesOrderService {
 
 	@Autowired
 	private FuturesTradeLimitService futuresTradeLimitService;
+	
+	@Autowired
+	private ProfileBusiness profileBusiness;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -385,7 +389,7 @@ public class FuturesOrderService {
 	@Transactional
 	public FuturesOrder save(FuturesOrder order, Long contractId) {
 		// step 1 : 检查网关是否正常
-		boolean isConnected = TradeFuturesOverHttp.checkConnection();
+		boolean isConnected = TradeFuturesOverHttp.checkConnection(profileBusiness.isProd());
 		if (!isConnected) {
 			throw new ServiceException(ExceptionConstant.FUTURESAPI_NOTCONNECTED_EXCEPTION);
 		}
@@ -437,7 +441,7 @@ public class FuturesOrderService {
 		Integer orderType = order.getBuyingPriceType() == FuturesTradePriceType.MKT ? 1 : 2;
 		// 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
 		BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
-		if (("".equals(order.getCommoditySymbol()) || "".equals(order.getCommoditySymbol())) && orderType == 1) {
+		if (("HSI".equals(order.getCommoditySymbol()) || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
 			orderType = 2;
 			if (action == FuturesActionType.BUY) {
 				gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
@@ -447,7 +451,7 @@ public class FuturesOrderService {
 						.subtract(new BigDecimal("3").multiply(contract.getCommodity().getMinWave()));
 			}
 		}
-		FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.placeOrder(domain, order.getCommoditySymbol(),
+		FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain, order.getCommoditySymbol(),
 				order.getContractNo(), order.getId(), action, order.getTotalQuantity(), orderType,
 				gatewayBuyingEntrustPrice);
 		// TODO 委托下单异常情况处理，此处默认为所有的委托都能成功
@@ -724,8 +728,12 @@ public class FuturesOrderService {
 		order.setState(FuturesOrderState.Position);
 		order.setUpdateTime(date);
 		orderDao.update(order);
-		// TODO 给代理商结算
-
+		// 给渠道推广机构结算
+		if (order.getIsTest() == null || order.getIsTest() == false) {
+			orgBusiness.futuresSettlement(order.getPublisherId(), order.getContract().getCommodity().getId(),
+					order.getId(), order.getTradeNo(), order.getTotalQuantity(), order.getOpenwindServiceFee(),
+					order.getUnwindServiceFee());
+		}
 		// 站外消息推送
 		sendOutsideMessage(order);
 		return order;
@@ -863,7 +871,7 @@ public class FuturesOrderService {
 	public FuturesOrder sellingEntrust(FuturesOrder order, FuturesWindControlType windControlType,
 			FuturesTradePriceType priceType, BigDecimal entrustPrice) {
 		// step 1 : 检查网关是否正常
-		boolean isConnected = TradeFuturesOverHttp.checkConnection();
+		boolean isConnected = TradeFuturesOverHttp.checkConnection(profileBusiness.isProd());
 		if (!isConnected) {
 			throw new ServiceException(ExceptionConstant.FUTURESAPI_NOTCONNECTED_EXCEPTION);
 		}
@@ -885,7 +893,7 @@ public class FuturesOrderService {
 		Integer orderType = priceType == FuturesTradePriceType.MKT ? 1 : 2;
 		// 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
 		BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
-		if (("".equals(order.getCommoditySymbol()) || "".equals(order.getCommoditySymbol())) && orderType == 1) {
+		if (("HSI".equals(order.getCommoditySymbol()) || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
 			orderType = 2;
 			if (action == FuturesActionType.BUY) {
 				gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
@@ -895,7 +903,7 @@ public class FuturesOrderService {
 						.subtract(new BigDecimal("3").multiply(order.getContract().getCommodity().getMinWave()));
 			}
 		}
-		FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.placeOrder(domain, order.getCommoditySymbol(),
+		FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain, order.getCommoditySymbol(),
 				order.getContractNo(), order.getId(), action, order.getTotalQuantity(), orderType,
 				gatewayBuyingEntrustPrice);
 		order.setCloseGatewayOrderId(gatewayOrder.getId());
@@ -961,6 +969,12 @@ public class FuturesOrderService {
 				try {
 					accountBusiness.futuresOrderOvernight(order.getPublisherId(), overnightRecord.getId(), deferredFee,
 							reserveFund);
+					// 给渠道推广机构结算
+					if (order.getIsTest() == null || order.getIsTest() == false) {
+						orgBusiness.futuresDeferredSettlement(order.getPublisherId(),
+								order.getContract().getCommodity().getId(), overnightRecord.getId(), order.getTradeNo(),
+								order.getTotalQuantity(), order.getOvernightPerUnitDeferredFee());
+					}
 				} catch (ServiceException ex) {
 					if (ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION.equals(ex.getType())) {
 						// step 1.1 : 余额不足，强制平仓
@@ -974,6 +988,14 @@ public class FuturesOrderService {
 									CapitalFlowExtendType.FUTURESOVERNIGHTRECORD, overnightRecord.getId());
 							if (list == null || list.size() == 0) {
 								throw ex;
+							} else {
+								// 给渠道推广机构结算
+								if (order.getIsTest() == null || order.getIsTest() == false) {
+									orgBusiness.futuresDeferredSettlement(order.getPublisherId(),
+											order.getContract().getCommodity().getId(), overnightRecord.getId(),
+											order.getTradeNo(), order.getTotalQuantity(),
+											order.getOvernightPerUnitDeferredFee());
+								}
 							}
 						} catch (ServiceException frozenEx) {
 							throw ex;
@@ -987,7 +1009,7 @@ public class FuturesOrderService {
 
 	public FuturesOrder cancelOrder(Long id, Long publisherId) {
 		// step 1 : 检查网关是否正常
-		boolean isConnected = TradeFuturesOverHttp.checkConnection();
+		boolean isConnected = TradeFuturesOverHttp.checkConnection(profileBusiness.isProd());
 		if (!isConnected) {
 			throw new ServiceException(ExceptionConstant.FUTURESAPI_NOTCONNECTED_EXCEPTION);
 		}
@@ -1005,10 +1027,10 @@ public class FuturesOrderService {
 		}
 		// step 3 : 请求网关取消订单
 		if (order.getState() == FuturesOrderState.BuyingEntrust) {
-			TradeFuturesOverHttp.cancelOrder(domain, order.getOpenGatewayOrderId());
+			TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(), domain, order.getOpenGatewayOrderId());
 		}
 		if (order.getState() == FuturesOrderState.SellingEntrust) {
-			TradeFuturesOverHttp.cancelOrder(domain, order.getCloseGatewayOrderId());
+			TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(), domain, order.getCloseGatewayOrderId());
 		}
 		return order;
 	}
