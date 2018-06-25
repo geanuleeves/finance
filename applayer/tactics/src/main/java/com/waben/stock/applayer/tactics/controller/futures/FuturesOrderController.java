@@ -224,7 +224,7 @@ public class FuturesOrderController {
 	@GetMapping("/holding")
 	@ApiOperation(value = "获取持仓中列表")
 	public Response<PageInfo<FuturesOrderMarketDto>> holdingList(int page, int size) {
-		long startTime = System.currentTimeMillis();
+		// long startTime = System.currentTimeMillis();
 		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
 		FuturesOrderState[] states = { FuturesOrderState.Position };
 		orderQuery.setStates(states);
@@ -233,7 +233,7 @@ public class FuturesOrderController {
 		orderQuery.setPublisherId(SecurityUtil.getUserId());
 		Response<PageInfo<FuturesOrderMarketDto>> result = new Response<>(
 				futuresOrderBusiness.pageOrderMarket(orderQuery));
-		logger.info("持仓列表耗时：" + (System.currentTimeMillis() - startTime));
+		// logger.info("持仓列表耗时：" + (System.currentTimeMillis() - startTime));
 		return result;
 	}
 
