@@ -976,7 +976,7 @@ public class OrganizationService {
 		if (beforePrice == null) {
 			beforePrice = agentPrice;
 			// 如果进入到这个判断中，并且不是最后一级，说明最后一级没有agentPrice记录，把销售价置空
-			if (!isLast) {
+			if (!isLast && agentPrice != null) {
 				beforePrice.setSaleDeferredFee(null);
 				beforePrice.setSaleOpenwindServiceFee(null);
 				beforePrice.setSaleUnwindServiceFee(null);
