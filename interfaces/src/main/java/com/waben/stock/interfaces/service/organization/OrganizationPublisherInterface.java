@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.waben.stock.interfaces.dto.organization.OrganizationPublisherDto;
 import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
 
 /**
  * 机构推广的发布人 reference服务接口
@@ -34,6 +35,6 @@ public interface OrganizationPublisherInterface {
 	Response<List<OrganizationPublisherDto>> fetchAll();
 	
 	@RequestMapping(value = "/queryByTreeCode", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
-	Response<List<OrganizationPublisherDto>> queryByTreeCode(@PathVariable("treeCode")String treecode);
+	Response<List<OrganizationPublisherDto>> queryByTreeCode(@RequestBody FuturesTradeAdminQuery query);
 
 }

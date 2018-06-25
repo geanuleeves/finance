@@ -75,4 +75,9 @@ public class OrganizationPublisherDaoImpl implements OrganizationPublisherDao {
 		return repository.findByOrdId(orgId);
 	}
 
+	@Override
+	public List<OrganizationPublisher> findByOrgCode(String orgCode) {
+		return repository.findByOrgCode(orgCode);
+	}
+
 }

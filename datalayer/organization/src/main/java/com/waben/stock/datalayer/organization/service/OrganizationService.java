@@ -126,7 +126,7 @@ public class OrganizationService {
 		}
 		// 生成树结构代码
 		List<Organization> childList = organizationDao.listByParentOrderByCodeDesc(parent);
-		String treeCode = parent.getCode();
+		String treeCode = parent.getTreeCode();
 		if (childList != null && childList.size() > 0) {
 			Organization max = childList.get(0);
 			String suffix = max.getCode().substring(treeCode.length());
