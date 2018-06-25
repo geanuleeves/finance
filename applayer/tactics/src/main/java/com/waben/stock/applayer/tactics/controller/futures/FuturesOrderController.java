@@ -363,6 +363,18 @@ public class FuturesOrderController {
 		result.setCurrencySign(sign);
 		return new Response<>(result);
 	}
+	
+	@GetMapping("/unwinded")
+	@ApiOperation(value = "获取已平仓列表")
+	public Response<PageInfo<FuturesOrderMarketDto>> unwindedList(int page, int size) {
+		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
+		FuturesOrderState[] states = { FuturesOrderState.Unwind };
+		orderQuery.setStates(states);
+		orderQuery.setPage(page);
+		orderQuery.setSize(size);
+		orderQuery.setPublisherId(SecurityUtil.getUserId());
+		return new Response<>(futuresOrderBusiness.pageOrderMarket(orderQuery));
+	}
 
 	@GetMapping("/settled/profit")
 	@ApiOperation(value = "获取已结算总收益")

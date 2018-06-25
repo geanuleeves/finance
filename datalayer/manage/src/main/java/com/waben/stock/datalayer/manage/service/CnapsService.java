@@ -39,7 +39,7 @@ public class CnapsService {
 	public BankInfo findBankInfo(String bankCard) {
 		CardBin cardBin = cardBinDao.retrieveByBankCard(bankCard);
 		if (cardBin == null) {
-			throw new ServiceException(ExceptionConstant.DATANOTFOUND_EXCEPTION);
+			throw new ServiceException(ExceptionConstant.BANKCARDINFO_NOTMATCH_EXCEPTION);
 		}
 		if ("借记卡".equals(cardBin.getCardType())) {
 			return bankInfoDao.retrieveByBankNameLike(cardBin.getBankName());

@@ -376,7 +376,7 @@ public class FuturesOrderDto {
 	}
 
 	public BigDecimal getPerUnitLimitProfitAmount() {
-		return perUnitLimitProfitAmount;
+		return perUnitLimitProfitAmount != null ? perUnitLimitProfitAmount.stripTrailingZeros() : null;
 	}
 
 	public void setPerUnitLimitProfitAmount(BigDecimal perUnitLimitProfitAmount) {
@@ -392,7 +392,7 @@ public class FuturesOrderDto {
 	}
 
 	public BigDecimal getPerUnitLimitLossAmount() {
-		return perUnitLimitLossAmount;
+		return perUnitLimitLossAmount != null ? perUnitLimitLossAmount.stripTrailingZeros() : null;
 	}
 
 	public void setPerUnitLimitLossAmount(BigDecimal perUnitLimitLossAmount) {
@@ -432,7 +432,7 @@ public class FuturesOrderDto {
 	}
 
 	public BigDecimal getBuyingEntrustPrice() {
-		return buyingEntrustPrice;
+		return buyingEntrustPrice != null ? buyingEntrustPrice.stripTrailingZeros() : null;
 	}
 
 	public void setBuyingEntrustPrice(BigDecimal buyingEntrustPrice) {
@@ -448,7 +448,7 @@ public class FuturesOrderDto {
 	}
 
 	public BigDecimal getBuyingPrice() {
-		return buyingPrice;
+		return buyingPrice != null ? buyingPrice.stripTrailingZeros() : null;
 	}
 
 	public void setBuyingPrice(BigDecimal buyingPrice) {
@@ -472,7 +472,7 @@ public class FuturesOrderDto {
 	}
 
 	public BigDecimal getSellingEntrustPrice() {
-		return sellingEntrustPrice;
+		return sellingEntrustPrice != null ? sellingEntrustPrice.stripTrailingZeros() : null;
 	}
 
 	public void setSellingEntrustPrice(BigDecimal sellingEntrustPrice) {
@@ -488,7 +488,7 @@ public class FuturesOrderDto {
 	}
 
 	public BigDecimal getSellingPrice() {
-		return sellingPrice;
+		return sellingPrice != null ? sellingPrice.stripTrailingZeros() : null;
 	}
 
 	public void setSellingPrice(BigDecimal sellingPrice) {
