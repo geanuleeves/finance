@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.waben.stock.datalayer.organization.business.ProfileBusiness;
 import com.waben.stock.datalayer.organization.service.OrganizationSettlementService;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.service.organization.OrganizationSettlementInterface;
@@ -30,6 +31,9 @@ public class OrganizationSettlementController implements OrganizationSettlementI
 
 	@Autowired
 	public OrganizationSettlementService service;
+	
+	@Autowired
+	private ProfileBusiness profileBusiness;
 
 	public Response<String> strategySettlement(@PathVariable Long publisherId, @PathVariable Long buyRecordId,
 			@PathVariable String tradeNo, @PathVariable Long strategyTypeId, @PathVariable BigDecimal serviceFee,

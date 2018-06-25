@@ -35,6 +35,7 @@ import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
 import com.waben.stock.datalayer.futures.business.CapitalFlowBusiness;
 import com.waben.stock.datalayer.futures.business.OrganizationBusiness;
 import com.waben.stock.datalayer.futures.business.OutsideMessageBusiness;
+import com.waben.stock.datalayer.futures.business.ProfileBusiness;
 import com.waben.stock.datalayer.futures.business.PublisherBusiness;
 import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
@@ -124,6 +125,9 @@ public class FuturesOrderService {
 
 	@Autowired
 	private FuturesTradeLimitService futuresTradeLimitService;
+	
+	@Autowired
+	private ProfileBusiness profileBusiness;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -385,7 +389,7 @@ public class FuturesOrderService {
 	@Transactional
 	public FuturesOrder save(FuturesOrder order, Long contractId) {
 		// step 1 : 检查网关是否正常
-		boolean isConnected = TradeFuturesOverHttp.checkConnection();
+		boolean isConnected = TradeFuturesOverHttp.checkConnection(profileBusiness.isProd());
 		if (!isConnected) {
 			throw new ServiceException(ExceptionConstant.FUTURESAPI_NOTCONNECTED_EXCEPTION);
 		}
@@ -447,7 +451,7 @@ public class FuturesOrderService {
 						.subtract(new BigDecimal("3").multiply(contract.getCommodity().getMinWave()));
 			}
 		}
-		FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.placeOrder(domain, order.getCommoditySymbol(),
+		FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain, order.getCommoditySymbol(),
 				order.getContractNo(), order.getId(), action, order.getTotalQuantity(), orderType,
 				gatewayBuyingEntrustPrice);
 		// TODO 委托下单异常情况处理，此处默认为所有的委托都能成功
@@ -867,7 +871,7 @@ public class FuturesOrderService {
 	public FuturesOrder sellingEntrust(FuturesOrder order, FuturesWindControlType windControlType,
 			FuturesTradePriceType priceType, BigDecimal entrustPrice) {
 		// step 1 : 检查网关是否正常
-		boolean isConnected = TradeFuturesOverHttp.checkConnection();
+		boolean isConnected = TradeFuturesOverHttp.checkConnection(profileBusiness.isProd());
 		if (!isConnected) {
 			throw new ServiceException(ExceptionConstant.FUTURESAPI_NOTCONNECTED_EXCEPTION);
 		}
@@ -899,7 +903,7 @@ public class FuturesOrderService {
 						.subtract(new BigDecimal("3").multiply(order.getContract().getCommodity().getMinWave()));
 			}
 		}
-		FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.placeOrder(domain, order.getCommoditySymbol(),
+		FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain, order.getCommoditySymbol(),
 				order.getContractNo(), order.getId(), action, order.getTotalQuantity(), orderType,
 				gatewayBuyingEntrustPrice);
 		order.setCloseGatewayOrderId(gatewayOrder.getId());
@@ -1005,7 +1009,7 @@ public class FuturesOrderService {
 
 	public FuturesOrder cancelOrder(Long id, Long publisherId) {
 		// step 1 : 检查网关是否正常
-		boolean isConnected = TradeFuturesOverHttp.checkConnection();
+		boolean isConnected = TradeFuturesOverHttp.checkConnection(profileBusiness.isProd());
 		if (!isConnected) {
 			throw new ServiceException(ExceptionConstant.FUTURESAPI_NOTCONNECTED_EXCEPTION);
 		}
@@ -1023,10 +1027,10 @@ public class FuturesOrderService {
 		}
 		// step 3 : 请求网关取消订单
 		if (order.getState() == FuturesOrderState.BuyingEntrust) {
-			TradeFuturesOverHttp.cancelOrder(domain, order.getOpenGatewayOrderId());
+			TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(), domain, order.getOpenGatewayOrderId());
 		}
 		if (order.getState() == FuturesOrderState.SellingEntrust) {
-			TradeFuturesOverHttp.cancelOrder(domain, order.getCloseGatewayOrderId());
+			TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(), domain, order.getCloseGatewayOrderId());
 		}
 		return order;
 	}

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.waben.stock.applayer.admin.business.ProfileBusiness;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.dto.admin.futures.FutresOrderEntrustDto;
@@ -55,6 +56,9 @@ public class FuturesOrderBusiness {
 	@Autowired
 	@Qualifier("futuresCurrencyRateInterface")
 	private FuturesCurrencyRateInterface futuresCurrencyRateInterface;
+	
+	@Autowired
+	private ProfileBusiness profileBusiness;
 
 	Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -192,7 +196,7 @@ public class FuturesOrderBusiness {
 						dto.setPublisherName(re.getName());
 					}
 					// 获取行情信息
-					FuturesContractMarket market = RetriveFuturesOverHttp.market(dto.getSymbol(), dto.getContractNo());
+					FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(), dto.getSymbol(), dto.getContractNo());
 					// 获取合约信息
 					FuturesContractDto contract = findByContractId(dto.getContractId());
 					// 获取汇率信息

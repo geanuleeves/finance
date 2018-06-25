@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.waben.stock.applayer.tactics.business.ProfileBusiness;
 import com.waben.stock.applayer.tactics.business.futures.FuturesContractBusiness;
 import com.waben.stock.applayer.tactics.dto.futures.FuturesContractMarketDto;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
@@ -40,6 +41,9 @@ public class FuturesMarketController {
 
 	@Autowired
 	private FuturesContractBusiness futuresContractBusiness;
+	
+	@Autowired
+	private ProfileBusiness profileBusiness;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
@@ -56,7 +60,7 @@ public class FuturesMarketController {
 		query.setSymbol(symbol);
 		FuturesContractDto contractPage = futuresContractBusiness.pagesContract(query).getContent().get(0);
 		FuturesContractMarketDto marketDto = CopyBeanUtils.copyBeanProperties(FuturesContractMarketDto.class,
-				RetriveFuturesOverHttp.market(symbol, contractNo), false);
+				RetriveFuturesOverHttp.market(profileBusiness.isProd(), symbol, contractNo), false);
 		marketDto.setContractName(contractPage.getName());
 		marketDto.setCurrencySign(contractPage.getCurrencySign());
 		marketDto.setContractState(contractPage.getState());
@@ -75,7 +79,7 @@ public class FuturesMarketController {
 			@ApiImplicitParam(name = "contractNo", value = "合约编号", dataType = "string", paramType = "path", required = true) })
 	public Response<List<FuturesContractLineData>> timeLine(@PathVariable("symbol") String symbol,
 			@PathVariable("contractNo") String contractNo) {
-		return new Response<>(RetriveFuturesOverHttp.timeLine(symbol, contractNo));
+		return new Response<>(RetriveFuturesOverHttp.timeLine(profileBusiness.isProd(), symbol, contractNo));
 	}
 
 	@GetMapping("/{symbol}/{contractNo}/dayline")
@@ -87,7 +91,7 @@ public class FuturesMarketController {
 			@ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "string", paramType = "query", required = false) })
 	public Response<List<FuturesContractLineData>> dayLine(@PathVariable("symbol") String symbol,
 			@PathVariable("contractNo") String contractNo, String startTime, String endTime) {
-		return new Response<>(RetriveFuturesOverHttp.dayLine(symbol, contractNo, startTime, endTime));
+		return new Response<>(RetriveFuturesOverHttp.dayLine(profileBusiness.isProd(), symbol, contractNo, startTime, endTime));
 	}
 
 	@GetMapping("/{symbol}/{contractNo}/minsline")
@@ -98,7 +102,7 @@ public class FuturesMarketController {
 			@ApiImplicitParam(name = "mins", value = "分钟", dataType = "integer", paramType = "query", required = true) })
 	public Response<List<FuturesContractLineData>> minsLine(@PathVariable("symbol") String symbol,
 			@PathVariable("contractNo") String contractNo, Integer mins) {
-		return new Response<>(RetriveFuturesOverHttp.minsLine(symbol, contractNo, mins));
+		return new Response<>(RetriveFuturesOverHttp.minsLine(profileBusiness.isProd(), symbol, contractNo, mins));
 	}
 
 	/**

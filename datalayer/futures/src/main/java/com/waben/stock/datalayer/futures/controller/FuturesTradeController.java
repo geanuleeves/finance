@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.waben.stock.datalayer.futures.business.ProfileBusiness;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
@@ -50,6 +51,9 @@ public class FuturesTradeController implements FuturesTradeInterface {
 
 	@Autowired
 	private FuturesTradeLimitService limitService;
+	
+	@Autowired
+	private ProfileBusiness profileBusiness;
 
 	SimpleDateFormat dateFm = new SimpleDateFormat("HH:mm:ss");
 
@@ -75,7 +79,7 @@ public class FuturesTradeController implements FuturesTradeInterface {
 			}
 			if (order.getCommoditySymbol() != null && !"".equals(order.getCommoditySymbol())) {
 				String symbol = order.getCommoditySymbol();
-				FuturesContractMarket market = RetriveFuturesOverHttp.market(symbol, order.getContractNo());
+				FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(), symbol, order.getContractNo());
 				if (market != null) {
 					result.getContent().get(i).setLastPrice(market.getLastPrice());
 				}

@@ -65,7 +65,7 @@ public class EsTradeWrapper extends TradeApiAdapter {
 	/**
 	 * 初始化
 	 */
-	// @PostConstruct
+	@PostConstruct
 	public void init() {
 		api = new TradeApi(tradeAuthCode, "", true);
 		api.setHostAddress(tradeIp, tradePort);

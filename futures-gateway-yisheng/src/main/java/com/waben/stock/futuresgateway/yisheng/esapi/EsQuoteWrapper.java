@@ -1,5 +1,7 @@
 package com.waben.stock.futuresgateway.yisheng.esapi;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +57,7 @@ public class EsQuoteWrapper implements QuoteApiListener {
 	/**
 	 * 初始化
 	 */
-	// @PostConstruct
+	@PostConstruct
 	public void init() {
 		api = new QuoteApi(quoteAuthCode, "", true);
 		api.setHostAddress(quoteIp, quotePort);

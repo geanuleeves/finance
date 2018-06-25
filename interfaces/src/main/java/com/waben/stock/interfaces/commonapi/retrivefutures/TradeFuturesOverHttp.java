@@ -21,13 +21,21 @@ public class TradeFuturesOverHttp {
 	private static RestTemplate restTemplate = new RestTemplate();
 
 	/**
-	 * 盈透api基础路径
+	 * 盈透api基础路径（测试）
 	 */
-	private static String yingtouBaseUrl = "http://10.0.0.48:9092/";
+	private static String testYingtouBaseUrl = "http://10.0.0.48:9092/";
 	/**
-	 * 易盛api基础路径
+	 * 盈透api基础路径（正式）
 	 */
-	private static String yishengBaseUrl = "http://47.75.55.10:9093/";
+	private static String prodYingtouBaseUrl = "http://10.0.0.48:9092/";
+	/**
+	 * 易盛api基础路径（测试）
+	 */
+	private static String testYishengBaseUrl = "http://10.0.0.99:9093/";
+	/**
+	 * 易盛api基础路径（正式）
+	 */
+	private static String prodYishengBaseUrl = "http://47.75.55.10:9093/";
 	/**
 	 * api类型
 	 * <ul>
@@ -37,18 +45,18 @@ public class TradeFuturesOverHttp {
 	 */
 	public static Integer apiType = 2;
 
-	private static String getBaseUrl() {
+	private static String getBaseUrl(boolean isProd) {
 		if (apiType == 1) {
-			return yingtouBaseUrl;
+			return isProd ? prodYingtouBaseUrl : testYingtouBaseUrl;
 		} else if (apiType == 2) {
-			return yishengBaseUrl;
+			return isProd ? prodYishengBaseUrl : testYishengBaseUrl;
 		}
 		return "";
 	}
 
-	public static boolean checkConnection() {
+	public static boolean checkConnection(boolean isProd) {
 		try {
-			String url = getBaseUrl() + "futuresOrder/checkConnection";
+			String url = getBaseUrl(isProd) + "futuresOrder/checkConnection";
 			String response = restTemplate.getForObject(url, String.class);
 			Response<Boolean> responseObj = JacksonUtil.decode(response,
 					JacksonUtil.getGenericType(Response.class, Boolean.class));
@@ -62,8 +70,8 @@ public class TradeFuturesOverHttp {
 		}
 	}
 
-	public static FuturesGatewayOrder retriveByGatewayId(Long gatewayOrderId) {
-		String url = getBaseUrl() + "futuresOrder/" + gatewayOrderId;
+	public static FuturesGatewayOrder retriveByGatewayId(boolean isProd, Long gatewayOrderId) {
+		String url = getBaseUrl(isProd) + "futuresOrder/" + gatewayOrderId;
 		String response = restTemplate.getForObject(url, String.class);
 		Response<FuturesGatewayOrder> responseObj = JacksonUtil.decode(response,
 				JacksonUtil.getGenericType(Response.class, FuturesGatewayOrder.class));
@@ -96,10 +104,10 @@ public class TradeFuturesOverHttp {
 	 *            委托价格
 	 * @return 期货网关订单
 	 */
-	public static FuturesGatewayOrder placeOrder(String domain, String commodityNo, String contractNo,
+	public static FuturesGatewayOrder placeOrder(boolean isProd, String domain, String commodityNo, String contractNo,
 			Long outerOrderId, FuturesActionType action, BigDecimal totalQuantity, Integer orderType,
 			BigDecimal entrustPrice) {
-		String url = getBaseUrl() + "futuresOrder/";
+		String url = getBaseUrl(isProd) + "futuresOrder/";
 		Map<String, Object> paramMap = new HashMap<String, Object>();
 		paramMap.put("domain", domain);
 		paramMap.put("commodityNo", commodityNo);
@@ -126,8 +134,8 @@ public class TradeFuturesOverHttp {
 		}
 	}
 
-	public static FuturesGatewayOrder cancelOrder(String domain, Long gateOrderId) {
-		String url = getBaseUrl() + "futuresOrder/cancalOrder/" + domain + "/" + gateOrderId;
+	public static FuturesGatewayOrder cancelOrder(boolean isProd, String domain, Long gateOrderId) {
+		String url = getBaseUrl(isProd) + "futuresOrder/cancalOrder/" + domain + "/" + gateOrderId;
 		HttpEntity<String> requestEntity = new HttpEntity<String>("");
 		String response = restTemplate.postForObject(url, requestEntity, String.class);
 		Response<FuturesGatewayOrder> responseObj = JacksonUtil.decode(response,
@@ -146,7 +154,7 @@ public class TradeFuturesOverHttp {
 	}
 
 	public static void testMain(String[] args) {
-		placeOrder("zhangsan.com", "GC", "1808", 1L, FuturesActionType.BUY, new BigDecimal(1), 1, null);
+		placeOrder(false, "zhangsan.com", "GC", "1808", 1L, FuturesActionType.BUY, new BigDecimal(1), 1, null);
 	}
 
 }

@@ -9,6 +9,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.waben.stock.datalayer.futures.business.ProfileBusiness;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqProducer;
 import com.waben.stock.datalayer.futures.rabbitmq.message.EntrustQueryMessage;
@@ -29,6 +30,9 @@ public class EntrustQueryConsumer {
 
 	@Autowired
 	private FuturesOrderService orderService;
+	
+	@Autowired
+	private ProfileBusiness profileBusiness;
 
 	@RabbitHandler
 	public void handlerMessage(String message) {
@@ -40,7 +44,7 @@ public class EntrustQueryConsumer {
 			Long orderId = messgeObj.getOrderId();
 			Integer entrustType = messgeObj.getEntrustType();
 			Long gatewayOrderId = messgeObj.getGatewayOrderId();
-			FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.retriveByGatewayId(gatewayOrderId);
+			FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.retriveByGatewayId(profileBusiness.isProd(), gatewayOrderId);
 			boolean isNeedRetry = true;
 			if (TradeFuturesOverHttp.apiType == 1) {
 				isNeedRetry = checkYingtouOrder(gatewayOrder, entrustType, orderId);

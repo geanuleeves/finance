@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
 import com.waben.stock.datalayer.futures.business.CapitalFlowBusiness;
+import com.waben.stock.datalayer.futures.business.ProfileBusiness;
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
@@ -71,6 +72,9 @@ public class WindControlSchedule {
 
 	@Autowired
 	private CapitalFlowBusiness flowBusiness;
+	
+	@Autowired
+	private ProfileBusiness profileBusiness;
 
 	@PostConstruct
 	public void initTask() {
@@ -110,7 +114,7 @@ public class WindControlSchedule {
 							continue;
 						}
 						// step 5 : 获取合约行情
-						FuturesContractMarket market = RetriveFuturesOverHttp.market(order.getCommoditySymbol(),
+						FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(), order.getCommoditySymbol(),
 								order.getContractNo());
 						// step 6 : 是否达到止盈点
 						if (orderService.isTradeTime(timeZoneGap, contract) && isReachProfitPoint(order, market)) {
