@@ -129,7 +129,7 @@ public class OrganizationService {
 		String treeCode = parent.getTreeCode();
 		if (childList != null && childList.size() > 0) {
 			Organization max = childList.get(0);
-			String suffix = max.getCode().substring(treeCode.length());
+			String suffix = max.getTreeCode().substring(treeCode.length());
 			Long seria = Long.parseLong(suffix) + 1;
 			String seriaStr = seria.toString();
 			if (seriaStr.length() < suffix.length()) {
@@ -610,15 +610,14 @@ public class OrganizationService {
 		if (!StringUtil.isEmpty(query.getTreeCode())) {
 			treeCodeQuery = " and t10.tree_code like '%" + query.getTreeCode() + "%'";
 		}
-		
+
 		String commoditySymbolCondition = "";
 		if (!StringUtil.isEmpty(query.getSymbol())) {
-			commoditySymbolCondition = " and t11.commodity_symbol like '%"
-					+ query.getSymbol() + "%' ";
+			commoditySymbolCondition = " and t11.commodity_symbol like '%" + query.getSymbol() + "%' ";
 		}
 		String commodityNameCondition = "";
-		if(!StringUtil.isEmpty(query.getCommodityName())){
-			commodityNameCondition = " and t12.commodity_name like '%'" + query.getCommodityName() +"'%' ";
+		if (!StringUtil.isEmpty(query.getCommodityName())) {
+			commodityNameCondition = " and t12.commodity_name like '%'" + query.getCommodityName() + "'%' ";
 		}
 
 		String sql = String.format(
