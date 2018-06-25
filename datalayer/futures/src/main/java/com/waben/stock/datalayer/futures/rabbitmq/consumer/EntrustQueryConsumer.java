@@ -114,6 +114,10 @@ public class EntrustQueryConsumer {
 	}
 
 	private boolean checkYishengOrder(FuturesGatewayOrder gatewayOrder, Integer entrustType, Long orderId) {
+		if(gatewayOrder == null) {
+			logger.info("异常的订单，期货网关未查询到该订单：" + orderId);
+			return false;
+		}
 		boolean isNeedRetry = true;
 		Integer state = gatewayOrder.getOrderState();
 		if (entrustType == 1 || entrustType == 2 || entrustType == 3) {

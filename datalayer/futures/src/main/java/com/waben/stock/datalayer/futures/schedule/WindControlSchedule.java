@@ -105,7 +105,10 @@ public class WindControlSchedule {
 						// step 4 : 是否合约到期
 						if (orderService.isTradeTime(timeZoneGap, contract)
 								&& isReachContractExpiration(timeZoneGap, contract)) {
-							if (order.getState() == FuturesOrderState.SellingEntrust) {
+							if (order.getState() == FuturesOrderState.SellingEntrust && (order
+									.getWindControlType() == null
+									|| order.getWindControlType() == FuturesWindControlType.InitPosition
+									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
 								orderService.canceledOrder(order.getId());
 								continue;
 							}
@@ -118,7 +121,10 @@ public class WindControlSchedule {
 								order.getCommoditySymbol(), order.getContractNo());
 						// step 6 : 是否达到止盈点
 						if (orderService.isTradeTime(timeZoneGap, contract) && isReachProfitPoint(order, market)) {
-							if (order.getState() == FuturesOrderState.SellingEntrust) {
+							if (order.getState() == FuturesOrderState.SellingEntrust && (order
+									.getWindControlType() == null
+									|| order.getWindControlType() == FuturesWindControlType.InitPosition
+									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
 								orderService.canceledOrder(order.getId());
 								continue;
 							}
@@ -128,7 +134,10 @@ public class WindControlSchedule {
 						}
 						// step 7 : 是否达到强平点
 						if (orderService.isTradeTime(timeZoneGap, contract) && isReachStongPoint(order, market)) {
-							if (order.getState() == FuturesOrderState.SellingEntrust) {
+							if (order.getState() == FuturesOrderState.SellingEntrust && (order
+									.getWindControlType() == null
+									|| order.getWindControlType() == FuturesWindControlType.InitPosition
+									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
 								orderService.canceledOrder(order.getId());
 								continue;
 							}
@@ -138,7 +147,10 @@ public class WindControlSchedule {
 						}
 						// step 8 : 是否达到止损点
 						if (orderService.isTradeTime(timeZoneGap, contract) && isReachLossPoint(order, market)) {
-							if (order.getState() == FuturesOrderState.SellingEntrust) {
+							if (order.getState() == FuturesOrderState.SellingEntrust && (order
+									.getWindControlType() == null
+									|| order.getWindControlType() == FuturesWindControlType.InitPosition
+									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
 								orderService.canceledOrder(order.getId());
 								continue;
 							}
@@ -148,6 +160,13 @@ public class WindControlSchedule {
 						}
 						// step 9 : 是否触发隔夜时间
 						if (orderService.isTradeTime(timeZoneGap, contract) && isTriggerOvernight(order, timeZoneGap)) {
+							if (order.getState() == FuturesOrderState.SellingEntrust && (order
+									.getWindControlType() == null
+									|| order.getWindControlType() == FuturesWindControlType.InitPosition
+									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
+								orderService.canceledOrder(order.getId());
+								continue;
+							}
 							orderService.overnight(order, timeZoneGap);
 							continue;
 						}

@@ -441,7 +441,7 @@ public class FuturesOrderService {
 		Integer orderType = order.getBuyingPriceType() == FuturesTradePriceType.MKT ? 1 : 2;
 		// 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
 		BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
-		if (("".equals(order.getCommoditySymbol()) || "".equals(order.getCommoditySymbol())) && orderType == 1) {
+		if (("HSI".equals(order.getCommoditySymbol()) || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
 			orderType = 2;
 			if (action == FuturesActionType.BUY) {
 				gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
@@ -893,7 +893,7 @@ public class FuturesOrderService {
 		Integer orderType = priceType == FuturesTradePriceType.MKT ? 1 : 2;
 		// 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
 		BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
-		if (("".equals(order.getCommoditySymbol()) || "".equals(order.getCommoditySymbol())) && orderType == 1) {
+		if (("HSI".equals(order.getCommoditySymbol()) || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
 			orderType = 2;
 			if (action == FuturesActionType.BUY) {
 				gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
