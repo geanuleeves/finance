@@ -521,7 +521,6 @@ public class WindControlSchedule {
 		query.setPage(0);
 		query.setSize(Integer.MAX_VALUE);
 		query.setStates(states);
-		query.setIsTest(false);
 		Page<FuturesOrder> pages = orderService.pagesOrder(query);
 		return pages.getContent();
 	}

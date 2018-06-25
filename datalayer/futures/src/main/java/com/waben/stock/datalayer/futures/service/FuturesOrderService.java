@@ -52,7 +52,9 @@ import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
 import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
 import com.waben.stock.datalayer.futures.repository.FuturesOvernightRecordDao;
 import com.waben.stock.datalayer.futures.repository.impl.MethodDesc;
+import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.TradeFuturesOverHttp;
+import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesGatewayOrder;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
@@ -441,7 +443,7 @@ public class FuturesOrderService {
 		Integer orderType = order.getBuyingPriceType() == FuturesTradePriceType.MKT ? 1 : 2;
 		// 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
 		BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
-		if (("HSI".equals(order.getCommoditySymbol()) || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
+		if (("CN".equals(order.getCommoditySymbol()) || "HSI".equals(order.getCommoditySymbol()) || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
 			orderType = 2;
 			if (action == FuturesActionType.BUY) {
 				gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
@@ -886,6 +888,12 @@ public class FuturesOrderService {
 		order.setUpdateTime(date);
 		order.setSellingEntrustTime(date);
 		order.setSellingPriceType(priceType);
+		if(entrustPrice == null && priceType == FuturesTradePriceType.MKT) {
+			FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(), order.getCommoditySymbol(), order.getContractNo());
+			if(market != null && market.getLastPrice() != null && market.getLastPrice().compareTo(BigDecimal.ZERO) > 0) {
+				entrustPrice = market.getLastPrice();
+			}
+		}
 		order.setSellingEntrustPrice(entrustPrice);
 		// 委托卖出
 		FuturesActionType action = order.getOrderType() == FuturesOrderType.BuyUp ? FuturesActionType.SELL
@@ -893,15 +901,8 @@ public class FuturesOrderService {
 		Integer orderType = priceType == FuturesTradePriceType.MKT ? 1 : 2;
 		// 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
 		BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
-		if (("HSI".equals(order.getCommoditySymbol()) || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
+		if (("CN".equals(order.getCommoditySymbol()) || "HSI".equals(order.getCommoditySymbol()) || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
 			orderType = 2;
-			if (action == FuturesActionType.BUY) {
-				gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
-						.add(new BigDecimal("3").multiply(order.getContract().getCommodity().getMinWave()));
-			} else {
-				gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
-						.subtract(new BigDecimal("3").multiply(order.getContract().getCommodity().getMinWave()));
-			}
 		}
 		FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain, order.getCommoditySymbol(),
 				order.getContractNo(), order.getId(), action, order.getTotalQuantity(), orderType,
@@ -1017,6 +1018,11 @@ public class FuturesOrderService {
 		FuturesOrder order = orderDao.retrieveByOrderIdAndPublisherId(id, publisherId);
 		if (order == null) {
 			throw new ServiceException(ExceptionConstant.USER_ORDER_DOESNOT_EXIST_EXCEPTION);
+		}
+		Integer timeZoneGap = this.retriveTimeZoneGap(order);
+		boolean isTradeTime = isTradeTime(timeZoneGap, order.getContract(), new Date());
+		if (!isTradeTime) {
+			throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
 		}
 		if (order.getState() == FuturesOrderState.PartPosition || order.getState() == FuturesOrderState.PartUnwind) {
 			throw new ServiceException(ExceptionConstant.FUTURESORDER_PARTSUCCESS_CANNOTCANCEL_EXCEPTION);
@@ -1305,6 +1311,11 @@ public class FuturesOrderService {
 		}
 		if (order.getState() == FuturesOrderState.Unwind) {
 			throw new ServiceException(ExceptionConstant.ORDER_HAS_BEEN_CLOSED_EXCEPTION);
+		}
+		Integer timeZoneGap = this.retriveTimeZoneGap(order);
+		boolean isTradeTime = isTradeTime(timeZoneGap, order.getContract(), new Date());
+		if (!isTradeTime) {
+			throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
 		}
 		// if (limitProfitType != null && perUnitLimitProfitAmount != null) {
 		order.setLimitProfitType(limitProfitType);
