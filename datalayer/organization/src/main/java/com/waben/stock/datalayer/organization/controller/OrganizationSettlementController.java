@@ -31,6 +31,7 @@ public class OrganizationSettlementController implements OrganizationSettlementI
 	@Autowired
 	public OrganizationSettlementService service;
 
+	@Override
 	public Response<String> strategySettlement(@PathVariable Long publisherId, @PathVariable Long buyRecordId,
 			@PathVariable String tradeNo, @PathVariable Long strategyTypeId, @PathVariable BigDecimal serviceFee,
 			@PathVariable BigDecimal deferredFee) {
@@ -40,7 +41,8 @@ public class OrganizationSettlementController implements OrganizationSettlementI
 		response.setResult("success");
 		return response;
 	}
-
+	
+	@Override
 	public Response<String> stockoptionSettlement(@PathVariable Long publisherId, @PathVariable Long stockOptionTradeId,
 			@PathVariable String tradeNo, @PathVariable Long cycleId, BigDecimal rightMoneyProfit,
 			BigDecimal rightMoney) {

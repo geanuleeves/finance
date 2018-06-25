@@ -36,7 +36,7 @@ public interface OrganizationSettlementInterface {
 			@PathVariable("tradeNo") String tradeNo, @PathVariable("totalQuantity") BigDecimal totalQuantity,
 			@PathVariable("openingFee") BigDecimal openingFee, @PathVariable("closeFee") BigDecimal closeFee);
 
-	@RequestMapping(value = "/futuressettlement/{publisherId}/{commodityId}/{futuresOrderId}/{tradeNo}/{totalQuantity}/{openingFee}/{closeFee}/", method = RequestMethod.POST)
+	@RequestMapping(value = "/futuresdeferredsettlement/{publisherId}/{commodityId}/{futuresOrderId}/{tradeNo}/{totalQuantity}/{openingFee}/{closeFee}/", method = RequestMethod.POST)
 	public Response<String> futuresDeferredSettlement(@PathVariable("publisherId") Long publisherId,
 			@PathVariable("commodityId") Long commodityId, @PathVariable("overnightRecordId") Long overnightRecordId,
 			@PathVariable("tradeNo") String tradeNo, @PathVariable("totalQuantity") BigDecimal totalQuantity,
