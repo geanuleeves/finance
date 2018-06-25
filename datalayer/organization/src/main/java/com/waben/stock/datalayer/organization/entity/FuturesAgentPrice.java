@@ -1,6 +1,7 @@
 package com.waben.stock.datalayer.organization.entity;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -61,6 +62,8 @@ public class FuturesAgentPrice {
 	 * 递延费（销售价格，一手）
 	 */
 	private BigDecimal saleDeferredFee;
+
+	private Date createTime;
 
 	public Long getId() {
 		return id;
@@ -148,6 +151,14 @@ public class FuturesAgentPrice {
 
 	public void setParentId(Long parentId) {
 		this.parentId = parentId;
+	}
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
 	}
 
 }
