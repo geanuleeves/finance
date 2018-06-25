@@ -353,11 +353,7 @@ public class OrganizationAccountFlowService {
 						+ "WHEN t1.type = 9 THEN t11.cost_deferred_fee - t12.cost_deferred_fee "
 						+ "ELSE 0 END as maid_fee, "
 						
-						+ "CASE "
-						+ "WHEN t1.type = 7 THEN t11.cost_openwind_service_fee - t12.cost_openwind_service_fee "
-						+ "WHEN t1.type = 8 THEN t11.cost_unwind_service_fee - t12.cost_unwind_service_fee "
-						+ "WHEN t1.type = 9 THEN t11.cost_deferred_fee - t12.cost_deferred_fee ELSE 0 END "
-						+ " as maid_fee, CASE WHEN t1.type = 7 THEN t11.sale_openwind_service_fee "
+						+ "CASE WHEN t1.type = 7 THEN t11.sale_openwind_service_fee "
 						+ "WHEN t1.type = 8 THEN t11.sale_unwind_service_fee "
 						+ "WHEN t1.type = 9 THEN t11.sale_deferred_fee ELSE 0 END AS commission "
 
