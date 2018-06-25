@@ -4,12 +4,16 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.waben.stock.applayer.promotion.security.SecurityUtil;
+import com.waben.stock.applayer.promotion.security.filter.JwtTokenUtil;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
@@ -83,7 +87,8 @@ public class FuturesTradeBusiness {
 	}
 	
 	private List<Long> getOrgId(FuturesTradeAdminQuery query){
-		
+		Long orgId = SecurityUtil.getUserDetails().getOrgId();
+		query.setOrgId(orgId);
 		if(query.getOrgId()!=null){
 			Response<OrganizationDto> result = orgReference.fetchByOrgId(query.getOrgId());
 			if(result.getResult()!=null && result.getResult().getTreeCode()!=null && !"".equals(result.getResult().getTreeCode())){
@@ -93,7 +98,7 @@ public class FuturesTradeBusiness {
 			}
 		}
 		
-		Response<List<OrganizationPublisherDto>> result = organizationPublisherReference.queryByTreeCode(query.getTreeCode());
+		Response<List<OrganizationPublisherDto>> result = organizationPublisherReference.queryByTreeCode(query);
 		List<Long> publisherIds = new ArrayList<Long>();
 		for(OrganizationPublisherDto publisher:result.getResult()){
 			publisherIds.add(publisher.getPublisherId());
@@ -144,6 +149,8 @@ public class FuturesTradeBusiness {
 	}
 	
 	private List<Long> queryPublishIds(FuturesTradeAdminQuery query){
+		
+		
 		List<Long> orgPublisher = getOrgId(query);
 		List<Long> publisherIds = new ArrayList<Long>();
 		if (query.getPublisherPhone() != null && !"".equals(query.getPublisherPhone())) {
@@ -159,19 +166,32 @@ public class FuturesTradeBusiness {
 				return null;
 			}
 			;
-		} else if (query.getPublisherName() != null && !"".equals(query.getPublisherName())) {
+		}
+		if (query.getPublisherName() != null && !"".equals(query.getPublisherName())) {
 			List<RealNameDto> real = realnameInterface.findByName(query.getPublisherName()).getResult();
 			if (real == null || real.size() == 0) {
 				return null;
 			} else {
-				for (RealNameDto realNameDto : real) {
-					publisherIds.add(Long.valueOf(realNameDto.getResourceId().toString()));
+				if(publisherIds.size()==0){
+					for (RealNameDto realNameDto : real) {
+						publisherIds.add(Long.valueOf(realNameDto.getResourceId().toString()));
+					}
+				}else{
+					List<Long> realName = new ArrayList<Long>();
+					for (RealNameDto realNameDto : real) {
+						realName.add(Long.valueOf(realNameDto.getResourceId().toString()));
+					}
+					publisherIds = getRepetition(realName, publisherIds);
 				}
 			}
 
 		}
 		publisherIds = getRepetition(orgPublisher, publisherIds);
-		return publisherIds;
+		if(publisherIds.size()>0){
+			return publisherIds;
+		}else{
+			return null;
+		}
 	}
 	public static List<Long> getRepetition(List<Long> list1,  
             List<Long> list2) {  
