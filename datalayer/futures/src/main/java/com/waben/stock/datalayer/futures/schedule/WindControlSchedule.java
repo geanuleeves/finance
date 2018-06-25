@@ -72,7 +72,7 @@ public class WindControlSchedule {
 
 	@Autowired
 	private CapitalFlowBusiness flowBusiness;
-	
+
 	@Autowired
 	private ProfileBusiness profileBusiness;
 
@@ -114,8 +114,8 @@ public class WindControlSchedule {
 							continue;
 						}
 						// step 5 : 获取合约行情
-						FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(), order.getCommoditySymbol(),
-								order.getContractNo());
+						FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(),
+								order.getCommoditySymbol(), order.getContractNo());
 						// step 6 : 是否达到止盈点
 						if (orderService.isTradeTime(timeZoneGap, contract) && isReachProfitPoint(order, market)) {
 							if (order.getState() == FuturesOrderState.SellingEntrust) {
@@ -153,9 +153,8 @@ public class WindControlSchedule {
 						}
 					}
 				}
-			} catch (
-
-			Exception ex) {
+			} catch (Exception ex) {
+				ex.printStackTrace();
 				logger.error("监控持仓订单发生异常!", ex);
 			} finally {
 				initTask();
