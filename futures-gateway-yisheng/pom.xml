@@ -88,18 +88,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-amqp</artifactId>
 		</dependency>
-		<!-- tws -->
-		<dependency>
-			<groupId>com.waben.twsapi</groupId>
-			<artifactId>tws-api</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-		<!-- 易盛API -->
-		<dependency>
-			<groupId>com.future.api</groupId>
-			<artifactId>es-external</artifactId>
-			<version>9.0.0</version>
-		</dependency>
+
 		<!-- netty -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

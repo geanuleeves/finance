@@ -9,8 +9,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * Channel Manager
  *
  */
+
 public class ChannelRepository {
-	private final static Map<String, Channel> channelCache = new ConcurrentHashMap<String, Channel>();
+	public final static Map<String, Channel> channelCache = new ConcurrentHashMap<String, Channel>();
 
 	public void put(String key, Channel value) {
 		channelCache.put(key, value);

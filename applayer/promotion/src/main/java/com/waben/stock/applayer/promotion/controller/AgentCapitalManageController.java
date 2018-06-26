@@ -170,8 +170,8 @@ public class AgentCapitalManageController {
 			}
 			data.add(String.valueOf(trade.getId() == null ? "" : trade.getId()));
 			data.add(trade.getFlowNo() == null ? "" : trade.getFlowNo());
-			data.add(trade.getPublisherName() == null ? "" : trade.getPublisherName());
-			data.add(trade.getPublisherPhone() == null ? "" : trade.getPublisherPhone());
+			data.add(trade.getoPublisherName() == null ? "" : trade.getoPublisherName());
+			data.add(trade.getoPublisherPhone() == null ? "" : trade.getoPublisherPhone());
 			data.add(trade.getCommoditySymbol() == null ? "" : trade.getCommoditySymbol());
 			data.add(trade.getCommodityName() == null ? "" : trade.getCommodityName());
 			data.add(type);

@@ -1,23 +1,33 @@
 package com.waben.stock.futuresgateway.yisheng.esapi;
 
-import javax.annotation.PostConstruct;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import com.future.api.es.external.common.bean.TapAPIContract;
 import com.future.api.es.external.quote.QuoteApi;
-import com.future.api.es.external.quote.bean.TapAPIQuotLoginRspInfo;
-import com.future.api.es.external.quote.bean.TapAPIQuoteCommodityInfo;
-import com.future.api.es.external.quote.bean.TapAPIQuoteContractInfo;
-import com.future.api.es.external.quote.bean.TapAPIQuoteLoginAuth;
-import com.future.api.es.external.quote.bean.TapAPIQuoteWhole;
+import com.future.api.es.external.quote.bean.*;
 import com.future.api.es.external.quote.listener.QuoteApiListener;
+import com.waben.stock.futuresgateway.yisheng.common.protobuf.Command;
+import com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData;
+import com.waben.stock.futuresgateway.yisheng.common.protobuf.Message;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqProducer;
+import com.waben.stock.futuresgateway.yisheng.server.ChannelRepository;
+import io.netty.channel.Channel;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Map;
+
 
 /**
  * 易盛行情
@@ -28,7 +38,7 @@ import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqProducer;
 @Component
 public class EsQuoteWrapper implements QuoteApiListener {
 
-	Logger logger = LoggerFactory.getLogger(getClass());
+	final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/** 行情IP */
 	@Value("${es.quote.ip}")
@@ -53,6 +63,14 @@ public class EsQuoteWrapper implements QuoteApiListener {
 
 	@Autowired
 	private RabbitmqProducer rabbitmqProducer;
+
+	private final AttributeKey<String> clientInfo = AttributeKey.valueOf("clientInfo");
+	private final AttributeKey<String> hyInfo = AttributeKey.valueOf("hyInfo");
+	private final AttributeKey<String> pzInfo = AttributeKey.valueOf("pzInfo");
+
+	@Autowired
+	@Qualifier("channelRepository")
+	ChannelRepository channelRepository;
 
 	/**
 	 * 初始化
@@ -137,10 +155,17 @@ public class EsQuoteWrapper implements QuoteApiListener {
 	public void onRtnQuote(TapAPIQuoteWhole info) {
 		// 放入队列
 		rabbitmqProducer.sendMessage(RabbitmqConfiguration.quoteQueueName, info);
+
+		String commodityNo = info.getContract().getCommodity().getCommodityNo();
+		if(EsEngine.commodityScaleMap.containsKey(commodityNo)) {
+			Integer scale = EsEngine.commodityScaleMap.get(commodityNo);
+			// 构建行情推送对象
+
 //		String commodityNo = info.getContract().getCommodity().getCommodityNo();
 //		if(EsEngine.commodityScaleMap.containsKey(commodityNo)) {
 //			Integer scale = EsEngine.commodityScaleMap.get(commodityNo);
 //			// 构建行情推送对象
+
 //			FuturesQuoteDataBase data = FuturesQuoteDataBase.newBuilder()
 //			.setTime(info.getDateTimeStamp().substring(0, info.getDateTimeStamp().length() - 4))
 //			.setAskPrice(new BigDecimal(info.getQAskPrice()[0]).setScale(scale, RoundingMode.HALF_UP).toString())
@@ -155,7 +180,59 @@ public class EsQuoteWrapper implements QuoteApiListener {
 //			.setOpenPrice(new BigDecimal(info.getQOpeningPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
 //			.setVolume(info.getQLastQty())
 //			.setTotalVolume(info.getQTotalQty()).build();
+
+
+		}
+
 //		}
+
 	}
+
+	@Scheduled(cron = "0/10 * * * * ?")
+	public void test()  {
+		// 构建行情推送对象
+
+		FuturesQuoteData.FuturesQuoteDataBase data = FuturesQuoteData.FuturesQuoteDataBase.newBuilder()
+				.setCommodityNo("t").setContractNo("t")
+				.setTime("2018-6-23 16:23:00")
+				.setAskPrice(new BigDecimal(1).setScale(2, RoundingMode.HALF_UP).toString())
+				.setAskSize(1)
+				.setBidPrice(new BigDecimal(1).setScale(2, RoundingMode.HALF_UP).toString())
+				.setBidSize(1)
+				.setClosePrice(new BigDecimal(1).setScale(2, RoundingMode.HALF_UP).toString())
+				.setHighPrice(new BigDecimal(1).setScale(2, RoundingMode.HALF_UP).toString())
+				.setLastPrice(new BigDecimal(1).setScale(2, RoundingMode.HALF_UP).toString())
+				.setLastSize(1)
+				.setLowPrice(new BigDecimal(1).setScale(2, RoundingMode.HALF_UP).toString())
+				.setOpenPrice(new BigDecimal(1).setScale(2, RoundingMode.HALF_UP).toString())
+				.setVolume(1)
+				.setTotalVolume(1).build();
+
+		Message.MessageBase msg = Message.MessageBase.newBuilder()
+				.setCmd(Command.CommandType.PUSH_DATA).setClientId("132")
+				.setType(1).setFq(data).build();
+
+		for(Map.Entry<String,Channel> entry : ChannelRepository.channelCache.entrySet()){
+			String clientid = entry.getKey();
+			final Channel c = entry.getValue();
+			final Attribute<String> clientinfo = c.attr(clientInfo);
+			Attribute<String> hyinfo = c.attr(hyInfo);
+			Attribute<String> pzinfo = c.attr(pzInfo);
+			if(hyinfo != null && pzinfo != null){
+				String hyno = hyinfo.get();
+				String pzno = pzinfo.get();
+				if(!StringUtils.isEmpty(hyno) && !StringUtils.isEmpty(pzno) &&
+						hyno.equals("1808") && pzno.equals("GC") && c.isOpen()){
+					logger.info("向客户端推送：clientid=" + clientid);
+					c.writeAndFlush(
+							msg
+					);
+				}
+			}
+
+		}
+	}
+
+
 
 }

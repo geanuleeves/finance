@@ -313,13 +313,13 @@ public class OrganizationAccountFlowService {
 		}
 		String customerName = "";
 		if (!StringUtil.isEmpty(query.getPublisherName())) {
-			customerName = " and ((t2.id is not null and t5.name like '%" + query.getPublisherName()
-					+ "%') or (t3.id is not null and t6.name like '%" + query.getPublisherName() + "%')) ";
+			customerName = " and t14.id is not null and t14.name like '%" + query.getPublisherName()
+					+ "%'";
 		}
 		String customerPhone = "";
 		if (!StringUtil.isEmpty(query.getPublisherPhone())) {
-			customerPhone = " and ((t2.id is not null and t2.publisher_phone like '%" + query.getPublisherPhone()
-					+ "%') or (t3.id is not null and t3.publisher_phone like '%" + query.getPublisherPhone() + "%')) ";
+			customerPhone = " and t15.id is not null and t15.phone like '%" + query.getPublisherPhone()
+					+ "%'";
 		}
 
 		String startTimeCondition = "";
@@ -337,7 +337,7 @@ public class OrganizationAccountFlowService {
 						+ "t3.publisher_id as s_publisher_id, t3.publisher_phone as s_publisher_phone, t3.stock_code as s_stock_code, t3.stock_name as s_stock_name, "
 						+ "t3.cycle_id, t3.cycle_name, t4.code as org_code, t4.name as org_name, "
 						+ "t5.name as b_publisher_name, t6.name as s_publisher_name, t1.available_balance, "
-						+ "t8.commodity_symbol, t8.commodity_name, "
+						+ "t8.commodity_symbol, t8.commodity_name, t8.publisher_id AS o_publisher_id, t14.name AS o_publisher_name ,t15.phone AS o_publisher_phone, "
 						
 						/*+ "(IF(t1.type = 7,t11.cost_openwind_service_fee,IF(t1.type=8,t11.cost_unwind_service_fee,IF(t1.type=9,t11.cost_deferred_fee,0))) - "
 						+ "IF(t1.type = 7,t12.cost_openwind_service_fee,IF(t1.type=8,t12.cost_unwind_service_fee,IF(t1.type=9,t12.cost_deferred_fee,0)))) AS maid_fee, "
@@ -368,6 +368,9 @@ public class OrganizationAccountFlowService {
 						+ "LEFT JOIN p_futures_agent_price t12 ON t12.commodity_id=t10.id AND t12.org_id = t4.parent_id "
 						+ "LEFT JOIN real_name t5 on t5.resource_type=2 and t2.publisher_id=t5.resource_id "
 						+ "LEFT JOIN real_name t6 on t6.resource_type=2 and t3.publisher_id=t6.resource_id "
+						+ "LEFT JOIN real_name t14 ON t14.resource_type = 2 "
+						+ "AND t8.publisher_id = t14.resource_id "
+						+ "LEFT JOIN publisher t15 ON t15.id = t8.publisher_id "
 						+ "LEFT JOIN p_organization t7 on t7.id=" + query.getCurrentOrgId() + " "
 						+ "where 1=1 %s %s %s %s %s %s %s %s %s and t1.org_id is not null order by t1.occurrence_time desc limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(), queryTypeCondition, types,
@@ -403,8 +406,11 @@ public class OrganizationAccountFlowService {
 		setMethodMap.put(new Integer(25), new MethodDesc("setAvailableBalance", new Class<?>[] { BigDecimal.class }));
 		setMethodMap.put(new Integer(26), new MethodDesc("setCommoditySymbol", new Class<?>[] { String.class }));
 		setMethodMap.put(new Integer(27), new MethodDesc("setCommodityName", new Class<?>[] { String.class }));
-		setMethodMap.put(new Integer(28), new MethodDesc("setCommission", new Class<?>[] { BigDecimal.class }));
-		setMethodMap.put(new Integer(29), new MethodDesc("setAmountRemaid", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(28), new MethodDesc("setoPublisherId", new Class<?>[] { Long.class }));
+		setMethodMap.put(new Integer(29), new MethodDesc("setoPublisherName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(30), new MethodDesc("setoPublisherPhone", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(31), new MethodDesc("setAmountRemaid", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(32), new MethodDesc("setCommission", new Class<?>[] { BigDecimal.class }));
 		List<OrganizationAccountFlowWithTradeInfoDto> content = dynamicQuerySqlDao
 				.execute(OrganizationAccountFlowWithTradeInfoDto.class, sql, setMethodMap);
 		BigInteger totalElements = dynamicQuerySqlDao.executeComputeSql(countSql);

@@ -164,6 +164,19 @@ public class OrganizationAccountFlowWithTradeInfoDto {
 	 */
 	private BigDecimal amountRemaid;
 
+	/**
+	 * 发布人ID（期货交易）
+	 */
+	private Long oPublisherId;
+	/**
+	 * 发布人手机号（期货交易）
+	 */
+	private String oPublisherPhone;
+	/**
+	 * 发布人姓名（期权货易）
+	 */
+	private String oPublisherName;
+
 	public Long getId() {
 		return id;
 	}
@@ -496,6 +509,30 @@ public class OrganizationAccountFlowWithTradeInfoDto {
 
 	public void setAmountRemaid(BigDecimal amountRemaid) {
 		this.amountRemaid = amountRemaid;
+	}
+
+	public Long getoPublisherId() {
+		return oPublisherId;
+	}
+
+	public void setoPublisherId(Long oPublisherId) {
+		this.oPublisherId = oPublisherId;
+	}
+
+	public String getoPublisherPhone() {
+		return oPublisherPhone;
+	}
+
+	public void setoPublisherPhone(String oPublisherPhone) {
+		this.oPublisherPhone = oPublisherPhone;
+	}
+
+	public String getoPublisherName() {
+		return oPublisherName;
+	}
+
+	public void setoPublisherName(String oPublisherName) {
+		this.oPublisherName = oPublisherName;
 	}
 
 }
