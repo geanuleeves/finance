@@ -345,17 +345,17 @@ public class OrganizationAccountFlowService {
 
 						
 						+ "CASE "
-						+ "WHEN t1.type = 7 AND (SELECT MAX(t13.id) FROM p_organization t13 WHERE t13.tree_code LIKE CONCAT(t4.tree_code,'%%') = t11.org_id) THEN t11.sale_openwind_service_fee - t11.cost_openwind_service_fee "
-						+ "WHEN t1.type = 8 AND (SELECT MAX(t13.id) FROM p_organization t13 WHERE t13.tree_code LIKE CONCAT(t4.tree_code,'%%') = t11.org_id) THEN t11.sale_unwind_service_fee - t11.cost_unwind_service_fee "
-						+ "WHEN t1.type = 9 AND (SELECT MAX(t13.id) FROM p_organization t13 WHERE t13.tree_code LIKE CONCAT(t4.tree_code,'%%') = t11.org_id) THEN t11.sale_deferred_fee - t11.cost_deferred_fee "
-						+ "WHEN t1.type = 7 THEN t11.cost_openwind_service_fee - t12.cost_openwind_service_fee "
-						+ "WHEN t1.type = 8 THEN t11.cost_unwind_service_fee - t12.cost_unwind_service_fee "
-						+ "WHEN t1.type = 9 THEN t11.cost_deferred_fee - t12.cost_deferred_fee "
+						+ "WHEN t1.type = 7 AND (SELECT MAX(t13.id) FROM p_organization t13 WHERE t13.tree_code LIKE CONCAT(t4.tree_code,'%%') = t11.org_id) THEN (t11.sale_openwind_service_fee - t11.cost_openwind_service_fee) * t8.total_quantity "
+						+ "WHEN t1.type = 8 AND (SELECT MAX(t13.id) FROM p_organization t13 WHERE t13.tree_code LIKE CONCAT(t4.tree_code,'%%') = t11.org_id) THEN (t11.sale_unwind_service_fee - t11.cost_unwind_service_fee) * t8.total_quantity "
+						+ "WHEN t1.type = 9 AND (SELECT MAX(t13.id) FROM p_organization t13 WHERE t13.tree_code LIKE CONCAT(t4.tree_code,'%%') = t11.org_id) THEN (t11.sale_deferred_fee - t11.cost_deferred_fee) * t8.total_quantity "
+						+ "WHEN t1.type = 7 THEN (t11.cost_openwind_service_fee - t12.cost_openwind_service_fee) * t8.total_quantity "
+						+ "WHEN t1.type = 8 THEN (t11.cost_unwind_service_fee - t12.cost_unwind_service_fee) * t8.total_quantity "
+						+ "WHEN t1.type = 9 THEN (t11.cost_deferred_fee - t12.cost_deferred_fee) * t8.total_quantity "
 						+ "ELSE 0 END as maid_fee, "
 						
 						+ "CASE WHEN t1.type = 7 THEN t11.sale_openwind_service_fee "
 						+ "WHEN t1.type = 8 THEN t11.sale_unwind_service_fee "
-						+ "WHEN t1.type = 9 THEN t11.sale_deferred_fee ELSE 0 END AS commission "
+						+ "WHEN t1.type = 9 THEN t11.sale_deferred_fee ELSE 0 END AS commission, t8.trade_no "
 
 						+ "from p_organization_account_flow t1 "
 						+ "LEFT JOIN buy_record t2 on t1.resource_type=1 and t1.resource_id=t2.id "
@@ -411,6 +411,7 @@ public class OrganizationAccountFlowService {
 		setMethodMap.put(new Integer(30), new MethodDesc("setoPublisherPhone", new Class<?>[] { String.class }));
 		setMethodMap.put(new Integer(31), new MethodDesc("setAmountRemaid", new Class<?>[] { BigDecimal.class }));
 		setMethodMap.put(new Integer(32), new MethodDesc("setCommission", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(33), new MethodDesc("setoTradeNo", new Class<?>[] { String.class }));
 		List<OrganizationAccountFlowWithTradeInfoDto> content = dynamicQuerySqlDao
 				.execute(OrganizationAccountFlowWithTradeInfoDto.class, sql, setMethodMap);
 		BigInteger totalElements = dynamicQuerySqlDao.executeComputeSql(countSql);

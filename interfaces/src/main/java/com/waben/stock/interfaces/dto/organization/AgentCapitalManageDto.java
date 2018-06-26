@@ -16,6 +16,9 @@ public class AgentCapitalManageDto {
 	@ApiModelProperty(value = "佣金编号")
 	private Long id;
 
+	@ApiModelProperty(value = "期货交易编号")
+	private String oTradeNo;
+
 	@ApiModelProperty(value = "金额")
 	private BigDecimal amount;
 
@@ -176,6 +179,14 @@ public class AgentCapitalManageDto {
 
 	public void setOrgName(String orgName) {
 		this.orgName = orgName;
+	}
+
+	public String getoTradeNo() {
+		return oTradeNo;
+	}
+
+	public void setoTradeNo(String oTradeNo) {
+		this.oTradeNo = oTradeNo;
 	}
 
 }
