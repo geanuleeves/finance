@@ -86,8 +86,7 @@ public class FuturesTradeBusiness {
 	}
 	
 	private List<Long> getOrgId(FuturesTradeAdminQuery query){
-//		Long orgId = SecurityUtil.getUserDetails().getOrgId();
-		Long orgId = new Long("6");
+		Long orgId = SecurityUtil.getUserDetails().getOrgId();
 		query.setOrgId(orgId);
 		if(query.getOrgId()!=null){
 			Response<OrganizationDto> result = orgReference.fetchByOrgId(query.getOrgId());
