@@ -224,7 +224,7 @@ public class FuturesOrderController {
 	@GetMapping("/holding")
 	@ApiOperation(value = "获取持仓中列表")
 	public Response<PageInfo<FuturesOrderMarketDto>> holdingList(int page, int size) {
-		long startTime = System.currentTimeMillis();
+		// long startTime = System.currentTimeMillis();
 		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
 		FuturesOrderState[] states = { FuturesOrderState.Position };
 		orderQuery.setStates(states);
@@ -233,7 +233,7 @@ public class FuturesOrderController {
 		orderQuery.setPublisherId(SecurityUtil.getUserId());
 		Response<PageInfo<FuturesOrderMarketDto>> result = new Response<>(
 				futuresOrderBusiness.pageOrderMarket(orderQuery));
-		logger.info("持仓列表耗时：" + (System.currentTimeMillis() - startTime));
+		// logger.info("持仓列表耗时：" + (System.currentTimeMillis() - startTime));
 		return result;
 	}
 
@@ -362,6 +362,18 @@ public class FuturesOrderController {
 		result.setRate(rate.setScale(2, RoundingMode.DOWN));
 		result.setCurrencySign(sign);
 		return new Response<>(result);
+	}
+	
+	@GetMapping("/unwinded")
+	@ApiOperation(value = "获取已平仓列表")
+	public Response<PageInfo<FuturesOrderMarketDto>> unwindedList(int page, int size) {
+		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
+		FuturesOrderState[] states = { FuturesOrderState.Unwind };
+		orderQuery.setStates(states);
+		orderQuery.setPage(page);
+		orderQuery.setSize(size);
+		orderQuery.setPublisherId(SecurityUtil.getUserId());
+		return new Response<>(futuresOrderBusiness.pageOrderMarket(orderQuery));
 	}
 
 	@GetMapping("/settled/profit")
@@ -664,6 +676,9 @@ public class FuturesOrderController {
 	 *            合约信息
 	 */
 	public void checkedMinPlaceOrder(FuturesContractDto contractDto) {
+		if (contractDto == null) {
+			throw new ServiceException(ExceptionConstant.CONTRACT_DOESNOT_EXIST_EXCEPTION);
+		}
 		Long minTime = null;
 		if (contractDto.getFirstNoticeDate() != null && contractDto.getLastTradingDate() != null) {
 			minTime = Math.min(contractDto.getFirstNoticeDate().getTime(), contractDto.getLastTradingDate().getTime());

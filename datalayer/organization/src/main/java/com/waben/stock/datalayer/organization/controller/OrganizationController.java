@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.waben.stock.datalayer.organization.entity.Organization;
 import com.waben.stock.datalayer.organization.repository.OrganizationDao;
 import com.waben.stock.datalayer.organization.service.OrganizationService;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
 import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.organization.FuturesFowDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationAccountDto;
@@ -34,6 +35,7 @@ import com.waben.stock.interfaces.dto.publisher.BindCardDto;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.form.organization.OrganizationForm;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
 import com.waben.stock.interfaces.pojo.query.organization.FuturesFowQuery;
 import com.waben.stock.interfaces.pojo.query.organization.OrganizationQuery;
 import com.waben.stock.interfaces.pojo.query.organization.OrganizationStaQuery;
@@ -266,6 +268,11 @@ public class OrganizationController implements OrganizationInterface {
 			@PathVariable Long commodityId) {
 		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesAgentPriceDto.class,
 				organizationService.superiorAgentPrice(orgId, commodityId), false));
+	}
+
+	@Override
+	public Response<FuturesOrderCountDto> getSUMOrder(@RequestBody FuturesTradeAdminQuery query) {
+		return new Response<>(organizationService.getSUMOrder(query));
 	}
 
 }

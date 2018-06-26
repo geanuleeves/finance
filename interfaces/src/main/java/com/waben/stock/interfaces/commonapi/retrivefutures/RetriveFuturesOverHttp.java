@@ -16,13 +16,22 @@ public class RetriveFuturesOverHttp {
 
 	private static RestTemplate restTemplate = new RestTemplate();
 	/**
-	 * 盈透api基础路径
+	 * 盈透api基础路径（测试）
 	 */
-	private static String yingtouBaseUrl = "http://10.0.0.48:9092/";
+	private static String testYingtouBaseUrl = "http://10.0.0.48:9092/";
 	/**
-	 * 易盛api基础路径
+	 * 盈透api基础路径（正式）
 	 */
-	private static String yishengBaseUrl = "http://10.0.0.99:9093/";
+	private static String prodYingtouBaseUrl = "http://10.0.0.48:9092/";
+	/**
+	 * 易盛api基础路径（测试）
+	 */
+	// private static String testYishengBaseUrl = "http://10.0.0.99:9093/";
+	private static String testYishengBaseUrl = "http://47.75.55.10:9093/";
+	/**
+	 * 易盛api基础路径（正式）
+	 */
+	private static String prodYishengBaseUrl = "http://47.75.55.10:9093/";
 	/**
 	 * api类型
 	 * <ul>
@@ -32,17 +41,17 @@ public class RetriveFuturesOverHttp {
 	 */
 	private static Integer apiType = 2;
 
-	private static String getBaseUrl() {
+	private static String getBaseUrl(boolean isProd) {
 		if (apiType == 1) {
-			return yingtouBaseUrl;
+			return isProd ? prodYingtouBaseUrl : testYingtouBaseUrl;
 		} else if (apiType == 2) {
-			return yishengBaseUrl;
+			return isProd ? prodYishengBaseUrl : testYishengBaseUrl;
 		}
 		return "";
 	}
 
-	public static List<String> enableContractNo(String commodityNo) {
-		String url = getBaseUrl() + "futuresContract/" + commodityNo + "/enableContractNo";
+	public static List<String> enableContractNo(boolean isProd, String commodityNo) {
+		String url = getBaseUrl(isProd) + "futuresContract/" + commodityNo + "/enableContractNo";
 		String response = restTemplate.getForObject(url, String.class);
 		Response<List<String>> responseObj = JacksonUtil.decode(response,
 				JacksonUtil.getGenericType(Response.class, JacksonUtil.getGenericType(ArrayList.class, String.class)));
@@ -53,8 +62,8 @@ public class RetriveFuturesOverHttp {
 		}
 	}
 
-	public static FuturesGatewayContract fetchByCommodityNoAndContractNo(String commodityNo, String contractNo) {
-		String url = getBaseUrl() + "futuresContract/" + commodityNo + "/" + contractNo;
+	public static FuturesGatewayContract fetchByCommodityNoAndContractNo(boolean isProd, String commodityNo, String contractNo) {
+		String url = getBaseUrl(isProd) + "futuresContract/" + commodityNo + "/" + contractNo;
 		String response = restTemplate.getForObject(url, String.class);
 		Response<FuturesGatewayContract> responseObj = JacksonUtil.decode(response,
 				JacksonUtil.getGenericType(Response.class, FuturesGatewayContract.class));
@@ -65,8 +74,8 @@ public class RetriveFuturesOverHttp {
 		}
 	}
 
-	public static FuturesContractMarket market(String commodityNo, String contractNo) {
-		String url = getBaseUrl() + "market/" + commodityNo + "/" + contractNo;
+	public static FuturesContractMarket market(boolean isProd, String commodityNo, String contractNo) {
+		String url = getBaseUrl(isProd) + "market/" + commodityNo + "/" + contractNo;
 		String response = restTemplate.getForObject(url, String.class);
 		Response<FuturesContractMarket> responseObj = JacksonUtil.decode(response,
 				JacksonUtil.getGenericType(Response.class, FuturesContractMarket.class));
@@ -77,8 +86,8 @@ public class RetriveFuturesOverHttp {
 		}
 	}
 
-	public static List<FuturesContractLineData> timeLine(String commodityNo, String contractNo) {
-		String url = getBaseUrl() + "market/" + commodityNo + "/" + contractNo + "/minsline";
+	public static List<FuturesContractLineData> timeLine(boolean isProd, String commodityNo, String contractNo) {
+		String url = getBaseUrl(isProd) + "market/" + commodityNo + "/" + contractNo + "/minsline";
 		String response = restTemplate.getForObject(url, String.class);
 		Response<List<FuturesContractLineData>> responseObj = JacksonUtil.decode(response, JacksonUtil
 				.getGenericType(Response.class, JacksonUtil.getGenericType(List.class, FuturesContractLineData.class)));
@@ -89,9 +98,9 @@ public class RetriveFuturesOverHttp {
 		}
 	}
 
-	public static List<FuturesContractLineData> dayLine(String commodityNo, String contractNo, String startTime,
+	public static List<FuturesContractLineData> dayLine(boolean isProd, String commodityNo, String contractNo, String startTime,
 			String endTime) {
-		String url = getBaseUrl() + "market/" + commodityNo + "/" + contractNo + "/dayline?";
+		String url = getBaseUrl(isProd) + "market/" + commodityNo + "/" + contractNo + "/dayline?";
 		if (!StringUtil.isEmpty(startTime)) {
 			url += "&startTime=" + startTime;
 		}
@@ -108,8 +117,8 @@ public class RetriveFuturesOverHttp {
 		}
 	}
 
-	public static List<FuturesContractLineData> minsLine(String commodityNo, String contractNo, Integer mins) {
-		String url = getBaseUrl() + "market/" + commodityNo + "/" + contractNo + "/minsline";
+	public static List<FuturesContractLineData> minsLine(boolean isProd, String commodityNo, String contractNo, Integer mins) {
+		String url = getBaseUrl(isProd) + "market/" + commodityNo + "/" + contractNo + "/minsline";
 		String response = restTemplate.getForObject(url, String.class);
 		Response<List<FuturesContractLineData>> responseObj = JacksonUtil.decode(response, JacksonUtil
 				.getGenericType(Response.class, JacksonUtil.getGenericType(List.class, FuturesContractLineData.class)));
@@ -121,8 +130,8 @@ public class RetriveFuturesOverHttp {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(enableContractNo("GC"));
-		System.out.println(fetchByCommodityNoAndContractNo("GC", "1808"));
+		System.out.println(enableContractNo(false, "GC"));
+		System.out.println(fetchByCommodityNoAndContractNo(false, "GC", "1808"));
 	}
 
 }

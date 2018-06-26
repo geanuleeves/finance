@@ -40,6 +40,7 @@ import com.waben.stock.datalayer.organization.repository.OrganizationPublisherDa
 import com.waben.stock.datalayer.organization.repository.SettlementMethodDao;
 import com.waben.stock.datalayer.organization.repository.impl.MethodDesc;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
 import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.organization.FuturesFowDto;
@@ -54,6 +55,7 @@ import com.waben.stock.interfaces.enums.CapitalFlowType;
 import com.waben.stock.interfaces.enums.OrganizationState;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.form.organization.OrganizationForm;
+import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
 import com.waben.stock.interfaces.pojo.query.organization.FuturesFowQuery;
 import com.waben.stock.interfaces.pojo.query.organization.OrganizationQuery;
 import com.waben.stock.interfaces.pojo.query.organization.OrganizationStaQuery;
@@ -126,10 +128,10 @@ public class OrganizationService {
 		}
 		// 生成树结构代码
 		List<Organization> childList = organizationDao.listByParentOrderByCodeDesc(parent);
-		String treeCode = parent.getCode();
+		String treeCode = parent.getTreeCode();
 		if (childList != null && childList.size() > 0) {
 			Organization max = childList.get(0);
-			String suffix = max.getCode().substring(treeCode.length());
+			String suffix = max.getTreeCode().substring(treeCode.length());
 			Long seria = Long.parseLong(suffix) + 1;
 			String seriaStr = seria.toString();
 			if (seriaStr.length() < suffix.length()) {
@@ -590,9 +592,9 @@ public class OrganizationService {
 		if (query.getEndTime() != null) {
 			endTimeCondition = " and t1.occurrence_time<'" + sdf.format(query.getEndTime()) + "' ";
 		}
-		String orderTypeQuery = "";
-		if (!StringUtil.isEmpty(query.getOrderType())) {
-			orderTypeQuery = " and t1.type in(" + query.getOrderType() + ") ";
+		String typeCondition = "";
+		if (query.getFlowTypes() != null && !"".equals(query.getFlowTypes()) && !"0".equals(query.getFlowTypes())) {
+			typeCondition = " and t1.type in(" + query.getFlowTypes() + ") ";
 		}
 		String contractCodeQuery = "";
 		if (!StringUtil.isEmpty(query.getContractCodeOrName())) {
@@ -611,12 +613,22 @@ public class OrganizationService {
 			treeCodeQuery = " and t10.tree_code like '%" + query.getTreeCode() + "%'";
 		}
 
+		String commoditySymbolCondition = "";
+		if (!StringUtil.isEmpty(query.getSymbol())) {
+			commoditySymbolCondition = " and t11.commodity_symbol like '%" + query.getSymbol() + "%' ";
+		}
+		String commodityNameCondition = "";
+		if (!StringUtil.isEmpty(query.getCommodityName())) {
+			commodityNameCondition = " and t12.commodity_name like '%'" + query.getCommodityName() + "'%' ";
+		}
+
 		String sql = String.format(
-				"select t1.id, t4.name as publisher_name, t5.phone, t1.flow_no, t1.occurrence_time, t1.type, t1.amount, t1.available_balance, "
-						+ " IF(t12.symbol IS NULL,t2.stock_code,t12.symbol) AS symbol,  IF(t12.name IS NULL,t2.stock_name,t12.name) AS contract_name,"
-						+ " t10.code AS agentCode,t10.name AS agentName " + " from capital_flow t1 "
+				"select t1.id, t1.amount, t1.flow_no, t1.occurrence_time, t1.publisher_id, t5.phone, t1.remark, t1.type, t4.name, "
+						+ "t2.stock_code as b_stock_code, t2.stock_name as b_stock_name, t11.commodity_symbol as commodity_symbol, t11.commodity_name as commodity_name, t11.contract_no as contract_no, "
+						+ "t3.stock_code as s_stock_code, t3.stock_name as s_stock_name, t6.type as payment_type, t7.bank_card, t8.bank_name, t1.available_balance, t5.is_test, "
+						+ " t10.code AS agentCode,t10.name AS agentName   from capital_flow t1 "
 						+ " LEFT JOIN buy_record t2 on t1.extend_type=1 and t1.extend_id=t2.id "
-						+ " LEFT JOIN f_futures_order t3 on t1.extend_type=6 and t1.extend_id=t3.id "
+						+ " LEFT JOIN stock_option_trade t3 on t1.extend_type=3 and t1.extend_id=t3.id "
 						+ " LEFT JOIN real_name t4 on t4.resource_type=2 and t1.publisher_id=t4.resource_id "
 						+ " LEFT JOIN publisher t5 on t5.id=t1.publisher_id "
 						+ " LEFT JOIN payment_order t6 on t1.extend_type=4 and t1.extend_id=t6.id"
@@ -624,25 +636,37 @@ public class OrganizationService {
 						+ " LEFT JOIN bind_card t8 on t7.bank_card=t8.bank_card"
 						+ " LEFT JOIN p_organization_publisher t9 ON t9.publisher_id = t5.id"
 						+ " LEFT JOIN p_organization t10 ON t10.code = t9.org_code"
-						+ " LEFT JOIN f_futures_contract t12 ON t3.contract_id = t12.id "
-						+ " WHERE 1=1 and t10.id is not null  %s %s %s %s %s %s %s %s order by t1.occurrence_time desc limit "
+						+ " LEFT JOIN f_futures_order t11 on t1.extend_type=6 and t1.extend_id=t11.id "
+						+ " LEFT JOIN f_futures_overnight_record t12 on t1.extend_type=7 and t1.extend_id=t12.id "
+						+ " WHERE 1=1 and t10.id is not null  %s %s %s %s %s %s %s %s %s %s order by t1.occurrence_time desc limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(),
-				customerNameQuery, tradingNumberQuery, startTimeCondition, endTimeCondition, orderTypeQuery,
-				contractCodeQuery, agentCodeNameQuery, treeCodeQuery);
+				customerNameQuery, tradingNumberQuery, startTimeCondition, endTimeCondition, typeCondition,
+				contractCodeQuery, agentCodeNameQuery, treeCodeQuery, commodityNameCondition, commoditySymbolCondition);
 		String countSql = "select count(*) from (" + sql.substring(0, sql.indexOf("limit")) + ") c";
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
-		setMethodMap.put(new Integer(0), new MethodDesc("setId", new Class<?>[] { Long.class })); // ID
-		setMethodMap.put(new Integer(1), new MethodDesc("setCustomerName", new Class<?>[] { String.class })); // 客户名称
-		setMethodMap.put(new Integer(2), new MethodDesc("setTradingNumber", new Class<?>[] { String.class })); // 银行卡号
-		setMethodMap.put(new Integer(3), new MethodDesc("setFlowNo", new Class<?>[] { String.class })); // 流水号
-		setMethodMap.put(new Integer(4), new MethodDesc("setOccurrenceTime", new Class<?>[] { Date.class })); // 交易时间
-		setMethodMap.put(new Integer(5), new MethodDesc("setType", new Class<?>[] { CapitalFlowType.class })); // 交易类型
-		setMethodMap.put(new Integer(6), new MethodDesc("setAmount", new Class<?>[] { BigDecimal.class }));// 金额
-		setMethodMap.put(new Integer(7), new MethodDesc("setAvailableBalance", new Class<?>[] { BigDecimal.class })); // 当前可用余额
-		setMethodMap.put(new Integer(8), new MethodDesc("setSymbol", new Class<?>[] { String.class })); // 股票代码
-		setMethodMap.put(new Integer(9), new MethodDesc("setContractName", new Class<?>[] { String.class }));// 股票名称
-		setMethodMap.put(new Integer(10), new MethodDesc("setAgentCode", new Class<?>[] { String.class })); // 代理商代码
-		setMethodMap.put(new Integer(11), new MethodDesc("setAgentCodeName", new Class<?>[] { String.class }));// 代理商名称
+		setMethodMap.put(new Integer(0), new MethodDesc("setId", new Class<?>[] { Long.class }));
+		setMethodMap.put(new Integer(1), new MethodDesc("setAmount", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(2), new MethodDesc("setFlowNo", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(3), new MethodDesc("setOccurrenceTime", new Class<?>[] { Date.class }));
+		setMethodMap.put(new Integer(4), new MethodDesc("setPublisherId", new Class<?>[] { Long.class }));
+		setMethodMap.put(new Integer(5), new MethodDesc("setPublisherPhone", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(6), new MethodDesc("setRemark", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(7), new MethodDesc("setType", new Class<?>[] { CapitalFlowType.class }));
+		setMethodMap.put(new Integer(8), new MethodDesc("setPublisherName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(9), new MethodDesc("setbStockCode", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(10), new MethodDesc("setbStockName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(11), new MethodDesc("setCommoditySymbol", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(12), new MethodDesc("setCommodityName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(13), new MethodDesc("setContractNo", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(14), new MethodDesc("setsStockCode", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(15), new MethodDesc("setsStockName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(16), new MethodDesc("setPaymentType", new Class<?>[] { Integer.class }));
+		setMethodMap.put(new Integer(17), new MethodDesc("setBankCard", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(18), new MethodDesc("setBankName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(19), new MethodDesc("setAvailableBalance", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(20), new MethodDesc("setIsTest", new Class<?>[] { Boolean.class }));
+		setMethodMap.put(new Integer(21), new MethodDesc("setAgentCode", new Class<?>[] { String.class })); // 代理商代码
+		setMethodMap.put(new Integer(22), new MethodDesc("setAgentCodeName", new Class<?>[] { String.class }));// 代理商名称
 		List<FuturesFowDto> content = sqlDao.execute(FuturesFowDto.class, sql, setMethodMap);
 		BigInteger totalElements = sqlDao.executeComputeSql(countSql);
 		return new PageImpl<>(content, new PageRequest(query.getPage(), query.getSize()),
@@ -953,7 +977,7 @@ public class OrganizationService {
 		if (beforePrice == null) {
 			beforePrice = agentPrice;
 			// 如果进入到这个判断中，并且不是最后一级，说明最后一级没有agentPrice记录，把销售价置空
-			if (!isLast) {
+			if (!isLast && agentPrice != null) {
 				beforePrice.setSaleDeferredFee(null);
 				beforePrice.setSaleOpenwindServiceFee(null);
 				beforePrice.setSaleUnwindServiceFee(null);
@@ -994,6 +1018,60 @@ public class OrganizationService {
 	public FuturesAgentPrice superiorAgentPrice(Long orgId, Long commodityId) {
 		OrganizationDto organization = agentPriceBusiness.fetchByOrgId(orgId);
 		return agentPriceDao.findByCommodityIdAndOrgId(commodityId, organization.getParentId());
+	}
+	
+	public FuturesOrderCountDto getSUMOrder(FuturesTradeAdminQuery query) {
+		String orderStateCondition = "";
+		if(!StringUtil.isEmpty(query.getOrderState())){
+			orderStateCondition = " and t1.state in ("+ query.getOrderState() +")";
+		}
+		
+		String publisherId = "";
+		if(query.getPublisherIds().size()>0){
+			String pu = "";
+			for(int i=0;i<query.getPublisherIds().size();i++){
+				if(i==0||i==query.getPublisherIds().size()-1){
+					pu = pu + query.getPublisherIds().get(i);
+				}else{
+					pu = pu + query.getPublisherIds().get(i)+", ";
+				}
+			}
+			publisherId = " and t1.publisher_id in ("+ pu +")";
+		}
+		
+		String commoditySymbolCondition = "";
+		if (!StringUtil.isEmpty(query.getSymbol())) {
+			commoditySymbolCondition = " and t1.commodity_symbol like '%"
+					+ query.getSymbol() + "%' ";
+		}
+		String commodityNameCondition = "";
+		if(!StringUtil.isEmpty(query.getName())){
+			commodityNameCondition = " and t1.commodity_name like '%'" + query.getName() +"'%' ";
+		}
+		
+		String orderTypeCondition = "";
+		if(!StringUtil.isEmpty(query.getOrderType())){
+			orderTypeCondition = " and t1.order_type = "+ query.getOrderType() +"";
+		}
+		
+		String windControlTypeCondition = "";
+		if(!StringUtil.isEmpty(query.getWindControlType())){
+			windControlTypeCondition = " and t1.wind_control_type in ("+ query.getWindControlType() +")";
+		}
+		String sql =String.format("SELECT SUM(t1.total_quantity) AS quantity, SUM(t1.reserve_fund* t1.total_quantity) AS reserve_fund, SUM( (t1.openwind_service_fee + t1.unwind_service_fee ) * t1.total_quantity ) AS zhf, "
+						+ "SUM( IF(DATE_FORMAT(CURTIME(),'%%T') >= t3.overnight_time || t1.state=9, t1.overnight_per_unit_deferred_fee * t1.total_quantity ,0) )AS deferred_record "
+						+ "FROM f_futures_order t1 LEFT JOIN f_futures_contract t2 ON t2.id = t1.contract_id LEFT JOIN f_futures_commodity t3 ON t3.id = t2.commodity_id "
+						+ "where 1=1 %s %s %s %s %s %s", orderStateCondition, publisherId, commodityNameCondition, commoditySymbolCondition, orderTypeCondition, windControlTypeCondition);
+		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
+		setMethodMap.put(new Integer(0), new MethodDesc("setQuantity", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(1), new MethodDesc("setFund", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(2), new MethodDesc("setFee", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(3), new MethodDesc("setDeferred", new Class<?>[] { BigDecimal.class }));
+		List<FuturesOrderCountDto> content = sqlDao.execute(FuturesOrderCountDto.class, sql, setMethodMap);
+		if (content != null && content.size() > 0) {
+			return content.get(0);
+		}
+		return null;
 	}
 
 }

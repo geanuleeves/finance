@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.waben.stock.applayer.tactics.business.ProfileBusiness;
 import com.waben.stock.applayer.tactics.dto.futures.FuturesContractQuotationDto;
 import com.waben.stock.applayer.tactics.security.SecurityUtil;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
@@ -59,6 +60,9 @@ public class FuturesContractBusiness {
 	@Autowired
 	@Qualifier("organizationPublisherInterface")
 	private OrganizationPublisherInterface organizationPublisherInterface;
+	
+	@Autowired
+	private ProfileBusiness profileBusiness;
 
 	public CapitalAccountDto findByPublisherId(Long publisherId) {
 		Response<CapitalAccountDto> response = service.fetchByPublisherId(publisherId);
@@ -81,7 +85,7 @@ public class FuturesContractBusiness {
 				FuturesContractQuotationDto.class);
 		if (quotationList.size() > 0) {
 			for (FuturesContractQuotationDto quotation : quotationList) {
-				FuturesContractMarket market = RetriveFuturesOverHttp.market(quotation.getSymbol(),
+				FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(), quotation.getSymbol(),
 						quotation.getContractNo());
 				// 设置行情信息
 				quotation.setLastPrice(market.getLastPrice());

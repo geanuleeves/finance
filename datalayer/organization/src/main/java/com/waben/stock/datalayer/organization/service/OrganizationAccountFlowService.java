@@ -331,21 +331,37 @@ public class OrganizationAccountFlowService {
 			endTimeCondition = " and t1.occurrence_time <'" + sdf.format(query.getEndTime()) + "' ";
 		}
 
-		String sql = String.format(
-				"select t1.id, t1.amount, t1.flow_no, t1.occurrence_time, t1.origin_amount, t1.remark, t1.resource_id, t1.resource_trade_no, t1.resource_type, t1.type, t1.org_id, "
+		String sql = String
+				.format("select t1.id, t1.amount, t1.flow_no, t1.occurrence_time, t1.origin_amount, t1.remark, t1.resource_id, t1.resource_trade_no, t1.resource_type, t1.type, t1.org_id, "
 						+ "t2.publisher_id as b_publisher_id, t2.publisher_phone as b_publisher_phone, t2.stock_code as b_stock_code, t2.stock_name as b_stock_name, "
 						+ "t3.publisher_id as s_publisher_id, t3.publisher_phone as s_publisher_phone, t3.stock_code as s_stock_code, t3.stock_name as s_stock_name, "
 						+ "t3.cycle_id, t3.cycle_name, t4.code as org_code, t4.name as org_name, "
 						+ "t5.name as b_publisher_name, t6.name as s_publisher_name, t1.available_balance, "
 						+ "t8.commodity_symbol, t8.commodity_name, "
-						+ "(IF(t1.type = 7,t11.cost_openwind_service_fee,IF(t1.type=8,t11.cost_unwind_service_fee,IF(t1.type=9,t11.cost_deferred_fee,0))) - "
+						
+						/*+ "(IF(t1.type = 7,t11.cost_openwind_service_fee,IF(t1.type=8,t11.cost_unwind_service_fee,IF(t1.type=9,t11.cost_deferred_fee,0))) - "
 						+ "IF(t1.type = 7,t12.cost_openwind_service_fee,IF(t1.type=8,t12.cost_unwind_service_fee,IF(t1.type=9,t12.cost_deferred_fee,0)))) AS maid_fee, "
-						+ "IF(t1.type = 7,t11.sale_openwind_service_fee,IF(t1.type=8,t11.sale_unwind_service_fee,IF(t1.type=9,t11.sale_deferred_fee,0))) AS commission "
+						+ "IF(t1.type = 7,t11.sale_openwind_service_fee,IF(t1.type=8,t11.sale_unwind_service_fee,IF(t1.type=9,t11.sale_deferred_fee,0))) AS commission "*/
+
+						
+						+ "CASE "
+						+ "WHEN t1.type = 7 AND (SELECT MAX(t13.id) FROM p_organization t13 WHERE t13.tree_code LIKE CONCAT(t4.tree_code,'%%') = t11.org_id) THEN t11.sale_openwind_service_fee - t11.cost_openwind_service_fee "
+						+ "WHEN t1.type = 8 AND (SELECT MAX(t13.id) FROM p_organization t13 WHERE t13.tree_code LIKE CONCAT(t4.tree_code,'%%') = t11.org_id) THEN t11.sale_unwind_service_fee - t11.cost_unwind_service_fee "
+						+ "WHEN t1.type = 9 AND (SELECT MAX(t13.id) FROM p_organization t13 WHERE t13.tree_code LIKE CONCAT(t4.tree_code,'%%') = t11.org_id) THEN t11.sale_deferred_fee - t11.cost_deferred_fee "
+						+ "WHEN t1.type = 7 THEN t11.cost_openwind_service_fee - t12.cost_openwind_service_fee "
+						+ "WHEN t1.type = 8 THEN t11.cost_unwind_service_fee - t12.cost_unwind_service_fee "
+						+ "WHEN t1.type = 9 THEN t11.cost_deferred_fee - t12.cost_deferred_fee "
+						+ "ELSE 0 END as maid_fee, "
+						
+						+ "CASE WHEN t1.type = 7 THEN t11.sale_openwind_service_fee "
+						+ "WHEN t1.type = 8 THEN t11.sale_unwind_service_fee "
+						+ "WHEN t1.type = 9 THEN t11.sale_deferred_fee ELSE 0 END AS commission "
+
 						+ "from p_organization_account_flow t1 "
 						+ "LEFT JOIN buy_record t2 on t1.resource_type=1 and t1.resource_id=t2.id "
 						+ "LEFT JOIN stock_option_trade t3 on t1.resource_type=3 and t1.resource_id=t3.id "
 						+ "LEFT JOIN p_organization t4 on t1.org_id=t4.id "
-						+ "LEFT JOIN f_futures_order t8 ON t1.resource_type = 6 AND t8.id = t1.resource_id "
+						+ "LEFT JOIN f_futures_order t8 ON t1.resource_type IN(6,7) AND t8.id = t1.resource_id "
 						+ "LEFT JOIN f_futures_contract t9 ON t9.id = t8.contract_id "
 						+ "LEFT JOIN f_futures_commodity t10 ON t10.id = t9.commodity_id "
 						+ "LEFT JOIN p_futures_agent_price t11 ON t11.commodity_id = t10.id AND t11.org_id = t4.id "
@@ -354,9 +370,9 @@ public class OrganizationAccountFlowService {
 						+ "LEFT JOIN real_name t6 on t6.resource_type=2 and t3.publisher_id=t6.resource_id "
 						+ "LEFT JOIN p_organization t7 on t7.id=" + query.getCurrentOrgId() + " "
 						+ "where 1=1 %s %s %s %s %s %s %s %s %s and t1.org_id is not null order by t1.occurrence_time desc limit "
-						+ query.getPage() * query.getSize() + "," + query.getSize(),
-				queryTypeCondition, types, contractCodeOrName, orgCodeOrName, flowNo, customerName, customerPhone,
-				startTimeCondition, endTimeCondition);
+						+ query.getPage() * query.getSize() + "," + query.getSize(), queryTypeCondition, types,
+						contractCodeOrName, orgCodeOrName, flowNo, customerName, customerPhone, startTimeCondition,
+						endTimeCondition);
 		String countSql = "select count(*) " + sql.substring(sql.indexOf("from"), sql.indexOf("limit"));
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setId", new Class<?>[] { Long.class }));

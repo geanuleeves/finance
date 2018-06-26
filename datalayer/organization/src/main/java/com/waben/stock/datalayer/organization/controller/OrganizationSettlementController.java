@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.waben.stock.datalayer.organization.business.ProfileBusiness;
 import com.waben.stock.datalayer.organization.service.OrganizationSettlementService;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.service.organization.OrganizationSettlementInterface;
@@ -30,7 +31,11 @@ public class OrganizationSettlementController implements OrganizationSettlementI
 
 	@Autowired
 	public OrganizationSettlementService service;
+	
+	@Autowired
+	private ProfileBusiness profileBusiness;
 
+	@Override
 	public Response<String> strategySettlement(@PathVariable Long publisherId, @PathVariable Long buyRecordId,
 			@PathVariable String tradeNo, @PathVariable Long strategyTypeId, @PathVariable BigDecimal serviceFee,
 			@PathVariable BigDecimal deferredFee) {
@@ -40,7 +45,8 @@ public class OrganizationSettlementController implements OrganizationSettlementI
 		response.setResult("success");
 		return response;
 	}
-
+	
+	@Override
 	public Response<String> stockoptionSettlement(@PathVariable Long publisherId, @PathVariable Long stockOptionTradeId,
 			@PathVariable String tradeNo, @PathVariable Long cycleId, BigDecimal rightMoneyProfit,
 			BigDecimal rightMoney) {
@@ -52,12 +58,27 @@ public class OrganizationSettlementController implements OrganizationSettlementI
 	}
 
 	@Override
-	public Response<String> futuresSettlement(@PathVariable Long publisherId, @PathVariable Long futuresOrderId,
-			@PathVariable String tradeNo, @PathVariable Long futuresId, @PathVariable BigDecimal openingFee,
-			@PathVariable BigDecimal closeFee, @PathVariable BigDecimal deferredFee) {
-		logger.info("期货代理商结算交易{}，期货类型{}，开仓手续费{}，平仓手续费{}，递延费{}!", futuresOrderId, futuresId, openingFee, closeFee,
+	public Response<String> futuresSettlement(@PathVariable Long publisherId, @PathVariable Long commodityId,
+			@PathVariable Long futuresOrderId, @PathVariable String tradeNo, @PathVariable BigDecimal totalQuantity,
+			@PathVariable BigDecimal openingFee, @PathVariable BigDecimal closeFee) {
+		logger.info("期货代理商结算订单{}，开仓手续费{}，平仓手续费{}!", futuresOrderId, openingFee, closeFee);
+		service.futuresSettlement(publisherId, commodityId, futuresOrderId, tradeNo, totalQuantity, openingFee,
+				closeFee);
+		Response<String> response = new Response<String>();
+		response.setResult("success");
+		return response;
+	}
+
+	@Override
+	public Response<String> futuresDeferredSettlement(@PathVariable Long publisherId, @PathVariable Long commodityId,
+			@PathVariable Long overnightRecordId, @PathVariable String tradeNo, @PathVariable BigDecimal totalQuantity,
+			@PathVariable BigDecimal deferredFee) {
+		logger.info("期货代理商结算订单隔夜递延{}，递延费{}!", overnightRecordId, deferredFee);
+		service.futuresDeferredSettlement(publisherId, commodityId, overnightRecordId, tradeNo, totalQuantity,
 				deferredFee);
-		return null;
+		Response<String> response = new Response<String>();
+		response.setResult("success");
+		return response;
 	}
 
 }

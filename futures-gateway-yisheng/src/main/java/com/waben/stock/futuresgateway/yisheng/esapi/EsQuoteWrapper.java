@@ -1,5 +1,6 @@
 package com.waben.stock.futuresgateway.yisheng.esapi;
 
+
 import com.future.api.es.external.common.bean.TapAPIContract;
 import com.future.api.es.external.quote.QuoteApi;
 import com.future.api.es.external.quote.bean.*;
@@ -22,9 +23,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
+
 
 /**
  * 易盛行情
@@ -72,7 +75,7 @@ public class EsQuoteWrapper implements QuoteApiListener {
 	/**
 	 * 初始化
 	 */
-	// @PostConstruct
+	@PostConstruct
 	public void init() {
 		api = new QuoteApi(quoteAuthCode, "", true);
 		api.setHostAddress(quoteIp, quotePort);
@@ -152,10 +155,17 @@ public class EsQuoteWrapper implements QuoteApiListener {
 	public void onRtnQuote(TapAPIQuoteWhole info) {
 		// 放入队列
 		rabbitmqProducer.sendMessage(RabbitmqConfiguration.quoteQueueName, info);
+
 		String commodityNo = info.getContract().getCommodity().getCommodityNo();
 		if(EsEngine.commodityScaleMap.containsKey(commodityNo)) {
 			Integer scale = EsEngine.commodityScaleMap.get(commodityNo);
 			// 构建行情推送对象
+
+//		String commodityNo = info.getContract().getCommodity().getCommodityNo();
+//		if(EsEngine.commodityScaleMap.containsKey(commodityNo)) {
+//			Integer scale = EsEngine.commodityScaleMap.get(commodityNo);
+//			// 构建行情推送对象
+
 //			FuturesQuoteDataBase data = FuturesQuoteDataBase.newBuilder()
 //			.setTime(info.getDateTimeStamp().substring(0, info.getDateTimeStamp().length() - 4))
 //			.setAskPrice(new BigDecimal(info.getQAskPrice()[0]).setScale(scale, RoundingMode.HALF_UP).toString())
@@ -171,7 +181,11 @@ public class EsQuoteWrapper implements QuoteApiListener {
 //			.setVolume(info.getQLastQty())
 //			.setTotalVolume(info.getQTotalQty()).build();
 
+
 		}
+
+//		}
+
 	}
 
 	@Scheduled(cron = "0/10 * * * * ?")

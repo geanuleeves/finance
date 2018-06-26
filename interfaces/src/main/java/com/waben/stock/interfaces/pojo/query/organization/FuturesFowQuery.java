@@ -40,6 +40,20 @@ public class FuturesFowQuery extends PageAndSortQuery {
 	private String orderType;
 	
 	private String treeCode;
+	
+	/**
+	 * 流水类型，多个流水类型使用,号分割
+	 */
+	private String flowTypes;
+	
+	/**
+	 * 交易代码
+	 */
+	private String symbol;
+	/**
+	 * 交易品种
+	 */
+	private String commodityName;
 
 	/**
 	 * 股票代码
@@ -121,5 +135,29 @@ public class FuturesFowQuery extends PageAndSortQuery {
 
 	public void setOrgCodeOrName(String orgCodeOrName) {
 		this.orgCodeOrName = orgCodeOrName;
+	}
+
+	public String getSymbol() {
+		return symbol;
+	}
+
+	public void setSymbol(String symbol) {
+		this.symbol = symbol;
+	}
+
+	public String getCommodityName() {
+		return commodityName;
+	}
+
+	public void setCommodityName(String commodityName) {
+		this.commodityName = commodityName;
+	}
+
+	public String getFlowTypes() {
+		return flowTypes;
+	}
+
+	public void setFlowTypes(String flowTypes) {
+		this.flowTypes = flowTypes;
 	}
 }

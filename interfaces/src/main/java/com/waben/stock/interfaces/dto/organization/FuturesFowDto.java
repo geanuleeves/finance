@@ -3,151 +3,105 @@ package com.waben.stock.interfaces.dto.organization;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
 import com.waben.stock.interfaces.enums.CapitalFlowType;
 
-public class FuturesFowDto {
+public class FuturesFowDto extends CapitalFlowDto{
 
-	/**
-	 * 订单ID
-	 */
-	private Long id;
-
-	/**
-	 * 客户姓名
-	 */
-	private String customerName;
-
-	/**
-	 * 交易账号
-	 */
-	private String tradingNumber;
-
-	/**
-	 * 交易编号
-	 */
-	private String flowNo;
-
-	/**
-	 * 交易时间
-	 */
-	private Date occurrenceTime;
-
-	/**
-	 * 业务类型
-	 */
-	private CapitalFlowType type;
-
-	/**
-	 * 交易金额
-	 */
-	private BigDecimal amount;
-
-	/**
-	 * 当前可用余额
-	 * <p>
-	 * 产生该流水之后的可用余额
-	 * </p>
-	 */
-	private BigDecimal availableBalance;
-
-	/**
-	 * 股票代码
-	 */
-	private String symbol;
-
-	/**
-	 * 标的股票
-	 */
-	private String contractName;
-
-	/**
-	 * 所属代理商代码
-	 */
-	private String agentCode;
-
-	/**
-	 * 所属代理商代码名称
-	 */
-	private String agentCodeName;
-
-	public Long getId() {
-		return id;
+	public String getPublisherName() {
+		return publisherName;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setPublisherName(String publisherName) {
+		this.publisherName = publisherName;
 	}
 
-	public String getCustomerName() {
-		return customerName;
+	public String getPublisherPhone() {
+		return publisherPhone;
 	}
 
-	public void setCustomerName(String customerName) {
-		this.customerName = customerName;
+	public void setPublisherPhone(String publisherPhone) {
+		this.publisherPhone = publisherPhone;
 	}
 
-	public String getTradingNumber() {
-		return tradingNumber;
+	public String getStockCode() {
+		return stockCode;
 	}
 
-	public void setTradingNumber(String tradingNumber) {
-		this.tradingNumber = tradingNumber;
+	public void setStockCode(String stockCode) {
+		this.stockCode = stockCode;
 	}
 
-	public String getFlowNo() {
-		return flowNo;
+	public String getStockName() {
+		return stockName;
 	}
 
-	public void setFlowNo(String flowNo) {
-		this.flowNo = flowNo;
+	public void setStockName(String stockName) {
+		this.stockName = stockName;
 	}
 
-	public Date getOccurrenceTime() {
-		return occurrenceTime;
+	public String getbStockCode() {
+		return bStockCode;
 	}
 
-	public void setOccurrenceTime(Date occurrenceTime) {
-		this.occurrenceTime = occurrenceTime;
+	public void setbStockCode(String bStockCode) {
+		this.bStockCode = bStockCode;
 	}
 
-	public CapitalFlowType getType() {
-		return type;
+	public String getbStockName() {
+		return bStockName;
 	}
 
-	public void setType(CapitalFlowType type) {
-		this.type = type;
+	public void setbStockName(String bStockName) {
+		this.bStockName = bStockName;
 	}
 
-	public BigDecimal getAmount() {
-		return amount;
+	public String getsStockCode() {
+		return sStockCode;
 	}
 
-	public void setAmount(BigDecimal amount) {
-		this.amount = amount;
+	public void setsStockCode(String sStockCode) {
+		this.sStockCode = sStockCode;
 	}
 
-	public BigDecimal getAvailableBalance() {
-		return availableBalance;
+	public String getsStockName() {
+		return sStockName;
 	}
 
-	public void setAvailableBalance(BigDecimal availableBalance) {
-		this.availableBalance = availableBalance;
+	public void setsStockName(String sStockName) {
+		this.sStockName = sStockName;
 	}
 
-	public String getSymbol() {
-		return symbol;
+	public Integer getPaymentType() {
+		return paymentType;
 	}
 
-	public void setSymbol(String symbol) {
-		this.symbol = symbol;
+	public void setPaymentType(Integer paymentType) {
+		this.paymentType = paymentType;
 	}
 
-	public String getContractName() {
-		return contractName;
+	public String getBankCard() {
+		return bankCard;
 	}
 
-	public void setContractName(String contractName) {
-		this.contractName = contractName;
+	public void setBankCard(String bankCard) {
+		this.bankCard = bankCard;
+	}
+
+	public String getBankName() {
+		return bankName;
+	}
+
+	public void setBankName(String bankName) {
+		this.bankName = bankName;
+	}
+
+	public Boolean getIsTest() {
+		return isTest;
+	}
+
+	public void setIsTest(Boolean isTest) {
+		this.isTest = isTest;
 	}
 
 	public String getAgentCode() {
@@ -165,4 +119,106 @@ public class FuturesFowDto {
 	public void setAgentCodeName(String agentCodeName) {
 		this.agentCodeName = agentCodeName;
 	}
+
+	/**
+	 * 发布人姓名
+	 * <p>
+	 * 实名认证的姓名
+	 * </p>
+	 */
+	private String publisherName;
+	/**
+	 * 发布人手机号
+	 */
+	private String publisherPhone;
+	/**
+	 * 股票代码
+	 */
+	private String stockCode;
+	/**
+	 * 股票名称
+	 */
+	private String stockName;
+	/**
+	 * 股票代码（点买记录）
+	 */
+	private String bStockCode;
+	/**
+	 * 股票名称（点买记录）
+	 */
+	private String bStockName;
+	
+	public String getCommoditySymbol() {
+		return commoditySymbol;
+	}
+
+	public void setCommoditySymbol(String commoditySymbol) {
+		this.commoditySymbol = commoditySymbol;
+	}
+
+	public String getCommodityName() {
+		return commodityName;
+	}
+
+	public void setCommodityName(String commodityName) {
+		this.commodityName = commodityName;
+	}
+
+	public String getContractNo() {
+		return contractNo;
+	}
+
+	public void setContractNo(String contractNo) {
+		this.contractNo = contractNo;
+	}
+
+	/**
+	 * 交易代码（期货交易）
+	 */
+	private String commoditySymbol;
+	
+	/**
+	 * 交易品种（期货交易）
+	 */
+	private String commodityName;
+	
+	/**
+	 * 合约代码
+	 */
+	private String contractNo;
+	/**
+	 * 股票代码（期权交易）
+	 */
+	private String sStockCode;
+	/**
+	 * 股票名称（期权交易）
+	 */
+	private String sStockName;
+	/**
+	 * 充值方式
+	 */
+	private Integer paymentType;
+	/**
+	 * 银行卡号
+	 */
+	private String bankCard;
+	/**
+	 * 银行名称
+	 */
+	private String bankName;
+	/**
+	 * 是否测试
+	 */
+	private Boolean isTest;
+
+	/**
+	 * 所属代理商代码
+	 */
+	private String agentCode;
+
+	/**
+	 * 所属代理商代码名称
+	 */
+	private String agentCodeName;
+
 }
