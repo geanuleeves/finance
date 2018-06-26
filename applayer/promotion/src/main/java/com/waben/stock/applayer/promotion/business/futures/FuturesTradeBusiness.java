@@ -86,7 +86,8 @@ public class FuturesTradeBusiness {
 	}
 	
 	private List<Long> getOrgId(FuturesTradeAdminQuery query){
-		Long orgId = SecurityUtil.getUserDetails().getOrgId();
+//		Long orgId = SecurityUtil.getUserDetails().getOrgId();
+		Long orgId = new Long("6");
 		query.setOrgId(orgId);
 		if(query.getOrgId()!=null){
 			Response<OrganizationDto> result = orgReference.fetchByOrgId(query.getOrgId());
@@ -109,38 +110,6 @@ public class FuturesTradeBusiness {
 		query.setPage(0);
 		
 		
-//		FuturesOrderCountDto dto = new FuturesOrderCountDto();
-//		Response<PageInfo<FuturesTradeOrganizationDto>> result = pagesOrganizationOrder(query);
-//		if("200".equals(result.getCode())&&result.getResult()!=null){
-//			if(result.getResult().getContent().size()>0){
-//				List<FuturesTradeOrganizationDto> orgDto = result.getResult().getContent();
-//				BigDecimal totalQuantity = BigDecimal.ZERO;
-//				BigDecimal reserveFund = BigDecimal.ZERO;
-//				BigDecimal serviceFee = BigDecimal.ZERO;
-//				BigDecimal overnightServiceFee = BigDecimal.ZERO;
-//				for (FuturesTradeOrganizationDto adminDto : orgDto) {
-//					if (adminDto.getTotalQuantity() != null) {
-//						totalQuantity = totalQuantity.add(adminDto.getTotalQuantity());
-//					}
-//					if (adminDto.getReserveFund() != null) {
-//						reserveFund = reserveFund.add(adminDto.getReserveFund());
-//					}
-//					if (adminDto.getOpenwindServiceFee() != null) {
-//						serviceFee = serviceFee.add(adminDto.getOpenwindServiceFee().multiply(adminDto.getTotalQuantity()));
-//					}
-//					if (adminDto.getUnwindServiceFee() != null) {
-//						serviceFee = serviceFee.add(adminDto.getUnwindServiceFee().multiply(adminDto.getTotalQuantity()));
-//					}
-//					if (adminDto.getOvernightServiceFee() != null) {
-//						overnightServiceFee = overnightServiceFee.add(adminDto.getOvernightServiceFee());
-//					}
-//				}
-//				dto.setDeferred(overnightServiceFee);
-//				dto.setQuantity(totalQuantity);
-//				dto.setFee(serviceFee);
-//				dto.setFund(reserveFund);
-//			}
-//		}
 		List<Long> publisherIds = queryPublishIds(query);
 		if(publisherIds==null){
 			return new Response<>();
