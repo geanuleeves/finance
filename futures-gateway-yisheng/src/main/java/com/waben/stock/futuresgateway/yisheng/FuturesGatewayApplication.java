@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 @SpringBootApplication(exclude = { MongoAutoConfiguration.class, MongoDataAutoConfiguration.class })
 public class FuturesGatewayApplication {
 
-	public static void main(String[] args) {
+	public static void testMain(String[] args) {
 		SpringApplication.run(FuturesGatewayApplication.class, args);
 	}
 

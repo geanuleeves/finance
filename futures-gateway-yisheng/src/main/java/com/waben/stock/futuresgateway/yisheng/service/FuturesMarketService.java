@@ -80,10 +80,28 @@ public class FuturesMarketService {
 				List<Long> bidSizeList = JacksonUtil.decode(quote.getBidQty(),
 						JacksonUtil.getGenericType(List.class, Long.class));
 				result.setTime(quote.getTime());
+				// 卖1~卖5
 				result.setAskPrice(askPriceList.get(0).setScale(scale, RoundingMode.HALF_UP));
 				result.setAskSize(askSizeList.get(0));
+				result.setAskPrice2(askPriceList.get(1).setScale(scale, RoundingMode.HALF_UP));
+				result.setAskSize2(askSizeList.get(1));
+				result.setAskPrice3(askPriceList.get(2).setScale(scale, RoundingMode.HALF_UP));
+				result.setAskSize3(askSizeList.get(2));
+				result.setAskPrice4(askPriceList.get(3).setScale(scale, RoundingMode.HALF_UP));
+				result.setAskSize4(askSizeList.get(3));
+				result.setAskPrice5(askPriceList.get(4).setScale(scale, RoundingMode.HALF_UP));
+				result.setAskSize5(askSizeList.get(4));
+				// 买1~买5
 				result.setBidPrice(bidPriceList.get(0).setScale(scale, RoundingMode.HALF_UP));
 				result.setBidSize(bidSizeList.get(0));
+				result.setBidPrice2(bidPriceList.get(1).setScale(scale, RoundingMode.HALF_UP));
+				result.setBidSize2(bidSizeList.get(1));
+				result.setBidPrice3(bidPriceList.get(2).setScale(scale, RoundingMode.HALF_UP));
+				result.setBidSize3(bidSizeList.get(2));
+				result.setBidPrice4(bidPriceList.get(3).setScale(scale, RoundingMode.HALF_UP));
+				result.setBidSize4(bidSizeList.get(3));
+				result.setBidPrice5(bidPriceList.get(4).setScale(scale, RoundingMode.HALF_UP));
+				result.setBidSize5(bidSizeList.get(4));
 				result.setClosePrice(new BigDecimal(quote.getClosingPrice()).setScale(scale, RoundingMode.HALF_UP));
 				result.setHighPrice(new BigDecimal(quote.getHighPrice()).setScale(scale, RoundingMode.HALF_UP));
 				result.setLastPrice(new BigDecimal(quote.getLastPrice()).setScale(scale, RoundingMode.HALF_UP));

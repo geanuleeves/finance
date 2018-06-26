@@ -133,7 +133,7 @@ public class AgentCapitalManageController {
 			if (trade.getType() != null) {
 				type = OrganizationAccountFlowType.getByIndex(trade.getType().toString()).getType();
 			}
-			data.add(trade.getFlowNo() == null ? "" : trade.getFlowNo());
+			data.add(trade.getoTradeNo() == null ? "" : trade.getoTradeNo());
 			data.add(trade.getOccurrenceTime() != null ? sdf.format(trade.getOccurrenceTime()) : "");
 			data.add(type);
 			data.add(String.valueOf(trade.getAmount() == null ? "" : trade.getAmount()));
@@ -169,7 +169,7 @@ public class AgentCapitalManageController {
 				type = OrganizationAccountFlowType.getByIndex(trade.getType().toString()).getType();
 			}
 			data.add(String.valueOf(trade.getId() == null ? "" : trade.getId()));
-			data.add(trade.getFlowNo() == null ? "" : trade.getFlowNo());
+			data.add(trade.getoTradeNo() == null ? "" : trade.getoTradeNo());
 			data.add(trade.getoPublisherName() == null ? "" : trade.getoPublisherName());
 			data.add(trade.getoPublisherPhone() == null ? "" : trade.getoPublisherPhone());
 			data.add(trade.getCommoditySymbol() == null ? "" : trade.getCommoditySymbol());
