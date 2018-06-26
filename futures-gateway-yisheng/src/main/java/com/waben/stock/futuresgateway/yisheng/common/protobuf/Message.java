@@ -19,32 +19,24 @@ public final class Message {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>required string clientId = 1;</code>
-     */
-    boolean hasClientId();
-    /**
-     * <code>required string clientId = 1;</code>
+     * <code>optional string clientId = 1;</code>
      */
     java.lang.String getClientId();
     /**
-     * <code>required string clientId = 1;</code>
+     * <code>optional string clientId = 1;</code>
      */
     com.google.protobuf.ByteString
         getClientIdBytes();
 
     /**
-     * <code>required .CommandType cmd = 2;</code>
+     * <code>optional .CommandType cmd = 2;</code>
      */
-    boolean hasCmd();
+    int getCmdValue();
     /**
-     * <code>required .CommandType cmd = 2;</code>
+     * <code>optional .CommandType cmd = 2;</code>
      */
     com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType getCmd();
 
-    /**
-     * <code>optional int64 type = 3;</code>
-     */
-    boolean hasType();
     /**
      * <code>optional int64 type = 3;</code>
      */
@@ -53,16 +45,8 @@ public final class Message {
     /**
      * <code>optional int64 requestType = 4;</code>
      */
-    boolean hasRequestType();
-    /**
-     * <code>optional int64 requestType = 4;</code>
-     */
     long getRequestType();
 
-    /**
-     * <code>optional string data = 5;</code>
-     */
-    boolean hasData();
     /**
      * <code>optional string data = 5;</code>
      */
@@ -123,7 +107,7 @@ public final class Message {
     }
     private MessageBase() {
       clientId_ = "";
-      cmd_ = 1;
+      cmd_ = 0;
       type_ = 0L;
       requestType_ = 0L;
       data_ = "";
@@ -133,7 +117,7 @@ public final class Message {
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
     getUnknownFields() {
-      return this.unknownFields;
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
     }
     private MessageBase(
         com.google.protobuf.CodedInputStream input,
@@ -141,8 +125,6 @@ public final class Message {
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
       int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -152,56 +134,50 @@ public final class Message {
               done = true;
               break;
             default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
+              if (!input.skipField(tag)) {
                 done = true;
               }
               break;
             }
             case 10: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000001;
-              clientId_ = bs;
+              java.lang.String s = input.readStringRequireUtf8();
+
+              clientId_ = s;
               break;
             }
             case 16: {
               int rawValue = input.readEnum();
-              com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType value = com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType.valueOf(rawValue);
-              if (value == null) {
-                unknownFields.mergeVarintField(2, rawValue);
-              } else {
-                bitField0_ |= 0x00000002;
-                cmd_ = rawValue;
-              }
+
+              cmd_ = rawValue;
               break;
             }
             case 24: {
-              bitField0_ |= 0x00000004;
+
               type_ = input.readInt64();
               break;
             }
             case 32: {
-              bitField0_ |= 0x00000008;
+
               requestType_ = input.readInt64();
               break;
             }
             case 42: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000010;
-              data_ = bs;
+              java.lang.String s = input.readStringRequireUtf8();
+
+              data_ = s;
               break;
             }
             case 50: {
               com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000020) == 0x00000020)) {
+              if (fq_ != null) {
                 subBuilder = fq_.toBuilder();
               }
-              fq_ = input.readMessage(com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.PARSER, extensionRegistry);
+              fq_ = input.readMessage(com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.parser(), extensionRegistry);
               if (subBuilder != null) {
                 subBuilder.mergeFrom(fq_);
                 fq_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00000020;
+
               break;
             }
             case 58: {
@@ -210,7 +186,7 @@ public final class Message {
                 mutable_bitField0_ |= 0x00000040;
               }
               fqList_.add(
-                  input.readMessage(com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteSimpleData.FuturesQuoteSimpleDataBase.PARSER, extensionRegistry));
+                  input.readMessage(com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteSimpleData.FuturesQuoteSimpleDataBase.parser(), extensionRegistry));
               break;
             }
           }
@@ -224,7 +200,6 @@ public final class Message {
         if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
           fqList_ = java.util.Collections.unmodifiableList(fqList_);
         }
-        this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
@@ -244,13 +219,7 @@ public final class Message {
     public static final int CLIENTID_FIELD_NUMBER = 1;
     private volatile java.lang.Object clientId_;
     /**
-     * <code>required string clientId = 1;</code>
-     */
-    public boolean hasClientId() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>required string clientId = 1;</code>
+     * <code>optional string clientId = 1;</code>
      */
     public java.lang.String getClientId() {
       java.lang.Object ref = clientId_;
@@ -260,14 +229,12 @@ public final class Message {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          clientId_ = s;
-        }
+        clientId_ = s;
         return s;
       }
     }
     /**
-     * <code>required string clientId = 1;</code>
+     * <code>optional string clientId = 1;</code>
      */
     public com.google.protobuf.ByteString
         getClientIdBytes() {
@@ -286,27 +253,21 @@ public final class Message {
     public static final int CMD_FIELD_NUMBER = 2;
     private int cmd_;
     /**
-     * <code>required .CommandType cmd = 2;</code>
+     * <code>optional .CommandType cmd = 2;</code>
      */
-    public boolean hasCmd() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+    public int getCmdValue() {
+      return cmd_;
     }
     /**
-     * <code>required .CommandType cmd = 2;</code>
+     * <code>optional .CommandType cmd = 2;</code>
      */
     public com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType getCmd() {
       com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType result = com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType.valueOf(cmd_);
-      return result == null ? com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType.AUTH : result;
+      return result == null ? com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType.UNRECOGNIZED : result;
     }
 
     public static final int TYPE_FIELD_NUMBER = 3;
     private long type_;
-    /**
-     * <code>optional int64 type = 3;</code>
-     */
-    public boolean hasType() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
     /**
      * <code>optional int64 type = 3;</code>
      */
@@ -319,24 +280,12 @@ public final class Message {
     /**
      * <code>optional int64 requestType = 4;</code>
      */
-    public boolean hasRequestType() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
-    }
-    /**
-     * <code>optional int64 requestType = 4;</code>
-     */
     public long getRequestType() {
       return requestType_;
     }
 
     public static final int DATA_FIELD_NUMBER = 5;
     private volatile java.lang.Object data_;
-    /**
-     * <code>optional string data = 5;</code>
-     */
-    public boolean hasData() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
-    }
     /**
      * <code>optional string data = 5;</code>
      */
@@ -348,9 +297,7 @@ public final class Message {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          data_ = s;
-        }
+        data_ = s;
         return s;
       }
     }
@@ -377,7 +324,7 @@ public final class Message {
      * <code>optional .FuturesQuoteDataBase fq = 6;</code>
      */
     public boolean hasFq() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+      return fq_ != null;
     }
     /**
      * <code>optional .FuturesQuoteDataBase fq = 6;</code>
@@ -389,7 +336,7 @@ public final class Message {
      * <code>optional .FuturesQuoteDataBase fq = 6;</code>
      */
     public com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBaseOrBuilder getFqOrBuilder() {
-      return fq_ == null ? com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.getDefaultInstance() : fq_;
+      return getFq();
     }
 
     public static final int FQLIST_FIELD_NUMBER = 7;
@@ -433,42 +380,33 @@ public final class Message {
       if (isInitialized == 1) return true;
       if (isInitialized == 0) return false;
 
-      if (!hasClientId()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!hasCmd()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       memoizedIsInitialized = 1;
       return true;
     }
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (!getClientIdBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 1, clientId_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (cmd_ != com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType.NONE.getNumber()) {
         output.writeEnum(2, cmd_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (type_ != 0L) {
         output.writeInt64(3, type_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (requestType_ != 0L) {
         output.writeInt64(4, requestType_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (!getDataBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 5, data_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (fq_ != null) {
         output.writeMessage(6, getFq());
       }
       for (int i = 0; i < fqList_.size(); i++) {
         output.writeMessage(7, fqList_.get(i));
       }
-      unknownFields.writeTo(output);
     }
 
     public int getSerializedSize() {
@@ -476,25 +414,25 @@ public final class Message {
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (!getClientIdBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, clientId_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (cmd_ != com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType.NONE.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(2, cmd_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (type_ != 0L) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(3, type_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (requestType_ != 0L) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(4, requestType_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (!getDataBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, data_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (fq_ != null) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(6, getFq());
       }
@@ -502,7 +440,6 @@ public final class Message {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(7, fqList_.get(i));
       }
-      size += unknownFields.getSerializedSize();
       memoizedSize = size;
       return size;
     }
@@ -519,30 +456,15 @@ public final class Message {
       com.waben.stock.futuresgateway.yisheng.common.protobuf.Message.MessageBase other = (com.waben.stock.futuresgateway.yisheng.common.protobuf.Message.MessageBase) obj;
 
       boolean result = true;
-      result = result && (hasClientId() == other.hasClientId());
-      if (hasClientId()) {
-        result = result && getClientId()
-            .equals(other.getClientId());
-      }
-      result = result && (hasCmd() == other.hasCmd());
-      if (hasCmd()) {
-        result = result && cmd_ == other.cmd_;
-      }
-      result = result && (hasType() == other.hasType());
-      if (hasType()) {
-        result = result && (getType()
-            == other.getType());
-      }
-      result = result && (hasRequestType() == other.hasRequestType());
-      if (hasRequestType()) {
-        result = result && (getRequestType()
-            == other.getRequestType());
-      }
-      result = result && (hasData() == other.hasData());
-      if (hasData()) {
-        result = result && getData()
-            .equals(other.getData());
-      }
+      result = result && getClientId()
+          .equals(other.getClientId());
+      result = result && cmd_ == other.cmd_;
+      result = result && (getType()
+          == other.getType());
+      result = result && (getRequestType()
+          == other.getRequestType());
+      result = result && getData()
+          .equals(other.getData());
       result = result && (hasFq() == other.hasFq());
       if (hasFq()) {
         result = result && getFq()
@@ -550,7 +472,6 @@ public final class Message {
       }
       result = result && getFqListList()
           .equals(other.getFqListList());
-      result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
 
@@ -561,28 +482,18 @@ public final class Message {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptorForType().hashCode();
-      if (hasClientId()) {
-        hash = (37 * hash) + CLIENTID_FIELD_NUMBER;
-        hash = (53 * hash) + getClientId().hashCode();
-      }
-      if (hasCmd()) {
-        hash = (37 * hash) + CMD_FIELD_NUMBER;
-        hash = (53 * hash) + cmd_;
-      }
-      if (hasType()) {
-        hash = (37 * hash) + TYPE_FIELD_NUMBER;
-        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-            getType());
-      }
-      if (hasRequestType()) {
-        hash = (37 * hash) + REQUESTTYPE_FIELD_NUMBER;
-        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-            getRequestType());
-      }
-      if (hasData()) {
-        hash = (37 * hash) + DATA_FIELD_NUMBER;
-        hash = (53 * hash) + getData().hashCode();
-      }
+      hash = (37 * hash) + CLIENTID_FIELD_NUMBER;
+      hash = (53 * hash) + getClientId().hashCode();
+      hash = (37 * hash) + CMD_FIELD_NUMBER;
+      hash = (53 * hash) + cmd_;
+      hash = (37 * hash) + TYPE_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getType());
+      hash = (37 * hash) + REQUESTTYPE_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getRequestType());
+      hash = (37 * hash) + DATA_FIELD_NUMBER;
+      hash = (53 * hash) + getData().hashCode();
       if (hasFq()) {
         hash = (37 * hash) + FQ_FIELD_NUMBER;
         hash = (53 * hash) + getFq().hashCode();
@@ -705,28 +616,27 @@ public final class Message {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessageV3
                 .alwaysUseFieldBuilders) {
-          getFqFieldBuilder();
           getFqListFieldBuilder();
         }
       }
       public Builder clear() {
         super.clear();
         clientId_ = "";
-        bitField0_ = (bitField0_ & ~0x00000001);
-        cmd_ = 1;
-        bitField0_ = (bitField0_ & ~0x00000002);
+
+        cmd_ = 0;
+
         type_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000004);
+
         requestType_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000008);
+
         data_ = "";
-        bitField0_ = (bitField0_ & ~0x00000010);
+
         if (fqBuilder_ == null) {
           fq_ = null;
         } else {
-          fqBuilder_.clear();
+          fq_ = null;
+          fqBuilder_ = null;
         }
-        bitField0_ = (bitField0_ & ~0x00000020);
         if (fqListBuilder_ == null) {
           fqList_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000040);
@@ -757,29 +667,11 @@ public final class Message {
         com.waben.stock.futuresgateway.yisheng.common.protobuf.Message.MessageBase result = new com.waben.stock.futuresgateway.yisheng.common.protobuf.Message.MessageBase(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
         result.clientId_ = clientId_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
         result.cmd_ = cmd_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000004;
-        }
         result.type_ = type_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-          to_bitField0_ |= 0x00000008;
-        }
         result.requestType_ = requestType_;
-        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
-          to_bitField0_ |= 0x00000010;
-        }
         result.data_ = data_;
-        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-          to_bitField0_ |= 0x00000020;
-        }
         if (fqBuilder_ == null) {
           result.fq_ = fq_;
         } else {
@@ -836,22 +728,20 @@ public final class Message {
 
       public Builder mergeFrom(com.waben.stock.futuresgateway.yisheng.common.protobuf.Message.MessageBase other) {
         if (other == com.waben.stock.futuresgateway.yisheng.common.protobuf.Message.MessageBase.getDefaultInstance()) return this;
-        if (other.hasClientId()) {
-          bitField0_ |= 0x00000001;
+        if (!other.getClientId().isEmpty()) {
           clientId_ = other.clientId_;
           onChanged();
         }
-        if (other.hasCmd()) {
-          setCmd(other.getCmd());
+        if (other.cmd_ != 0) {
+          setCmdValue(other.getCmdValue());
         }
-        if (other.hasType()) {
+        if (other.getType() != 0L) {
           setType(other.getType());
         }
-        if (other.hasRequestType()) {
+        if (other.getRequestType() != 0L) {
           setRequestType(other.getRequestType());
         }
-        if (other.hasData()) {
-          bitField0_ |= 0x00000010;
+        if (!other.getData().isEmpty()) {
           data_ = other.data_;
           onChanged();
         }
@@ -884,18 +774,11 @@ public final class Message {
             }
           }
         }
-        this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
       }
 
       public final boolean isInitialized() {
-        if (!hasClientId()) {
-          return false;
-        }
-        if (!hasCmd()) {
-          return false;
-        }
         return true;
       }
 
@@ -920,13 +803,7 @@ public final class Message {
 
       private java.lang.Object clientId_ = "";
       /**
-       * <code>required string clientId = 1;</code>
-       */
-      public boolean hasClientId() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>required string clientId = 1;</code>
+       * <code>optional string clientId = 1;</code>
        */
       public java.lang.String getClientId() {
         java.lang.Object ref = clientId_;
@@ -934,16 +811,14 @@ public final class Message {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            clientId_ = s;
-          }
+          clientId_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
         }
       }
       /**
-       * <code>required string clientId = 1;</code>
+       * <code>optional string clientId = 1;</code>
        */
       public com.google.protobuf.ByteString
           getClientIdBytes() {
@@ -959,84 +834,87 @@ public final class Message {
         }
       }
       /**
-       * <code>required string clientId = 1;</code>
+       * <code>optional string clientId = 1;</code>
        */
       public Builder setClientId(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+  
         clientId_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>required string clientId = 1;</code>
+       * <code>optional string clientId = 1;</code>
        */
       public Builder clearClientId() {
-        bitField0_ = (bitField0_ & ~0x00000001);
+        
         clientId_ = getDefaultInstance().getClientId();
         onChanged();
         return this;
       }
       /**
-       * <code>required string clientId = 1;</code>
+       * <code>optional string clientId = 1;</code>
        */
       public Builder setClientIdBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+  checkByteStringIsUtf8(value);
+        
         clientId_ = value;
         onChanged();
         return this;
       }
 
-      private int cmd_ = 1;
+      private int cmd_ = 0;
       /**
-       * <code>required .CommandType cmd = 2;</code>
+       * <code>optional .CommandType cmd = 2;</code>
        */
-      public boolean hasCmd() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+      public int getCmdValue() {
+        return cmd_;
       }
       /**
-       * <code>required .CommandType cmd = 2;</code>
+       * <code>optional .CommandType cmd = 2;</code>
+       */
+      public Builder setCmdValue(int value) {
+        cmd_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional .CommandType cmd = 2;</code>
        */
       public com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType getCmd() {
         com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType result = com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType.valueOf(cmd_);
-        return result == null ? com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType.AUTH : result;
+        return result == null ? com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType.UNRECOGNIZED : result;
       }
       /**
-       * <code>required .CommandType cmd = 2;</code>
+       * <code>optional .CommandType cmd = 2;</code>
        */
       public Builder setCmd(com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType value) {
         if (value == null) {
           throw new NullPointerException();
         }
-        bitField0_ |= 0x00000002;
+        
         cmd_ = value.getNumber();
         onChanged();
         return this;
       }
       /**
-       * <code>required .CommandType cmd = 2;</code>
+       * <code>optional .CommandType cmd = 2;</code>
        */
       public Builder clearCmd() {
-        bitField0_ = (bitField0_ & ~0x00000002);
-        cmd_ = 1;
+        
+        cmd_ = 0;
         onChanged();
         return this;
       }
 
       private long type_ ;
-      /**
-       * <code>optional int64 type = 3;</code>
-       */
-      public boolean hasType() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
       /**
        * <code>optional int64 type = 3;</code>
        */
@@ -1047,7 +925,7 @@ public final class Message {
        * <code>optional int64 type = 3;</code>
        */
       public Builder setType(long value) {
-        bitField0_ |= 0x00000004;
+        
         type_ = value;
         onChanged();
         return this;
@@ -1056,19 +934,13 @@ public final class Message {
        * <code>optional int64 type = 3;</code>
        */
       public Builder clearType() {
-        bitField0_ = (bitField0_ & ~0x00000004);
+        
         type_ = 0L;
         onChanged();
         return this;
       }
 
       private long requestType_ ;
-      /**
-       * <code>optional int64 requestType = 4;</code>
-       */
-      public boolean hasRequestType() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
-      }
       /**
        * <code>optional int64 requestType = 4;</code>
        */
@@ -1079,7 +951,7 @@ public final class Message {
        * <code>optional int64 requestType = 4;</code>
        */
       public Builder setRequestType(long value) {
-        bitField0_ |= 0x00000008;
+        
         requestType_ = value;
         onChanged();
         return this;
@@ -1088,7 +960,7 @@ public final class Message {
        * <code>optional int64 requestType = 4;</code>
        */
       public Builder clearRequestType() {
-        bitField0_ = (bitField0_ & ~0x00000008);
+        
         requestType_ = 0L;
         onChanged();
         return this;
@@ -1098,21 +970,13 @@ public final class Message {
       /**
        * <code>optional string data = 5;</code>
        */
-      public boolean hasData() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
-      }
-      /**
-       * <code>optional string data = 5;</code>
-       */
       public java.lang.String getData() {
         java.lang.Object ref = data_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            data_ = s;
-          }
+          data_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1142,7 +1006,7 @@ public final class Message {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000010;
+  
         data_ = value;
         onChanged();
         return this;
@@ -1151,7 +1015,7 @@ public final class Message {
        * <code>optional string data = 5;</code>
        */
       public Builder clearData() {
-        bitField0_ = (bitField0_ & ~0x00000010);
+        
         data_ = getDefaultInstance().getData();
         onChanged();
         return this;
@@ -1164,7 +1028,8 @@ public final class Message {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000010;
+  checkByteStringIsUtf8(value);
+        
         data_ = value;
         onChanged();
         return this;
@@ -1177,7 +1042,7 @@ public final class Message {
        * <code>optional .FuturesQuoteDataBase fq = 6;</code>
        */
       public boolean hasFq() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return fqBuilder_ != null || fq_ != null;
       }
       /**
        * <code>optional .FuturesQuoteDataBase fq = 6;</code>
@@ -1202,7 +1067,7 @@ public final class Message {
         } else {
           fqBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000020;
+
         return this;
       }
       /**
@@ -1216,7 +1081,7 @@ public final class Message {
         } else {
           fqBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000020;
+
         return this;
       }
       /**
@@ -1224,9 +1089,7 @@ public final class Message {
        */
       public Builder mergeFq(com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase value) {
         if (fqBuilder_ == null) {
-          if (((bitField0_ & 0x00000020) == 0x00000020) &&
-              fq_ != null &&
-              fq_ != com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.getDefaultInstance()) {
+          if (fq_ != null) {
             fq_ =
               com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.newBuilder(fq_).mergeFrom(value).buildPartial();
           } else {
@@ -1236,7 +1099,7 @@ public final class Message {
         } else {
           fqBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000020;
+
         return this;
       }
       /**
@@ -1247,16 +1110,17 @@ public final class Message {
           fq_ = null;
           onChanged();
         } else {
-          fqBuilder_.clear();
+          fq_ = null;
+          fqBuilder_ = null;
         }
-        bitField0_ = (bitField0_ & ~0x00000020);
+
         return this;
       }
       /**
        * <code>optional .FuturesQuoteDataBase fq = 6;</code>
        */
       public com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.Builder getFqBuilder() {
-        bitField0_ |= 0x00000020;
+        
         onChanged();
         return getFqFieldBuilder().getBuilder();
       }
@@ -1529,12 +1393,12 @@ public final class Message {
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFields(unknownFields);
+        return this;
       }
 
       public final Builder mergeUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.mergeUnknownFields(unknownFields);
+        return this;
       }
 
 
@@ -1551,7 +1415,7 @@ public final class Message {
       return DEFAULT_INSTANCE;
     }
 
-    @java.lang.Deprecated public static final com.google.protobuf.Parser<MessageBase>
+    private static final com.google.protobuf.Parser<MessageBase>
         PARSER = new com.google.protobuf.AbstractParser<MessageBase>() {
       public MessageBase parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
@@ -1592,13 +1456,13 @@ public final class Message {
     java.lang.String[] descriptorData = {
       "\n\rMessage.proto\032\rCommand.proto\032\026FuturesQ" +
       "uoteData.proto\032\034FuturesQuoteSimpleData.p" +
-      "roto\"\273\001\n\013MessageBase\022\020\n\010clientId\030\001 \002(\t\022\031" +
-      "\n\003cmd\030\002 \002(\0162\014.CommandType\022\014\n\004type\030\003 \001(\003\022" +
+      "roto\"\273\001\n\013MessageBase\022\020\n\010clientId\030\001 \001(\t\022\031" +
+      "\n\003cmd\030\002 \001(\0162\014.CommandType\022\014\n\004type\030\003 \001(\003\022" +
       "\023\n\013requestType\030\004 \001(\003\022\014\n\004data\030\005 \001(\t\022!\n\002fq" +
       "\030\006 \001(\0132\025.FuturesQuoteDataBase\022+\n\006fqList\030" +
       "\007 \003(\0132\033.FuturesQuoteSimpleDataBaseBA\n6co" +
       "m.waben.stock.futuresgateway.yisheng.com" +
-      "mon.protobufB\007Message"
+      "mon.protobufB\007Messageb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

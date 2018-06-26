@@ -21,10 +21,6 @@ public final class FuturesQuoteSimpleData {
     /**
      * <code>optional string time = 1;</code>
      */
-    boolean hasTime();
-    /**
-     * <code>optional string time = 1;</code>
-     */
     java.lang.String getTime();
     /**
      * <code>optional string time = 1;</code>
@@ -32,10 +28,6 @@ public final class FuturesQuoteSimpleData {
     com.google.protobuf.ByteString
         getTimeBytes();
 
-    /**
-     * <code>optional string commodityNo = 2;</code>
-     */
-    boolean hasCommodityNo();
     /**
      * <code>optional string commodityNo = 2;</code>
      */
@@ -49,10 +41,6 @@ public final class FuturesQuoteSimpleData {
     /**
      * <code>optional string contractNo = 3;</code>
      */
-    boolean hasContractNo();
-    /**
-     * <code>optional string contractNo = 3;</code>
-     */
     java.lang.String getContractNo();
     /**
      * <code>optional string contractNo = 3;</code>
@@ -60,10 +48,6 @@ public final class FuturesQuoteSimpleData {
     com.google.protobuf.ByteString
         getContractNoBytes();
 
-    /**
-     * <code>optional string lastPrice = 4;</code>
-     */
-    boolean hasLastPrice();
     /**
      * <code>optional string lastPrice = 4;</code>
      */
@@ -77,10 +61,6 @@ public final class FuturesQuoteSimpleData {
     /**
      * <code>optional string openPrice = 5;</code>
      */
-    boolean hasOpenPrice();
-    /**
-     * <code>optional string openPrice = 5;</code>
-     */
     java.lang.String getOpenPrice();
     /**
      * <code>optional string openPrice = 5;</code>
@@ -88,10 +68,6 @@ public final class FuturesQuoteSimpleData {
     com.google.protobuf.ByteString
         getOpenPriceBytes();
 
-    /**
-     * <code>optional string highPrice = 6;</code>
-     */
-    boolean hasHighPrice();
     /**
      * <code>optional string highPrice = 6;</code>
      */
@@ -105,10 +81,6 @@ public final class FuturesQuoteSimpleData {
     /**
      * <code>optional string lowPrice = 7;</code>
      */
-    boolean hasLowPrice();
-    /**
-     * <code>optional string lowPrice = 7;</code>
-     */
     java.lang.String getLowPrice();
     /**
      * <code>optional string lowPrice = 7;</code>
@@ -116,10 +88,6 @@ public final class FuturesQuoteSimpleData {
     com.google.protobuf.ByteString
         getLowPriceBytes();
 
-    /**
-     * <code>optional string closePrice = 8;</code>
-     */
-    boolean hasClosePrice();
     /**
      * <code>optional string closePrice = 8;</code>
      */
@@ -155,7 +123,7 @@ public final class FuturesQuoteSimpleData {
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
     getUnknownFields() {
-      return this.unknownFields;
+      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
     }
     private FuturesQuoteSimpleDataBase(
         com.google.protobuf.CodedInputStream input,
@@ -163,8 +131,6 @@ public final class FuturesQuoteSimpleData {
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
       int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -174,58 +140,57 @@ public final class FuturesQuoteSimpleData {
               done = true;
               break;
             default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
+              if (!input.skipField(tag)) {
                 done = true;
               }
               break;
             }
             case 10: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000001;
-              time_ = bs;
+              java.lang.String s = input.readStringRequireUtf8();
+
+              time_ = s;
               break;
             }
             case 18: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000002;
-              commodityNo_ = bs;
+              java.lang.String s = input.readStringRequireUtf8();
+
+              commodityNo_ = s;
               break;
             }
             case 26: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000004;
-              contractNo_ = bs;
+              java.lang.String s = input.readStringRequireUtf8();
+
+              contractNo_ = s;
               break;
             }
             case 34: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000008;
-              lastPrice_ = bs;
+              java.lang.String s = input.readStringRequireUtf8();
+
+              lastPrice_ = s;
               break;
             }
             case 42: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000010;
-              openPrice_ = bs;
+              java.lang.String s = input.readStringRequireUtf8();
+
+              openPrice_ = s;
               break;
             }
             case 50: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000020;
-              highPrice_ = bs;
+              java.lang.String s = input.readStringRequireUtf8();
+
+              highPrice_ = s;
               break;
             }
             case 58: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000040;
-              lowPrice_ = bs;
+              java.lang.String s = input.readStringRequireUtf8();
+
+              lowPrice_ = s;
               break;
             }
             case 66: {
-              com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000080;
-              closePrice_ = bs;
+              java.lang.String s = input.readStringRequireUtf8();
+
+              closePrice_ = s;
               break;
             }
           }
@@ -236,7 +201,6 @@ public final class FuturesQuoteSimpleData {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e).setUnfinishedMessage(this);
       } finally {
-        this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
@@ -252,15 +216,8 @@ public final class FuturesQuoteSimpleData {
               com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteSimpleData.FuturesQuoteSimpleDataBase.class, com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteSimpleData.FuturesQuoteSimpleDataBase.Builder.class);
     }
 
-    private int bitField0_;
     public static final int TIME_FIELD_NUMBER = 1;
     private volatile java.lang.Object time_;
-    /**
-     * <code>optional string time = 1;</code>
-     */
-    public boolean hasTime() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
     /**
      * <code>optional string time = 1;</code>
      */
@@ -272,9 +229,7 @@ public final class FuturesQuoteSimpleData {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          time_ = s;
-        }
+        time_ = s;
         return s;
       }
     }
@@ -300,12 +255,6 @@ public final class FuturesQuoteSimpleData {
     /**
      * <code>optional string commodityNo = 2;</code>
      */
-    public boolean hasCommodityNo() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    /**
-     * <code>optional string commodityNo = 2;</code>
-     */
     public java.lang.String getCommodityNo() {
       java.lang.Object ref = commodityNo_;
       if (ref instanceof java.lang.String) {
@@ -314,9 +263,7 @@ public final class FuturesQuoteSimpleData {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          commodityNo_ = s;
-        }
+        commodityNo_ = s;
         return s;
       }
     }
@@ -342,12 +289,6 @@ public final class FuturesQuoteSimpleData {
     /**
      * <code>optional string contractNo = 3;</code>
      */
-    public boolean hasContractNo() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
-    }
-    /**
-     * <code>optional string contractNo = 3;</code>
-     */
     public java.lang.String getContractNo() {
       java.lang.Object ref = contractNo_;
       if (ref instanceof java.lang.String) {
@@ -356,9 +297,7 @@ public final class FuturesQuoteSimpleData {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          contractNo_ = s;
-        }
+        contractNo_ = s;
         return s;
       }
     }
@@ -384,12 +323,6 @@ public final class FuturesQuoteSimpleData {
     /**
      * <code>optional string lastPrice = 4;</code>
      */
-    public boolean hasLastPrice() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
-    }
-    /**
-     * <code>optional string lastPrice = 4;</code>
-     */
     public java.lang.String getLastPrice() {
       java.lang.Object ref = lastPrice_;
       if (ref instanceof java.lang.String) {
@@ -398,9 +331,7 @@ public final class FuturesQuoteSimpleData {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          lastPrice_ = s;
-        }
+        lastPrice_ = s;
         return s;
       }
     }
@@ -426,12 +357,6 @@ public final class FuturesQuoteSimpleData {
     /**
      * <code>optional string openPrice = 5;</code>
      */
-    public boolean hasOpenPrice() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
-    }
-    /**
-     * <code>optional string openPrice = 5;</code>
-     */
     public java.lang.String getOpenPrice() {
       java.lang.Object ref = openPrice_;
       if (ref instanceof java.lang.String) {
@@ -440,9 +365,7 @@ public final class FuturesQuoteSimpleData {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          openPrice_ = s;
-        }
+        openPrice_ = s;
         return s;
       }
     }
@@ -468,12 +391,6 @@ public final class FuturesQuoteSimpleData {
     /**
      * <code>optional string highPrice = 6;</code>
      */
-    public boolean hasHighPrice() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
-    }
-    /**
-     * <code>optional string highPrice = 6;</code>
-     */
     public java.lang.String getHighPrice() {
       java.lang.Object ref = highPrice_;
       if (ref instanceof java.lang.String) {
@@ -482,9 +399,7 @@ public final class FuturesQuoteSimpleData {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          highPrice_ = s;
-        }
+        highPrice_ = s;
         return s;
       }
     }
@@ -510,12 +425,6 @@ public final class FuturesQuoteSimpleData {
     /**
      * <code>optional string lowPrice = 7;</code>
      */
-    public boolean hasLowPrice() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
-    }
-    /**
-     * <code>optional string lowPrice = 7;</code>
-     */
     public java.lang.String getLowPrice() {
       java.lang.Object ref = lowPrice_;
       if (ref instanceof java.lang.String) {
@@ -524,9 +433,7 @@ public final class FuturesQuoteSimpleData {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          lowPrice_ = s;
-        }
+        lowPrice_ = s;
         return s;
       }
     }
@@ -552,12 +459,6 @@ public final class FuturesQuoteSimpleData {
     /**
      * <code>optional string closePrice = 8;</code>
      */
-    public boolean hasClosePrice() {
-      return ((bitField0_ & 0x00000080) == 0x00000080);
-    }
-    /**
-     * <code>optional string closePrice = 8;</code>
-     */
     public java.lang.String getClosePrice() {
       java.lang.Object ref = closePrice_;
       if (ref instanceof java.lang.String) {
@@ -566,9 +467,7 @@ public final class FuturesQuoteSimpleData {
         com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        if (bs.isValidUtf8()) {
-          closePrice_ = s;
-        }
+        closePrice_ = s;
         return s;
       }
     }
@@ -601,31 +500,30 @@ public final class FuturesQuoteSimpleData {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (!getTimeBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 1, time_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (!getCommodityNoBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 2, commodityNo_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (!getContractNoBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 3, contractNo_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (!getLastPriceBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 4, lastPrice_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (!getOpenPriceBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 5, openPrice_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (!getHighPriceBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 6, highPrice_);
       }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      if (!getLowPriceBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 7, lowPrice_);
       }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+      if (!getClosePriceBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 8, closePrice_);
       }
-      unknownFields.writeTo(output);
     }
 
     public int getSerializedSize() {
@@ -633,31 +531,30 @@ public final class FuturesQuoteSimpleData {
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (!getTimeBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, time_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (!getCommodityNoBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, commodityNo_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (!getContractNoBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, contractNo_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (!getLastPriceBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, lastPrice_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (!getOpenPriceBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, openPrice_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (!getHighPriceBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(6, highPrice_);
       }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      if (!getLowPriceBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(7, lowPrice_);
       }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+      if (!getClosePriceBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(8, closePrice_);
       }
-      size += unknownFields.getSerializedSize();
       memoizedSize = size;
       return size;
     }
@@ -674,47 +571,22 @@ public final class FuturesQuoteSimpleData {
       com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteSimpleData.FuturesQuoteSimpleDataBase other = (com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteSimpleData.FuturesQuoteSimpleDataBase) obj;
 
       boolean result = true;
-      result = result && (hasTime() == other.hasTime());
-      if (hasTime()) {
-        result = result && getTime()
-            .equals(other.getTime());
-      }
-      result = result && (hasCommodityNo() == other.hasCommodityNo());
-      if (hasCommodityNo()) {
-        result = result && getCommodityNo()
-            .equals(other.getCommodityNo());
-      }
-      result = result && (hasContractNo() == other.hasContractNo());
-      if (hasContractNo()) {
-        result = result && getContractNo()
-            .equals(other.getContractNo());
-      }
-      result = result && (hasLastPrice() == other.hasLastPrice());
-      if (hasLastPrice()) {
-        result = result && getLastPrice()
-            .equals(other.getLastPrice());
-      }
-      result = result && (hasOpenPrice() == other.hasOpenPrice());
-      if (hasOpenPrice()) {
-        result = result && getOpenPrice()
-            .equals(other.getOpenPrice());
-      }
-      result = result && (hasHighPrice() == other.hasHighPrice());
-      if (hasHighPrice()) {
-        result = result && getHighPrice()
-            .equals(other.getHighPrice());
-      }
-      result = result && (hasLowPrice() == other.hasLowPrice());
-      if (hasLowPrice()) {
-        result = result && getLowPrice()
-            .equals(other.getLowPrice());
-      }
-      result = result && (hasClosePrice() == other.hasClosePrice());
-      if (hasClosePrice()) {
-        result = result && getClosePrice()
-            .equals(other.getClosePrice());
-      }
-      result = result && unknownFields.equals(other.unknownFields);
+      result = result && getTime()
+          .equals(other.getTime());
+      result = result && getCommodityNo()
+          .equals(other.getCommodityNo());
+      result = result && getContractNo()
+          .equals(other.getContractNo());
+      result = result && getLastPrice()
+          .equals(other.getLastPrice());
+      result = result && getOpenPrice()
+          .equals(other.getOpenPrice());
+      result = result && getHighPrice()
+          .equals(other.getHighPrice());
+      result = result && getLowPrice()
+          .equals(other.getLowPrice());
+      result = result && getClosePrice()
+          .equals(other.getClosePrice());
       return result;
     }
 
@@ -725,38 +597,22 @@ public final class FuturesQuoteSimpleData {
       }
       int hash = 41;
       hash = (19 * hash) + getDescriptorForType().hashCode();
-      if (hasTime()) {
-        hash = (37 * hash) + TIME_FIELD_NUMBER;
-        hash = (53 * hash) + getTime().hashCode();
-      }
-      if (hasCommodityNo()) {
-        hash = (37 * hash) + COMMODITYNO_FIELD_NUMBER;
-        hash = (53 * hash) + getCommodityNo().hashCode();
-      }
-      if (hasContractNo()) {
-        hash = (37 * hash) + CONTRACTNO_FIELD_NUMBER;
-        hash = (53 * hash) + getContractNo().hashCode();
-      }
-      if (hasLastPrice()) {
-        hash = (37 * hash) + LASTPRICE_FIELD_NUMBER;
-        hash = (53 * hash) + getLastPrice().hashCode();
-      }
-      if (hasOpenPrice()) {
-        hash = (37 * hash) + OPENPRICE_FIELD_NUMBER;
-        hash = (53 * hash) + getOpenPrice().hashCode();
-      }
-      if (hasHighPrice()) {
-        hash = (37 * hash) + HIGHPRICE_FIELD_NUMBER;
-        hash = (53 * hash) + getHighPrice().hashCode();
-      }
-      if (hasLowPrice()) {
-        hash = (37 * hash) + LOWPRICE_FIELD_NUMBER;
-        hash = (53 * hash) + getLowPrice().hashCode();
-      }
-      if (hasClosePrice()) {
-        hash = (37 * hash) + CLOSEPRICE_FIELD_NUMBER;
-        hash = (53 * hash) + getClosePrice().hashCode();
-      }
+      hash = (37 * hash) + TIME_FIELD_NUMBER;
+      hash = (53 * hash) + getTime().hashCode();
+      hash = (37 * hash) + COMMODITYNO_FIELD_NUMBER;
+      hash = (53 * hash) + getCommodityNo().hashCode();
+      hash = (37 * hash) + CONTRACTNO_FIELD_NUMBER;
+      hash = (53 * hash) + getContractNo().hashCode();
+      hash = (37 * hash) + LASTPRICE_FIELD_NUMBER;
+      hash = (53 * hash) + getLastPrice().hashCode();
+      hash = (37 * hash) + OPENPRICE_FIELD_NUMBER;
+      hash = (53 * hash) + getOpenPrice().hashCode();
+      hash = (37 * hash) + HIGHPRICE_FIELD_NUMBER;
+      hash = (53 * hash) + getHighPrice().hashCode();
+      hash = (37 * hash) + LOWPRICE_FIELD_NUMBER;
+      hash = (53 * hash) + getLowPrice().hashCode();
+      hash = (37 * hash) + CLOSEPRICE_FIELD_NUMBER;
+      hash = (53 * hash) + getClosePrice().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -876,21 +732,21 @@ public final class FuturesQuoteSimpleData {
       public Builder clear() {
         super.clear();
         time_ = "";
-        bitField0_ = (bitField0_ & ~0x00000001);
+
         commodityNo_ = "";
-        bitField0_ = (bitField0_ & ~0x00000002);
+
         contractNo_ = "";
-        bitField0_ = (bitField0_ & ~0x00000004);
+
         lastPrice_ = "";
-        bitField0_ = (bitField0_ & ~0x00000008);
+
         openPrice_ = "";
-        bitField0_ = (bitField0_ & ~0x00000010);
+
         highPrice_ = "";
-        bitField0_ = (bitField0_ & ~0x00000020);
+
         lowPrice_ = "";
-        bitField0_ = (bitField0_ & ~0x00000040);
+
         closePrice_ = "";
-        bitField0_ = (bitField0_ & ~0x00000080);
+
         return this;
       }
 
@@ -913,41 +769,14 @@ public final class FuturesQuoteSimpleData {
 
       public com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteSimpleData.FuturesQuoteSimpleDataBase buildPartial() {
         com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteSimpleData.FuturesQuoteSimpleDataBase result = new com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteSimpleData.FuturesQuoteSimpleDataBase(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
         result.time_ = time_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
         result.commodityNo_ = commodityNo_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-          to_bitField0_ |= 0x00000004;
-        }
         result.contractNo_ = contractNo_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-          to_bitField0_ |= 0x00000008;
-        }
         result.lastPrice_ = lastPrice_;
-        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
-          to_bitField0_ |= 0x00000010;
-        }
         result.openPrice_ = openPrice_;
-        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-          to_bitField0_ |= 0x00000020;
-        }
         result.highPrice_ = highPrice_;
-        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
-          to_bitField0_ |= 0x00000040;
-        }
         result.lowPrice_ = lowPrice_;
-        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
-          to_bitField0_ |= 0x00000080;
-        }
         result.closePrice_ = closePrice_;
-        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -989,47 +818,38 @@ public final class FuturesQuoteSimpleData {
 
       public Builder mergeFrom(com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteSimpleData.FuturesQuoteSimpleDataBase other) {
         if (other == com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteSimpleData.FuturesQuoteSimpleDataBase.getDefaultInstance()) return this;
-        if (other.hasTime()) {
-          bitField0_ |= 0x00000001;
+        if (!other.getTime().isEmpty()) {
           time_ = other.time_;
           onChanged();
         }
-        if (other.hasCommodityNo()) {
-          bitField0_ |= 0x00000002;
+        if (!other.getCommodityNo().isEmpty()) {
           commodityNo_ = other.commodityNo_;
           onChanged();
         }
-        if (other.hasContractNo()) {
-          bitField0_ |= 0x00000004;
+        if (!other.getContractNo().isEmpty()) {
           contractNo_ = other.contractNo_;
           onChanged();
         }
-        if (other.hasLastPrice()) {
-          bitField0_ |= 0x00000008;
+        if (!other.getLastPrice().isEmpty()) {
           lastPrice_ = other.lastPrice_;
           onChanged();
         }
-        if (other.hasOpenPrice()) {
-          bitField0_ |= 0x00000010;
+        if (!other.getOpenPrice().isEmpty()) {
           openPrice_ = other.openPrice_;
           onChanged();
         }
-        if (other.hasHighPrice()) {
-          bitField0_ |= 0x00000020;
+        if (!other.getHighPrice().isEmpty()) {
           highPrice_ = other.highPrice_;
           onChanged();
         }
-        if (other.hasLowPrice()) {
-          bitField0_ |= 0x00000040;
+        if (!other.getLowPrice().isEmpty()) {
           lowPrice_ = other.lowPrice_;
           onChanged();
         }
-        if (other.hasClosePrice()) {
-          bitField0_ |= 0x00000080;
+        if (!other.getClosePrice().isEmpty()) {
           closePrice_ = other.closePrice_;
           onChanged();
         }
-        this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
       }
@@ -1055,15 +875,8 @@ public final class FuturesQuoteSimpleData {
         }
         return this;
       }
-      private int bitField0_;
 
       private java.lang.Object time_ = "";
-      /**
-       * <code>optional string time = 1;</code>
-       */
-      public boolean hasTime() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
       /**
        * <code>optional string time = 1;</code>
        */
@@ -1073,9 +886,7 @@ public final class FuturesQuoteSimpleData {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            time_ = s;
-          }
+          time_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1105,7 +916,7 @@ public final class FuturesQuoteSimpleData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+  
         time_ = value;
         onChanged();
         return this;
@@ -1114,7 +925,7 @@ public final class FuturesQuoteSimpleData {
        * <code>optional string time = 1;</code>
        */
       public Builder clearTime() {
-        bitField0_ = (bitField0_ & ~0x00000001);
+        
         time_ = getDefaultInstance().getTime();
         onChanged();
         return this;
@@ -1127,7 +938,8 @@ public final class FuturesQuoteSimpleData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+  checkByteStringIsUtf8(value);
+        
         time_ = value;
         onChanged();
         return this;
@@ -1137,21 +949,13 @@ public final class FuturesQuoteSimpleData {
       /**
        * <code>optional string commodityNo = 2;</code>
        */
-      public boolean hasCommodityNo() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      /**
-       * <code>optional string commodityNo = 2;</code>
-       */
       public java.lang.String getCommodityNo() {
         java.lang.Object ref = commodityNo_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            commodityNo_ = s;
-          }
+          commodityNo_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1181,7 +985,7 @@ public final class FuturesQuoteSimpleData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
+  
         commodityNo_ = value;
         onChanged();
         return this;
@@ -1190,7 +994,7 @@ public final class FuturesQuoteSimpleData {
        * <code>optional string commodityNo = 2;</code>
        */
       public Builder clearCommodityNo() {
-        bitField0_ = (bitField0_ & ~0x00000002);
+        
         commodityNo_ = getDefaultInstance().getCommodityNo();
         onChanged();
         return this;
@@ -1203,7 +1007,8 @@ public final class FuturesQuoteSimpleData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
+  checkByteStringIsUtf8(value);
+        
         commodityNo_ = value;
         onChanged();
         return this;
@@ -1213,21 +1018,13 @@ public final class FuturesQuoteSimpleData {
       /**
        * <code>optional string contractNo = 3;</code>
        */
-      public boolean hasContractNo() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
-      }
-      /**
-       * <code>optional string contractNo = 3;</code>
-       */
       public java.lang.String getContractNo() {
         java.lang.Object ref = contractNo_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            contractNo_ = s;
-          }
+          contractNo_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1257,7 +1054,7 @@ public final class FuturesQuoteSimpleData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000004;
+  
         contractNo_ = value;
         onChanged();
         return this;
@@ -1266,7 +1063,7 @@ public final class FuturesQuoteSimpleData {
        * <code>optional string contractNo = 3;</code>
        */
       public Builder clearContractNo() {
-        bitField0_ = (bitField0_ & ~0x00000004);
+        
         contractNo_ = getDefaultInstance().getContractNo();
         onChanged();
         return this;
@@ -1279,7 +1076,8 @@ public final class FuturesQuoteSimpleData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000004;
+  checkByteStringIsUtf8(value);
+        
         contractNo_ = value;
         onChanged();
         return this;
@@ -1289,21 +1087,13 @@ public final class FuturesQuoteSimpleData {
       /**
        * <code>optional string lastPrice = 4;</code>
        */
-      public boolean hasLastPrice() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
-      }
-      /**
-       * <code>optional string lastPrice = 4;</code>
-       */
       public java.lang.String getLastPrice() {
         java.lang.Object ref = lastPrice_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            lastPrice_ = s;
-          }
+          lastPrice_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1333,7 +1123,7 @@ public final class FuturesQuoteSimpleData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000008;
+  
         lastPrice_ = value;
         onChanged();
         return this;
@@ -1342,7 +1132,7 @@ public final class FuturesQuoteSimpleData {
        * <code>optional string lastPrice = 4;</code>
        */
       public Builder clearLastPrice() {
-        bitField0_ = (bitField0_ & ~0x00000008);
+        
         lastPrice_ = getDefaultInstance().getLastPrice();
         onChanged();
         return this;
@@ -1355,7 +1145,8 @@ public final class FuturesQuoteSimpleData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000008;
+  checkByteStringIsUtf8(value);
+        
         lastPrice_ = value;
         onChanged();
         return this;
@@ -1365,21 +1156,13 @@ public final class FuturesQuoteSimpleData {
       /**
        * <code>optional string openPrice = 5;</code>
        */
-      public boolean hasOpenPrice() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
-      }
-      /**
-       * <code>optional string openPrice = 5;</code>
-       */
       public java.lang.String getOpenPrice() {
         java.lang.Object ref = openPrice_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            openPrice_ = s;
-          }
+          openPrice_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1409,7 +1192,7 @@ public final class FuturesQuoteSimpleData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000010;
+  
         openPrice_ = value;
         onChanged();
         return this;
@@ -1418,7 +1201,7 @@ public final class FuturesQuoteSimpleData {
        * <code>optional string openPrice = 5;</code>
        */
       public Builder clearOpenPrice() {
-        bitField0_ = (bitField0_ & ~0x00000010);
+        
         openPrice_ = getDefaultInstance().getOpenPrice();
         onChanged();
         return this;
@@ -1431,7 +1214,8 @@ public final class FuturesQuoteSimpleData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000010;
+  checkByteStringIsUtf8(value);
+        
         openPrice_ = value;
         onChanged();
         return this;
@@ -1441,21 +1225,13 @@ public final class FuturesQuoteSimpleData {
       /**
        * <code>optional string highPrice = 6;</code>
        */
-      public boolean hasHighPrice() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
-      }
-      /**
-       * <code>optional string highPrice = 6;</code>
-       */
       public java.lang.String getHighPrice() {
         java.lang.Object ref = highPrice_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            highPrice_ = s;
-          }
+          highPrice_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1485,7 +1261,7 @@ public final class FuturesQuoteSimpleData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000020;
+  
         highPrice_ = value;
         onChanged();
         return this;
@@ -1494,7 +1270,7 @@ public final class FuturesQuoteSimpleData {
        * <code>optional string highPrice = 6;</code>
        */
       public Builder clearHighPrice() {
-        bitField0_ = (bitField0_ & ~0x00000020);
+        
         highPrice_ = getDefaultInstance().getHighPrice();
         onChanged();
         return this;
@@ -1507,7 +1283,8 @@ public final class FuturesQuoteSimpleData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000020;
+  checkByteStringIsUtf8(value);
+        
         highPrice_ = value;
         onChanged();
         return this;
@@ -1517,21 +1294,13 @@ public final class FuturesQuoteSimpleData {
       /**
        * <code>optional string lowPrice = 7;</code>
        */
-      public boolean hasLowPrice() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
-      }
-      /**
-       * <code>optional string lowPrice = 7;</code>
-       */
       public java.lang.String getLowPrice() {
         java.lang.Object ref = lowPrice_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            lowPrice_ = s;
-          }
+          lowPrice_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1561,7 +1330,7 @@ public final class FuturesQuoteSimpleData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000040;
+  
         lowPrice_ = value;
         onChanged();
         return this;
@@ -1570,7 +1339,7 @@ public final class FuturesQuoteSimpleData {
        * <code>optional string lowPrice = 7;</code>
        */
       public Builder clearLowPrice() {
-        bitField0_ = (bitField0_ & ~0x00000040);
+        
         lowPrice_ = getDefaultInstance().getLowPrice();
         onChanged();
         return this;
@@ -1583,7 +1352,8 @@ public final class FuturesQuoteSimpleData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000040;
+  checkByteStringIsUtf8(value);
+        
         lowPrice_ = value;
         onChanged();
         return this;
@@ -1593,21 +1363,13 @@ public final class FuturesQuoteSimpleData {
       /**
        * <code>optional string closePrice = 8;</code>
        */
-      public boolean hasClosePrice() {
-        return ((bitField0_ & 0x00000080) == 0x00000080);
-      }
-      /**
-       * <code>optional string closePrice = 8;</code>
-       */
       public java.lang.String getClosePrice() {
         java.lang.Object ref = closePrice_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          if (bs.isValidUtf8()) {
-            closePrice_ = s;
-          }
+          closePrice_ = s;
           return s;
         } else {
           return (java.lang.String) ref;
@@ -1637,7 +1399,7 @@ public final class FuturesQuoteSimpleData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000080;
+  
         closePrice_ = value;
         onChanged();
         return this;
@@ -1646,7 +1408,7 @@ public final class FuturesQuoteSimpleData {
        * <code>optional string closePrice = 8;</code>
        */
       public Builder clearClosePrice() {
-        bitField0_ = (bitField0_ & ~0x00000080);
+        
         closePrice_ = getDefaultInstance().getClosePrice();
         onChanged();
         return this;
@@ -1659,19 +1421,20 @@ public final class FuturesQuoteSimpleData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000080;
+  checkByteStringIsUtf8(value);
+        
         closePrice_ = value;
         onChanged();
         return this;
       }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.setUnknownFields(unknownFields);
+        return this;
       }
 
       public final Builder mergeUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return super.mergeUnknownFields(unknownFields);
+        return this;
       }
 
 
@@ -1688,7 +1451,7 @@ public final class FuturesQuoteSimpleData {
       return DEFAULT_INSTANCE;
     }
 
-    @java.lang.Deprecated public static final com.google.protobuf.Parser<FuturesQuoteSimpleDataBase>
+    private static final com.google.protobuf.Parser<FuturesQuoteSimpleDataBase>
         PARSER = new com.google.protobuf.AbstractParser<FuturesQuoteSimpleDataBase>() {
       public FuturesQuoteSimpleDataBase parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
@@ -1734,7 +1497,7 @@ public final class FuturesQuoteSimpleData {
       "ghPrice\030\006 \001(\t\022\020\n\010lowPrice\030\007 \001(\t\022\022\n\nclose" +
       "Price\030\010 \001(\tBP\n6com.waben.stock.futuresga" +
       "teway.yisheng.common.protobufB\026FuturesQu" +
-      "oteSimpleData"
+      "oteSimpleDatab\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
