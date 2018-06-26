@@ -790,6 +790,7 @@ public class OrganizationService {
 						.getFuturesByCommodityId(currentPrice.getCommodityId());
 				// 判断是否期货代理价格是否合法
 				currentPrice = saveAgent(currentPrice, agentPrice, contractDto, organization);
+				currentPrice.setCreateTime(new Date());
 				agentPriceDao.create(currentPrice);
 			}
 			return 1;

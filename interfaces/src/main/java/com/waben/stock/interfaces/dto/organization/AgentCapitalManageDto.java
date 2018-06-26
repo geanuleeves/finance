@@ -32,10 +32,10 @@ public class AgentCapitalManageDto {
 	private String remark;
 
 	@ApiModelProperty(value = "客户姓名")
-	private String publisherName;
+	private String oPublisherName;
 
 	@ApiModelProperty(value = "客户账号")
-	private String publisherPhone;
+	private String oPublisherPhone;
 
 	@ApiModelProperty(value = "合约代码")
 	private String commoditySymbol;
@@ -106,20 +106,20 @@ public class AgentCapitalManageDto {
 		this.remark = remark;
 	}
 
-	public String getPublisherName() {
-		return publisherName;
+	public String getoPublisherName() {
+		return oPublisherName;
 	}
 
-	public void setPublisherName(String publisherName) {
-		this.publisherName = publisherName;
+	public void setoPublisherName(String oPublisherName) {
+		this.oPublisherName = oPublisherName;
 	}
 
-	public String getPublisherPhone() {
-		return publisherPhone;
+	public String getoPublisherPhone() {
+		return oPublisherPhone;
 	}
 
-	public void setPublisherPhone(String publisherPhone) {
-		this.publisherPhone = publisherPhone;
+	public void setoPublisherPhone(String oPublisherPhone) {
+		this.oPublisherPhone = oPublisherPhone;
 	}
 
 	public String getCommoditySymbol() {
