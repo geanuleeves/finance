@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
 import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.organization.FuturesFowDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationDetailDto;
@@ -22,6 +23,7 @@ import com.waben.stock.interfaces.dto.publisher.BindCardDto;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.form.organization.OrganizationForm;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
 import com.waben.stock.interfaces.pojo.query.organization.FuturesFowQuery;
 import com.waben.stock.interfaces.pojo.query.organization.OrganizationQuery;
 import com.waben.stock.interfaces.pojo.query.organization.OrganizationStaQuery;
@@ -42,6 +44,9 @@ public interface OrganizationInterface {
 	 */
 	@RequestMapping(value = "/code/{code}", method = RequestMethod.GET)
 	Response<OrganizationDto> fetchByCode(@PathVariable("code") String code);
+	
+	@RequestMapping(value = "/getSUMOrder", method = RequestMethod.GET)
+	Response<FuturesOrderCountDto> getSUMOrder(@RequestBody FuturesTradeAdminQuery query);
 
 	/**
 	 * 添加机构
