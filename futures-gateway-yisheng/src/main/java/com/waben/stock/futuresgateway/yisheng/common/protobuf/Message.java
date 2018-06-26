@@ -54,6 +54,28 @@ public final class Message {
      */
     com.google.protobuf.ByteString
         getDataBytes();
+
+    /**
+     * <code>optional .FuturesQuoteDataBase fq = 4;</code>
+     */
+    boolean hasFq();
+    /**
+     * <code>optional .FuturesQuoteDataBase fq = 4;</code>
+     */
+    com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase getFq();
+    /**
+     * <code>optional .FuturesQuoteDataBase fq = 4;</code>
+     */
+    com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBaseOrBuilder getFqOrBuilder();
+
+    /**
+     * <code>optional int64 type = 5;</code>
+     */
+    boolean hasType();
+    /**
+     * <code>optional int64 type = 5;</code>
+     */
+    long getType();
   }
   /**
    * Protobuf type {@code MessageBase}
@@ -71,6 +93,7 @@ public final class Message {
       clientId_ = "";
       cmd_ = 1;
       data_ = "";
+      type_ = 0L;
     }
 
     @java.lang.Override
@@ -119,6 +142,24 @@ public final class Message {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000004;
               data_ = bs;
+              break;
+            }
+            case 34: {
+              com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000008) == 0x00000008)) {
+                subBuilder = fq_.toBuilder();
+              }
+              fq_ = input.readMessage(com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(fq_);
+                fq_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000008;
+              break;
+            }
+            case 40: {
+              bitField0_ |= 0x00000010;
+              type_ = input.readInt64();
               break;
             }
             default: {
@@ -255,6 +296,42 @@ public final class Message {
       }
     }
 
+    public static final int FQ_FIELD_NUMBER = 4;
+    private com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase fq_;
+    /**
+     * <code>optional .FuturesQuoteDataBase fq = 4;</code>
+     */
+    public boolean hasFq() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>optional .FuturesQuoteDataBase fq = 4;</code>
+     */
+    public com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase getFq() {
+      return fq_ == null ? com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.getDefaultInstance() : fq_;
+    }
+    /**
+     * <code>optional .FuturesQuoteDataBase fq = 4;</code>
+     */
+    public com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBaseOrBuilder getFqOrBuilder() {
+      return fq_ == null ? com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.getDefaultInstance() : fq_;
+    }
+
+    public static final int TYPE_FIELD_NUMBER = 5;
+    private long type_;
+    /**
+     * <code>optional int64 type = 5;</code>
+     */
+    public boolean hasType() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional int64 type = 5;</code>
+     */
+    public long getType() {
+      return type_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -269,6 +346,12 @@ public final class Message {
       if (!hasCmd()) {
         memoizedIsInitialized = 0;
         return false;
+      }
+      if (hasFq()) {
+        if (!getFq().isInitialized()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
       }
       memoizedIsInitialized = 1;
       return true;
@@ -285,6 +368,12 @@ public final class Message {
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 3, data_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeMessage(4, getFq());
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeInt64(5, type_);
       }
       unknownFields.writeTo(output);
     }
@@ -304,6 +393,14 @@ public final class Message {
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, data_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(4, getFq());
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(5, type_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -335,6 +432,16 @@ public final class Message {
         result = result && getData()
             .equals(other.getData());
       }
+      result = result && (hasFq() == other.hasFq());
+      if (hasFq()) {
+        result = result && getFq()
+            .equals(other.getFq());
+      }
+      result = result && (hasType() == other.hasType());
+      if (hasType()) {
+        result = result && (getType()
+            == other.getType());
+      }
       result = result && unknownFields.equals(other.unknownFields);
       return result;
     }
@@ -357,6 +464,15 @@ public final class Message {
       if (hasData()) {
         hash = (37 * hash) + DATA_FIELD_NUMBER;
         hash = (53 * hash) + getData().hashCode();
+      }
+      if (hasFq()) {
+        hash = (37 * hash) + FQ_FIELD_NUMBER;
+        hash = (53 * hash) + getFq().hashCode();
+      }
+      if (hasType()) {
+        hash = (37 * hash) + TYPE_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getType());
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -476,6 +592,7 @@ public final class Message {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessageV3
                 .alwaysUseFieldBuilders) {
+          getFqFieldBuilder();
         }
       }
       @java.lang.Override
@@ -487,6 +604,14 @@ public final class Message {
         bitField0_ = (bitField0_ & ~0x00000002);
         data_ = "";
         bitField0_ = (bitField0_ & ~0x00000004);
+        if (fqBuilder_ == null) {
+          fq_ = null;
+        } else {
+          fqBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000008);
+        type_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
 
@@ -527,6 +652,18 @@ public final class Message {
           to_bitField0_ |= 0x00000004;
         }
         result.data_ = data_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        if (fqBuilder_ == null) {
+          result.fq_ = fq_;
+        } else {
+          result.fq_ = fqBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.type_ = type_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -589,6 +726,12 @@ public final class Message {
           data_ = other.data_;
           onChanged();
         }
+        if (other.hasFq()) {
+          mergeFq(other.getFq());
+        }
+        if (other.hasType()) {
+          setType(other.getType());
+        }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
         return this;
@@ -601,6 +744,11 @@ public final class Message {
         }
         if (!hasCmd()) {
           return false;
+        }
+        if (hasFq()) {
+          if (!getFq().isInitialized()) {
+            return false;
+          }
         }
         return true;
       }
@@ -813,6 +961,156 @@ public final class Message {
         onChanged();
         return this;
       }
+
+      private com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase fq_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase, com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.Builder, com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBaseOrBuilder> fqBuilder_;
+      /**
+       * <code>optional .FuturesQuoteDataBase fq = 4;</code>
+       */
+      public boolean hasFq() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional .FuturesQuoteDataBase fq = 4;</code>
+       */
+      public com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase getFq() {
+        if (fqBuilder_ == null) {
+          return fq_ == null ? com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.getDefaultInstance() : fq_;
+        } else {
+          return fqBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .FuturesQuoteDataBase fq = 4;</code>
+       */
+      public Builder setFq(com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase value) {
+        if (fqBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          fq_ = value;
+          onChanged();
+        } else {
+          fqBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000008;
+        return this;
+      }
+      /**
+       * <code>optional .FuturesQuoteDataBase fq = 4;</code>
+       */
+      public Builder setFq(
+          com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.Builder builderForValue) {
+        if (fqBuilder_ == null) {
+          fq_ = builderForValue.build();
+          onChanged();
+        } else {
+          fqBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000008;
+        return this;
+      }
+      /**
+       * <code>optional .FuturesQuoteDataBase fq = 4;</code>
+       */
+      public Builder mergeFq(com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase value) {
+        if (fqBuilder_ == null) {
+          if (((bitField0_ & 0x00000008) == 0x00000008) &&
+              fq_ != null &&
+              fq_ != com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.getDefaultInstance()) {
+            fq_ =
+              com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.newBuilder(fq_).mergeFrom(value).buildPartial();
+          } else {
+            fq_ = value;
+          }
+          onChanged();
+        } else {
+          fqBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000008;
+        return this;
+      }
+      /**
+       * <code>optional .FuturesQuoteDataBase fq = 4;</code>
+       */
+      public Builder clearFq() {
+        if (fqBuilder_ == null) {
+          fq_ = null;
+          onChanged();
+        } else {
+          fqBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000008);
+        return this;
+      }
+      /**
+       * <code>optional .FuturesQuoteDataBase fq = 4;</code>
+       */
+      public com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.Builder getFqBuilder() {
+        bitField0_ |= 0x00000008;
+        onChanged();
+        return getFqFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .FuturesQuoteDataBase fq = 4;</code>
+       */
+      public com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBaseOrBuilder getFqOrBuilder() {
+        if (fqBuilder_ != null) {
+          return fqBuilder_.getMessageOrBuilder();
+        } else {
+          return fq_ == null ?
+              com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.getDefaultInstance() : fq_;
+        }
+      }
+      /**
+       * <code>optional .FuturesQuoteDataBase fq = 4;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase, com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.Builder, com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBaseOrBuilder> 
+          getFqFieldBuilder() {
+        if (fqBuilder_ == null) {
+          fqBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase, com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.Builder, com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBaseOrBuilder>(
+                  getFq(),
+                  getParentForChildren(),
+                  isClean());
+          fq_ = null;
+        }
+        return fqBuilder_;
+      }
+
+      private long type_ ;
+      /**
+       * <code>optional int64 type = 5;</code>
+       */
+      public boolean hasType() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional int64 type = 5;</code>
+       */
+      public long getType() {
+        return type_;
+      }
+      /**
+       * <code>optional int64 type = 5;</code>
+       */
+      public Builder setType(long value) {
+        bitField0_ |= 0x00000010;
+        type_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 type = 5;</code>
+       */
+      public Builder clearType() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        type_ = 0L;
+        onChanged();
+        return this;
+      }
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -880,11 +1178,13 @@ public final class Message {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\rMessage.proto\032\rCommand.proto\"H\n\013Messag" +
-      "eBase\022\020\n\010clientId\030\001 \002(\t\022\031\n\003cmd\030\002 \002(\0162\014.C" +
-      "ommandType\022\014\n\004data\030\003 \001(\tBA\n6com.waben.st" +
-      "ock.futuresgateway.yisheng.common.protob" +
-      "ufB\007Message"
+      "\n\rMessage.proto\032\rCommand.proto\032\026FuturesQ" +
+      "uoteData.proto\"y\n\013MessageBase\022\020\n\010clientI" +
+      "d\030\001 \002(\t\022\031\n\003cmd\030\002 \002(\0162\014.CommandType\022\014\n\004da" +
+      "ta\030\003 \001(\t\022!\n\002fq\030\004 \001(\0132\025.FuturesQuoteDataB" +
+      "ase\022\014\n\004type\030\005 \001(\003BA\n6com.waben.stock.fut" +
+      "uresgateway.yisheng.common.protobufB\007Mes" +
+      "sage"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -898,14 +1198,16 @@ public final class Message {
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
           com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.getDescriptor(),
+          com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.getDescriptor(),
         }, assigner);
     internal_static_MessageBase_descriptor =
       getDescriptor().getMessageTypes().get(0);
     internal_static_MessageBase_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_MessageBase_descriptor,
-        new java.lang.String[] { "ClientId", "Cmd", "Data", });
+        new java.lang.String[] { "ClientId", "Cmd", "Data", "Fq", "Type", });
     com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.getDescriptor();
+    com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

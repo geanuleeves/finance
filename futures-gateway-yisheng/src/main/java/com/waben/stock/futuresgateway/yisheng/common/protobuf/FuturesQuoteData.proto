@@ -2,10 +2,8 @@ syntax = "proto2";
 
 option java_package="com.waben.stock.futuresgateway.yisheng.common.protobuf";
 option java_outer_classname = "FuturesQuoteData";
-import "Command.proto";
 
 message FuturesQuoteDataBase {
-  	required CommandType cmd = 1;
   	optional string time = 2;
 	optional string commodityNo = 3;
 	optional string contractNo = 4;

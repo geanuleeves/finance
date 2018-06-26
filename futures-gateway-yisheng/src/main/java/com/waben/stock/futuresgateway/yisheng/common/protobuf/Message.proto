@@ -3,9 +3,12 @@ syntax = "proto2";
 option java_package="com.waben.stock.futuresgateway.yisheng.common.protobuf";
 option java_outer_classname = "Message";
 import "Command.proto";
+import "FuturesQuoteData.proto";
 
 message MessageBase {
 	required string clientId = 1;
   	required CommandType cmd = 2;
   	optional string data = 3;
-}
+  	optional FuturesQuoteDataBase fq = 4;
+  	optional int64 type=5;
+ }

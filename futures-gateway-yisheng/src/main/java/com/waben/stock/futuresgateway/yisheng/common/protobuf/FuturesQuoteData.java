@@ -19,15 +19,6 @@ public final class FuturesQuoteData {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>required .CommandType cmd = 1;</code>
-     */
-    boolean hasCmd();
-    /**
-     * <code>required .CommandType cmd = 1;</code>
-     */
-    com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType getCmd();
-
-    /**
      * <code>optional string time = 2;</code>
      */
     boolean hasTime();
@@ -219,12 +210,12 @@ public final class FuturesQuoteData {
       com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:FuturesQuoteDataBase)
       FuturesQuoteDataBaseOrBuilder {
+  private static final long serialVersionUID = 0L;
     // Use FuturesQuoteDataBase.newBuilder() to construct.
     private FuturesQuoteDataBase(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
     private FuturesQuoteDataBase() {
-      cmd_ = 1;
       time_ = "";
       commodityNo_ = "";
       contractNo_ = "";
@@ -252,6 +243,9 @@ public final class FuturesQuoteData {
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -263,107 +257,96 @@ public final class FuturesQuoteData {
             case 0:
               done = true;
               break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-            case 8: {
-              int rawValue = input.readEnum();
-              com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType value = com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType.valueOf(rawValue);
-              if (value == null) {
-                unknownFields.mergeVarintField(1, rawValue);
-              } else {
-                bitField0_ |= 0x00000001;
-                cmd_ = rawValue;
-              }
-              break;
-            }
             case 18: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000002;
+              bitField0_ |= 0x00000001;
               time_ = bs;
               break;
             }
             case 26: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000004;
+              bitField0_ |= 0x00000002;
               commodityNo_ = bs;
               break;
             }
             case 34: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000008;
+              bitField0_ |= 0x00000004;
               contractNo_ = bs;
               break;
             }
             case 42: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000010;
+              bitField0_ |= 0x00000008;
               bidPrice_ = bs;
               break;
             }
             case 48: {
-              bitField0_ |= 0x00000020;
+              bitField0_ |= 0x00000010;
               bidSize_ = input.readInt64();
               break;
             }
             case 58: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000040;
+              bitField0_ |= 0x00000020;
               askPrice_ = bs;
               break;
             }
             case 64: {
-              bitField0_ |= 0x00000080;
+              bitField0_ |= 0x00000040;
               askSize_ = input.readInt64();
               break;
             }
             case 74: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000100;
+              bitField0_ |= 0x00000080;
               lastPrice_ = bs;
               break;
             }
             case 80: {
-              bitField0_ |= 0x00000200;
+              bitField0_ |= 0x00000100;
               lastSize_ = input.readInt64();
               break;
             }
             case 90: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000400;
+              bitField0_ |= 0x00000200;
               openPrice_ = bs;
               break;
             }
             case 98: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00000800;
+              bitField0_ |= 0x00000400;
               highPrice_ = bs;
               break;
             }
             case 106: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00001000;
+              bitField0_ |= 0x00000800;
               lowPrice_ = bs;
               break;
             }
             case 114: {
               com.google.protobuf.ByteString bs = input.readBytes();
-              bitField0_ |= 0x00002000;
+              bitField0_ |= 0x00001000;
               closePrice_ = bs;
               break;
             }
             case 120: {
-              bitField0_ |= 0x00004000;
+              bitField0_ |= 0x00002000;
               volume_ = input.readInt64();
               break;
             }
             case 128: {
-              bitField0_ |= 0x00008000;
+              bitField0_ |= 0x00004000;
               totalVolume_ = input.readInt64();
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
               break;
             }
           }
@@ -383,6 +366,7 @@ public final class FuturesQuoteData {
       return com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.internal_static_FuturesQuoteDataBase_descriptor;
     }
 
+    @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.internal_static_FuturesQuoteDataBase_fieldAccessorTable
@@ -391,29 +375,13 @@ public final class FuturesQuoteData {
     }
 
     private int bitField0_;
-    public static final int CMD_FIELD_NUMBER = 1;
-    private int cmd_;
-    /**
-     * <code>required .CommandType cmd = 1;</code>
-     */
-    public boolean hasCmd() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    /**
-     * <code>required .CommandType cmd = 1;</code>
-     */
-    public com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType getCmd() {
-      com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType result = com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType.valueOf(cmd_);
-      return result == null ? com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType.AUTH : result;
-    }
-
     public static final int TIME_FIELD_NUMBER = 2;
     private volatile java.lang.Object time_;
     /**
      * <code>optional string time = 2;</code>
      */
     public boolean hasTime() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
      * <code>optional string time = 2;</code>
@@ -455,7 +423,7 @@ public final class FuturesQuoteData {
      * <code>optional string commodityNo = 3;</code>
      */
     public boolean hasCommodityNo() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
      * <code>optional string commodityNo = 3;</code>
@@ -497,7 +465,7 @@ public final class FuturesQuoteData {
      * <code>optional string contractNo = 4;</code>
      */
     public boolean hasContractNo() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
      * <code>optional string contractNo = 4;</code>
@@ -539,7 +507,7 @@ public final class FuturesQuoteData {
      * <code>optional string bidPrice = 5;</code>
      */
     public boolean hasBidPrice() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
      * <code>optional string bidPrice = 5;</code>
@@ -581,7 +549,7 @@ public final class FuturesQuoteData {
      * <code>optional int64 bidSize = 6;</code>
      */
     public boolean hasBidSize() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+      return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
      * <code>optional int64 bidSize = 6;</code>
@@ -596,7 +564,7 @@ public final class FuturesQuoteData {
      * <code>optional string askPrice = 7;</code>
      */
     public boolean hasAskPrice() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
+      return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
      * <code>optional string askPrice = 7;</code>
@@ -638,7 +606,7 @@ public final class FuturesQuoteData {
      * <code>optional int64 askSize = 8;</code>
      */
     public boolean hasAskSize() {
-      return ((bitField0_ & 0x00000080) == 0x00000080);
+      return ((bitField0_ & 0x00000040) == 0x00000040);
     }
     /**
      * <code>optional int64 askSize = 8;</code>
@@ -653,7 +621,7 @@ public final class FuturesQuoteData {
      * <code>optional string lastPrice = 9;</code>
      */
     public boolean hasLastPrice() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
+      return ((bitField0_ & 0x00000080) == 0x00000080);
     }
     /**
      * <code>optional string lastPrice = 9;</code>
@@ -695,7 +663,7 @@ public final class FuturesQuoteData {
      * <code>optional int64 lastSize = 10;</code>
      */
     public boolean hasLastSize() {
-      return ((bitField0_ & 0x00000200) == 0x00000200);
+      return ((bitField0_ & 0x00000100) == 0x00000100);
     }
     /**
      * <code>optional int64 lastSize = 10;</code>
@@ -710,7 +678,7 @@ public final class FuturesQuoteData {
      * <code>optional string openPrice = 11;</code>
      */
     public boolean hasOpenPrice() {
-      return ((bitField0_ & 0x00000400) == 0x00000400);
+      return ((bitField0_ & 0x00000200) == 0x00000200);
     }
     /**
      * <code>optional string openPrice = 11;</code>
@@ -752,7 +720,7 @@ public final class FuturesQuoteData {
      * <code>optional string highPrice = 12;</code>
      */
     public boolean hasHighPrice() {
-      return ((bitField0_ & 0x00000800) == 0x00000800);
+      return ((bitField0_ & 0x00000400) == 0x00000400);
     }
     /**
      * <code>optional string highPrice = 12;</code>
@@ -794,7 +762,7 @@ public final class FuturesQuoteData {
      * <code>optional string lowPrice = 13;</code>
      */
     public boolean hasLowPrice() {
-      return ((bitField0_ & 0x00001000) == 0x00001000);
+      return ((bitField0_ & 0x00000800) == 0x00000800);
     }
     /**
      * <code>optional string lowPrice = 13;</code>
@@ -836,7 +804,7 @@ public final class FuturesQuoteData {
      * <code>optional string closePrice = 14;</code>
      */
     public boolean hasClosePrice() {
-      return ((bitField0_ & 0x00002000) == 0x00002000);
+      return ((bitField0_ & 0x00001000) == 0x00001000);
     }
     /**
      * <code>optional string closePrice = 14;</code>
@@ -878,7 +846,7 @@ public final class FuturesQuoteData {
      * <code>optional int64 volume = 15;</code>
      */
     public boolean hasVolume() {
-      return ((bitField0_ & 0x00004000) == 0x00004000);
+      return ((bitField0_ & 0x00002000) == 0x00002000);
     }
     /**
      * <code>optional int64 volume = 15;</code>
@@ -893,7 +861,7 @@ public final class FuturesQuoteData {
      * <code>optional int64 totalVolume = 16;</code>
      */
     public boolean hasTotalVolume() {
-      return ((bitField0_ & 0x00008000) == 0x00008000);
+      return ((bitField0_ & 0x00004000) == 0x00004000);
     }
     /**
      * <code>optional int64 totalVolume = 16;</code>
@@ -903,128 +871,120 @@ public final class FuturesQuoteData {
     }
 
     private byte memoizedIsInitialized = -1;
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
       if (isInitialized == 0) return false;
 
-      if (!hasCmd()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
       memoizedIsInitialized = 1;
       return true;
     }
 
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeEnum(1, cmd_);
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 2, time_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 3, commodityNo_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 4, contractNo_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 5, bidPrice_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeInt64(6, bidSize_);
       }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 7, askPrice_);
       }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeInt64(8, askSize_);
       }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 9, lastPrice_);
       }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+      if (((bitField0_ & 0x00000100) == 0x00000100)) {
         output.writeInt64(10, lastSize_);
       }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 11, openPrice_);
       }
-      if (((bitField0_ & 0x00000800) == 0x00000800)) {
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 12, highPrice_);
       }
-      if (((bitField0_ & 0x00001000) == 0x00001000)) {
+      if (((bitField0_ & 0x00000800) == 0x00000800)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 13, lowPrice_);
       }
-      if (((bitField0_ & 0x00002000) == 0x00002000)) {
+      if (((bitField0_ & 0x00001000) == 0x00001000)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 14, closePrice_);
       }
-      if (((bitField0_ & 0x00004000) == 0x00004000)) {
+      if (((bitField0_ & 0x00002000) == 0x00002000)) {
         output.writeInt64(15, volume_);
       }
-      if (((bitField0_ & 0x00008000) == 0x00008000)) {
+      if (((bitField0_ & 0x00004000) == 0x00004000)) {
         output.writeInt64(16, totalVolume_);
       }
       unknownFields.writeTo(output);
     }
 
+    @java.lang.Override
     public int getSerializedSize() {
       int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(1, cmd_);
-      }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, time_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, commodityNo_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, contractNo_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, bidPrice_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(6, bidSize_);
       }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(7, askPrice_);
       }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(8, askSize_);
       }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(9, lastPrice_);
       }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+      if (((bitField0_ & 0x00000100) == 0x00000100)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(10, lastSize_);
       }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(11, openPrice_);
       }
-      if (((bitField0_ & 0x00000800) == 0x00000800)) {
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(12, highPrice_);
       }
-      if (((bitField0_ & 0x00001000) == 0x00001000)) {
+      if (((bitField0_ & 0x00000800) == 0x00000800)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(13, lowPrice_);
       }
-      if (((bitField0_ & 0x00002000) == 0x00002000)) {
+      if (((bitField0_ & 0x00001000) == 0x00001000)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(14, closePrice_);
       }
-      if (((bitField0_ & 0x00004000) == 0x00004000)) {
+      if (((bitField0_ & 0x00002000) == 0x00002000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(15, volume_);
       }
-      if (((bitField0_ & 0x00008000) == 0x00008000)) {
+      if (((bitField0_ & 0x00004000) == 0x00004000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt64Size(16, totalVolume_);
       }
@@ -1033,7 +993,6 @@ public final class FuturesQuoteData {
       return size;
     }
 
-    private static final long serialVersionUID = 0L;
     @java.lang.Override
     public boolean equals(final java.lang.Object obj) {
       if (obj == this) {
@@ -1045,10 +1004,6 @@ public final class FuturesQuoteData {
       com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase other = (com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase) obj;
 
       boolean result = true;
-      result = result && (hasCmd() == other.hasCmd());
-      if (hasCmd()) {
-        result = result && cmd_ == other.cmd_;
-      }
       result = result && (hasTime() == other.hasTime());
       if (hasTime()) {
         result = result && getTime()
@@ -1134,11 +1089,7 @@ public final class FuturesQuoteData {
         return memoizedHashCode;
       }
       int hash = 41;
-      hash = (19 * hash) + getDescriptorForType().hashCode();
-      if (hasCmd()) {
-        hash = (37 * hash) + CMD_FIELD_NUMBER;
-        hash = (53 * hash) + cmd_;
-      }
+      hash = (19 * hash) + getDescriptor().hashCode();
       if (hasTime()) {
         hash = (37 * hash) + TIME_FIELD_NUMBER;
         hash = (53 * hash) + getTime().hashCode();
@@ -1209,6 +1160,7 @@ public final class FuturesQuoteData {
       return hash;
     }
 
+
     public static com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1268,6 +1220,7 @@ public final class FuturesQuoteData {
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
+    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
@@ -1275,6 +1228,7 @@ public final class FuturesQuoteData {
     public static Builder newBuilder(com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
+    @java.lang.Override
     public Builder toBuilder() {
       return this == DEFAULT_INSTANCE
           ? new Builder() : new Builder().mergeFrom(this);
@@ -1298,6 +1252,7 @@ public final class FuturesQuoteData {
         return com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.internal_static_FuturesQuoteDataBase_descriptor;
       }
 
+      @java.lang.Override
       protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.internal_static_FuturesQuoteDataBase_fieldAccessorTable
@@ -1320,52 +1275,54 @@ public final class FuturesQuoteData {
                 .alwaysUseFieldBuilders) {
         }
       }
+      @java.lang.Override
       public Builder clear() {
         super.clear();
-        cmd_ = 1;
-        bitField0_ = (bitField0_ & ~0x00000001);
         time_ = "";
-        bitField0_ = (bitField0_ & ~0x00000002);
+        bitField0_ = (bitField0_ & ~0x00000001);
         commodityNo_ = "";
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000002);
         contractNo_ = "";
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000004);
         bidPrice_ = "";
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000008);
         bidSize_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000010);
         askPrice_ = "";
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         askSize_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000080);
+        bitField0_ = (bitField0_ & ~0x00000040);
         lastPrice_ = "";
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000080);
         lastSize_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000200);
+        bitField0_ = (bitField0_ & ~0x00000100);
         openPrice_ = "";
-        bitField0_ = (bitField0_ & ~0x00000400);
+        bitField0_ = (bitField0_ & ~0x00000200);
         highPrice_ = "";
-        bitField0_ = (bitField0_ & ~0x00000800);
+        bitField0_ = (bitField0_ & ~0x00000400);
         lowPrice_ = "";
-        bitField0_ = (bitField0_ & ~0x00001000);
+        bitField0_ = (bitField0_ & ~0x00000800);
         closePrice_ = "";
-        bitField0_ = (bitField0_ & ~0x00002000);
+        bitField0_ = (bitField0_ & ~0x00001000);
         volume_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00004000);
+        bitField0_ = (bitField0_ & ~0x00002000);
         totalVolume_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00008000);
+        bitField0_ = (bitField0_ & ~0x00004000);
         return this;
       }
 
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.internal_static_FuturesQuoteDataBase_descriptor;
       }
 
+      @java.lang.Override
       public com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase getDefaultInstanceForType() {
         return com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.getDefaultInstance();
       }
 
+      @java.lang.Override
       public com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase build() {
         com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase result = buildPartial();
         if (!result.isInitialized()) {
@@ -1374,6 +1331,7 @@ public final class FuturesQuoteData {
         return result;
       }
 
+      @java.lang.Override
       public com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase buildPartial() {
         com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase result = new com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase(this);
         int from_bitField0_ = bitField0_;
@@ -1381,65 +1339,61 @@ public final class FuturesQuoteData {
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
           to_bitField0_ |= 0x00000001;
         }
-        result.cmd_ = cmd_;
+        result.time_ = time_;
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
-        result.time_ = time_;
+        result.commodityNo_ = commodityNo_;
         if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
           to_bitField0_ |= 0x00000004;
         }
-        result.commodityNo_ = commodityNo_;
+        result.contractNo_ = contractNo_;
         if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
           to_bitField0_ |= 0x00000008;
         }
-        result.contractNo_ = contractNo_;
+        result.bidPrice_ = bidPrice_;
         if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
           to_bitField0_ |= 0x00000010;
         }
-        result.bidPrice_ = bidPrice_;
+        result.bidSize_ = bidSize_;
         if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
           to_bitField0_ |= 0x00000020;
         }
-        result.bidSize_ = bidSize_;
+        result.askPrice_ = askPrice_;
         if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
           to_bitField0_ |= 0x00000040;
         }
-        result.askPrice_ = askPrice_;
+        result.askSize_ = askSize_;
         if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
           to_bitField0_ |= 0x00000080;
         }
-        result.askSize_ = askSize_;
+        result.lastPrice_ = lastPrice_;
         if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
           to_bitField0_ |= 0x00000100;
         }
-        result.lastPrice_ = lastPrice_;
+        result.lastSize_ = lastSize_;
         if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
           to_bitField0_ |= 0x00000200;
         }
-        result.lastSize_ = lastSize_;
+        result.openPrice_ = openPrice_;
         if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
           to_bitField0_ |= 0x00000400;
         }
-        result.openPrice_ = openPrice_;
+        result.highPrice_ = highPrice_;
         if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
           to_bitField0_ |= 0x00000800;
         }
-        result.highPrice_ = highPrice_;
+        result.lowPrice_ = lowPrice_;
         if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
           to_bitField0_ |= 0x00001000;
         }
-        result.lowPrice_ = lowPrice_;
+        result.closePrice_ = closePrice_;
         if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
           to_bitField0_ |= 0x00002000;
         }
-        result.closePrice_ = closePrice_;
+        result.volume_ = volume_;
         if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
           to_bitField0_ |= 0x00004000;
-        }
-        result.volume_ = volume_;
-        if (((from_bitField0_ & 0x00008000) == 0x00008000)) {
-          to_bitField0_ |= 0x00008000;
         }
         result.totalVolume_ = totalVolume_;
         result.bitField0_ = to_bitField0_;
@@ -1447,32 +1401,39 @@ public final class FuturesQuoteData {
         return result;
       }
 
+      @java.lang.Override
       public Builder clone() {
         return (Builder) super.clone();
       }
+      @java.lang.Override
       public Builder setField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
+          java.lang.Object value) {
         return (Builder) super.setField(field, value);
       }
+      @java.lang.Override
       public Builder clearField(
           com.google.protobuf.Descriptors.FieldDescriptor field) {
         return (Builder) super.clearField(field);
       }
+      @java.lang.Override
       public Builder clearOneof(
           com.google.protobuf.Descriptors.OneofDescriptor oneof) {
         return (Builder) super.clearOneof(oneof);
       }
+      @java.lang.Override
       public Builder setRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, Object value) {
+          int index, java.lang.Object value) {
         return (Builder) super.setRepeatedField(field, index, value);
       }
+      @java.lang.Override
       public Builder addRepeatedField(
           com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
+          java.lang.Object value) {
         return (Builder) super.addRepeatedField(field, value);
       }
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase) {
           return mergeFrom((com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase)other);
@@ -1484,26 +1445,23 @@ public final class FuturesQuoteData {
 
       public Builder mergeFrom(com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase other) {
         if (other == com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase.getDefaultInstance()) return this;
-        if (other.hasCmd()) {
-          setCmd(other.getCmd());
-        }
         if (other.hasTime()) {
-          bitField0_ |= 0x00000002;
+          bitField0_ |= 0x00000001;
           time_ = other.time_;
           onChanged();
         }
         if (other.hasCommodityNo()) {
-          bitField0_ |= 0x00000004;
+          bitField0_ |= 0x00000002;
           commodityNo_ = other.commodityNo_;
           onChanged();
         }
         if (other.hasContractNo()) {
-          bitField0_ |= 0x00000008;
+          bitField0_ |= 0x00000004;
           contractNo_ = other.contractNo_;
           onChanged();
         }
         if (other.hasBidPrice()) {
-          bitField0_ |= 0x00000010;
+          bitField0_ |= 0x00000008;
           bidPrice_ = other.bidPrice_;
           onChanged();
         }
@@ -1511,7 +1469,7 @@ public final class FuturesQuoteData {
           setBidSize(other.getBidSize());
         }
         if (other.hasAskPrice()) {
-          bitField0_ |= 0x00000040;
+          bitField0_ |= 0x00000020;
           askPrice_ = other.askPrice_;
           onChanged();
         }
@@ -1519,7 +1477,7 @@ public final class FuturesQuoteData {
           setAskSize(other.getAskSize());
         }
         if (other.hasLastPrice()) {
-          bitField0_ |= 0x00000100;
+          bitField0_ |= 0x00000080;
           lastPrice_ = other.lastPrice_;
           onChanged();
         }
@@ -1527,22 +1485,22 @@ public final class FuturesQuoteData {
           setLastSize(other.getLastSize());
         }
         if (other.hasOpenPrice()) {
-          bitField0_ |= 0x00000400;
+          bitField0_ |= 0x00000200;
           openPrice_ = other.openPrice_;
           onChanged();
         }
         if (other.hasHighPrice()) {
-          bitField0_ |= 0x00000800;
+          bitField0_ |= 0x00000400;
           highPrice_ = other.highPrice_;
           onChanged();
         }
         if (other.hasLowPrice()) {
-          bitField0_ |= 0x00001000;
+          bitField0_ |= 0x00000800;
           lowPrice_ = other.lowPrice_;
           onChanged();
         }
         if (other.hasClosePrice()) {
-          bitField0_ |= 0x00002000;
+          bitField0_ |= 0x00001000;
           closePrice_ = other.closePrice_;
           onChanged();
         }
@@ -1557,13 +1515,12 @@ public final class FuturesQuoteData {
         return this;
       }
 
+      @java.lang.Override
       public final boolean isInitialized() {
-        if (!hasCmd()) {
-          return false;
-        }
         return true;
       }
 
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -1583,48 +1540,12 @@ public final class FuturesQuoteData {
       }
       private int bitField0_;
 
-      private int cmd_ = 1;
-      /**
-       * <code>required .CommandType cmd = 1;</code>
-       */
-      public boolean hasCmd() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      /**
-       * <code>required .CommandType cmd = 1;</code>
-       */
-      public com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType getCmd() {
-        com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType result = com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType.valueOf(cmd_);
-        return result == null ? com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType.AUTH : result;
-      }
-      /**
-       * <code>required .CommandType cmd = 1;</code>
-       */
-      public Builder setCmd(com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.CommandType value) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        bitField0_ |= 0x00000001;
-        cmd_ = value.getNumber();
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>required .CommandType cmd = 1;</code>
-       */
-      public Builder clearCmd() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        cmd_ = 1;
-        onChanged();
-        return this;
-      }
-
       private java.lang.Object time_ = "";
       /**
        * <code>optional string time = 2;</code>
        */
       public boolean hasTime() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000001) == 0x00000001);
       }
       /**
        * <code>optional string time = 2;</code>
@@ -1667,7 +1588,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
+  bitField0_ |= 0x00000001;
         time_ = value;
         onChanged();
         return this;
@@ -1676,7 +1597,7 @@ public final class FuturesQuoteData {
        * <code>optional string time = 2;</code>
        */
       public Builder clearTime() {
-        bitField0_ = (bitField0_ & ~0x00000002);
+        bitField0_ = (bitField0_ & ~0x00000001);
         time_ = getDefaultInstance().getTime();
         onChanged();
         return this;
@@ -1689,7 +1610,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
+  bitField0_ |= 0x00000001;
         time_ = value;
         onChanged();
         return this;
@@ -1700,7 +1621,7 @@ public final class FuturesQuoteData {
        * <code>optional string commodityNo = 3;</code>
        */
       public boolean hasCommodityNo() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
        * <code>optional string commodityNo = 3;</code>
@@ -1743,7 +1664,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000004;
+  bitField0_ |= 0x00000002;
         commodityNo_ = value;
         onChanged();
         return this;
@@ -1752,7 +1673,7 @@ public final class FuturesQuoteData {
        * <code>optional string commodityNo = 3;</code>
        */
       public Builder clearCommodityNo() {
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000002);
         commodityNo_ = getDefaultInstance().getCommodityNo();
         onChanged();
         return this;
@@ -1765,7 +1686,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000004;
+  bitField0_ |= 0x00000002;
         commodityNo_ = value;
         onChanged();
         return this;
@@ -1776,7 +1697,7 @@ public final class FuturesQuoteData {
        * <code>optional string contractNo = 4;</code>
        */
       public boolean hasContractNo() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
        * <code>optional string contractNo = 4;</code>
@@ -1819,7 +1740,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000008;
+  bitField0_ |= 0x00000004;
         contractNo_ = value;
         onChanged();
         return this;
@@ -1828,7 +1749,7 @@ public final class FuturesQuoteData {
        * <code>optional string contractNo = 4;</code>
        */
       public Builder clearContractNo() {
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000004);
         contractNo_ = getDefaultInstance().getContractNo();
         onChanged();
         return this;
@@ -1841,7 +1762,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000008;
+  bitField0_ |= 0x00000004;
         contractNo_ = value;
         onChanged();
         return this;
@@ -1852,7 +1773,7 @@ public final class FuturesQuoteData {
        * <code>optional string bidPrice = 5;</code>
        */
       public boolean hasBidPrice() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
+        return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
        * <code>optional string bidPrice = 5;</code>
@@ -1895,7 +1816,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000010;
+  bitField0_ |= 0x00000008;
         bidPrice_ = value;
         onChanged();
         return this;
@@ -1904,7 +1825,7 @@ public final class FuturesQuoteData {
        * <code>optional string bidPrice = 5;</code>
        */
       public Builder clearBidPrice() {
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000008);
         bidPrice_ = getDefaultInstance().getBidPrice();
         onChanged();
         return this;
@@ -1917,7 +1838,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000010;
+  bitField0_ |= 0x00000008;
         bidPrice_ = value;
         onChanged();
         return this;
@@ -1928,7 +1849,7 @@ public final class FuturesQuoteData {
        * <code>optional int64 bidSize = 6;</code>
        */
       public boolean hasBidSize() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
        * <code>optional int64 bidSize = 6;</code>
@@ -1940,7 +1861,7 @@ public final class FuturesQuoteData {
        * <code>optional int64 bidSize = 6;</code>
        */
       public Builder setBidSize(long value) {
-        bitField0_ |= 0x00000020;
+        bitField0_ |= 0x00000010;
         bidSize_ = value;
         onChanged();
         return this;
@@ -1949,7 +1870,7 @@ public final class FuturesQuoteData {
        * <code>optional int64 bidSize = 6;</code>
        */
       public Builder clearBidSize() {
-        bitField0_ = (bitField0_ & ~0x00000020);
+        bitField0_ = (bitField0_ & ~0x00000010);
         bidSize_ = 0L;
         onChanged();
         return this;
@@ -1960,7 +1881,7 @@ public final class FuturesQuoteData {
        * <code>optional string askPrice = 7;</code>
        */
       public boolean hasAskPrice() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
+        return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
        * <code>optional string askPrice = 7;</code>
@@ -2003,7 +1924,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000040;
+  bitField0_ |= 0x00000020;
         askPrice_ = value;
         onChanged();
         return this;
@@ -2012,7 +1933,7 @@ public final class FuturesQuoteData {
        * <code>optional string askPrice = 7;</code>
        */
       public Builder clearAskPrice() {
-        bitField0_ = (bitField0_ & ~0x00000040);
+        bitField0_ = (bitField0_ & ~0x00000020);
         askPrice_ = getDefaultInstance().getAskPrice();
         onChanged();
         return this;
@@ -2025,7 +1946,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000040;
+  bitField0_ |= 0x00000020;
         askPrice_ = value;
         onChanged();
         return this;
@@ -2036,7 +1957,7 @@ public final class FuturesQuoteData {
        * <code>optional int64 askSize = 8;</code>
        */
       public boolean hasAskSize() {
-        return ((bitField0_ & 0x00000080) == 0x00000080);
+        return ((bitField0_ & 0x00000040) == 0x00000040);
       }
       /**
        * <code>optional int64 askSize = 8;</code>
@@ -2048,7 +1969,7 @@ public final class FuturesQuoteData {
        * <code>optional int64 askSize = 8;</code>
        */
       public Builder setAskSize(long value) {
-        bitField0_ |= 0x00000080;
+        bitField0_ |= 0x00000040;
         askSize_ = value;
         onChanged();
         return this;
@@ -2057,7 +1978,7 @@ public final class FuturesQuoteData {
        * <code>optional int64 askSize = 8;</code>
        */
       public Builder clearAskSize() {
-        bitField0_ = (bitField0_ & ~0x00000080);
+        bitField0_ = (bitField0_ & ~0x00000040);
         askSize_ = 0L;
         onChanged();
         return this;
@@ -2068,7 +1989,7 @@ public final class FuturesQuoteData {
        * <code>optional string lastPrice = 9;</code>
        */
       public boolean hasLastPrice() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
+        return ((bitField0_ & 0x00000080) == 0x00000080);
       }
       /**
        * <code>optional string lastPrice = 9;</code>
@@ -2111,7 +2032,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000100;
+  bitField0_ |= 0x00000080;
         lastPrice_ = value;
         onChanged();
         return this;
@@ -2120,7 +2041,7 @@ public final class FuturesQuoteData {
        * <code>optional string lastPrice = 9;</code>
        */
       public Builder clearLastPrice() {
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000080);
         lastPrice_ = getDefaultInstance().getLastPrice();
         onChanged();
         return this;
@@ -2133,7 +2054,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000100;
+  bitField0_ |= 0x00000080;
         lastPrice_ = value;
         onChanged();
         return this;
@@ -2144,7 +2065,7 @@ public final class FuturesQuoteData {
        * <code>optional int64 lastSize = 10;</code>
        */
       public boolean hasLastSize() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
+        return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
        * <code>optional int64 lastSize = 10;</code>
@@ -2156,7 +2077,7 @@ public final class FuturesQuoteData {
        * <code>optional int64 lastSize = 10;</code>
        */
       public Builder setLastSize(long value) {
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00000100;
         lastSize_ = value;
         onChanged();
         return this;
@@ -2165,7 +2086,7 @@ public final class FuturesQuoteData {
        * <code>optional int64 lastSize = 10;</code>
        */
       public Builder clearLastSize() {
-        bitField0_ = (bitField0_ & ~0x00000200);
+        bitField0_ = (bitField0_ & ~0x00000100);
         lastSize_ = 0L;
         onChanged();
         return this;
@@ -2176,7 +2097,7 @@ public final class FuturesQuoteData {
        * <code>optional string openPrice = 11;</code>
        */
       public boolean hasOpenPrice() {
-        return ((bitField0_ & 0x00000400) == 0x00000400);
+        return ((bitField0_ & 0x00000200) == 0x00000200);
       }
       /**
        * <code>optional string openPrice = 11;</code>
@@ -2219,7 +2140,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000400;
+  bitField0_ |= 0x00000200;
         openPrice_ = value;
         onChanged();
         return this;
@@ -2228,7 +2149,7 @@ public final class FuturesQuoteData {
        * <code>optional string openPrice = 11;</code>
        */
       public Builder clearOpenPrice() {
-        bitField0_ = (bitField0_ & ~0x00000400);
+        bitField0_ = (bitField0_ & ~0x00000200);
         openPrice_ = getDefaultInstance().getOpenPrice();
         onChanged();
         return this;
@@ -2241,7 +2162,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000400;
+  bitField0_ |= 0x00000200;
         openPrice_ = value;
         onChanged();
         return this;
@@ -2252,7 +2173,7 @@ public final class FuturesQuoteData {
        * <code>optional string highPrice = 12;</code>
        */
       public boolean hasHighPrice() {
-        return ((bitField0_ & 0x00000800) == 0x00000800);
+        return ((bitField0_ & 0x00000400) == 0x00000400);
       }
       /**
        * <code>optional string highPrice = 12;</code>
@@ -2295,7 +2216,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000800;
+  bitField0_ |= 0x00000400;
         highPrice_ = value;
         onChanged();
         return this;
@@ -2304,7 +2225,7 @@ public final class FuturesQuoteData {
        * <code>optional string highPrice = 12;</code>
        */
       public Builder clearHighPrice() {
-        bitField0_ = (bitField0_ & ~0x00000800);
+        bitField0_ = (bitField0_ & ~0x00000400);
         highPrice_ = getDefaultInstance().getHighPrice();
         onChanged();
         return this;
@@ -2317,7 +2238,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000800;
+  bitField0_ |= 0x00000400;
         highPrice_ = value;
         onChanged();
         return this;
@@ -2328,7 +2249,7 @@ public final class FuturesQuoteData {
        * <code>optional string lowPrice = 13;</code>
        */
       public boolean hasLowPrice() {
-        return ((bitField0_ & 0x00001000) == 0x00001000);
+        return ((bitField0_ & 0x00000800) == 0x00000800);
       }
       /**
        * <code>optional string lowPrice = 13;</code>
@@ -2371,7 +2292,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00001000;
+  bitField0_ |= 0x00000800;
         lowPrice_ = value;
         onChanged();
         return this;
@@ -2380,7 +2301,7 @@ public final class FuturesQuoteData {
        * <code>optional string lowPrice = 13;</code>
        */
       public Builder clearLowPrice() {
-        bitField0_ = (bitField0_ & ~0x00001000);
+        bitField0_ = (bitField0_ & ~0x00000800);
         lowPrice_ = getDefaultInstance().getLowPrice();
         onChanged();
         return this;
@@ -2393,7 +2314,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00001000;
+  bitField0_ |= 0x00000800;
         lowPrice_ = value;
         onChanged();
         return this;
@@ -2404,7 +2325,7 @@ public final class FuturesQuoteData {
        * <code>optional string closePrice = 14;</code>
        */
       public boolean hasClosePrice() {
-        return ((bitField0_ & 0x00002000) == 0x00002000);
+        return ((bitField0_ & 0x00001000) == 0x00001000);
       }
       /**
        * <code>optional string closePrice = 14;</code>
@@ -2447,7 +2368,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00002000;
+  bitField0_ |= 0x00001000;
         closePrice_ = value;
         onChanged();
         return this;
@@ -2456,7 +2377,7 @@ public final class FuturesQuoteData {
        * <code>optional string closePrice = 14;</code>
        */
       public Builder clearClosePrice() {
-        bitField0_ = (bitField0_ & ~0x00002000);
+        bitField0_ = (bitField0_ & ~0x00001000);
         closePrice_ = getDefaultInstance().getClosePrice();
         onChanged();
         return this;
@@ -2469,7 +2390,7 @@ public final class FuturesQuoteData {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00002000;
+  bitField0_ |= 0x00001000;
         closePrice_ = value;
         onChanged();
         return this;
@@ -2480,7 +2401,7 @@ public final class FuturesQuoteData {
        * <code>optional int64 volume = 15;</code>
        */
       public boolean hasVolume() {
-        return ((bitField0_ & 0x00004000) == 0x00004000);
+        return ((bitField0_ & 0x00002000) == 0x00002000);
       }
       /**
        * <code>optional int64 volume = 15;</code>
@@ -2492,7 +2413,7 @@ public final class FuturesQuoteData {
        * <code>optional int64 volume = 15;</code>
        */
       public Builder setVolume(long value) {
-        bitField0_ |= 0x00004000;
+        bitField0_ |= 0x00002000;
         volume_ = value;
         onChanged();
         return this;
@@ -2501,7 +2422,7 @@ public final class FuturesQuoteData {
        * <code>optional int64 volume = 15;</code>
        */
       public Builder clearVolume() {
-        bitField0_ = (bitField0_ & ~0x00004000);
+        bitField0_ = (bitField0_ & ~0x00002000);
         volume_ = 0L;
         onChanged();
         return this;
@@ -2512,7 +2433,7 @@ public final class FuturesQuoteData {
        * <code>optional int64 totalVolume = 16;</code>
        */
       public boolean hasTotalVolume() {
-        return ((bitField0_ & 0x00008000) == 0x00008000);
+        return ((bitField0_ & 0x00004000) == 0x00004000);
       }
       /**
        * <code>optional int64 totalVolume = 16;</code>
@@ -2524,7 +2445,7 @@ public final class FuturesQuoteData {
        * <code>optional int64 totalVolume = 16;</code>
        */
       public Builder setTotalVolume(long value) {
-        bitField0_ |= 0x00008000;
+        bitField0_ |= 0x00004000;
         totalVolume_ = value;
         onChanged();
         return this;
@@ -2533,16 +2454,18 @@ public final class FuturesQuoteData {
        * <code>optional int64 totalVolume = 16;</code>
        */
       public Builder clearTotalVolume() {
-        bitField0_ = (bitField0_ & ~0x00008000);
+        bitField0_ = (bitField0_ & ~0x00004000);
         totalVolume_ = 0L;
         onChanged();
         return this;
       }
+      @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
       }
 
+      @java.lang.Override
       public final Builder mergeUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
@@ -2564,11 +2487,12 @@ public final class FuturesQuoteData {
 
     @java.lang.Deprecated public static final com.google.protobuf.Parser<FuturesQuoteDataBase>
         PARSER = new com.google.protobuf.AbstractParser<FuturesQuoteDataBase>() {
+      @java.lang.Override
       public FuturesQuoteDataBase parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-          return new FuturesQuoteDataBase(input, extensionRegistry);
+        return new FuturesQuoteDataBase(input, extensionRegistry);
       }
     };
 
@@ -2581,6 +2505,7 @@ public final class FuturesQuoteData {
       return PARSER;
     }
 
+    @java.lang.Override
     public com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
@@ -2601,18 +2526,16 @@ public final class FuturesQuoteData {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\026FuturesQuoteData.proto\032\rCommand.proto\"" +
-      "\304\002\n\024FuturesQuoteDataBase\022\031\n\003cmd\030\001 \002(\0162\014." +
-      "CommandType\022\014\n\004time\030\002 \001(\t\022\023\n\013commodityNo" +
-      "\030\003 \001(\t\022\022\n\ncontractNo\030\004 \001(\t\022\020\n\010bidPrice\030\005" +
-      " \001(\t\022\017\n\007bidSize\030\006 \001(\003\022\020\n\010askPrice\030\007 \001(\t\022" +
-      "\017\n\007askSize\030\010 \001(\003\022\021\n\tlastPrice\030\t \001(\t\022\020\n\010l" +
-      "astSize\030\n \001(\003\022\021\n\topenPrice\030\013 \001(\t\022\021\n\thigh" +
-      "Price\030\014 \001(\t\022\020\n\010lowPrice\030\r \001(\t\022\022\n\nclosePr" +
-      "ice\030\016 \001(\t\022\016\n\006volume\030\017 \001(\003\022\023\n\013totalVolume" +
-      "\030\020 \001(\003BJ\n6com.waben.stock.futuresgateway",
-      ".yisheng.common.protobufB\020FuturesQuoteDa" +
-      "ta"
+      "\n\026FuturesQuoteData.proto\"\251\002\n\024FuturesQuot" +
+      "eDataBase\022\014\n\004time\030\002 \001(\t\022\023\n\013commodityNo\030\003" +
+      " \001(\t\022\022\n\ncontractNo\030\004 \001(\t\022\020\n\010bidPrice\030\005 \001" +
+      "(\t\022\017\n\007bidSize\030\006 \001(\003\022\020\n\010askPrice\030\007 \001(\t\022\017\n" +
+      "\007askSize\030\010 \001(\003\022\021\n\tlastPrice\030\t \001(\t\022\020\n\010las" +
+      "tSize\030\n \001(\003\022\021\n\topenPrice\030\013 \001(\t\022\021\n\thighPr" +
+      "ice\030\014 \001(\t\022\020\n\010lowPrice\030\r \001(\t\022\022\n\nclosePric" +
+      "e\030\016 \001(\t\022\016\n\006volume\030\017 \001(\003\022\023\n\013totalVolume\030\020" +
+      " \001(\003BJ\n6com.waben.stock.futuresgateway.y" +
+      "isheng.common.protobufB\020FuturesQuoteData"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -2625,15 +2548,13 @@ public final class FuturesQuoteData {
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
-          com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.getDescriptor(),
         }, assigner);
     internal_static_FuturesQuoteDataBase_descriptor =
       getDescriptor().getMessageTypes().get(0);
     internal_static_FuturesQuoteDataBase_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_FuturesQuoteDataBase_descriptor,
-        new java.lang.String[] { "Cmd", "Time", "CommodityNo", "ContractNo", "BidPrice", "BidSize", "AskPrice", "AskSize", "LastPrice", "LastSize", "OpenPrice", "HighPrice", "LowPrice", "ClosePrice", "Volume", "TotalVolume", });
-    com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.getDescriptor();
+        new java.lang.String[] { "Time", "CommodityNo", "ContractNo", "BidPrice", "BidSize", "AskPrice", "AskSize", "LastPrice", "LastSize", "OpenPrice", "HighPrice", "LowPrice", "ClosePrice", "Volume", "TotalVolume", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
