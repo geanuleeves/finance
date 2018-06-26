@@ -1027,7 +1027,7 @@ public class FuturesOrderService {
 					// 给渠道推广机构结算
 					if (order.getIsTest() == null || order.getIsTest() == false) {
 						orgBusiness.futuresDeferredSettlement(order.getPublisherId(),
-								order.getContract().getCommodity().getId(), overnightRecord.getId(), order.getTradeNo(),
+								order.getContract().getCommodity().getId(), order.getId(), order.getTradeNo(),
 								order.getTotalQuantity(), order.getOvernightPerUnitDeferredFee());
 					}
 				} catch (ServiceException ex) {
