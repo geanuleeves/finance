@@ -26,6 +26,7 @@ import org.springframework.util.StringUtils;
 public class LogicServerHandler extends ChannelInboundHandlerAdapter{
 	public Logger log = Logger.getLogger(this.getClass());
 	private final AttributeKey<String> clientInfo = AttributeKey.valueOf("clientInfo");
+	private final AttributeKey<Long> requestTypeInfo = AttributeKey.valueOf("requestType");
 	private final AttributeKey<String> hyInfo = AttributeKey.valueOf("hyInfo");
 	private final AttributeKey<String> pzInfo = AttributeKey.valueOf("pzInfo");
 
@@ -56,15 +57,24 @@ public class LogicServerHandler extends ChannelInboundHandlerAdapter{
 			log.info("服务端接受到ping");
 			ctx.writeAndFlush(createData(clientId, Command.CommandType.PING, "This is ping data").build());
 		}else if(msgBase.getCmd().equals(Command.CommandType.PUSH_DATA)){
+			Long requestType = msgBase.getRequestType();
 			String data = msgBase.getData();
-			if(!StringUtils.isEmpty(data)){
-				String[] datas = data.split("&");
-				if(datas.length == 2){
-					Attribute<String> hyattr = ctx.attr(hyInfo);
-					Attribute<String> pzattr = ctx.attr(pzInfo);
-					hyattr.set(datas[0]);
-					pzattr.set(datas[1]);
+			// 设置请求类型
+			Attribute<Long> rtattr = ctx.attr(requestTypeInfo);
+			rtattr.set(requestType);
+			if(requestType != null && requestType == 1) {
+				// 设置合约编号和品种编号
+				if(!StringUtils.isEmpty(data)){
+					String[] datas = data.split("&");
+					if(datas.length == 2){
+						Attribute<String> hyattr = ctx.attr(hyInfo);
+						Attribute<String> pzattr = ctx.attr(pzInfo);
+						hyattr.set(datas[0]);
+						pzattr.set(datas[1]);
+					}
+					channelRepository.put(clientId, ctx.channel());
 				}
+			} else if(requestType != null && requestType == 2) {
 				channelRepository.put(clientId, ctx.channel());
 			}
 		}

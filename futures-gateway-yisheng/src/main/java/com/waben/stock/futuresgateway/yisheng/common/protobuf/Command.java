@@ -25,6 +25,10 @@ public final class Command {
   public enum CommandType
       implements com.google.protobuf.ProtocolMessageEnum {
     /**
+     * <code>NONE = 0;</code>
+     */
+    NONE(0),
+    /**
      * <pre>
      **
      * 验证
@@ -86,8 +90,13 @@ public final class Command {
      * <code>PUSH_DATA_BACK = 15;</code>
      */
     PUSH_DATA_BACK(15),
+    UNRECOGNIZED(-1),
     ;
 
+    /**
+     * <code>NONE = 0;</code>
+     */
+    public static final int NONE_VALUE = 0;
     /**
      * <pre>
      **
@@ -153,6 +162,10 @@ public final class Command {
 
 
     public final int getNumber() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalArgumentException(
+            "Can't get the number of an unknown enum value.");
+      }
       return value;
     }
 
@@ -166,6 +179,7 @@ public final class Command {
 
     public static CommandType forNumber(int value) {
       switch (value) {
+        case 0: return NONE;
         case 1: return AUTH;
         case 2: return PING;
         case 3: return PONG;
@@ -211,6 +225,9 @@ public final class Command {
         throw new java.lang.IllegalArgumentException(
           "EnumValueDescriptor is not for this type.");
       }
+      if (desc.getIndex() == -1) {
+        return UNRECOGNIZED;
+      }
       return VALUES[desc.getIndex()];
     }
 
@@ -232,12 +249,12 @@ public final class Command {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\rCommand.proto*\204\001\n\013CommandType\022\010\n\004AUTH\020" +
-      "\001\022\010\n\004PING\020\002\022\010\n\004PONG\020\003\022\017\n\013UPLOAD_DATA\020\004\022\r" +
-      "\n\tPUSH_DATA\020\005\022\r\n\tAUTH_BACK\020\013\022\024\n\020UPLOAD_D" +
-      "ATA_BACK\020\016\022\022\n\016PUSH_DATA_BACK\020\017BA\n6com.wa" +
-      "ben.stock.futuresgateway.yisheng.common." +
-      "protobufB\007Command"
+      "\n\rCommand.proto*\216\001\n\013CommandType\022\010\n\004NONE\020" +
+      "\000\022\010\n\004AUTH\020\001\022\010\n\004PING\020\002\022\010\n\004PONG\020\003\022\017\n\013UPLOA" +
+      "D_DATA\020\004\022\r\n\tPUSH_DATA\020\005\022\r\n\tAUTH_BACK\020\013\022\024" +
+      "\n\020UPLOAD_DATA_BACK\020\016\022\022\n\016PUSH_DATA_BACK\020\017" +
+      "BA\n6com.waben.stock.futuresgateway.yishe" +
+      "ng.common.protobufB\007Commandb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
