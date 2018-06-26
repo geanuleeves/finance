@@ -305,7 +305,7 @@ public class FuturesCommodityDto {
 	}
 
 	public BigDecimal getMinWave() {
-		return minWave;
+		return minWave != null ? minWave.stripTrailingZeros() : null;
 	}
 
 	public void setMinWave(BigDecimal minWave) {
