@@ -406,7 +406,7 @@ public class OrganizationSettlementService {
 					if (costPrice == null) {
 						costPrice = retriveSystemCostPrice(commodity, flowType);
 					}
-					if (costPrice != null && costPrice.compareTo(salePrice) < 0) {
+					if (costPrice != null && costPrice.compareTo(salePrice) <= 0) {
 						accountService.benefit(org, salePrice.multiply(totalQuantity),
 								salePrice.subtract(costPrice).multiply(totalQuantity), flowType, flowResourceType,
 								flowResourceId, tradeNo);
@@ -416,7 +416,7 @@ public class OrganizationSettlementService {
 					BigDecimal selfCostPrice = retriveCostPrice(agentPriceList, flowType, i);
 					BigDecimal childCostPrice = retriveCostPrice(agentPriceList, flowType, i + 1);
 					if (selfCostPrice != null && childCostPrice != null
-							&& selfCostPrice.compareTo(childCostPrice) < 0) {
+							&& selfCostPrice.compareTo(childCostPrice) <= 0) {
 						accountService.benefit(org, salePrice.multiply(totalQuantity),
 								childCostPrice.subtract(selfCostPrice).multiply(totalQuantity), flowType,
 								flowResourceType, flowResourceId, tradeNo);
