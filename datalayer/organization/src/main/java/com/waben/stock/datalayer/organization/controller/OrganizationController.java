@@ -271,7 +271,7 @@ public class OrganizationController implements OrganizationInterface {
 	}
 
 	@Override
-	public Response<FuturesOrderCountDto> getSUMOrder(FuturesTradeAdminQuery query) {
+	public Response<FuturesOrderCountDto> getSUMOrder(@RequestBody FuturesTradeAdminQuery query) {
 		return new Response<>(organizationService.getSUMOrder(query));
 	}
 

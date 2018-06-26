@@ -45,7 +45,7 @@ public interface OrganizationInterface {
 	@RequestMapping(value = "/code/{code}", method = RequestMethod.GET)
 	Response<OrganizationDto> fetchByCode(@PathVariable("code") String code);
 	
-	@RequestMapping(value = "/getSUMOrder", method = RequestMethod.GET)
+	@RequestMapping(value = "/getSUMOrder", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	Response<FuturesOrderCountDto> getSUMOrder(@RequestBody FuturesTradeAdminQuery query);
 
 	/**

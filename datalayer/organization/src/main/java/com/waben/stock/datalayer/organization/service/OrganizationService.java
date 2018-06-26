@@ -1028,7 +1028,15 @@ public class OrganizationService {
 		
 		String publisherId = "";
 		if(query.getPublisherIds().size()>0){
-			publisherId = " and t1.publisher_id in ("+ query.getPublisherIds() +")";
+			String pu = "";
+			for(int i=0;i<query.getPublisherIds().size();i++){
+				if(i==0||i==query.getPublisherIds().size()-1){
+					pu = pu + query.getPublisherIds().get(i);
+				}else{
+					pu = pu + query.getPublisherIds().get(i)+", ";
+				}
+			}
+			publisherId = " and t1.publisher_id in ("+ pu +")";
 		}
 		
 		String commoditySymbolCondition = "";
@@ -1051,7 +1059,7 @@ public class OrganizationService {
 			windControlTypeCondition = " and t1.wind_control_type in ("+ query.getWindControlType() +")";
 		}
 		String sql =String.format("SELECT SUM(t1.total_quantity) AS quantity, SUM(t1.reserve_fund* t1.total_quantity) AS reserve_fund, SUM( (t1.openwind_service_fee + t1.unwind_service_fee ) * t1.total_quantity ) AS zhf, "
-						+ "SUM( IF(DATE_FORMAT(CURTIME(),'%T') >= t3.overnight_time || t1.state=9, t1.overnight_per_unit_deferred_fee * t1.total_quantity ,0) )AS deferred_record "
+						+ "SUM( IF(DATE_FORMAT(CURTIME(),'%%T') >= t3.overnight_time || t1.state=9, t1.overnight_per_unit_deferred_fee * t1.total_quantity ,0) )AS deferred_record "
 						+ "FROM f_futures_order t1 LEFT JOIN f_futures_contract t2 ON t2.id = t1.contract_id LEFT JOIN f_futures_commodity t3 ON t3.id = t2.commodity_id "
 						+ "where 1=1 %s %s %s %s %s %s", orderStateCondition, publisherId, commodityNameCondition, commoditySymbolCondition, orderTypeCondition, windControlTypeCondition);
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
