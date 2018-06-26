@@ -31,7 +31,7 @@ import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.YtTickPriceMessag
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.YtTickSizeMessage;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesOrderService;
 
-// @Component
+@Component
 public class WabenEWrapper implements EWrapper {
 
 	private EJavaSignal readerSignal;
@@ -87,7 +87,6 @@ public class WabenEWrapper implements EWrapper {
 		this.monitorThread = new Thread() {
 			public void run() {
 				while (clientSocket.isConnected()) {
-					System.out.println("进入这个线程了");
 					readerSignal.waitForSignal();
 					try {
 						reader.processMsgs();
@@ -98,7 +97,6 @@ public class WabenEWrapper implements EWrapper {
 			}
 		};
 		monitorThread.start();
-		System.out.println("当前线程数量:" + Thread.activeCount());
 	}
 
 	/******************************************** 分割线 ****************************************/
@@ -111,8 +109,8 @@ public class WabenEWrapper implements EWrapper {
 	// ! [tickprice]
 	@Override
 	public void tickPrice(int tickerId, int field, double price, int canAutoExecute) {
-		System.out.println("Tick Price. Ticker Id:" + tickerId + ", Field: " + field + ", Price: " + price
-				+ ", CanAutoExecute: " + canAutoExecute);
+//		System.out.println("Tick Price. Ticker Id:" + tickerId + ", Field: " + field + ", Price: " + price
+//				+ ", CanAutoExecute: " + canAutoExecute);
 		// 生产消息至rabbitmq队列
 		YtTickPriceMessage message = new YtTickPriceMessage(tickerId, field, price, canAutoExecute);
 		rabbitmqProducer.sendMessage(RabbitmqConfiguration.tickPriceQueueName, message);
@@ -122,7 +120,7 @@ public class WabenEWrapper implements EWrapper {
 	// ! [ticksize]
 	@Override
 	public void tickSize(int tickerId, int field, int size) {
-		System.out.println("Tick Size. Ticker Id:" + tickerId + ", Field: " + field + ", Size: " + size);
+//		System.out.println("Tick Size. Ticker Id:" + tickerId + ", Field: " + field + ", Size: " + size);
 		// 生产消息至rabbitmq队列
 		YtTickSizeMessage message = new YtTickSizeMessage(tickerId, field, size);
 		rabbitmqProducer.sendMessage(RabbitmqConfiguration.tickSizeQueueName, message);
@@ -320,9 +318,9 @@ public class WabenEWrapper implements EWrapper {
 	@Override
 	public void historicalData(int reqId, String date, double open, double high, double low, double close, int volume,
 			int count, double WAP, boolean hasGaps) {
-		System.out.println("HistoricalData. " + reqId + " - Date: " + date + ", Open: " + open + ", High: " + high
-				+ ", Low: " + low + ", Close: " + close + ", Volume: " + volume + ", Count: " + count + ", WAP: " + WAP
-				+ ", HasGaps: " + hasGaps);
+//		System.out.println("HistoricalData. " + reqId + " - Date: " + date + ", Open: " + open + ", High: " + high
+//				+ ", Low: " + low + ", Close: " + close + ", Volume: " + volume + ", Count: " + count + ", WAP: " + WAP
+//				+ ", HasGaps: " + hasGaps);
 		// 生产消息至rabbitmq队列
 		YtHistoricalDataMessage message = new YtHistoricalDataMessage(reqId, date, open, high, low, close, volume,
 				count, WAP, hasGaps);

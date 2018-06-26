@@ -17,7 +17,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesContract;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesContractService;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesOrderService;
 
-// @Service
+@Service
 public class TwsEngine {
 
 	@Value("${tws.account}")
@@ -39,20 +39,32 @@ public class TwsEngine {
 
 	@PostConstruct
 	public void init() {
-		this.client = wrapper.getClient();
-		this.wrapper.connect();
-		List<FuturesContract> contractList = contractService.getByEnable(true);
-		// step 1 : 获取行情
-		initMarketData(contractList);
-		// step 2 : 获取分时、K线数据
-		initLineData(contractList);
+		final TwsEngine _this = this;
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(60000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+				_this.client = wrapper.getClient();
+				_this.wrapper.connect();
+				List<FuturesContract> contractList = contractService.getByEnable(true);
+				// step 1 : 获取行情
+				_this.initMarketData(contractList);
+				// step 2 : 获取分时、K线数据
+				_this.initLineData(contractList);
+			}
+		}).start();
 	}
 
 	private void initMarketData(List<FuturesContract> contractList) {
 		if (contractList != null && contractList.size() > 0) {
 			for (FuturesContract futuresContract : contractList) {
 				// 获取行情快照
-				this.reqMktData(client, futuresContract, true);
+				// this.reqMktData(client, futuresContract, true);
 				// 获取行情推送
 				this.reqMktData(client, futuresContract, false);
 			}
@@ -127,7 +139,7 @@ public class TwsEngine {
 		Calendar cal = Calendar.getInstance();
 		SimpleDateFormat form = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 		String formatted = form.format(cal.getTime());
-		// TODO 因还未订阅数据，先写死合约
+//		// TODO 因还未订阅数据，先写死合约
 		contract = new Contract();
 		contract.symbol("EUR");
 		contract.secType("CASH");

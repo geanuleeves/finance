@@ -23,7 +23,7 @@ import com.waben.stock.futuresgateway.yisheng.twsapi.TwsEngine;
  * @author luomengan
  *
  */
-// @Component
+@Component
 public class LineDataSchedule {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
@@ -36,31 +36,41 @@ public class LineDataSchedule {
 
 	@PostConstruct
 	public void initTask() {
-		// 日K
-		Timer dayLineTimer = new Timer();
-		dayLineTimer.schedule(new RetriveTask(TwsConstant.DayLine_TickerId_Prefix, 4 * 60 * 60 * 1000, "2 D", "1 day"),
-				90 * 1000);
-		// 分时
-		Timer timeLineTimer = new Timer();
-		timeLineTimer.schedule(new RetriveTask(TwsConstant.TimeLine_TickerId_Prefix, 1 * 60 * 1000, "300 S", "1 min"),
-				15 * 1000);
-		// 1分钟K线
-		Timer min1LineTimer = new Timer();
-		min1LineTimer.schedule(new RetriveTask(TwsConstant.Min1Line_TickerId_Prefix, 1 * 60 * 1000, "300 S", "1 min"),
-				30 * 1000);
-		// 3分钟K线
-		Timer mins3LineTimer = new Timer();
-		mins3LineTimer.schedule(
-				new RetriveTask(TwsConstant.Mins3Line_TickerId_Prefix, 3 * 60 * 1000, "900 S", "3 mins"), 45 * 1000);
-		// 5分钟K线
-		Timer mins5LineTimer = new Timer();
-		mins5LineTimer.schedule(
-				new RetriveTask(TwsConstant.Mins5Line_TickerId_Prefix, 5 * 60 * 1000, "1500 S", "5 mins"), 60 * 1000);
-		// 15分钟K线
-		Timer mins15LineTimer = new Timer();
-		mins15LineTimer.schedule(
-				new RetriveTask(TwsConstant.Mins15Line_TickerId_Prefix, 15 * 60 * 1000, "4500 S", "15 mins"),
-				75 * 1000);
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(60000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				// 日K
+				Timer dayLineTimer = new Timer();
+				dayLineTimer.schedule(new RetriveTask(TwsConstant.DayLine_TickerId_Prefix, 4 * 60 * 60 * 1000, "2 D", "1 day"),
+						90 * 1000);
+				// 分时
+				Timer timeLineTimer = new Timer();
+				timeLineTimer.schedule(new RetriveTask(TwsConstant.TimeLine_TickerId_Prefix, 1 * 60 * 1000, "300 S", "1 min"),
+						15 * 1000);
+				// 1分钟K线
+				Timer min1LineTimer = new Timer();
+				min1LineTimer.schedule(new RetriveTask(TwsConstant.Min1Line_TickerId_Prefix, 1 * 60 * 1000, "300 S", "1 min"),
+						30 * 1000);
+				// 3分钟K线
+				Timer mins3LineTimer = new Timer();
+				mins3LineTimer.schedule(
+						new RetriveTask(TwsConstant.Mins3Line_TickerId_Prefix, 3 * 60 * 1000, "900 S", "3 mins"), 45 * 1000);
+				// 5分钟K线
+				Timer mins5LineTimer = new Timer();
+				mins5LineTimer.schedule(
+						new RetriveTask(TwsConstant.Mins5Line_TickerId_Prefix, 5 * 60 * 1000, "1500 S", "5 mins"), 60 * 1000);
+				// 15分钟K线
+				Timer mins15LineTimer = new Timer();
+				mins15LineTimer.schedule(
+						new RetriveTask(TwsConstant.Mins15Line_TickerId_Prefix, 15 * 60 * 1000, "4500 S", "15 mins"),
+						75 * 1000);
+			}
+		}).start();
 	}
 
 	public void next(String prefix, long interval, String timeFrame, String timeSize) {

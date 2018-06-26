@@ -41,7 +41,7 @@ public class YtHistoricalDataConsumer {
 		SimpleDateFormat timeFullSdf = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
 		SimpleDateFormat keySdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
-		logger.info("HistoricalData消息:{}", message);
+		// logger.info("HistoricalData消息:{}", message);
 		YtHistoricalDataMessage msgObj = JacksonUtil.decode(message, YtHistoricalDataMessage.class);
 		int reqId = msgObj.getReqId();
 		String date = msgObj.getDate();

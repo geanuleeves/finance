@@ -32,7 +32,7 @@ public class YtTickSizeConsumer {
 
 	@RabbitHandler
 	public void handlerMessage(String message) {
-		logger.info("TickSize消息:{}", message);
+//		logger.info("TickSize消息:{}", message);
 		YtTickSizeMessage msgObj = JacksonUtil.decode(message, YtTickSizeMessage.class);
 		try {
 			int tickerId = msgObj.getTickerId();
@@ -54,7 +54,7 @@ public class YtTickSizeConsumer {
 					contract.getId() + "_" + contract.getCommodityNo() + "_" + contract.getContractNo());
 			String quoteStr = redisCache.get(redisKey);
 			FuturesQuoteData quote = null;
-			if (StringUtil.isEmpty(quoteStr)) {
+			if (!StringUtil.isEmpty(quoteStr)) {
 				quote = JacksonUtil.decode(quoteStr, FuturesQuoteData.class);
 			} else {
 				quote = new FuturesQuoteData();
