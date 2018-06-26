@@ -1047,7 +1047,7 @@ public class OrganizationService {
 		}
 		String commodityNameCondition = "";
 		if(!StringUtil.isEmpty(query.getName())){
-			commodityNameCondition = " and t1.commodity_name like '%'" + query.getName() +"'%' ";
+			commodityNameCondition = " and t1.commodity_name like '%" + query.getName() +"%' ";
 		}
 		
 		String orderTypeCondition = "";
@@ -1059,10 +1059,10 @@ public class OrganizationService {
 		if(!StringUtil.isEmpty(query.getWindControlType())){
 			windControlTypeCondition = " and t1.wind_control_type in ("+ query.getWindControlType() +")";
 		}
-		String sql =String.format("SELECT SUM(t1.total_quantity) AS quantity, SUM(t1.reserve_fund* t1.total_quantity) AS reserve_fund, SUM( (t1.openwind_service_fee + t1.unwind_service_fee ) * t1.total_quantity ) AS zhf, "
-						+ "SUM( IF(DATE_FORMAT(CURTIME(),'%%T') >= t3.overnight_time || t1.state=9, t1.overnight_per_unit_deferred_fee * t1.total_quantity ,0) )AS deferred_record "
-						+ "FROM f_futures_order t1 LEFT JOIN f_futures_contract t2 ON t2.id = t1.contract_id LEFT JOIN f_futures_commodity t3 ON t3.id = t2.commodity_id "
-						+ "where 1=1 %s %s %s %s %s %s", orderStateCondition, publisherId, commodityNameCondition, commoditySymbolCondition, orderTypeCondition, windControlTypeCondition);
+		String sql =String.format(" SELECT SUM(t1.total_quantity) AS quantity, SUM(t1.reserve_fund* t1.total_quantity) AS reserve_fund, SUM( (t1.openwind_service_fee + t1.unwind_service_fee ) * t1.total_quantity ) AS zhf, "
+						+ " SUM( t4.overnight_deferred_fee )AS deferred_record "
+						+ " FROM f_futures_order t1 LEFT JOIN f_futures_contract t2 ON t2.id = t1.contract_id LEFT JOIN f_futures_commodity t3 ON t3.id = t2.commodity_id LEFT JOIN f_futures_overnight_record t4 ON t4.order_id = t1.id"
+						+ " where 1=1 %s %s %s %s %s %s", orderStateCondition, publisherId, commodityNameCondition, commoditySymbolCondition, orderTypeCondition, windControlTypeCondition);
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setQuantity", new Class<?>[] { BigDecimal.class }));
 		setMethodMap.put(new Integer(1), new MethodDesc("setFund", new Class<?>[] { BigDecimal.class }));
