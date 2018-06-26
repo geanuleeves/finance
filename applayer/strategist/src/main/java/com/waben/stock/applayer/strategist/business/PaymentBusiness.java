@@ -454,7 +454,7 @@ public class PaymentBusiness {
 		param.setBody(publisherId + "充值" + amount + "元");
 		param.setTotalFee(isProd ? amount : new BigDecimal("0.01"));
 		param.setOutOrderNo(paymentNo);
-		param.setFrontSkipUrl(wbConfig.getUnionpayFrontUrl());
+		param.setFrontSkipUrl(wbConfig.getUnionpayTempFrontUrl());
 		param.setReturnUrl(wbConfig.getUnionpayNotifyUrl());
 		param.setTimestamp(sdf.format(new Date()));
 		param.setVersion("1.0");

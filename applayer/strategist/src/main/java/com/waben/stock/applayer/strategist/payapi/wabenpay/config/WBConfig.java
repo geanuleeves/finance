@@ -23,6 +23,8 @@ public class WBConfig {
 
 	@Value("${pay.unionpaynotifyUrl}")
 	private String unionpayNotifyUrl;
+	@Value("${pay.unionpaytempfrontUrl}")
+	private String unionpayTempFrontUrl;
 	@Value("${pay.unionpayfrontUrl}")
 	private String unionpayFrontUrl;
 
@@ -107,4 +109,12 @@ public class WBConfig {
 		this.unionpayFrontUrl = unionpayFrontUrl;
 	}
 
+	public String getUnionpayTempFrontUrl() {
+		return unionpayTempFrontUrl;
+	}
+
+	public void setUnionpayTempFrontUrl(String unionpayTempFrontUrl) {
+		this.unionpayTempFrontUrl = unionpayTempFrontUrl;
+	}
+	
 }

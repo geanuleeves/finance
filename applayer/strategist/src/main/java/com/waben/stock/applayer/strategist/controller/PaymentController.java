@@ -23,6 +23,7 @@ import com.waben.stock.applayer.strategist.business.CapitalAccountBusiness;
 import com.waben.stock.applayer.strategist.business.PaymentBusiness;
 import com.waben.stock.applayer.strategist.business.PublisherBusiness;
 import com.waben.stock.applayer.strategist.payapi.czpay.config.CzBankType;
+import com.waben.stock.applayer.strategist.payapi.wabenpay.config.WBConfig;
 import com.waben.stock.applayer.strategist.security.SecurityUtil;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.publisher.BindCardDto;
@@ -62,6 +63,9 @@ public class PaymentController {
 
 	@Autowired
 	private PublisherBusiness publisherBusiness;
+	
+	@Autowired
+    private WBConfig wbConfig;
 
 	@GetMapping("/recharge")
 	@ApiOperation(value = "充值", notes = "paymentType:1银联支付")
@@ -114,6 +118,16 @@ public class PaymentController {
 		// 完成支付
 		paymentBusiness.payCallback(outTradeNo, PaymentState.Paid);
 		return "SUCCESS";
+	}
+	
+	@RequestMapping("/unionpaytempfronturl")
+	@ApiOperation(value = "网贝网银支付H5跳转临时地址")
+	@ResponseBody
+	public void unionpayTempFrontUrl(HttpServletResponse httpResp) {
+		try {
+			httpResp.sendRedirect(wbConfig.getUnionpayFrontUrl());
+		} catch (IOException e) {
+		}
 	}
 
 	@RequestMapping("/wabennetbankpay/h5wbreturn")
