@@ -4,11 +4,14 @@ option java_package="com.waben.stock.futuresgateway.yisheng.common.protobuf";
 option java_outer_classname = "Message";
 import "Command.proto";
 import "FuturesQuoteData.proto";
+import "FuturesQuoteSimpleData.proto";
 
 message MessageBase {
 	required string clientId = 1;
   	required CommandType cmd = 2;
-  	optional string data = 3;
-  	optional FuturesQuoteDataBase fq = 4;
-  	optional int64 type=5;
+  	optional int64 type = 3;
+  	optional int64 requestType = 4;
+  	optional string data = 5;
+  	optional FuturesQuoteDataBase fq = 6;
+  	repeated FuturesQuoteSimpleDataBase fqList = 7; 
  }

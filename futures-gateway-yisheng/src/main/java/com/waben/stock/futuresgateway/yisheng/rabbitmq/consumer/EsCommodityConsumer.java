@@ -42,7 +42,11 @@ public class EsCommodityConsumer {
 					commodity.setCommodityEngName(msgObj.getCommodityEngName());
 					commodity.setCommodityName(msgObj.getCommodityName());
 					commodity.setCommodityNo(msgObj.getCommodity().getCommodityNo());
-					commodity.setCommodityTickSize(new BigDecimal(msgObj.getCommodityTickSize()));
+					if("CD".equals(commodityNo)) {
+						commodity.setCommodityTickSize(new BigDecimal("0.00005"));
+					} else {
+						commodity.setCommodityTickSize(new BigDecimal(msgObj.getCommodityTickSize()));
+					}
 					commodity.setCommodityType(String.valueOf(msgObj.getCommodity().getCommodityType()));
 					commodity.setContractSize(new BigDecimal(msgObj.getContractSize()));
 					commodity.setExchangeNo(msgObj.getCommodity().getExchangeNo());
@@ -53,7 +57,11 @@ public class EsCommodityConsumer {
 					commodity.setCommodityEngName(msgObj.getCommodityEngName());
 					commodity.setCommodityName(msgObj.getCommodityName());
 					commodity.setCommodityNo(msgObj.getCommodity().getCommodityNo());
-					commodity.setCommodityTickSize(new BigDecimal(msgObj.getCommodityTickSize()));
+					if("CD".equals(commodityNo)) {
+						commodity.setCommodityTickSize(new BigDecimal("0.00005"));
+					} else {
+						commodity.setCommodityTickSize(new BigDecimal(msgObj.getCommodityTickSize()));
+					}
 					commodity.setCommodityType(String.valueOf(msgObj.getCommodity().getCommodityType()));
 					commodity.setContractSize(new BigDecimal(msgObj.getContractSize()));
 					commodity.setExchangeNo(msgObj.getCommodity().getExchangeNo());

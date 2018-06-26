@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+option java_package="com.waben.stock.futuresgateway.yisheng.common.protobuf";
+option java_outer_classname = "FuturesQuoteSimpleData";
+
+message FuturesQuoteSimpleDataBase {
+  	optional string time = 1;
+	optional string commodityNo = 2;
+	optional string contractNo = 3;
+	optional string lastPrice = 4;
+	optional string openPrice = 5;
+	optional string highPrice = 6;
+	optional string lowPrice = 7;
+	optional string closePrice = 8;
+}
