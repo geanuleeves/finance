@@ -1031,7 +1031,7 @@ public class OrganizationService {
 		if(query.getPublisherIds().size()>0){
 			String pu = "";
 			for(int i=0;i<query.getPublisherIds().size();i++){
-				if(i==0||i==query.getPublisherIds().size()-1){
+				if(i==query.getPublisherIds().size()-1){
 					pu = pu + query.getPublisherIds().get(i);
 				}else{
 					pu = pu + query.getPublisherIds().get(i)+", ";
