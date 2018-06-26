@@ -677,6 +677,10 @@ public class CapitalAccountService {
 		recordDao.create(record);
 		return capitalAccountDao.update(capitalAccount);
 	}
+	
+	public FrozenCapital findFuturesOrderFrozenCapital(Long publisherId, Long orderId) {
+		return frozenCapitalDao.retriveByPublisherIdAndFuturesOrderId(publisherId, orderId);
+	}
 
 	/**
 	 * 期货信息服务费和冻结保证金
@@ -712,11 +716,8 @@ public class CapitalAccountService {
 		return findByPublisherId(publisherId);
 	}
 
-	public FrozenCapital findFuturesOrderFrozenCapital(Long publisherId, Long orderId) {
-		return frozenCapitalDao.retriveByPublisherIdAndFuturesOrderId(publisherId, orderId);
-	}
-
-	public CapitalAccount futuresOrderOvernight(Long publisherId, Long overnightId, BigDecimal deferredFee,
+	@Transactional
+	public synchronized CapitalAccount futuresOrderOvernight(Long publisherId, Long overnightId, BigDecimal deferredFee,
 			BigDecimal reserveFund) {
 		CapitalAccount account = capitalAccountDao.retriveByPublisherId(publisherId);
 		Date date = new Date();
@@ -745,8 +746,52 @@ public class CapitalAccountService {
 		}
 		return findByPublisherId(publisherId);
 	}
+	
+	// TODO 资金通知
+//	private void futuresOrderOvernightOutsideMessage(Long publisherId, BigDecimal deferredFee, BigDecimal reserveFund) {
+//		if (deferredFee != null && deferredFee.compareTo(new BigDecimal(0)) > 0) {
+//			try {
+//				OutsideMessage message = new OutsideMessage();
+//				message.setPublisherId(publisherId);
+//				message.setTitle("资金通知");
+//				message.setContent(String.format("您的资金账户已成功提现-%s元", amount.toString()));
+//				Map<String, String> extras = new HashMap<>();
+//				extras.put("title", message.getTitle());
+//				extras.put("content", String.format("您的资金账户已成功提现<span id=\"money\">-%s元</span>", amount.toString()));
+//				extras.put("publisherId", String.valueOf(publisherId));
+//				extras.put("resourceType", ResourceType.PUBLISHER.getIndex());
+//				extras.put("resourceId", String.valueOf(publisherId));
+//				extras.put("type", OutsideMessageType.ACCOUNT_WITHDRAWALSSUCCESS.getIndex());
+//				message.setExtras(extras);
+//				outsideMessageBusiness.send(message);
+//			} catch (Exception ex) {
+//				logger.error("发送资金通知失败，{}充值成功{}_{}", publisherId, amount.toString(), ex.getMessage());
+//			}
+//		}
+//		
+//		if (reserveFund != null && reserveFund.abs().compareTo(new BigDecimal(0)) > 0) {
+//			try {
+//				OutsideMessage message = new OutsideMessage();
+//				message.setPublisherId(publisherId);
+//				message.setTitle("资金通知");
+//				message.setContent(String.format("您的资金账户已成功提现-%s元", amount.toString()));
+//				Map<String, String> extras = new HashMap<>();
+//				extras.put("title", message.getTitle());
+//				extras.put("content", String.format("您的资金账户已成功提现<span id=\"money\">-%s元</span>", amount.toString()));
+//				extras.put("publisherId", String.valueOf(publisherId));
+//				extras.put("resourceType", ResourceType.PUBLISHER.getIndex());
+//				extras.put("resourceId", String.valueOf(publisherId));
+//				extras.put("type", OutsideMessageType.ACCOUNT_WITHDRAWALSSUCCESS.getIndex());
+//				message.setExtras(extras);
+//				outsideMessageBusiness.send(message);
+//			} catch (Exception ex) {
+//				logger.error("发送资金通知失败，{}充值成功{}_{}", publisherId, amount.toString(), ex.getMessage());
+//			}
+//		}
+//	}
 
-	public CapitalAccount futuresReturnOvernightReserveFund(Long publisherId, Long overnightId,
+	@Transactional
+	public synchronized CapitalAccount futuresReturnOvernightReserveFund(Long publisherId, Long overnightId,
 			BigDecimal reserveFund) {
 		CapitalAccount account = capitalAccountDao.retriveByPublisherId(publisherId);
 		Date date = new Date();
@@ -766,10 +811,13 @@ public class CapitalAccountService {
 		frozen.setStatus(FrozenCapitalStatus.Thaw);
 		frozen.setThawTime(new Date());
 		frozenCapitalDao.update(frozen);
+		// 发送通知
+		
 		return findByPublisherId(publisherId);
 	}
-
-	public CapitalAccount futuresOrderSettlement(Long publisherId, Long orderId, BigDecimal profitOrLoss) {
+	
+	@Transactional
+	public synchronized CapitalAccount futuresOrderSettlement(Long publisherId, Long orderId, BigDecimal profitOrLoss) {
 		BigDecimal realProfitOrLoss = profitOrLoss;
 		CapitalAccount account = capitalAccountDao.retriveByPublisherId(publisherId);
 		Date date = new Date();
@@ -815,7 +863,8 @@ public class CapitalAccountService {
 		return result;
 	}
 
-	public CapitalAccount futuresOrderRevoke(Long publisherId, Long orderId, BigDecimal serviceFee) {
+	@Transactional
+	public synchronized CapitalAccount futuresOrderRevoke(Long publisherId, Long orderId, BigDecimal serviceFee) {
 		Date date = new Date();
 		// 解冻保证金
 		CapitalAccount account = capitalAccountDao.retriveByPublisherId(publisherId);

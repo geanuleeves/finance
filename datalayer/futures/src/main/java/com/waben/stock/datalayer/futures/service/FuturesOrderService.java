@@ -127,7 +127,7 @@ public class FuturesOrderService {
 
 	@Autowired
 	private FuturesTradeLimitService futuresTradeLimitService;
-	
+
 	@Autowired
 	private ProfileBusiness profileBusiness;
 
@@ -443,7 +443,8 @@ public class FuturesOrderService {
 		Integer orderType = order.getBuyingPriceType() == FuturesTradePriceType.MKT ? 1 : 2;
 		// 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
 		BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
-		if (("CN".equals(order.getCommoditySymbol()) || "HSI".equals(order.getCommoditySymbol()) || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
+		if (("CN".equals(order.getCommoditySymbol()) || "HSI".equals(order.getCommoditySymbol())
+				|| "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
 			orderType = 2;
 			if (action == FuturesActionType.BUY) {
 				gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
@@ -453,9 +454,9 @@ public class FuturesOrderService {
 						.subtract(new BigDecimal("3").multiply(contract.getCommodity().getMinWave()));
 			}
 		}
-		FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain, order.getCommoditySymbol(),
-				order.getContractNo(), order.getId(), action, order.getTotalQuantity(), orderType,
-				gatewayBuyingEntrustPrice);
+		FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain,
+				order.getCommoditySymbol(), order.getContractNo(), order.getId(), action, order.getTotalQuantity(),
+				orderType, gatewayBuyingEntrustPrice);
 		// TODO 委托下单异常情况处理，此处默认为所有的委托都能成功
 		// step 7 : 更新订单状态
 		order.setState(FuturesOrderState.BuyingEntrust);
@@ -558,29 +559,79 @@ public class FuturesOrderService {
 			extras.put("resourceId", String.valueOf(order.getId()));
 			message.setExtras(extras);
 			switch (state) {
-			case BuyingEntrust:
-				message.setContent(String.format("您所购买的“%s”期货已进入“买入委托”状态", order.getCommodityName()));
+			case BuyingFailure:
+				message.setContent(String.format("您购买的“%s”委托买入失败，已退款到您的账户", order.getCommodityName()));
 				extras.put("content",
-						String.format("您所购买的“<span id=\"futures\">%s</span>”期货已进入“买入委托”状态", order.getCommodityName()));
-				extras.put("type", OutsideMessageType.Futures_BuyingEntrust.getIndex());
+						String.format("您购买的“<span id=\"futures\">%s</span>”委托买入失败，已退款到您的账户", order.getCommodityName()));
+				extras.put("type", OutsideMessageType.Futures_BuyingFailure.getIndex());
 				break;
 			case BuyingCanceled:
-				message.setContent(String.format("您所购买的“%s”期货已进入“取消买入委托”状态", order.getCommodityName()));
+				message.setContent(String.format("您所购买的“%s”已取消委托，已退款到您的账户", order.getCommodityName()));
 				extras.put("content",
-						String.format("您所购买的“<span id=\"futures\">%s</span>”期货已进入“已取消”状态", order.getCommodityName()));
+						String.format("您所购买的“<span id=\"futures\">%s</span>”已取消委托，已退款到您的账户", order.getCommodityName()));
 				extras.put("type", OutsideMessageType.Futures_BuyingCanceled.getIndex());
 				break;
 			case Position:
-				message.setContent(String.format("您所购买的“%s”期货已进入“持仓中”状态", order.getCommodityName()));
-				extras.put("content",
-						String.format("您所购买的“<span id=\"futures\">%s</span>”期货已进入“持仓中”状态", order.getCommodityName()));
-				extras.put("type", OutsideMessageType.Futures_Position.getIndex());
-				break;
+				if (order.getBuyingPriceType() == FuturesTradePriceType.MKT) {
+					message.setContent(String.format("您购买的“%s”已开仓成功，进入“持仓中”状态", order.getCommodityName()));
+					extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”已开仓成功，进入“持仓中”状态",
+							order.getCommodityName()));
+					extras.put("type", OutsideMessageType.Futures_Position.getIndex());
+					break;
+				} else {
+					message.setContent(String.format("您委托指定价购买“%s”已开仓成功，进入“持仓中”状态", order.getCommodityName()));
+					extras.put("content", String.format("您委托指定价购买“<span id=\"futures\">%s</span>”已开仓成功，进入“持仓中”状态",
+							order.getCommodityName()));
+					extras.put("type", OutsideMessageType.Futures_EntrustPosition.getIndex());
+					break;
+				}
 			case Unwind:
-				message.setContent(String.format("您所购买的“%s”期货已进入“已平仓”状态", order.getCommodityName()));
-				extras.put("content",
-						String.format("您所购买的“<span id=\"futures\">%s</span>”期货已进入“已平仓”状态", order.getCommodityName()));
-				extras.put("type", OutsideMessageType.Futures_DayUnwind.getIndex());
+				FuturesWindControlType windControlType = order.getWindControlType();
+				if (windControlType != null && windControlType == FuturesWindControlType.DayUnwind) {
+					// 日内平仓
+					message.setContent(String.format("您购买的“%s”因余额不足无法持仓过夜系统已强制平仓，已进入结算状态", order.getCommodityName()));
+					extras.put("content",
+							String.format("您购买的“<span id=\"futures\">%s</span>”因余额不足无法持仓过夜系统已强制平仓，已进入结算状态",
+									order.getCommodityName()));
+					extras.put("type", OutsideMessageType.Futures_DayUnwind.getIndex());
+					break;
+				} else if (windControlType != null && windControlType == FuturesWindControlType.UserApplyUnwind) {
+					// 用户申请平仓
+					message.setContent(String.format("您购买的“%s”手动平仓，已进入结算状态", order.getCommodityName()));
+					extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”手动平仓，已进入结算状态",
+							order.getCommodityName()));
+					extras.put("type", OutsideMessageType.Futures_ApplyUnwind.getIndex());
+					break;
+				} else if (windControlType != null && windControlType == FuturesWindControlType.ReachProfitPoint) {
+					// 达到止盈点
+					message.setContent(String.format("您购买的“%s”达到止盈平仓，已进入结算状态", order.getCommodityName()));
+					extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”达到止盈平仓，已进入结算状态",
+							order.getCommodityName()));
+					extras.put("type", OutsideMessageType.Futures_ReachProfitPoint.getIndex());
+					break;
+				} else if (windControlType != null && windControlType == FuturesWindControlType.ReachLossPoint) {
+					// 达到止损点
+					message.setContent(String.format("您购买的“%s”达到止损平仓，已进入结算状态", order.getCommodityName()));
+					extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”达到止损平仓，已进入结算状态",
+							order.getCommodityName()));
+					extras.put("type", OutsideMessageType.Futures_ReachLossPoint.getIndex());
+					break;
+				} else if (windControlType != null
+						&& windControlType == FuturesWindControlType.ReachContractExpiration) {
+					// 合约到期平仓
+					message.setContent(String.format("您购买的“%s”因合约到期系统强制平仓，已进入结算状态", order.getCommodityName()));
+					extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”因合约到期系统强制平仓，已进入结算状态",
+							order.getCommodityName()));
+					extras.put("type", OutsideMessageType.Futures_ReachContractExpiration.getIndex());
+					break;
+				} else if (windControlType != null && windControlType == FuturesWindControlType.ReachStrongPoint) {
+					// 达到强平点
+					message.setContent(String.format("您购买的“%s”因达到系统强平风控金额，已强制平仓，已进入结算状态", order.getCommodityName()));
+					extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”因达到系统强平风控金额，已强制平仓，已进入结算状态",
+							order.getCommodityName()));
+					extras.put("type", OutsideMessageType.Futures_ReachStrongPoint.getIndex());
+					break;
+				}
 				break;
 			default:
 				break;
@@ -888,9 +939,11 @@ public class FuturesOrderService {
 		order.setUpdateTime(date);
 		order.setSellingEntrustTime(date);
 		order.setSellingPriceType(priceType);
-		if(entrustPrice == null && priceType == FuturesTradePriceType.MKT) {
-			FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(), order.getCommoditySymbol(), order.getContractNo());
-			if(market != null && market.getLastPrice() != null && market.getLastPrice().compareTo(BigDecimal.ZERO) > 0) {
+		if (entrustPrice == null && priceType == FuturesTradePriceType.MKT) {
+			FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(),
+					order.getCommoditySymbol(), order.getContractNo());
+			if (market != null && market.getLastPrice() != null
+					&& market.getLastPrice().compareTo(BigDecimal.ZERO) > 0) {
 				entrustPrice = market.getLastPrice();
 			}
 		}
@@ -901,12 +954,13 @@ public class FuturesOrderService {
 		Integer orderType = priceType == FuturesTradePriceType.MKT ? 1 : 2;
 		// 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
 		BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
-		if (("CN".equals(order.getCommoditySymbol()) || "HSI".equals(order.getCommoditySymbol()) || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
+		if (("CN".equals(order.getCommoditySymbol()) || "HSI".equals(order.getCommoditySymbol())
+				|| "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
 			orderType = 2;
 		}
-		FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain, order.getCommoditySymbol(),
-				order.getContractNo(), order.getId(), action, order.getTotalQuantity(), orderType,
-				gatewayBuyingEntrustPrice);
+		FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain,
+				order.getCommoditySymbol(), order.getContractNo(), order.getId(), action, order.getTotalQuantity(),
+				orderType, gatewayBuyingEntrustPrice);
 		order.setCloseGatewayOrderId(gatewayOrder.getId());
 		// TODO 委托下单异常情况处理，此处默认为所有的委托都能成功
 		// 消息推送
