@@ -279,7 +279,7 @@ public class FuturesTradeController {
 				data.add(dto.getPublisherName() == null ? "" : dto.getPublisherName());
 				data.add(dto.getPublisherPhone() == null ? "" : dto.getPublisherPhone());
 				data.add(dto.getSymbol() == null ? "" : dto.getSymbol());
-				data.add(dto.getName() == null ? "" : dto.getName());
+				data.add(dto.getName() == null ? "" : dto.getName()+"/"+dto.getContractNo());
 				data.add(dto.getTradeNo() == null ? "" : dto.getTradeNo());
 				data.add(dto.getOrderType() == null ? "" : dto.getOrderType());
 				data.add(dto.getState() == null ? "" : dto.getState());
