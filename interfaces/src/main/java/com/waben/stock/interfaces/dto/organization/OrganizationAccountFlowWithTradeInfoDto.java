@@ -177,6 +177,11 @@ public class OrganizationAccountFlowWithTradeInfoDto {
 	 */
 	private String oPublisherName;
 
+	/**
+	 * 期货交易编号
+	 */
+	private String oTradeNo;
+
 	public Long getId() {
 		return id;
 	}
@@ -533,6 +538,14 @@ public class OrganizationAccountFlowWithTradeInfoDto {
 
 	public void setoPublisherName(String oPublisherName) {
 		this.oPublisherName = oPublisherName;
+	}
+
+	public String getoTradeNo() {
+		return oTradeNo;
+	}
+
+	public void setoTradeNo(String oTradeNo) {
+		this.oTradeNo = oTradeNo;
 	}
 
 }
