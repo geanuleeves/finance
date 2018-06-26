@@ -88,17 +88,6 @@ public class OrganizationPublisherController implements OrganizationPublisherInt
 
 	@Override
 	public Response<List<OrganizationPublisherDto>> queryByTreeCode(@RequestBody FuturesTradeAdminQuery query) {
-//		OrganizationQuery query = new OrganizationQuery();
-//		query.setTreeCode(treecode);
-//		query.setPage(0);
-//		query.setSize(Integer.MAX_VALUE);
-//		//查询改机构下的所有子机构
-//		Response<PageInfo<OrganizationDto>> response = orgReference.adminPage(query);
-//		List<OrganizationDto> list = response.getResult().getContent();
-//		List<Long> orgIds = new ArrayList<Long>();
-//		for(OrganizationDto dto:list){
-//			orgIds.add(dto.getId());
-//		}
 		if(query.getTreeCode() !=null && !"".equals(query.getTreeCode())){
 			List<OrganizationPublisher> result = service.findByOrgCode(query.getTreeCode());
 			List<OrganizationPublisherDto> resultDto = CopyBeanUtils.copyListBeanPropertiesToList(result, OrganizationPublisherDto.class);

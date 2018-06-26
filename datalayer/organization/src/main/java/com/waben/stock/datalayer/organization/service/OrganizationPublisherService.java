@@ -98,8 +98,8 @@ public class OrganizationPublisherService {
 				List<Predicate> predicateList = new ArrayList<>();
 				
 				if (orgCode != null && !"".equals(orgCode)) {
-					predicateList.add(criteriaBuilder.like(root.get("orgCode").as(String.class),
-							"%" + orgCode + "%"));
+					predicateList.add(criteriaBuilder.like(root.get("treeCode").as(String.class),
+							 orgCode + "%"));
 				}
 				
 				if (predicateList.size() > 0) {
