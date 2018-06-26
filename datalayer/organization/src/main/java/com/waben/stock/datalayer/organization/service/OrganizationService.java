@@ -40,6 +40,7 @@ import com.waben.stock.datalayer.organization.repository.OrganizationPublisherDa
 import com.waben.stock.datalayer.organization.repository.SettlementMethodDao;
 import com.waben.stock.datalayer.organization.repository.impl.MethodDesc;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
 import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.organization.FuturesFowDto;
@@ -54,6 +55,7 @@ import com.waben.stock.interfaces.enums.CapitalFlowType;
 import com.waben.stock.interfaces.enums.OrganizationState;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.form.organization.OrganizationForm;
+import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
 import com.waben.stock.interfaces.pojo.query.organization.FuturesFowQuery;
 import com.waben.stock.interfaces.pojo.query.organization.OrganizationQuery;
 import com.waben.stock.interfaces.pojo.query.organization.OrganizationStaQuery;
@@ -129,7 +131,7 @@ public class OrganizationService {
 		String treeCode = parent.getTreeCode();
 		if (childList != null && childList.size() > 0) {
 			Organization max = childList.get(0);
-			String suffix = max.getCode().substring(treeCode.length());
+			String suffix = max.getTreeCode().substring(treeCode.length());
 			Long seria = Long.parseLong(suffix) + 1;
 			String seriaStr = seria.toString();
 			if (seriaStr.length() < suffix.length()) {
@@ -610,15 +612,14 @@ public class OrganizationService {
 		if (!StringUtil.isEmpty(query.getTreeCode())) {
 			treeCodeQuery = " and t10.tree_code like '%" + query.getTreeCode() + "%'";
 		}
-		
+
 		String commoditySymbolCondition = "";
 		if (!StringUtil.isEmpty(query.getSymbol())) {
-			commoditySymbolCondition = " and t11.commodity_symbol like '%"
-					+ query.getSymbol() + "%' ";
+			commoditySymbolCondition = " and t11.commodity_symbol like '%" + query.getSymbol() + "%' ";
 		}
 		String commodityNameCondition = "";
-		if(!StringUtil.isEmpty(query.getCommodityName())){
-			commodityNameCondition = " and t12.commodity_name like '%'" + query.getCommodityName() +"'%' ";
+		if (!StringUtil.isEmpty(query.getCommodityName())) {
+			commodityNameCondition = " and t12.commodity_name like '%'" + query.getCommodityName() + "'%' ";
 		}
 
 		String sql = String.format(
@@ -1017,6 +1018,60 @@ public class OrganizationService {
 	public FuturesAgentPrice superiorAgentPrice(Long orgId, Long commodityId) {
 		OrganizationDto organization = agentPriceBusiness.fetchByOrgId(orgId);
 		return agentPriceDao.findByCommodityIdAndOrgId(commodityId, organization.getParentId());
+	}
+	
+	public FuturesOrderCountDto getSUMOrder(FuturesTradeAdminQuery query) {
+		String orderStateCondition = "";
+		if(!StringUtil.isEmpty(query.getOrderState())){
+			orderStateCondition = " and t1.state in ("+ query.getOrderState() +")";
+		}
+		
+		String publisherId = "";
+		if(query.getPublisherIds().size()>0){
+			String pu = "";
+			for(int i=0;i<query.getPublisherIds().size();i++){
+				if(i==0||i==query.getPublisherIds().size()-1){
+					pu = pu + query.getPublisherIds().get(i);
+				}else{
+					pu = pu + query.getPublisherIds().get(i)+", ";
+				}
+			}
+			publisherId = " and t1.publisher_id in ("+ pu +")";
+		}
+		
+		String commoditySymbolCondition = "";
+		if (!StringUtil.isEmpty(query.getSymbol())) {
+			commoditySymbolCondition = " and t1.commodity_symbol like '%"
+					+ query.getSymbol() + "%' ";
+		}
+		String commodityNameCondition = "";
+		if(!StringUtil.isEmpty(query.getName())){
+			commodityNameCondition = " and t1.commodity_name like '%'" + query.getName() +"'%' ";
+		}
+		
+		String orderTypeCondition = "";
+		if(!StringUtil.isEmpty(query.getOrderType())){
+			orderTypeCondition = " and t1.order_type = "+ query.getOrderType() +"";
+		}
+		
+		String windControlTypeCondition = "";
+		if(!StringUtil.isEmpty(query.getWindControlType())){
+			windControlTypeCondition = " and t1.wind_control_type in ("+ query.getWindControlType() +")";
+		}
+		String sql =String.format("SELECT SUM(t1.total_quantity) AS quantity, SUM(t1.reserve_fund* t1.total_quantity) AS reserve_fund, SUM( (t1.openwind_service_fee + t1.unwind_service_fee ) * t1.total_quantity ) AS zhf, "
+						+ "SUM( IF(DATE_FORMAT(CURTIME(),'%%T') >= t3.overnight_time || t1.state=9, t1.overnight_per_unit_deferred_fee * t1.total_quantity ,0) )AS deferred_record "
+						+ "FROM f_futures_order t1 LEFT JOIN f_futures_contract t2 ON t2.id = t1.contract_id LEFT JOIN f_futures_commodity t3 ON t3.id = t2.commodity_id "
+						+ "where 1=1 %s %s %s %s %s %s", orderStateCondition, publisherId, commodityNameCondition, commoditySymbolCondition, orderTypeCondition, windControlTypeCondition);
+		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
+		setMethodMap.put(new Integer(0), new MethodDesc("setQuantity", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(1), new MethodDesc("setFund", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(2), new MethodDesc("setFee", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(3), new MethodDesc("setDeferred", new Class<?>[] { BigDecimal.class }));
+		List<FuturesOrderCountDto> content = sqlDao.execute(FuturesOrderCountDto.class, sql, setMethodMap);
+		if (content != null && content.size() > 0) {
+			return content.get(0);
+		}
+		return null;
 	}
 
 }

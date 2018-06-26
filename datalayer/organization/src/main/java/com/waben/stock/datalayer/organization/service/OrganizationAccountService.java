@@ -145,7 +145,7 @@ public class OrganizationAccountService {
 		flow.setType(flowType);
 		flow.setResourceTradeNo(resourceTradeNo);
 		flow.setRemark(flowType.getType());
-		flow.setAvailableBalance(account.getAvailableBalance());
+		flow.setAvailableBalance(account == null ? new BigDecimal(0) : account.getAvailableBalance());
 		flowDao.create(flow);
 		return account;
 	}

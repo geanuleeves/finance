@@ -108,42 +108,46 @@ public class FuturesTradeBusiness {
 		query.setSize(Integer.MAX_VALUE);
 		query.setPage(0);
 		
-		FuturesOrderCountDto dto = new FuturesOrderCountDto();
-		Response<PageInfo<FuturesTradeOrganizationDto>> result = pagesOrganizationOrder(query);
-		if("200".equals(result.getCode())&&result.getResult()!=null){
-			if(result.getResult().getContent().size()>0){
-				List<FuturesTradeOrganizationDto> orgDto = result.getResult().getContent();
-				BigDecimal totalQuantity = BigDecimal.ZERO;
-				BigDecimal reserveFund = BigDecimal.ZERO;
-				BigDecimal serviceFee = BigDecimal.ZERO;
-				BigDecimal overnightServiceFee = BigDecimal.ZERO;
-				for (FuturesTradeOrganizationDto adminDto : orgDto) {
-					if (adminDto.getTotalQuantity() != null) {
-						totalQuantity = totalQuantity.add(adminDto.getTotalQuantity());
-					}
-					if (adminDto.getReserveFund() != null) {
-						reserveFund = reserveFund.add(adminDto.getReserveFund());
-					}
-					if (adminDto.getOpenwindServiceFee() != null) {
-						serviceFee = serviceFee.add(adminDto.getOpenwindServiceFee().multiply(adminDto.getTotalQuantity()));
-					}
-					if (adminDto.getUnwindServiceFee() != null) {
-						serviceFee = serviceFee.add(adminDto.getUnwindServiceFee().multiply(adminDto.getTotalQuantity()));
-					}
-					if (adminDto.getOvernightServiceFee() != null) {
-						overnightServiceFee = overnightServiceFee.add(adminDto.getOvernightServiceFee());
-					}
-				}
-				dto.setDeferred(overnightServiceFee);
-				dto.setQuantity(totalQuantity);
-				dto.setFee(serviceFee);
-				dto.setFund(reserveFund);
-			}
+		
+//		FuturesOrderCountDto dto = new FuturesOrderCountDto();
+//		Response<PageInfo<FuturesTradeOrganizationDto>> result = pagesOrganizationOrder(query);
+//		if("200".equals(result.getCode())&&result.getResult()!=null){
+//			if(result.getResult().getContent().size()>0){
+//				List<FuturesTradeOrganizationDto> orgDto = result.getResult().getContent();
+//				BigDecimal totalQuantity = BigDecimal.ZERO;
+//				BigDecimal reserveFund = BigDecimal.ZERO;
+//				BigDecimal serviceFee = BigDecimal.ZERO;
+//				BigDecimal overnightServiceFee = BigDecimal.ZERO;
+//				for (FuturesTradeOrganizationDto adminDto : orgDto) {
+//					if (adminDto.getTotalQuantity() != null) {
+//						totalQuantity = totalQuantity.add(adminDto.getTotalQuantity());
+//					}
+//					if (adminDto.getReserveFund() != null) {
+//						reserveFund = reserveFund.add(adminDto.getReserveFund());
+//					}
+//					if (adminDto.getOpenwindServiceFee() != null) {
+//						serviceFee = serviceFee.add(adminDto.getOpenwindServiceFee().multiply(adminDto.getTotalQuantity()));
+//					}
+//					if (adminDto.getUnwindServiceFee() != null) {
+//						serviceFee = serviceFee.add(adminDto.getUnwindServiceFee().multiply(adminDto.getTotalQuantity()));
+//					}
+//					if (adminDto.getOvernightServiceFee() != null) {
+//						overnightServiceFee = overnightServiceFee.add(adminDto.getOvernightServiceFee());
+//					}
+//				}
+//				dto.setDeferred(overnightServiceFee);
+//				dto.setQuantity(totalQuantity);
+//				dto.setFee(serviceFee);
+//				dto.setFund(reserveFund);
+//			}
+//		}
+		List<Long> publisherIds = queryPublishIds(query);
+		if(publisherIds==null){
+			return new Response<>();
+		}else{
+			query.setPublisherIds(publisherIds);
 		}
-		Response<FuturesOrderCountDto> res = new Response<FuturesOrderCountDto>();
-		res.setCode("200");
-		res.setResult(dto);
-		res.setMessage("响应成功");
+		Response<FuturesOrderCountDto> res = orgReference.getSUMOrder(query);
 		return res;
 	}
 	
@@ -185,12 +189,12 @@ public class FuturesTradeBusiness {
 			}
 
 		}
-		publisherIds = getRepetition(orgPublisher, publisherIds);
 		if(publisherIds.size()>0){
-			return publisherIds;
+			publisherIds = getRepetition(orgPublisher, publisherIds);
 		}else{
-			return null;
+			publisherIds = orgPublisher;
 		}
+		return publisherIds;
 	}
 	public static List<Long> getRepetition(List<Long> list1,  
             List<Long> list2) {  
