@@ -45,7 +45,7 @@ import com.waben.stock.interfaces.util.RandomUtil;
  * @author luomengan
  *
  */
-// @Component
+@Component
 public class WindControlSchedule {
 
 	/**
