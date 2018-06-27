@@ -36,7 +36,7 @@ public class FuturesOrderDayGainLossDto {
 	/**
 	 * 冻结资金
 	 */
-	@ApiModelProperty(value = "员工id")
+	@ApiModelProperty(value = "冻结资金")
 	private BigDecimal frozenCapital;
 
 	public BigDecimal getPositionFee() {
