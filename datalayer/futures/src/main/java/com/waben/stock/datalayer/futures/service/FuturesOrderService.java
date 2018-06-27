@@ -374,8 +374,10 @@ public class FuturesOrderService {
 				FuturesOrderState[] positionStates = { FuturesOrderState.Position };
 				if (query.getStates() != null) {
 					if (query.getStates()[0].equals(unwindStates[0])) {
-						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("sellingTime").as(Date.class)),
-								criteriaBuilder.desc(root.get("updateTime").as(Date.class)));
+						List<Order> orderList = new ArrayList<Order>();
+						orderList.add(criteriaBuilder.desc(root.get("sellingTime").as(Date.class)));
+						orderList.add(criteriaBuilder.desc(root.get("updateTime").as(Date.class)));
+						criteriaQuery.orderBy(orderList);
 					} else if (query.getStates()[0].equals(wtStates[0])) {
 						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingEntrustTime").as(Date.class)));
 					} else if (query.getStates()[0].equals(positionStates[0])) {
