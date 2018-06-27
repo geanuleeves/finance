@@ -7,6 +7,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
@@ -37,9 +39,8 @@ public class LogicServerHandler extends ChannelInboundHandlerAdapter{
 	@Override
 	public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
 		final Message.MessageBase msgBase = (Message.MessageBase)msg;
-
+		log.info("服务器端收到消息");
 		log.info(msgBase.getData());
-
 
 		String clientId = msgBase.getClientId();
 		Channel ch = channelRepository.get(clientId);
@@ -50,14 +51,13 @@ public class LogicServerHandler extends ChannelInboundHandlerAdapter{
 			channelRepository.put(clientId, ch);
 		}
 
-
-
 		if(msgBase.getCmd().equals(Command.CommandType.PING)){
 			//处理ping消息
-			log.info("服务端接受到ping");
+			log.info("服务端接受到ping：" + clientId);
 			ctx.writeAndFlush(createData(clientId, Command.CommandType.PING, "This is ping data").build());
 		}else if(msgBase.getCmd().equals(Command.CommandType.PUSH_DATA)){
 			Long requestType = msgBase.getRequestType();
+			log.info("服务端接收推送请求：" + clientId + "-" + requestType);
 			String data = msgBase.getData();
 			// 设置请求类型
 			Attribute<Long> rtattr = ctx.attr(requestTypeInfo);
@@ -79,21 +79,6 @@ public class LogicServerHandler extends ChannelInboundHandlerAdapter{
 			}
 		}
 
-		/* 上一条消息发送成功后，立马推送一条消息 */
-//		cf.addListener(new GenericFutureListener<Future<? super Void>>() {
-//			@Override
-//			public void operationComplete(Future<? super Void> future) throws Exception {
-//				if (future.isSuccess()){
-//					ctx.writeAndFlush(
-//							Message.MessageBase.newBuilder()
-//							.setClientId(msgBase.getClientId())
-//							.setCmd(Command.CommandType.PUSH_DATA)
-//							.setData("This is a push msg")
-//							.build()
-//							);
-//				}
-//			}
-//		});
 		ReferenceCountUtil.release(msg);
 	}
 
@@ -107,8 +92,45 @@ public class LogicServerHandler extends ChannelInboundHandlerAdapter{
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		Attribute<String> attr = ctx.attr(clientInfo);
 		String clientId = attr.get();
-		log.error("Connection closed, client is " + clientId);
+		log.error("exception, client is " + clientId);
 		cause.printStackTrace();
+	}
+
+	@Override
+	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+		//channel失效处理,客户端下线或者强制退出等任何情况都触发这个方法
+		log.info("sbsbsbsbsb");
+		if(ctx.channel().isOpen()){
+			ctx.channel().close();
+			channelRepository.remove(ctx.channel().attr(clientInfo).get());
+		}
+	}
+
+	@Override
+	public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+		if (evt instanceof IdleStateEvent) {
+			IdleStateEvent event = (IdleStateEvent) evt;
+			String type = "";
+			if (event.state() == IdleState.READER_IDLE) {
+				type = "read idle";
+				log.info(ctx.channel().remoteAddress()+"超时类型：" + type);
+				if(ctx.channel().attr(clientInfo) != null
+						&& !StringUtils.isEmpty(ctx.channel().attr(clientInfo).get())
+						&& channelRepository != null
+						){
+					log.info("超时client:"+ ctx.channel().attr(clientInfo).get());
+					channelRepository.remove(ctx.channel().attr(clientInfo).get());
+				}
+				ctx.channel().close();
+			} else if (event.state() == IdleState.WRITER_IDLE) {
+				type = "write idle";
+			} else if (event.state() == IdleState.ALL_IDLE) {
+				type = "all idle";
+			}
+
+		} else {
+			super.userEventTriggered(ctx, evt);
+		}
 	}
 
 	private Message.MessageBase.Builder createData(String clientId, Command.CommandType cmd, String data){
@@ -117,13 +139,5 @@ public class LogicServerHandler extends ChannelInboundHandlerAdapter{
 		msg.setCmd(cmd);
 		msg.setData(data);
 		return msg;
-	}
-
-	@Override
-	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		//channel失效处理,客户端下线或者强制退出等任何情况都触发这个方法
-		ctx.channel().close();
-		channelRepository.remove(ctx.channel().attr(clientInfo).get());
-		super.channelInactive(ctx);
 	}
 }

@@ -185,7 +185,7 @@ public class FuturesMarketService {
 	}
 
 	public List<FuturesContractLineData> minsLine(String commodityNo, String contractNo, String startTimeStr,
-			String endTimeStr) {
+			String endTimeStr, Integer mins) {
 		// 获取开始和结束时间
 		Date startTime = null;
 		Date endTime = null;
@@ -222,22 +222,66 @@ public class FuturesMarketService {
 		// 统计
 		List<FuturesContractLineData> result = new ArrayList<>();
 		for (FuturesQuoteMinuteK minuteK : minuteKList) {
-			if(minuteK.getOpenPrice() != null && minuteK.getOpenPrice().compareTo(BigDecimal.ZERO) > 0) {
+			if (minuteK.getOpenPrice() != null && minuteK.getOpenPrice().compareTo(BigDecimal.ZERO) > 0) {
 				result.add(CopyBeanUtils.copyBeanProperties(FuturesContractLineData.class, minuteK, false));
 			}
 		}
 		for (FuturesQuoteMinuteKGroup minuteKGoup : minuteKGoupList) {
 			List<FuturesContractLineData> dataList = JacksonUtil.decode(minuteKGoup.getGroupData(),
 					JacksonUtil.getGenericType(ArrayList.class, FuturesContractLineData.class));
-			for(FuturesContractLineData data : dataList) {
-				if(data.getOpenPrice() != null && data.getOpenPrice().compareTo(BigDecimal.ZERO) > 0) {
+			for (FuturesContractLineData data : dataList) {
+				if (data.getOpenPrice() != null && data.getOpenPrice().compareTo(BigDecimal.ZERO) > 0) {
 					result.add(data);
 				}
 			}
 		}
 		// 排序
 		Collections.sort(result);
-		return result;
+		if (mins > 1) {
+			List<FuturesContractLineData> minsResult = new ArrayList<>();
+			for (int i = 0; i < result.size(); i++) {
+				FuturesContractLineData data = result.get(i);
+				Date date = data.getTime();
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(date);
+				int min = cal.get(Calendar.MINUTE);
+				if (min % mins == 0) {
+					List<FuturesContractLineData> computeList = new ArrayList<>();
+					BigDecimal highPrice = data.getHighPrice();
+					BigDecimal lowPrice = data.getLowPrice();
+					Long volume = 0L;
+					for (int j = i; j > i - mins; j--) {
+						if (j >= 0 && date.getTime() - result.get(j).getTime().getTime() < mins * 60 * 1000) {
+							FuturesContractLineData jData = result.get(j);
+							if (jData.getHighPrice().compareTo(highPrice) > 0) {
+								highPrice = jData.getHighPrice();
+							}
+							if (jData.getLowPrice().compareTo(BigDecimal.ZERO) > 0
+									&& jData.getLowPrice().compareTo(lowPrice) < 0) {
+								lowPrice = jData.getLowPrice();
+							}
+							volume += jData.getVolume();
+							computeList.add(jData);
+						}
+					}
+					FuturesContractLineData compute = new FuturesContractLineData();
+					compute.setClosePrice(computeList.get(0).getClosePrice());
+					compute.setCommodityNo(data.getCommodityNo());
+					compute.setContractNo(data.getContractNo());
+					compute.setHighPrice(highPrice);
+					compute.setLowPrice(lowPrice);
+					compute.setOpenPrice(computeList.get(computeList.size() - 1).getOpenPrice());
+					compute.setTime(data.getTime());
+					compute.setTimeStr(data.getTimeStr());
+					compute.setTotalVolume(data.getTotalVolume());
+					compute.setVolume(volume);
+					minsResult.add(compute);
+				}
+			}
+			return minsResult;
+		} else {
+			return result;
+		}
 	}
 
 	private int getScale(BigDecimal num) {

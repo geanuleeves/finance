@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  *
  */
 @EnableTransactionManagement
-@EnableJpaRepositories(queryLookupStrategy = QueryLookupStrategy.Key.CREATE, basePackages = "com.waben.stock.futuresgateway.dao.impl.jpa")
+@EnableJpaRepositories(queryLookupStrategy = QueryLookupStrategy.Key.CREATE, basePackages = "com.waben.stock.futuresgateway.yingtou.dao.impl.jpa")
 @Configuration
 public class TransactionConfigure {
 

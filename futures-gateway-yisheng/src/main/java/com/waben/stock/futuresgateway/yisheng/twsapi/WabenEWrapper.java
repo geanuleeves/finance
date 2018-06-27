@@ -31,7 +31,7 @@ import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.YtTickPriceMessag
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.YtTickSizeMessage;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesOrderService;
 
-@Component
+// @Component
 public class WabenEWrapper implements EWrapper {
 
 	private EJavaSignal readerSignal;

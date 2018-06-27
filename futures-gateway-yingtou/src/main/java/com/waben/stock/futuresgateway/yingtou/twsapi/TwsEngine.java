@@ -42,6 +42,12 @@ public class TwsEngine {
 		this.client = wrapper.getClient();
 		this.wrapper.connect();
 
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
 		List<FuturesContract> contractList = futuresContractService.list();
 		// step 1 : 获取行情
 		initMarketData(contractList);
@@ -53,7 +59,7 @@ public class TwsEngine {
 		if (contractList != null && contractList.size() > 0) {
 			for (FuturesContract futuresContract : contractList) {
 				// 获取行情快照
-				this.reqMktData(client, futuresContract, true);
+				// this.reqMktData(client, futuresContract, true);
 				// 获取行情推送
 				// this.reqMktData(client, futuresContract, false);
 			}
@@ -71,27 +77,27 @@ public class TwsEngine {
 				// 日K
 				int dayLineTickerId = Integer
 						.parseInt(TwsConstant.DayLine_TickerId_Prefix + String.valueOf(futuresContract.getId()));
-				historicalDataRequests(client, contract, dayLineTickerId, "4 y", "1 day");
+				// historicalDataRequests(client, contract, dayLineTickerId, "4 y", "1 day");
 				// 分时
 				int timeLineTickerId = Integer
 						.parseInt(TwsConstant.TimeLine_TickerId_Prefix + String.valueOf(futuresContract.getId()));
-				historicalDataRequests(client, contract, timeLineTickerId, "5 d", "1 min");
+				// historicalDataRequests(client, contract, timeLineTickerId, "5 d", "1 min");
 				// 1分钟K线
 				int min1LineTickerId = Integer
 						.parseInt(TwsConstant.Min1Line_TickerId_Prefix + String.valueOf(futuresContract.getId()));
-				historicalDataRequests(client, contract, min1LineTickerId, "2 d", "1 min");
+				historicalDataRequests(client, contract, min1LineTickerId, "1 d", "1 min");
 				// 3分钟K线
 				int mins3LineTickerId = Integer
 						.parseInt(TwsConstant.Mins3Line_TickerId_Prefix + String.valueOf(futuresContract.getId()));
-				historicalDataRequests(client, contract, mins3LineTickerId, "2 d", "3 mins");
+				// historicalDataRequests(client, contract, mins3LineTickerId, "2 d", "3 mins");
 				// 5分钟K线
 				int mins5LineTickerId = Integer
 						.parseInt(TwsConstant.Mins5Line_TickerId_Prefix + String.valueOf(futuresContract.getId()));
-				historicalDataRequests(client, contract, mins5LineTickerId, "2 d", "5 mins");
+				// historicalDataRequests(client, contract, mins5LineTickerId, "2 d", "5 mins");
 				// 15分钟K线
 				int mins15LineTickerId = Integer
 						.parseInt(TwsConstant.Mins15Line_TickerId_Prefix + String.valueOf(futuresContract.getId()));
-				historicalDataRequests(client, contract, mins15LineTickerId, "2 d", "15 mins");
+				// historicalDataRequests(client, contract, mins15LineTickerId, "2 d", "15 mins");
 				try {
 					Thread.sleep(5000);
 					client.cancelHistoricalData(dayLineTickerId);
@@ -122,7 +128,7 @@ public class TwsEngine {
 		contract.exchange("IDEALPRO");
 
 		String prefix = snapshot ? TwsConstant.MarketSnapshot_TickerId_Prefix : TwsConstant.MarketPush_TickerId_Prefix;
-		client.reqMktData(Integer.parseInt(prefix + futuresContract.getId()), contract, "", snapshot, null);
+		// client.reqMktData(Integer.parseInt(prefix + futuresContract.getId()), contract, "", snapshot, null);
 	}
 
 	public void historicalDataRequests(EClientSocket client, Contract contract, int tickerId, String timeFrame,
@@ -130,15 +136,20 @@ public class TwsEngine {
 		Calendar cal = Calendar.getInstance();
 		SimpleDateFormat form = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 		String formatted = form.format(cal.getTime());
-
 		// TODO 因还未订阅数据，先写死合约
 		contract = new Contract();
-		contract.symbol("EUR");
-		contract.secType("CASH");
-		contract.currency("GBP");
-		contract.exchange("IDEALPRO");
-
-		client.reqHistoricalData(tickerId, contract, formatted, timeFrame, timeInterval, "MIDPOINT", 1, 1, null);
+//		contract.symbol("EUR");
+//		contract.secType("CASH");
+//		contract.currency("GBP");
+//		contract.exchange("IDEALPRO");
+		
+		contract.symbol("GC");
+		contract.localSymbol("GCQ8");
+		contract.secType("FUT");
+		contract.currency("USD");
+		contract.exchange("NYMEX");
+		
+		client.reqHistoricalData(tickerId, contract, formatted, timeFrame, timeInterval, "TRADES", 1, 1, null);
 	}
 
 	public String getAccount() {

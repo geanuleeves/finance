@@ -22,7 +22,7 @@ import com.waben.stock.futuresgateway.yingtou.twsapi.TwsEngine;
  * @author luomengan
  *
  */
-@Component
+// @Component
 public class DayLineSchedule {
 
 	Logger logger = LoggerFactory.getLogger(getClass());

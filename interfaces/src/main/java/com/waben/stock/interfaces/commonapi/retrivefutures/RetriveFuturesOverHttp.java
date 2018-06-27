@@ -87,7 +87,7 @@ public class RetriveFuturesOverHttp {
 	}
 
 	public static List<FuturesContractLineData> timeLine(boolean isProd, String commodityNo, String contractNo) {
-		String url = getBaseUrl(isProd) + "market/" + commodityNo + "/" + contractNo + "/minsline";
+		String url = getBaseUrl(isProd) + "market/" + commodityNo + "/" + contractNo + "/minsline?mins=1";
 		String response = restTemplate.getForObject(url, String.class);
 		Response<List<FuturesContractLineData>> responseObj = JacksonUtil.decode(response, JacksonUtil
 				.getGenericType(Response.class, JacksonUtil.getGenericType(List.class, FuturesContractLineData.class)));
@@ -119,6 +119,10 @@ public class RetriveFuturesOverHttp {
 
 	public static List<FuturesContractLineData> minsLine(boolean isProd, String commodityNo, String contractNo, Integer mins) {
 		String url = getBaseUrl(isProd) + "market/" + commodityNo + "/" + contractNo + "/minsline";
+		if(mins == null || mins < 1) {
+			mins = 1;
+		}
+		url += "?mins=" + mins;
 		String response = restTemplate.getForObject(url, String.class);
 		Response<List<FuturesContractLineData>> responseObj = JacksonUtil.decode(response, JacksonUtil
 				.getGenericType(Response.class, JacksonUtil.getGenericType(List.class, FuturesContractLineData.class)));

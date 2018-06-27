@@ -19,7 +19,7 @@ public class SwaggerConfigration {
 	@Bean
 	public Docket createRestApi() {
 		return new Docket(DocumentationType.SWAGGER_2).apiInfo(apiInfo()).select()
-				.apis(RequestHandlerSelectors.basePackage("com.waben.stock.futuresgateway.controller"))
+				.apis(RequestHandlerSelectors.basePackage("com.waben.stock.futuresgateway.yingtou.controller"))
 				.paths(PathSelectors.any()).build();
 	}
 
