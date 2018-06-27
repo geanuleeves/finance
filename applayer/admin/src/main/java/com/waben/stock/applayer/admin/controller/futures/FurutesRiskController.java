@@ -1,5 +1,8 @@
 package com.waben.stock.applayer.admin.controller.futures;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.waben.stock.applayer.admin.business.futures.FuturesCurrencyRateBusiness;
 import com.waben.stock.applayer.admin.business.futures.FuturesTradeLimitBusiness;
+import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesGlobalConfigDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeLimitDto;
 import com.waben.stock.interfaces.dto.admin.futures.PutForwardDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCurrencyRateDto;
+import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesGlobalConfigQuery;
@@ -48,8 +53,13 @@ public class FurutesRiskController {
 	@RequestMapping(value = "/futuresGlobalConfig/Frozen", method = RequestMethod.POST)
     @ApiOperation(value = "提现冻结设置")
 	public Response<FuturesGlobalConfigDto> saveAndModify(FuturesGlobalConfigDto global){
-		FuturesGlobalConfigDto result = limitBusiness.saveAndModify(global);
-		return new Response<>(result);
+		Boolean isnum = isNumeric(global.getWindControlParameters());
+		if(isnum){
+			FuturesGlobalConfigDto result = limitBusiness.saveAndModify(global);
+			return new Response<>(result);
+		}else{
+			throw new ServiceException(ExceptionConstant.WINDCONTROL_PARAMETERS_ISNUM_EXCEPTION);
+		}
 	}
 	
 	@RequestMapping(value = "/futuresGlobalConfig/queryFrozen", method = RequestMethod.POST)
@@ -114,5 +124,13 @@ public class FurutesRiskController {
 	@ApiOperation("查询合约风控")
 	public Response<PageInfo<FuturesTradeLimitDto>> pagesLimit(FuturesTradeLimitQuery query){
 		return new Response<>(limitBusiness.pagesLimiet(query));
+	}
+	public boolean isNumeric(String str){
+	   Pattern pattern = Pattern.compile("[0-9]*");
+	   Matcher isNum = pattern.matcher(str);
+	   if( !isNum.matches() ){
+	       return false;
+	   }
+	   return true;
 	}
 }

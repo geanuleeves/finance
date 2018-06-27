@@ -1,5 +1,9 @@
 package com.waben.stock.datalayer.futures.controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +36,8 @@ public class FuturesTradeLimitController implements FuturesTradeLimitInterface {
 
 	@Autowired
 	private FuturesContractService contractService;
+	
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@Override
 	public Response<FuturesTradeLimitDto> addLimit(@RequestBody FuturesTradeLimitDto query) {
@@ -107,6 +113,23 @@ public class FuturesTradeLimitController implements FuturesTradeLimitInterface {
 			}
 			if (li.getLimitType() != null) {
 				pages.getContent().get(i).setLimitType(li.getLimitType().getType());
+			}
+			if(li.getEndLimitTime()!=null && !"".equals(li.getEndLimitTime())){
+				Date curreyTime = new Date();
+				try {
+					if(curreyTime.before(sdf.parse(li.getEndLimitTime()))){
+						if(li.getEnable()){
+							pages.getContent().get(i).setWindState(1);
+						}else{
+							pages.getContent().get(i).setWindState(2);
+						}
+					}else{
+						pages.getContent().get(i).setWindState(3);
+					}
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 		return new Response<>(pages);

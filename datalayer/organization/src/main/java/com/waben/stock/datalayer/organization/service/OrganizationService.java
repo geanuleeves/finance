@@ -619,7 +619,7 @@ public class OrganizationService {
 		}
 		String commodityNameCondition = "";
 		if (!StringUtil.isEmpty(query.getCommodityName())) {
-			commodityNameCondition = " and t12.commodity_name like '%'" + query.getCommodityName() + "'%' ";
+			commodityNameCondition = " and t11.commodity_name like '%" + query.getCommodityName() + "%' ";
 		}
 
 		String sql = String.format(
@@ -1059,7 +1059,7 @@ public class OrganizationService {
 		if(!StringUtil.isEmpty(query.getWindControlType())){
 			windControlTypeCondition = " and t1.wind_control_type in ("+ query.getWindControlType() +")";
 		}
-		String sql =String.format(" SELECT SUM(t1.total_quantity) AS quantity, SUM(t1.reserve_fund* t1.total_quantity) AS reserve_fund, SUM( (t1.openwind_service_fee + t1.unwind_service_fee ) * t1.total_quantity ) AS zhf, "
+		String sql =String.format(" SELECT SUM(t1.total_quantity) AS quantity, SUM(t1.reserve_fund) AS reserve_fund, SUM( (t1.openwind_service_fee + t1.unwind_service_fee ) * t1.total_quantity ) AS zhf, "
 						+ " SUM( t4.overnight_deferred_fee )AS deferred_record "
 						+ " FROM f_futures_order t1 LEFT JOIN f_futures_contract t2 ON t2.id = t1.contract_id LEFT JOIN f_futures_commodity t3 ON t3.id = t2.commodity_id LEFT JOIN f_futures_overnight_record t4 ON t4.order_id = t1.id"
 						+ " where 1=1 %s %s %s %s %s %s", orderStateCondition, publisherId, commodityNameCondition, commoditySymbolCondition, orderTypeCondition, windControlTypeCondition);
