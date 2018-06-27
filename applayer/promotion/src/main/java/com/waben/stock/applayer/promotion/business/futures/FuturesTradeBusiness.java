@@ -111,7 +111,9 @@ public class FuturesTradeBusiness {
 		
 		List<Long> publisherIds = queryPublishIds(query);
 		if(publisherIds==null){
-			return new Response<>();
+			Response<FuturesOrderCountDto> response = new Response<FuturesOrderCountDto>();
+			response.setResult(new FuturesOrderCountDto());
+			return response;
 		}else{
 			query.setPublisherIds(publisherIds);
 		}
@@ -176,13 +178,14 @@ public class FuturesTradeBusiness {
     }  
 	
 	public Response<PageInfo<FuturesTradeOrganizationDto>> pagesOrganizationOrder(FuturesTradeAdminQuery query){
+		Response<PageInfo<FuturesTradeOrganizationDto>> pagesResponse = new Response<PageInfo<FuturesTradeOrganizationDto>>();
 		List<Long> publisherIds = queryPublishIds(query);
 		if(publisherIds==null){
-			return new Response<>();
+			pagesResponse.setResult(new PageInfo<FuturesTradeOrganizationDto>());
+			return pagesResponse;
 		}else{
 			query.setPublisherIds(publisherIds);
 		}
-		Response<PageInfo<FuturesTradeOrganizationDto>> pagesResponse = new Response<PageInfo<FuturesTradeOrganizationDto>>();
 		Response<PageInfo<FuturesOrderAdminDto>> response = reference.adminPagesByQuery(query);
 		if(response!=null && response.getResult()!=null){
 			List<FuturesOrderAdminDto> list = response.getResult().getContent();
@@ -247,7 +250,9 @@ public class FuturesTradeBusiness {
 	public Response<PageInfo<FutresOrderEntrustDto>> pagesOrganizationEntrustOrder(FuturesTradeAdminQuery query){
 		List<Long> publisherIds = queryPublishIds(query);
 		if(publisherIds==null){
-			return new Response<>();
+			Response<PageInfo<FutresOrderEntrustDto>> response = new Response<PageInfo<FutresOrderEntrustDto>>();
+			response.setResult(new PageInfo<FutresOrderEntrustDto>());
+			return response;
 		}else{
 			query.setPublisherIds(publisherIds);
 		}

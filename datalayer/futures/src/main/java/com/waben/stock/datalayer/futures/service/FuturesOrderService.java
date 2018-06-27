@@ -374,8 +374,10 @@ public class FuturesOrderService {
 				FuturesOrderState[] positionStates = { FuturesOrderState.Position };
 				if (query.getStates() != null) {
 					if (query.getStates()[0].equals(unwindStates[0])) {
-						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("sellingTime").as(Date.class)),
-								criteriaBuilder.desc(root.get("updateTime").as(Date.class)));
+						List<Order> orderList = new ArrayList<Order>();
+						orderList.add(criteriaBuilder.desc(root.get("sellingTime").as(Date.class)));
+						orderList.add(criteriaBuilder.desc(root.get("updateTime").as(Date.class)));
+						criteriaQuery.orderBy(orderList);
 					} else if (query.getStates()[0].equals(wtStates[0])) {
 						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingEntrustTime").as(Date.class)));
 					} else if (query.getStates()[0].equals(positionStates[0])) {
@@ -1027,7 +1029,7 @@ public class FuturesOrderService {
 					// 给渠道推广机构结算
 					if (order.getIsTest() == null || order.getIsTest() == false) {
 						orgBusiness.futuresDeferredSettlement(order.getPublisherId(),
-								order.getContract().getCommodity().getId(), overnightRecord.getId(), order.getTradeNo(),
+								order.getContract().getCommodity().getId(), order.getId(), order.getTradeNo(),
 								order.getTotalQuantity(), order.getOvernightPerUnitDeferredFee());
 					}
 				} catch (ServiceException ex) {

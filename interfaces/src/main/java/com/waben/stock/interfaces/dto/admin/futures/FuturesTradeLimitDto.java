@@ -77,6 +77,11 @@ public class FuturesTradeLimitDto {
 	 * 是否可用
 	 */
 	private Boolean enable;
+	
+	/**
+	 * 状态
+	 */
+	private Integer windState;
 
 	/**
 	 * 更新时间
@@ -201,6 +206,14 @@ public class FuturesTradeLimitDto {
 
 	public void setCommodityId(Long commodityId) {
 		this.commodityId = commodityId;
+	}
+
+	public Integer getWindState() {
+		return windState;
+	}
+
+	public void setWindState(Integer windState) {
+		this.windState = windState;
 	}
 
 	public Long getExchangeId() {
