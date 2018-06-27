@@ -37,17 +37,30 @@ public class TwsEngine {
 
 	private EClientSocket client;
 
-	@PostConstruct
+	// @PostConstruct
 	public void init() {
-		this.client = wrapper.getClient();
-		this.wrapper.connect();
-		List<FuturesContract> contractList = contractService.getByEnable(true);
-		// step 1 : 获取行情
-		initMarketData(contractList);
-		// step 2 : 获取分时、K线数据
-		initLineData(contractList);
+		final TwsEngine _this = this;
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+				_this.client = wrapper.getClient();
+				_this.wrapper.connect();
+				List<FuturesContract> contractList = contractService.getByEnable(true);
+				// step 1 : 获取行情
+				// _this.initMarketData(contractList);
+				// step 2 : 获取分时、K线数据
+				_this.initLineData(contractList);
+			}
+		}).start();
 	}
 
+	@SuppressWarnings("unused")
 	private void initMarketData(List<FuturesContract> contractList) {
 		if (contractList != null && contractList.size() > 0) {
 			for (FuturesContract futuresContract : contractList) {
@@ -113,11 +126,18 @@ public class TwsEngine {
 		contract.currency(futuresContract.getYtCurrency());
 		contract.exchange(futuresContract.getYtExchange());
 		// TODO 因还未订阅数据，先写死合约
+//		contract = new Contract();
+//		contract.symbol("EUR");
+//		contract.secType("CASH");
+//		contract.currency("GBP");
+//		contract.exchange("IDEALPRO");
+		
 		contract = new Contract();
-		contract.symbol("EUR");
-		contract.secType("CASH");
-		contract.currency("GBP");
-		contract.exchange("IDEALPRO");
+		contract.symbol("GC");
+		contract.localSymbol("GCQ8");
+		contract.secType("FUT");
+		contract.currency("USD");
+		contract.exchange("NYMEX");
 		String prefix = snapshot ? TwsConstant.MarketSnapshot_TickerId_Prefix : TwsConstant.MarketPush_TickerId_Prefix;
 		client.reqMktData(Integer.parseInt(prefix + futuresContract.getId()), contract, "", snapshot, null);
 	}
@@ -129,10 +149,11 @@ public class TwsEngine {
 		String formatted = form.format(cal.getTime());
 		// TODO 因还未订阅数据，先写死合约
 		contract = new Contract();
-		contract.symbol("EUR");
-		contract.secType("CASH");
-		contract.currency("GBP");
-		contract.exchange("IDEALPRO");
+		contract.symbol("GC");
+		contract.localSymbol("GCQ8");
+		contract.secType("FUT");
+		contract.currency("USD");
+		contract.exchange("NYMEX");
 		client.reqHistoricalData(tickerId, contract, formatted, timeFrame, timeInterval, "MIDPOINT", 1, 1, null);
 	}
 

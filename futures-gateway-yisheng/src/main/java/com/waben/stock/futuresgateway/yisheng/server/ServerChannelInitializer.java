@@ -19,41 +19,39 @@ import java.util.concurrent.TimeUnit;
 @Component
 @Qualifier("serverChannelInitializer")
 public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> {
-	private final static int READER_IDLE_TIME_SECONDS = 60;//读操作空闲20秒
-	private final static int WRITER_IDLE_TIME_SECONDS = 60;//写操作空闲20秒
-	private final static int ALL_IDLE_TIME_SECONDS = 120;//读写全部空闲40秒
+	private final static int READER_IDLE_TIME_SECONDS = 20;//读操作空闲20秒
+	private final static int WRITER_IDLE_TIME_SECONDS = 20;//写操作空闲20秒
+	private final static int ALL_IDLE_TIME_SECONDS = 40;//读写全部空闲40秒
 
     
     @Autowired
     @Qualifier("logicServerHandler")
     private ChannelInboundHandlerAdapter logicServerHandler;
 
-    @Autowired
-    @Qualifier("idleServerHandler")
-    private ChannelInboundHandlerAdapter idleServerHandler;
     
     @Override
     protected void initChannel(SocketChannel socketChannel) throws Exception {
     	ChannelPipeline p = socketChannel.pipeline();
 
-        p.addLast("frameDecoder", new ProtobufVarint32FrameDecoder());// 用于decode前解决半包和粘包问题（利用包头中的包含数组长度来识别半包粘包）
-        //配置Protobuf解码处理器，消息接收到了就会自动解码，ProtobufDecoder是netty自带的，Message是自己定义的Protobuf类
-        p.addLast("protobufDecoder",
-                new ProtobufDecoder(Message.MessageBase.getDefaultInstance()));
         // 用于在序列化的字节数组前加上一个简单的包头，只包含序列化的字节长度。
         p.addLast("frameEncoder",
                 new ProtobufVarint32LengthFieldPrepender());
         //配置Protobuf编码器，发送的消息会先经过编码
         p.addLast("protobufEncoder", new ProtobufEncoder());
 
-        p.addLast("logicServerHandler", logicServerHandler);
-
         //添加心跳机制,n秒查看一次在线的客户端channel是否空闲
         p.addLast("idleStateHandler", new IdleStateHandler(READER_IDLE_TIME_SECONDS
-    			, WRITER_IDLE_TIME_SECONDS, ALL_IDLE_TIME_SECONDS, TimeUnit.SECONDS));
-        //心跳处理
-	    p.addLast("idleTimeoutHandler", idleServerHandler);
+                , WRITER_IDLE_TIME_SECONDS, ALL_IDLE_TIME_SECONDS, TimeUnit.SECONDS));
 
+        p.addLast("frameDecoder", new ProtobufVarint32FrameDecoder());// 用于decode前解决半包和粘包问题（利用包头中的包含数组长度来识别半包粘包）
+        //配置Protobuf解码处理器，消息接收到了就会自动解码，ProtobufDecoder是netty自带的，Message是自己定义的Protobuf类
+        p.addLast("protobufDecoder",
+                new ProtobufDecoder(Message.MessageBase.getDefaultInstance()));
+
+
+
+
+        p.addLast("logicServerHandler", logicServerHandler);
 
     }
 }

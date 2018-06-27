@@ -109,7 +109,9 @@ public class QuoteMinuteKSchedule {
 				beforeMinuteK.setHighPrice(highPrice);
 				beforeMinuteK.setLowPrice(lowPrice);
 				// step 3.5 : 保存计算出来的分K数据
-				minuteKServcie.addFuturesQuoteMinuteK(beforeMinuteK);
+				if (lowPrice != null && lowPrice.compareTo(BigDecimal.ZERO) > 0) {
+					minuteKServcie.addFuturesQuoteMinuteK(beforeMinuteK);
+				}
 				// step 3.6 : 删除该分钟的行情数据
 				for (int i = 0; i < quoteList.size(); i++) {
 					FuturesQuote quote = quoteList.get(i);

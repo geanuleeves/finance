@@ -85,6 +85,7 @@ public class Application{
         Map<ChannelOption<?>, Object> options = new HashMap<ChannelOption<?>, Object>();
         options.put(ChannelOption.SO_KEEPALIVE, keepAlive);
         options.put(ChannelOption.SO_BACKLOG, backlog);
+        options.put(ChannelOption.TCP_NODELAY, true);
         return options;
     }
 

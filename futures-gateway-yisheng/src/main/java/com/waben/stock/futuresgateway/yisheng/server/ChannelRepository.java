@@ -22,7 +22,7 @@ public class ChannelRepository {
 	}
 
 	public void remove(String key) { 
-		channelCache.remove(key);																																																																						
+		channelCache.remove(key);
 	}
 
 	public int size() {

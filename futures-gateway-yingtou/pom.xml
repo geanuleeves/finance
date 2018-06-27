@@ -59,11 +59,11 @@
 			<artifactId>jedis</artifactId>
 		</dependency>
 		<!-- tws -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>com.waben.twsapi</groupId>
 			<artifactId>tws-api</artifactId>
 			<version>1.0.0</version>
-		</dependency>
+		</dependency> -->
 		<!-- amqp -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

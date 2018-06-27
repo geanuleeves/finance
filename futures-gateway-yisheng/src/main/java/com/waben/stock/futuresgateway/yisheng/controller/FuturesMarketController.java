@@ -47,8 +47,11 @@ public class FuturesMarketController {
 	@GetMapping("/{commodityNo}/{contractNo}/minsline")
 	@ApiOperation(value = "期货合约分K线", notes = "startTime和endTime格式为:yyyy-MM-DD HH:mm:ss，不设置值默认为1天")
 	public Response<List<FuturesContractLineData>> minsLine(@PathVariable("commodityNo") String commodityNo,
-			@PathVariable("contractNo") String contractNo, String startTime, String endTime) {
-		return new Response<>(service.minsLine(commodityNo, contractNo, startTime, endTime));
+			@PathVariable("contractNo") String contractNo, String startTime, String endTime, Integer mins) {
+		if(mins == null || mins < 1) {
+			mins = 1;
+		}
+		return new Response<>(service.minsLine(commodityNo, contractNo, startTime, endTime, mins));
 	}
 
 }
