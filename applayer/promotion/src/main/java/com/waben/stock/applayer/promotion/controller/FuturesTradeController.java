@@ -197,7 +197,7 @@ public class FuturesTradeController {
 			if(type == 0){
 				data.add(dto.getPublisherName() == null ? "" : dto.getPublisherName());
 				data.add(dto.getPublisherPhone() == null ? "" : dto.getPublisherPhone());
-				data.add(dto.getName() == null ? "" : dto.getName());
+				data.add(dto.getName() == null ? "" : dto.getName()+"/"+dto.getContractNo());
 				data.add(dto.getTradeNo() == null ? "" : dto.getTradeNo());
 				data.add(dto.getOrderType() == null ? "" : dto.getOrderType());
 				data.add(dto.getState() == null ? "" : dto.getState());
@@ -221,7 +221,7 @@ public class FuturesTradeController {
 			}else if(type == 1){
 				data.add(dto.getPublisherName() == null ? "" : dto.getPublisherName());
 				data.add(dto.getPublisherPhone() == null ? "" : dto.getPublisherPhone());
-				data.add(dto.getName() == null ? "" : dto.getName());
+				data.add(dto.getName() == null ? "" : dto.getName()+"/"+dto.getContractNo());
 				data.add(dto.getTradeNo() == null ? "" : dto.getTradeNo());
 				data.add(dto.getOrderType() == null ? "" : dto.getOrderType());
 				data.add(dto.getState() == null ? "" : dto.getState());
@@ -242,7 +242,7 @@ public class FuturesTradeController {
 			}else if(type == 2){
 				data.add(dto.getPublisherName() == null ? "" : dto.getPublisherName());
 				data.add(dto.getPublisherPhone() == null ? "" : dto.getPublisherPhone());
-				data.add(dto.getName() == null ? "" : dto.getName());
+				data.add(dto.getName() == null ? "" : dto.getName()+"/"+dto.getContractNo());
 				data.add(dto.getTradeNo() == null ? "" : dto.getTradeNo());
 				data.add(dto.getOrderType() == null ? "" : dto.getOrderType());
 				data.add(dto.getState() == null ? "" : dto.getState());

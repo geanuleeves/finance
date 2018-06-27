@@ -619,7 +619,7 @@ public class OrganizationService {
 		}
 		String commodityNameCondition = "";
 		if (!StringUtil.isEmpty(query.getCommodityName())) {
-			commodityNameCondition = " and t12.commodity_name like '%'" + query.getCommodityName() + "'%' ";
+			commodityNameCondition = " and t11.commodity_name like '%" + query.getCommodityName() + "%' ";
 		}
 
 		String sql = String.format(

@@ -335,5 +335,7 @@ public class ExceptionConstant {
 	public static final String CURRENTSTATUS_CANNOTCANCEL_EXCEPTION = "13036";
 	// 合约临近到期，不能下单
 	public static final String MIN_PLACE_ORDER_EXCEPTION = "13037";
+	//提现冻结设置参数必须为大于0的正整数
+	public static final String WINDCONTROL_PARAMETERS_ISNUM_EXCEPTION = "13038";
 
 }

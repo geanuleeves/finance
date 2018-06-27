@@ -179,6 +179,7 @@ public class FuturesTradeBusiness {
 		Response<PageInfo<FuturesTradeOrganizationDto>> pagesResponse = new Response<PageInfo<FuturesTradeOrganizationDto>>();
 		List<Long> publisherIds = queryPublishIds(query);
 		if(publisherIds==null){
+			pagesResponse.setResult(new PageInfo<FuturesTradeOrganizationDto>());
 			return pagesResponse;
 		}else{
 			query.setPublisherIds(publisherIds);
@@ -247,7 +248,9 @@ public class FuturesTradeBusiness {
 	public Response<PageInfo<FutresOrderEntrustDto>> pagesOrganizationEntrustOrder(FuturesTradeAdminQuery query){
 		List<Long> publisherIds = queryPublishIds(query);
 		if(publisherIds==null){
-			return new Response<PageInfo<FutresOrderEntrustDto>>();
+			Response<PageInfo<FutresOrderEntrustDto>> response = new Response<PageInfo<FutresOrderEntrustDto>>();
+			response.setResult(new PageInfo<FutresOrderEntrustDto>());
+			return response;
 		}else{
 			query.setPublisherIds(publisherIds);
 		}
