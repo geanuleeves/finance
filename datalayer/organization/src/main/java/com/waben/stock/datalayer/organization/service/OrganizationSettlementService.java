@@ -11,6 +11,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.waben.stock.datalayer.organization.business.FuturesAgentPriceBusiness;
 import com.waben.stock.datalayer.organization.business.FuturesCommodityBusiness;
 import com.waben.stock.datalayer.organization.entity.BenefitConfig;
 import com.waben.stock.datalayer.organization.entity.FuturesAgentPrice;
@@ -307,14 +308,22 @@ public class OrganizationSettlementService {
 
 	public List<FuturesAgentPrice> getAgentPriceList(Long commodityId, List<Organization> orgTreeList) {
 		List<FuturesAgentPrice> result = new ArrayList<>();
-		for (int i = 1; i < orgTreeList.size(); i++) {
+		for (int i = 0; i < orgTreeList.size(); i++) {
 			Organization org = orgTreeList.get(i);
 			FuturesAgentPrice agentPrice = agentPriceDao.findByCommodityIdAndOrgId(commodityId, org.getId());
 			if (agentPrice != null) {
 				result.add(agentPrice);
 			} else {
+				FuturesCommodityDto commodity = commodityBusiness.getFuturesByCommodityId(commodityId);
 				agentPrice = new FuturesAgentPrice();
 				agentPrice.setOrgId(org.getId());
+				agentPrice.setCostReserveFund(commodity.getPerUnitReserveFund());
+				agentPrice.setCostOpenwindServiceFee(commodity.getOpenwindServiceFee());
+				agentPrice.setCostUnwindServiceFee(commodity.getUnwindServiceFee());
+				agentPrice.setCostDeferredFee(commodity.getOvernightPerUnitDeferredFee());
+				agentPrice.setSaleOpenwindServiceFee(commodity.getOpenwindServiceFee());
+				agentPrice.setSaleUnwindServiceFee(commodity.getUnwindServiceFee());
+				agentPrice.setSaleDeferredFee(commodity.getOvernightPerUnitDeferredFee());
 				result.add(agentPrice);
 			}
 		}
