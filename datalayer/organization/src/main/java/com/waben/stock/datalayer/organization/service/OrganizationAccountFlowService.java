@@ -342,20 +342,14 @@ public class OrganizationAccountFlowService {
 						/*+ "(IF(t1.type = 7,t11.cost_openwind_service_fee,IF(t1.type=8,t11.cost_unwind_service_fee,IF(t1.type=9,t11.cost_deferred_fee,0))) - "
 						+ "IF(t1.type = 7,t12.cost_openwind_service_fee,IF(t1.type=8,t12.cost_unwind_service_fee,IF(t1.type=9,t12.cost_deferred_fee,0)))) AS maid_fee, "
 						+ "IF(t1.type = 7,t11.sale_openwind_service_fee,IF(t1.type=8,t11.sale_unwind_service_fee,IF(t1.type=9,t11.sale_deferred_fee,0))) AS commission "*/
-
 						
-						+ "CASE "
-						+ "WHEN t1.type = 7 AND t4.id=t7.id THEN (t11.sale_openwind_service_fee - t11.cost_openwind_service_fee) * t8.total_quantity "
-						+ "WHEN t1.type = 8 AND t4.id=t7.id THEN (t11.sale_unwind_service_fee - t11.cost_unwind_service_fee) * t8.total_quantity "
-						+ "WHEN t1.type = 9 AND t4.id=t7.id THEN (t11.sale_deferred_fee - t11.cost_deferred_fee) * t8.total_quantity "
-						+ "WHEN t1.type = 7 THEN (t11.cost_openwind_service_fee - t12.cost_openwind_service_fee) * t8.total_quantity "
-						+ "WHEN t1.type = 8 THEN (t11.cost_unwind_service_fee - t12.cost_unwind_service_fee) * t8.total_quantity "
-						+ "WHEN t1.type = 9 THEN (t11.cost_deferred_fee - t12.cost_deferred_fee) * t8.total_quantity "
-						+ "ELSE 0 END as maid_fee, "
-						
-						+ "CASE WHEN t1.type = 7 THEN t11.sale_openwind_service_fee "
-						+ "WHEN t1.type = 8 THEN t11.sale_unwind_service_fee "
-						+ "WHEN t1.type = 9 THEN t11.sale_deferred_fee ELSE 0 END AS commission, t8.trade_no "
+						+ "t1.amount as maid_fee, CASE WHEN t1.type = 7 AND t4.level != 1 THEN t11.sale_openwind_service_fee "
+						+ "WHEN t1.type = 8 AND t4.level != 1 THEN t11.sale_unwind_service_fee "
+						+ "WHEN t1.type = 9 AND t4.level != 1 THEN t11.sale_deferred_fee "
+						+ "WHEN t1.type = 7 AND t4.level = 1 THEN t10.openwind_service_fee "
+						+ "WHEN t1.type = 8 AND t4.level = 1 THEN t10.unwind_service_fee "
+						+ "WHEN t1.type = 9 AND t4.level = 1 THEN t10.overnight_per_unit_deferred_fee "
+						+ "ELSE 0 END AS commission, t8.trade_no "
 
 						+ "from p_organization_account_flow t1 "
 						+ "LEFT JOIN buy_record t2 on t1.resource_type=1 and t1.resource_id=t2.id "
