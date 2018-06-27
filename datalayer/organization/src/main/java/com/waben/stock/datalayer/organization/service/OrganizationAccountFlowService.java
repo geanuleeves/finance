@@ -290,7 +290,7 @@ public class OrganizationAccountFlowService {
 
 	public Page<OrganizationAccountFlowWithTradeInfoDto> pageAgentCapitalManageNew(AgentCapitalManageQuery query) {
 
-		String queryTypeCondition = " and (t7.level=1 or (t4.id=t7.id or t4.parent_id=t7.id and t7.level>1)) ";
+		String queryTypeCondition = " and (t7.level=1 or (t4.id=t7.id or t4.tree_code LIKE CONCAT(t7.tree_code,'%%') and t7.level>1)) ";
 
 		String types = "";
 		if (!StringUtil.isEmpty(query.getTypes())) {
