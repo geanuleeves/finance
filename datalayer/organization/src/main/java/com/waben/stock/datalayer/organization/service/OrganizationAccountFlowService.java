@@ -366,7 +366,7 @@ public class OrganizationAccountFlowService {
 						+ "AND t8.publisher_id = t14.resource_id "
 						+ "LEFT JOIN publisher t15 ON t15.id = t8.publisher_id "
 						+ "LEFT JOIN p_organization t7 on t7.id=" + query.getCurrentOrgId() + " "
-						+ "where 1=1 %s %s %s %s %s %s %s %s %s and t1.org_id is not null order by t1.occurrence_time desc limit "
+						+ "where 1=1 %s %s %s %s %s %s %s %s %s and t1.org_id is not null order by t1.occurrence_time desc,t1.org_id asc limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(), queryTypeCondition, types,
 						contractCodeOrName, orgCodeOrName, flowNo, customerName, customerPhone, startTimeCondition,
 						endTimeCondition);
