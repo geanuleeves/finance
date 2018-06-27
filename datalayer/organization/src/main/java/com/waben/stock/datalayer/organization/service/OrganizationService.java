@@ -610,7 +610,7 @@ public class OrganizationService {
 
 		String treeCodeQuery = "";
 		if (!StringUtil.isEmpty(query.getTreeCode())) {
-			treeCodeQuery = " and t10.tree_code like " + query.getTreeCode() + "%'";
+			treeCodeQuery = " and t10.tree_code like '" + query.getTreeCode() + "%'";
 		}
 
 		String commoditySymbolCondition = "";
