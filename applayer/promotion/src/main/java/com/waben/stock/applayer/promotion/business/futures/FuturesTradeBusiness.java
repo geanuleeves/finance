@@ -111,7 +111,9 @@ public class FuturesTradeBusiness {
 		
 		List<Long> publisherIds = queryPublishIds(query);
 		if(publisherIds==null){
-			return new Response<FuturesOrderCountDto>();
+			Response<FuturesOrderCountDto> response = new Response<FuturesOrderCountDto>();
+			response.setResult(new FuturesOrderCountDto());
+			return response;
 		}else{
 			query.setPublisherIds(publisherIds);
 		}
