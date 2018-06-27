@@ -25,10 +25,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.waben.stock.applayer.tactics.business.CapitalAccountBusiness;
 import com.waben.stock.applayer.tactics.business.PublisherBusiness;
 import com.waben.stock.applayer.tactics.business.futures.FuturesContractBusiness;
 import com.waben.stock.applayer.tactics.business.futures.FuturesOrderBusiness;
 import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderBuysellDto;
+import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderDayGainLossDto;
 import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderMarketDto;
 import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderProfitDto;
 import com.waben.stock.applayer.tactics.dto.futures.TransactionDynamicsDto;
@@ -76,6 +78,9 @@ public class FuturesOrderController {
 
 	@Autowired
 	private PublisherBusiness publisherBusiness;
+
+	@Autowired
+	private CapitalAccountBusiness capitalAccountBusiness;
 
 	// private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	private SimpleDateFormat exprotSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -363,7 +368,7 @@ public class FuturesOrderController {
 		result.setCurrencySign(sign);
 		return new Response<>(result);
 	}
-	
+
 	@GetMapping("/unwinded")
 	@ApiOperation(value = "获取已平仓列表")
 	public Response<PageInfo<FuturesOrderMarketDto>> unwindedList(int page, int size) {
@@ -476,6 +481,49 @@ public class FuturesOrderController {
 			totalIncome = totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss());
 		}
 		return new Response<>(totalIncome.setScale(2, RoundingMode.DOWN));
+	}
+
+	/**
+	 * 包装当前用户的账户资金及当天持仓、平仓盈亏
+	 * 
+	 * @return 当前用户的账户资金及当天持仓、平仓盈亏
+	 */
+	@GetMapping("/current/capital/profit/settled/")
+	@ApiOperation(value = "获取当前用户的账户资金及当天持仓、平仓盈亏")
+	public Response<FuturesOrderDayGainLossDto> capitalAccountAndDayGainLoss() {
+		FuturesOrderDayGainLossDto gainLoss = new FuturesOrderDayGainLossDto();
+		// 获取当天平仓金额
+		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
+		FuturesOrderState[] states = { FuturesOrderState.Unwind };
+		orderQuery.setStates(states);
+		orderQuery.setPage(0);
+		orderQuery.setSize(Integer.MAX_VALUE);
+		orderQuery.setStartBuyingTime(getCurrentDay());
+		orderQuery.setPublisherId(SecurityUtil.getUserId());
+		List<FuturesOrderMarketDto> list = futuresOrderBusiness.pageOrderMarket(orderQuery).getContent();
+		BigDecimal totalIncome = new BigDecimal(0);
+		for (FuturesOrderMarketDto futuresOrderMarketDto : list) {
+			totalIncome = totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss());
+		}
+		gainLoss.setUnwindProFee(totalIncome.setScale(2, RoundingMode.DOWN));
+
+		// 获取当天持仓浮动盈亏
+		FuturesOrderState[] positionState = { FuturesOrderState.Position };
+		orderQuery.setStates(positionState);
+		List<FuturesOrderMarketDto> positionList = futuresOrderBusiness.pageOrderMarket(orderQuery).getContent();
+		BigDecimal positionTotalIncome = new BigDecimal(0);
+		for (FuturesOrderMarketDto futuresOrderMarketDto : positionList) {
+			positionTotalIncome = positionTotalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss());
+		}
+		gainLoss.setPositionFee(positionTotalIncome.setScale(2, RoundingMode.DOWN));
+
+		// 获取用户账户资金
+		CapitalAccountDto result = capitalAccountBusiness.findByPublisherId(SecurityUtil.getUserId());
+		result.setPaymentPassword(null);
+		gainLoss.setBalance(result.getBalance());
+		gainLoss.setAvailableBalance(result.getAvailableBalance());
+		gainLoss.setFrozenCapital(result.getFrozenCapital());
+		return new Response<>(gainLoss);
 	}
 
 	@GetMapping("/transaction/dynamics")
