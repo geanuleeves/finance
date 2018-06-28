@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.waben.stock.applayer.admin.business.ProfileBusiness;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
@@ -250,8 +251,14 @@ public class FuturesOrderBusiness {
 		throw new ServiceException(response.getCode());
 	}
 
-	public FuturesOrderCountDto getSUMOrder(String state) {
-		Response<FuturesOrderCountDto> response = reference.getSUMOrder(state);
+	public FuturesOrderCountDto getSUMOrder(FuturesTradeAdminQuery query) {
+		List<Long> publisherIds = queryPublishIds(query);
+		if(publisherIds==null){
+			return new FuturesOrderCountDto();
+		}else{
+			query.setPublisherIds(publisherIds);
+		}
+		Response<FuturesOrderCountDto> response = reference.getSUMOrder(query);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}
