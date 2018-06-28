@@ -32,7 +32,10 @@ public class CircularsDto {
 	private String href;
 	@ApiModelProperty(value = "创建人")
 	private String author;
+	@ApiModelProperty(value = "适应端")
 	private Integer state;
+	@ApiModelProperty(value = "类型：1公告，2新闻")
+	private String type;
 	private StaffDto staffDto;
 
 	public Long getId() {
@@ -105,6 +108,14 @@ public class CircularsDto {
 
 	public void setState(Integer state) {
 		this.state = state;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public StaffDto getStaffDto() {

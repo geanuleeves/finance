@@ -256,8 +256,8 @@ public class FuturesTradeController implements FuturesTradeInterface {
 	}
 
 	@Override
-	public Response<FuturesOrderCountDto> getSUMOrder(@RequestParam String state) {
-		return new Response<>(limitService.getSUMOrder(state));
+	public Response<FuturesOrderCountDto> getSUMOrder(@RequestBody FuturesTradeAdminQuery query) {
+		return new Response<>(limitService.getSUMOrder(query));
 	}
 
 }

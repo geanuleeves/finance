@@ -38,6 +38,6 @@ public interface FuturesTradeInterface {
 	@RequestMapping(value = "/countOrderState", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	Response<Object[]> countOrderState(@RequestParam(name = "state") String state);
 
-	@RequestMapping(value = "/getSUMOrder", method = RequestMethod.GET)
-	Response<FuturesOrderCountDto> getSUMOrder(@RequestParam(name = "state") String state);
+	@RequestMapping(value = "/getSUMOrder",  method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	Response<FuturesOrderCountDto> getSUMOrder(@RequestBody FuturesTradeAdminQuery query);
 }
