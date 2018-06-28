@@ -131,8 +131,6 @@ public class FuturesOrderService {
 	@Autowired
 	private ProfileBusiness profileBusiness;
 
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
 	private SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@Autowired
@@ -367,20 +365,20 @@ public class FuturesOrderService {
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
-				FuturesOrderState[] unwindStates = { FuturesOrderState.Unwind };
+				FuturesOrderState[] unwindStates = { FuturesOrderState.Unwind, FuturesOrderState.BuyingCanceled,
+						FuturesOrderState.BuyingFailure };
 				FuturesOrderState[] wtStates = { FuturesOrderState.BuyingEntrust, FuturesOrderState.BuyingCanceled,
 						FuturesOrderState.BuyingFailure, FuturesOrderState.PartPosition, FuturesOrderState.Position,
 						FuturesOrderState.SellingEntrust, FuturesOrderState.PartUnwind, FuturesOrderState.Unwind };
 				FuturesOrderState[] positionStates = { FuturesOrderState.Position };
 				if (query.getStates() != null) {
-					if (query.getStates()[0].equals(unwindStates[0])) {
+					if (orderStateArrToString(query.getStates()).equals(orderStateArrToString(unwindStates))) {
 						List<Order> orderList = new ArrayList<Order>();
-						orderList.add(criteriaBuilder.desc(root.get("sellingTime").as(Date.class)));
 						orderList.add(criteriaBuilder.desc(root.get("updateTime").as(Date.class)));
 						criteriaQuery.orderBy(orderList);
-					} else if (query.getStates()[0].equals(wtStates[0])) {
+					} else if (orderStateArrToString(query.getStates()).equals(orderStateArrToString(wtStates))) {
 						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingEntrustTime").as(Date.class)));
-					} else if (query.getStates()[0].equals(positionStates[0])) {
+					} else if (orderStateArrToString(query.getStates()).equals(orderStateArrToString(positionStates))) {
 						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingTime").as(Date.class)));
 					}
 				}
@@ -388,6 +386,16 @@ public class FuturesOrderService {
 			}
 		}, pageable);
 		return pages;
+	}
+
+	private String orderStateArrToString(FuturesOrderState[] states) {
+		StringBuilder strBuilder = new StringBuilder();
+		if (states != null) {
+			for (FuturesOrderState state : states) {
+				strBuilder.append(state.name());
+			}
+		}
+		return strBuilder.toString();
 	}
 
 	@Transactional

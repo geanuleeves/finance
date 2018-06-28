@@ -290,7 +290,7 @@ public class OrganizationAccountFlowService {
 
 	public Page<OrganizationAccountFlowWithTradeInfoDto> pageAgentCapitalManageNew(AgentCapitalManageQuery query) {
 
-		String queryTypeCondition = " and (t7.level=1 or (t4.id=t7.id or t4.parent_id=t7.id and t7.level>1)) ";
+		String queryTypeCondition = " and (t7.level=1 or (t4.id=t7.id or t4.tree_code LIKE CONCAT(t7.tree_code,'%%') and t7.level>1)) ";
 
 		String types = "";
 		if (!StringUtil.isEmpty(query.getTypes())) {
@@ -359,7 +359,7 @@ public class OrganizationAccountFlowService {
 						+ "LEFT JOIN real_name t14 ON t14.resource_type = 2 " + "AND t8.publisher_id = t14.resource_id "
 						+ "LEFT JOIN publisher t15 ON t15.id = t8.publisher_id "
 						+ "LEFT JOIN p_organization t7 on t7.id=" + query.getCurrentOrgId() + " "
-						+ "where 1=1 %s %s %s %s %s %s %s %s %s and t1.org_id is not null order by t1.occurrence_time DESC, t1.amount DESC ,t1.org_id ASC limit "
+						+ "where 1=1 %s %s %s %s %s %s %s %s %s and t1.org_id is not null order by t1.occurrence_time DESC, t1.amount DESC, t1.available_balance DESC, t1.org_id ASC limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(), queryTypeCondition, types,
 						contractCodeOrName, orgCodeOrName, flowNo, customerName, customerPhone, startTimeCondition,
 						endTimeCondition);

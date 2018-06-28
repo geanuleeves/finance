@@ -314,16 +314,25 @@ public class OrganizationSettlementService {
 			if (agentPrice != null) {
 				result.add(agentPrice);
 			} else {
-				FuturesCommodityDto commodity = commodityBusiness.getFuturesByCommodityId(commodityId);
+				// FuturesCommodityDto commodity =
+				// commodityBusiness.getFuturesByCommodityId(commodityId);
 				agentPrice = new FuturesAgentPrice();
 				agentPrice.setOrgId(org.getId());
-				agentPrice.setCostReserveFund(commodity.getPerUnitReserveFund());
-				agentPrice.setCostOpenwindServiceFee(commodity.getOpenwindServiceFee());
-				agentPrice.setCostUnwindServiceFee(commodity.getUnwindServiceFee());
-				agentPrice.setCostDeferredFee(commodity.getOvernightPerUnitDeferredFee());
-				agentPrice.setSaleOpenwindServiceFee(commodity.getOpenwindServiceFee());
-				agentPrice.setSaleUnwindServiceFee(commodity.getUnwindServiceFee());
-				agentPrice.setSaleDeferredFee(commodity.getOvernightPerUnitDeferredFee());
+				// agentPrice.setCostReserveFund(commodity.getPerUnitReserveFund());
+				// agentPrice.setCostOpenwindServiceFee(commodity.getOpenwindServiceFee());
+				// agentPrice.setCostUnwindServiceFee(commodity.getUnwindServiceFee());
+				// agentPrice.setCostDeferredFee(commodity.getOvernightPerUnitDeferredFee());
+				// agentPrice.setSaleOpenwindServiceFee(commodity.getOpenwindServiceFee());
+				// agentPrice.setSaleUnwindServiceFee(commodity.getUnwindServiceFee());
+				// agentPrice.setSaleDeferredFee(commodity.getOvernightPerUnitDeferredFee());
+
+				agentPrice.setCostReserveFund(BigDecimal.ZERO);
+				agentPrice.setCostOpenwindServiceFee(BigDecimal.ZERO);
+				agentPrice.setCostUnwindServiceFee(BigDecimal.ZERO);
+				agentPrice.setCostDeferredFee(BigDecimal.ZERO);
+				agentPrice.setSaleOpenwindServiceFee(BigDecimal.ZERO);
+				agentPrice.setSaleUnwindServiceFee(BigDecimal.ZERO);
+				agentPrice.setSaleDeferredFee(BigDecimal.ZERO);
 				result.add(agentPrice);
 			}
 		}
