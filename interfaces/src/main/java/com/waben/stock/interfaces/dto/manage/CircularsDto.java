@@ -32,6 +32,7 @@ public class CircularsDto {
 	private String href;
 	@ApiModelProperty(value = "创建人")
 	private String author;
+	private Integer state;
 	private StaffDto staffDto;
 
 	public Long getId() {
@@ -96,6 +97,14 @@ public class CircularsDto {
 
 	public void setAuthor(String author) {
 		this.author = author;
+	}
+
+	public Integer getState() {
+		return state;
+	}
+
+	public void setState(Integer state) {
+		this.state = state;
 	}
 
 	public StaffDto getStaffDto() {

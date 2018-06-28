@@ -34,6 +34,9 @@ public class Circulars {
     private Date expireTime;
     @Column
     private Boolean enable;
+    
+    @Column
+    private Integer state;
 
     @Column
     private String href;
@@ -90,7 +93,15 @@ public class Circulars {
         this.enable = enable;
     }
 
-    public String getHref() {
+    public Integer getState() {
+		return state;
+	}
+
+	public void setState(Integer state) {
+		this.state = state;
+	}
+
+	public String getHref() {
         return href;
     }
 
