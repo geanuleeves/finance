@@ -1,5 +1,7 @@
 package com.waben.stock.futuresgateway.yisheng.controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +54,21 @@ public class FuturesMarketController {
 			mins = 1;
 		}
 		return new Response<>(service.minsLine(commodityNo, contractNo, startTime, endTime, mins));
+	}
+	
+	@GetMapping("/{commodityNo}/{contractNo}/computedayline")
+	@ApiOperation(value = "计算日K数据")
+	public Response<String> computeDayline(@PathVariable("commodityNo") String commodityNo,
+			@PathVariable("contractNo") String contractNo, String time) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		try {
+			service.computeDayline(commodityNo, contractNo, sdf.parse(time));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		Response<String> result = new Response<>();
+		result.setResult("success");
+		return result;
 	}
 
 }
