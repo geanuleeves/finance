@@ -231,29 +231,26 @@ public class EsQuoteWrapper implements QuoteApiListener {
 		}
 	}
 
-	private Message.MessageBase buildAllQuote() {
+	private Message.MessageBase buildAllQuote(TapAPIQuoteWhole quote) {
 		Message.MessageBase msg = Message.MessageBase.newBuilder().setCmd(Command.CommandType.PUSH_DATA)
 				.setClientId("0").setType(1).setRequestType(2).build();
-		for (TapAPIQuoteWhole quote : quoteCache.values()) {
-			String commodityNo = quote.getContract().getCommodity().getCommodityNo();
-			String contractNo = quote.getContract().getContractNo1();
-			if (EsEngine.commodityScaleMap.containsKey(commodityNo)) {
-				Integer scale = EsEngine.commodityScaleMap.get(commodityNo);
-				FuturesQuoteSimpleDataBase simple = FuturesQuoteSimpleDataBase.newBuilder()
-						.setTime(quote.getDateTimeStamp()).setCommodityNo(commodityNo).setContractNo(contractNo)
-						.setLastPrice(
-								new BigDecimal(quote.getQLastPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
-						.setOpenPrice(new BigDecimal(quote.getQOpeningPrice()).setScale(scale, RoundingMode.HALF_UP)
-								.toString())
-						.setHighPrice(
-								new BigDecimal(quote.getQHighPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
-						.setLowPrice(
-								new BigDecimal(quote.getQLowPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
-						.setClosePrice(new BigDecimal(quote.getQClosingPrice()).setScale(scale, RoundingMode.HALF_UP)
-								.toString())
-						.build();
-				msg = Message.MessageBase.newBuilder(msg).addFqList(simple).build();
-			}
+		String commodityNo = quote.getContract().getCommodity().getCommodityNo();
+		String contractNo = quote.getContract().getContractNo1();
+		if (EsEngine.commodityScaleMap.containsKey(commodityNo)) {
+			Integer scale = EsEngine.commodityScaleMap.get(commodityNo);
+			FuturesQuoteSimpleDataBase simple = FuturesQuoteSimpleDataBase.newBuilder()
+					.setTime(quote.getDateTimeStamp()).setCommodityNo(commodityNo).setContractNo(contractNo)
+					.setLastPrice(
+							new BigDecimal(quote.getQLastPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setOpenPrice(
+							new BigDecimal(quote.getQOpeningPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setHighPrice(
+							new BigDecimal(quote.getQHighPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setLowPrice(new BigDecimal(quote.getQLowPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setClosePrice(
+							new BigDecimal(quote.getQClosingPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.build();
+			msg = Message.MessageBase.newBuilder(msg).addFqList(simple).build();
 		}
 		return msg;
 	}
@@ -262,30 +259,30 @@ public class EsQuoteWrapper implements QuoteApiListener {
 		String commodityNo = info.getContract().getCommodity().getCommodityNo();
 		String contractNo = info.getContract().getContractNo1();
 		Message.MessageBase singleQuote = buildSingleQuote(info);
-		Message.MessageBase allQuote = buildAllQuote();
+		Message.MessageBase allQuote = buildAllQuote(info);
 		// 将行情推送到特定的通道中
 		for (Map.Entry<String, Channel> entry : ChannelRepository.channelCache.entrySet()) {
 			String clientId = entry.getKey();
 			Channel channel = entry.getValue();
 			boolean isOpen = channel.isOpen();
-//			if (isOpen) {
-				// 请求类型
-				Attribute<Long> rtinfo = channel.attr(requestTypeInfo);
-				if (singleQuote != null && rtinfo.get() != null && rtinfo.get() == 1) {
-					// 推送单个行情
-					Attribute<String> hyinfo = channel.attr(hyInfo);
-					Attribute<String> pzinfo = channel.attr(pzInfo);
-					if (channel.isOpen() && hyinfo != null && pzinfo != null && commodityNo.equals(pzinfo.get())
-							&& contractNo.equals(hyinfo.get())) {
-						singleQuote = Message.MessageBase.newBuilder(singleQuote).setClientId(clientId).build();
-						channel.writeAndFlush(singleQuote);
-					}
-				} else if (rtinfo.get() != null && rtinfo.get() == 2) {
-					// 推送全部行情
-					allQuote = Message.MessageBase.newBuilder(allQuote).setClientId(clientId).build();
-					channel.writeAndFlush(allQuote);
+			// if (isOpen) {
+			// 请求类型
+			Attribute<Long> rtinfo = channel.attr(requestTypeInfo);
+			if (singleQuote != null && rtinfo.get() != null && rtinfo.get() == 1) {
+				// 推送单个行情
+				Attribute<String> hyinfo = channel.attr(hyInfo);
+				Attribute<String> pzinfo = channel.attr(pzInfo);
+				if (channel.isOpen() && hyinfo != null && pzinfo != null && commodityNo.equals(pzinfo.get())
+						&& contractNo.equals(hyinfo.get())) {
+					singleQuote = Message.MessageBase.newBuilder(singleQuote).setClientId(clientId).build();
+					channel.writeAndFlush(singleQuote);
 				}
-//			}
+			} else if (rtinfo.get() != null && rtinfo.get() == 2) {
+				// 推送全部行情
+				allQuote = Message.MessageBase.newBuilder(allQuote).setClientId(clientId).build();
+				channel.writeAndFlush(allQuote);
+			}
+			// }
 		}
 	}
 

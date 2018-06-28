@@ -37,6 +37,8 @@ public class Circulars {
     
     @Column
     private Integer state;
+    
+    private String type;
 
     @Column
     private String href;
@@ -99,6 +101,14 @@ public class Circulars {
 
 	public void setState(Integer state) {
 		this.state = state;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	public String getHref() {
