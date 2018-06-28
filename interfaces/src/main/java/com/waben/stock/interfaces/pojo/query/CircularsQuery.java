@@ -10,8 +10,11 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(value="CircularsQuery",description="公告查询对象")
 
 public class CircularsQuery extends PageAndSortQuery{
-    @ApiModelProperty(value = "公告标题")
+    @ApiModelProperty(value = "标题")
     private String title;
+    
+    @ApiModelProperty(value = "类型")
+    private String type;
 
     public String getTitle() {
         return title;
@@ -20,4 +23,12 @@ public class CircularsQuery extends PageAndSortQuery{
     public void setTitle(String title) {
         this.title = title;
     }
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
 }
