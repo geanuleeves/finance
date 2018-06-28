@@ -57,6 +57,12 @@ public class FuturesMarketService {
 
 	@Autowired
 	private FuturesQuoteDayKDao dayKDao;
+	
+	@Autowired
+	private FuturesQuoteDayKService dayKServcie;
+
+	@Autowired
+	private FuturesQuoteMinuteKGroupService minuteKGroupServcie;
 
 	private SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -295,6 +301,65 @@ public class FuturesMarketService {
 			}
 		}
 		return new BigDecimal(numStrBuilder.toString()).scale();
+	}
+
+	public void computeDayline(String commodityNo, String contractNo, Date time) {
+		innerComputeDayK(commodityNo, contractNo, time);
+	}
+	
+	private void innerComputeDayK(String commodityNo, String contractNo, Date date) {
+		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date[] arr = retriveBeijingTimeInterval(date);
+		List<FuturesQuoteMinuteKGroup> groupList = minuteKGroupServcie
+				.getByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(commodityNo, contractNo, arr[0],
+						arr[1]);
+		if (groupList != null && groupList.size() > 0) {
+			FuturesQuoteDayK dayK = dayKServcie.getByCommodityNoAndContractNoAndTime(commodityNo, contractNo, date);
+			if (dayK == null) {
+				dayK = new FuturesQuoteDayK();
+			}
+			// 初始化部分数据
+			dayK.setCommodityNo(commodityNo);
+			dayK.setContractNo(contractNo);
+			dayK.setTime(date);
+			dayK.setTimeStr(fullSdf.format(date));
+			dayK.setTotalVolume(groupList.get(groupList.size() - 1).getTotalVolume());
+			dayK.setVolume(groupList.get(groupList.size() - 1).getTotalVolume());
+			dayK.setOpenPrice(groupList.get(0).getOpenPrice());
+			dayK.setClosePrice(groupList.get(groupList.size() - 1).getClosePrice());
+			// 计算最高价、最低价
+			BigDecimal highPrice = groupList.get(0).getHighPrice();
+			BigDecimal lowPrice = groupList.get(0).getLowPrice();
+			for (FuturesQuoteMinuteKGroup group : groupList) {
+				if (group.getHighPrice().compareTo(highPrice) > 0) {
+					highPrice = group.getHighPrice();
+				}
+				if (group.getLowPrice().compareTo(lowPrice) < 0) {
+					lowPrice = group.getLowPrice();
+				}
+			}
+			dayK.setHighPrice(highPrice);
+			dayK.setLowPrice(lowPrice);
+			// 保存计算出来的日K数据
+			dayKServcie.addFuturesQuoteDayK(dayK);
+
+		}
+	}
+
+	private Date[] retriveBeijingTimeInterval(Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.HOUR_OF_DAY, 5);
+		cal.add(Calendar.MINUTE, 1);
+		Date endTime = cal.getTime();
+
+		Calendar startCal = Calendar.getInstance();
+		startCal.setTime(date);
+		startCal.add(Calendar.HOUR_OF_DAY, -18);
+		startCal.add(Calendar.MINUTE, 1);
+		Date startTime = startCal.getTime();
+
+		return new Date[] { startTime, endTime };
 	}
 
 }

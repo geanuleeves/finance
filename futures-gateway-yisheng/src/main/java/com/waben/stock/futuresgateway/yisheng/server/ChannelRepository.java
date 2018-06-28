@@ -1,9 +1,9 @@
 package com.waben.stock.futuresgateway.yisheng.server;
 
-import io.netty.channel.Channel;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import io.netty.channel.Channel;
 
 /**
  * Channel Manager

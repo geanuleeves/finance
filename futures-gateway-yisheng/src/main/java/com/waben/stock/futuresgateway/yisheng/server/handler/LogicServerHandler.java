@@ -28,9 +28,15 @@ import org.springframework.util.StringUtils;
 public class LogicServerHandler extends ChannelInboundHandlerAdapter{
 	public Logger log = Logger.getLogger(this.getClass());
 	private final AttributeKey<String> clientInfo = AttributeKey.valueOf("clientInfo");
-	private final AttributeKey<Long> requestTypeInfo = AttributeKey.valueOf("requestType");
 	private final AttributeKey<String> hyInfo = AttributeKey.valueOf("hyInfo");
 	private final AttributeKey<String> pzInfo = AttributeKey.valueOf("pzInfo");
+
+	private final AttributeKey<String> test1 = AttributeKey.valueOf("test1");
+	private final AttributeKey<String> test2 = AttributeKey.valueOf("test2");
+
+	private final AttributeKey<Long> requestTypeInfo = AttributeKey.valueOf("requestTypeInfo");
+
+
 
 	@Autowired
 	@Qualifier("channelRepository")
@@ -39,43 +45,48 @@ public class LogicServerHandler extends ChannelInboundHandlerAdapter{
 	@Override
 	public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
 		final Message.MessageBase msgBase = (Message.MessageBase)msg;
-		log.info("服务器端收到消息");
-		log.info(msgBase.getData());
+		log.info("服务器端收到消息:" + msgBase.getClientId());
 
 		String clientId = msgBase.getClientId();
+		if(StringUtils.isEmpty(clientId)){
+			return;
+		}
+		Attribute<String> attr = ctx.channel().attr(clientInfo);
+		attr.set(clientId);
+
 		Channel ch = channelRepository.get(clientId);
 		if(null == ch){
 			ch = ctx.channel();
-			Attribute<String> attr = ctx.attr(clientInfo);
-			attr.set(clientId);
+
 			channelRepository.put(clientId, ch);
 		}
 
-		if(msgBase.getCmd().equals(Command.CommandType.PING)){
+		log.info("requestType:" + ctx.channel().attr(requestTypeInfo));
+
+		if(msgBase.getCmd().equals(Command.CommandType.PING)) {
 			//处理ping消息
-			log.info("服务端接受到ping：" + clientId);
-			ctx.writeAndFlush(createData(clientId, Command.CommandType.PING, "This is ping data").build());
+			log.info("服务端接受到ping");
+
+			ctx.writeAndFlush(createData(clientId, Command.CommandType.PING, "你的请求类型是" + ctx.channel().attr(requestTypeInfo)).build());
+		}else if(msgBase.getCmd().equals(Command.CommandType.AUTH)){
+
 		}else if(msgBase.getCmd().equals(Command.CommandType.PUSH_DATA)){
 			Long requestType = msgBase.getRequestType();
-			log.info("服务端接收推送请求：" + clientId + "-" + requestType);
+			Attribute<Long> a = ctx.channel().attr(requestTypeInfo);
+			a.set(requestType);
+
 			String data = msgBase.getData();
-			// 设置请求类型
-			Attribute<Long> rtattr = ctx.attr(requestTypeInfo);
-			rtattr.set(requestType);
 			if(requestType != null && requestType == 1) {
 				// 设置合约编号和品种编号
 				if(!StringUtils.isEmpty(data)){
 					String[] datas = data.split("&");
 					if(datas.length == 2){
-						Attribute<String> hyattr = ctx.attr(hyInfo);
-						Attribute<String> pzattr = ctx.attr(pzInfo);
+						Attribute<String> hyattr = ctx.channel().attr(hyInfo);
+						Attribute<String> pzattr = ctx.channel().attr(pzInfo);
 						hyattr.set(datas[0]);
 						pzattr.set(datas[1]);
 					}
-					channelRepository.put(clientId, ctx.channel());
 				}
-			} else if(requestType != null && requestType == 2) {
-				channelRepository.put(clientId, ctx.channel());
 			}
 		}
 
@@ -99,7 +110,6 @@ public class LogicServerHandler extends ChannelInboundHandlerAdapter{
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		//channel失效处理,客户端下线或者强制退出等任何情况都触发这个方法
-		log.info("sbsbsbsbsb");
 		if(ctx.channel().isOpen()){
 			ctx.channel().close();
 			channelRepository.remove(ctx.channel().attr(clientInfo).get());

@@ -74,7 +74,7 @@ public class EsQuoteWrapper implements QuoteApiListener {
 	private RabbitmqProducer rabbitmqProducer;
 
 	private final AttributeKey<String> clientInfo = AttributeKey.valueOf("clientInfo");
-	private final AttributeKey<Long> requestTypeInfo = AttributeKey.valueOf("requestType");
+	private final AttributeKey<Long> requestTypeInfo = AttributeKey.valueOf("requestTypeInfo");
 	private final AttributeKey<String> hyInfo = AttributeKey.valueOf("hyInfo");
 	private final AttributeKey<String> pzInfo = AttributeKey.valueOf("pzInfo");
 
@@ -170,49 +170,59 @@ public class EsQuoteWrapper implements QuoteApiListener {
 		// 推送行情
 		pushQuote(info);
 	}
-	
+
 	private String getQuoteCacheKey(String commodityNo, String contractNo) {
 		return commodityNo + "-" + contractNo;
 	}
-	
+
 	private Message.MessageBase buildSingleQuote(TapAPIQuoteWhole info) {
 		String commodityNo = info.getContract().getCommodity().getCommodityNo();
 		String contractNo = info.getContract().getContractNo1();
-		if(EsEngine.commodityScaleMap.containsKey(commodityNo)) {
+		if (EsEngine.commodityScaleMap.containsKey(commodityNo)) {
 			Integer scale = EsEngine.commodityScaleMap.get(commodityNo);
 			// 构建行情推送对象
-			FuturesQuoteDataBase data = FuturesQuoteDataBase.newBuilder()
-			.setCommodityNo(commodityNo)
-			.setContractNo(contractNo)
-			.setTime(info.getDateTimeStamp().substring(0, info.getDateTimeStamp().length() - 4))
-			.setAskPrice(new BigDecimal(info.getQAskPrice()[0]).setScale(scale, RoundingMode.HALF_UP).toString())
-			.setAskSize(info.getQAskQty()[0])
-			.setBidPrice(new BigDecimal(info.getQBidPrice()[0]).setScale(scale, RoundingMode.HALF_UP).toString())
-			.setBidSize(info.getQBidQty()[0])
-			.setAskPrice2(new BigDecimal(info.getQAskPrice()[1]).setScale(scale, RoundingMode.HALF_UP).toString())
-			.setAskSize2(info.getQAskQty()[1])
-			.setBidPrice2(new BigDecimal(info.getQBidPrice()[1]).setScale(scale, RoundingMode.HALF_UP).toString())
-			.setBidSize2(info.getQBidQty()[1])
-			.setAskPrice3(new BigDecimal(info.getQAskPrice()[2]).setScale(scale, RoundingMode.HALF_UP).toString())
-			.setAskSize3(info.getQAskQty()[2])
-			.setBidPrice3(new BigDecimal(info.getQBidPrice()[2]).setScale(scale, RoundingMode.HALF_UP).toString())
-			.setBidSize3(info.getQBidQty()[2])
-			.setAskPrice4(new BigDecimal(info.getQAskPrice()[3]).setScale(scale, RoundingMode.HALF_UP).toString())
-			.setAskSize4(info.getQAskQty()[3])
-			.setBidPrice4(new BigDecimal(info.getQBidPrice()[3]).setScale(scale, RoundingMode.HALF_UP).toString())
-			.setBidSize4(info.getQBidQty()[3])
-			.setAskPrice5(new BigDecimal(info.getQAskPrice()[4]).setScale(scale, RoundingMode.HALF_UP).toString())
-			.setAskSize5(info.getQAskQty()[4])
-			.setBidPrice5(new BigDecimal(info.getQBidPrice()[4]).setScale(scale, RoundingMode.HALF_UP).toString())
-			.setBidSize5(info.getQBidQty()[4])
-			.setClosePrice(new BigDecimal(info.getQClosingPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
-			.setHighPrice(new BigDecimal(info.getQHighPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
-			.setLastPrice(new BigDecimal(info.getQLastPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
-			.setLastSize(info.getQLastQty())
-			.setLowPrice(new BigDecimal(info.getQLowPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
-			.setOpenPrice(new BigDecimal(info.getQOpeningPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
-			.setVolume(info.getQLastQty())
-			.setTotalVolume(info.getQTotalQty()).build();
+			FuturesQuoteDataBase data = FuturesQuoteDataBase.newBuilder().setCommodityNo(commodityNo)
+					.setContractNo(contractNo)
+					.setTime(info.getDateTimeStamp().substring(0, info.getDateTimeStamp().length() - 4))
+					.setAskPrice(
+							new BigDecimal(info.getQAskPrice()[0]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setAskSize(info.getQAskQty()[0])
+					.setBidPrice(
+							new BigDecimal(info.getQBidPrice()[0]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setBidSize(info.getQBidQty()[0])
+					.setAskPrice2(
+							new BigDecimal(info.getQAskPrice()[1]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setAskSize2(info.getQAskQty()[1])
+					.setBidPrice2(
+							new BigDecimal(info.getQBidPrice()[1]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setBidSize2(info.getQBidQty()[1])
+					.setAskPrice3(
+							new BigDecimal(info.getQAskPrice()[2]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setAskSize3(info.getQAskQty()[2])
+					.setBidPrice3(
+							new BigDecimal(info.getQBidPrice()[2]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setBidSize3(info.getQBidQty()[2])
+					.setAskPrice4(
+							new BigDecimal(info.getQAskPrice()[3]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setAskSize4(info.getQAskQty()[3])
+					.setBidPrice4(
+							new BigDecimal(info.getQBidPrice()[3]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setBidSize4(info.getQBidQty()[3])
+					.setAskPrice5(
+							new BigDecimal(info.getQAskPrice()[4]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setAskSize5(info.getQAskQty()[4])
+					.setBidPrice5(
+							new BigDecimal(info.getQBidPrice()[4]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setBidSize5(info.getQBidQty()[4])
+					.setClosePrice(
+							new BigDecimal(info.getQClosingPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setHighPrice(new BigDecimal(info.getQHighPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setLastPrice(new BigDecimal(info.getQLastPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setLastSize(info.getQLastQty())
+					.setLowPrice(new BigDecimal(info.getQLowPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setOpenPrice(
+							new BigDecimal(info.getQOpeningPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setVolume(info.getQLastQty()).setTotalVolume(info.getQTotalQty()).build();
 			Message.MessageBase msg = Message.MessageBase.newBuilder().setCmd(Command.CommandType.PUSH_DATA)
 					.setClientId("0").setType(1).setRequestType(1).setFq(data).build();
 			return msg;
@@ -220,31 +230,34 @@ public class EsQuoteWrapper implements QuoteApiListener {
 			return null;
 		}
 	}
-	
+
 	private Message.MessageBase buildAllQuote() {
 		Message.MessageBase msg = Message.MessageBase.newBuilder().setCmd(Command.CommandType.PUSH_DATA)
 				.setClientId("0").setType(1).setRequestType(2).build();
-		for(TapAPIQuoteWhole quote : quoteCache.values()) {
+		for (TapAPIQuoteWhole quote : quoteCache.values()) {
 			String commodityNo = quote.getContract().getCommodity().getCommodityNo();
 			String contractNo = quote.getContract().getContractNo1();
-			if(EsEngine.commodityScaleMap.containsKey(commodityNo)) {
+			if (EsEngine.commodityScaleMap.containsKey(commodityNo)) {
 				Integer scale = EsEngine.commodityScaleMap.get(commodityNo);
 				FuturesQuoteSimpleDataBase simple = FuturesQuoteSimpleDataBase.newBuilder()
-				.setTime(quote.getDateTimeStamp())
-				.setCommodityNo(commodityNo)
-				.setContractNo(contractNo)
-				.setLastPrice(new BigDecimal(quote.getQLastPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
-				.setOpenPrice(new BigDecimal(quote.getQOpeningPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
-				.setHighPrice(new BigDecimal(quote.getQHighPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
-				.setLowPrice(new BigDecimal(quote.getQLowPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
-				.setClosePrice(new BigDecimal(quote.getQClosingPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
-				.build();
+						.setTime(quote.getDateTimeStamp()).setCommodityNo(commodityNo).setContractNo(contractNo)
+						.setLastPrice(
+								new BigDecimal(quote.getQLastPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+						.setOpenPrice(new BigDecimal(quote.getQOpeningPrice()).setScale(scale, RoundingMode.HALF_UP)
+								.toString())
+						.setHighPrice(
+								new BigDecimal(quote.getQHighPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+						.setLowPrice(
+								new BigDecimal(quote.getQLowPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+						.setClosePrice(new BigDecimal(quote.getQClosingPrice()).setScale(scale, RoundingMode.HALF_UP)
+								.toString())
+						.build();
 				msg = Message.MessageBase.newBuilder(msg).addFqList(simple).build();
 			}
 		}
 		return msg;
 	}
-	
+
 	private void pushQuote(TapAPIQuoteWhole info) {
 		String commodityNo = info.getContract().getCommodity().getCommodityNo();
 		String contractNo = info.getContract().getContractNo1();
@@ -254,24 +267,28 @@ public class EsQuoteWrapper implements QuoteApiListener {
 		for (Map.Entry<String, Channel> entry : ChannelRepository.channelCache.entrySet()) {
 			String clientId = entry.getKey();
 			Channel channel = entry.getValue();
-			// 请求类型
-			Attribute<Long> rtinfo = channel.attr(requestTypeInfo);
-			if (singleQuote != null && rtinfo.get() != null && rtinfo.get() == 1) {
-				// 推送单个行情
-				Attribute<String> hyinfo = channel.attr(hyInfo);
-				Attribute<String> pzinfo = channel.attr(pzInfo);
-				if (channel.isOpen() && hyinfo != null && pzinfo != null && commodityNo.equals(pzinfo.get()) && contractNo.equals(hyinfo.get())) {
-					singleQuote = Message.MessageBase.newBuilder(singleQuote).setClientId(clientId).build();
-					channel.writeAndFlush(singleQuote);
+			boolean isOpen = channel.isOpen();
+//			if (isOpen) {
+				// 请求类型
+				Attribute<Long> rtinfo = channel.attr(requestTypeInfo);
+				if (singleQuote != null && rtinfo.get() != null && rtinfo.get() == 1) {
+					// 推送单个行情
+					Attribute<String> hyinfo = channel.attr(hyInfo);
+					Attribute<String> pzinfo = channel.attr(pzInfo);
+					if (channel.isOpen() && hyinfo != null && pzinfo != null && commodityNo.equals(pzinfo.get())
+							&& contractNo.equals(hyinfo.get())) {
+						singleQuote = Message.MessageBase.newBuilder(singleQuote).setClientId(clientId).build();
+						channel.writeAndFlush(singleQuote);
+					}
+				} else if (rtinfo.get() != null && rtinfo.get() == 2) {
+					// 推送全部行情
+					allQuote = Message.MessageBase.newBuilder(allQuote).setClientId(clientId).build();
+					channel.writeAndFlush(allQuote);
 				}
-			} else if(rtinfo.get() != null && rtinfo.get() == 2) {
-				// 推送全部行情
-				allQuote = Message.MessageBase.newBuilder(allQuote).setClientId(clientId).build();
-				channel.writeAndFlush(allQuote);
-			}
+//			}
 		}
 	}
-	
+
 	// @Scheduled(cron = "0/10 * * * * ?")
 	@SuppressWarnings("unused")
 	public void test() {

@@ -46,6 +46,10 @@ public class FuturesQuoteMinuteKGroup {
 	private BigDecimal closePrice;
 	/** 成交量 */
 	private long volume;
+	/** 开始成交总量 */
+	private Long startTotalQty;
+	/** 结束成交总量 */
+	private Long endTotalQty;
 	/** 当天总成交量 */
 	private long totalVolume;
 	/** 组合数据，json数组存放分钟K */
@@ -162,6 +166,22 @@ public class FuturesQuoteMinuteKGroup {
 
 	public void setGroupData(String groupData) {
 		this.groupData = groupData;
+	}
+
+	public Long getStartTotalQty() {
+		return startTotalQty;
+	}
+
+	public void setStartTotalQty(Long startTotalQty) {
+		this.startTotalQty = startTotalQty;
+	}
+
+	public Long getEndTotalQty() {
+		return endTotalQty;
+	}
+
+	public void setEndTotalQty(Long endTotalQty) {
+		this.endTotalQty = endTotalQty;
 	}
 
 }

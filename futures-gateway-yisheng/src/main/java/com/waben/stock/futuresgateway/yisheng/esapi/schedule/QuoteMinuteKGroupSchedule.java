@@ -90,8 +90,15 @@ public class QuoteMinuteKGroupSchedule {
 				minuteKGroup.setTime(time);
 				minuteKGroup.setTimeStr(fullSdf.format(time));
 				minuteKGroup.setTotalVolume(minuteKList.get(minuteKList.size() - 1).getTotalVolume());
-				minuteKGroup.setVolume(
-						minuteKList.get(minuteKList.size() - 1).getTotalVolume() - minuteKList.get(0).getTotalVolume());
+				Long startTotalQty = minuteKList.get(0).getStartTotalQty();
+				Long endTotalQty = minuteKList.get(minuteKList.size() - 1).getEndTotalQty();
+				minuteKGroup.setEndTotalQty(endTotalQty);
+				minuteKGroup.setStartTotalQty(startTotalQty);
+				if(endTotalQty != null && startTotalQty != null) {
+					minuteKGroup.setVolume(endTotalQty - startTotalQty);
+				} else {
+					minuteKGroup.setVolume(0L);
+				}
 				minuteKGroup.setOpenPrice(minuteKList.get(0).getOpenPrice());
 				minuteKGroup.setClosePrice(minuteKList.get(minuteKList.size() - 1).getClosePrice());
 				// step 3.4 : 计算最高价、最低价

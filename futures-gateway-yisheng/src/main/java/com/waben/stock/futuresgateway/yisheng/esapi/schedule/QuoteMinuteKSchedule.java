@@ -91,6 +91,8 @@ public class QuoteMinuteKSchedule {
 				beforeMinuteK.setTime(currentMin);
 				beforeMinuteK.setTimeStr(fullSdf.format(currentMin));
 				beforeMinuteK.setTotalVolume(quoteList.get(quoteList.size() - 1).getPositionQty());
+				beforeMinuteK.setEndTotalQty(quoteList.get(quoteList.size() - 1).getTotalQty());
+				beforeMinuteK.setStartTotalQty(quoteList.get(0).getTotalQty());
 				beforeMinuteK
 						.setVolume(quoteList.get(quoteList.size() - 1).getTotalQty() - quoteList.get(0).getTotalQty());
 				beforeMinuteK.setOpenPrice(new BigDecimal(quoteList.get(0).getLastPrice()));
