@@ -27,6 +27,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>stockcontent</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
