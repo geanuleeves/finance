@@ -298,15 +298,14 @@ public class OrganizationAccountFlowService {
 		}
 		String contractCodeOrName = "";
 		if (!StringUtil.isEmpty(query.getContractCodeOrName())) {
-			contractCodeOrName = " and t8.commodity_symbol like '" + query.getContractCodeOrName()
-					+ "' or t8.commodity_name like '" + query.getContractCodeOrName() + "'";
+			contractCodeOrName = " and t8.commodity_symbol like '%" + query.getContractCodeOrName()
+					+ "%' or t8.commodity_name like '%" + query.getContractCodeOrName() + "%'";
 		}
 		String orgCodeOrName = "";
 		if (!StringUtil.isEmpty(query.getOrgCodeOrName())) {
-			orgCodeOrName = " and t4.code like '" + query.getOrgCodeOrName() + "' or t4.name like '"
-					+ query.getOrgCodeOrName() + "'";
+			orgCodeOrName = " and t4.code like '%" + query.getOrgCodeOrName() + "%' or t4.name like '%"
+					+ query.getOrgCodeOrName() + "%'";
 		}
-
 		String flowNo = "";
 		if (!StringUtil.isEmpty(query.getFlowNo())) {
 			flowNo = " and t1.flow_no like '" + query.getFlowNo() + "'";
