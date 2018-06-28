@@ -306,7 +306,6 @@ public class OrganizationAccountFlowService {
 			orgCodeOrName = " and t4.code like '%" + query.getOrgCodeOrName() + "%' or t4.name like '%"
 					+ query.getOrgCodeOrName() + "%'";
 		}
-
 		String flowNo = "";
 		if (!StringUtil.isEmpty(query.getFlowNo())) {
 			flowNo = " and t1.flow_no like '" + query.getFlowNo() + "'";
