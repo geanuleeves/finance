@@ -19,9 +19,9 @@ import java.util.concurrent.TimeUnit;
 @Component
 @Qualifier("serverChannelInitializer")
 public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> {
-	private final static int READER_IDLE_TIME_SECONDS = 60;//读操作空闲20秒
-	private final static int WRITER_IDLE_TIME_SECONDS = 60;//写操作空闲20秒
-	private final static int ALL_IDLE_TIME_SECONDS = 120;//读写全部空闲40秒
+	private final static int READER_IDLE_TIME_SECONDS = 180;//读操作空闲20秒
+	private final static int WRITER_IDLE_TIME_SECONDS = 180;//写操作空闲20秒
+	private final static int ALL_IDLE_TIME_SECONDS = 360;//读写全部空闲40秒
 
     
     @Autowired
