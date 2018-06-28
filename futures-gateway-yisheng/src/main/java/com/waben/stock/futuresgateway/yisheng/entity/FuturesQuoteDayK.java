@@ -42,6 +42,8 @@ public class FuturesQuoteDayK {
 	private BigDecimal lowPrice;
 	/** 收盘价 */
 	private BigDecimal closePrice;
+	/** 昨结算价 */
+	private String preSettlePrice;
 	/** 成交量 */
 	private long volume;
 	/** 开始成交总量 */
@@ -169,6 +171,14 @@ public class FuturesQuoteDayK {
 
 	public void setEndTotalQty(Long endTotalQty) {
 		this.endTotalQty = endTotalQty;
+	}
+
+	public String getPreSettlePrice() {
+		return preSettlePrice;
+	}
+
+	public void setPreSettlePrice(String preSettlePrice) {
+		this.preSettlePrice = preSettlePrice;
 	}
 
 }
