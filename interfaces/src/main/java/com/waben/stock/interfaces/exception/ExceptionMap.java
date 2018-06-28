@@ -190,6 +190,7 @@ public class ExceptionMap {
 		exceptionMap.put(ExceptionConstant.TOTAL_AMOUNT_BUYFULL_CAPACITY_INSUFFICIENT_EXCEPTION, "买跌持仓总额度已达上限");
 		exceptionMap.put(ExceptionConstant.MIN_PLACE_ORDER_EXCEPTION, "合约临近到期，不能下单");
 		exceptionMap.put(ExceptionConstant.WINDCONTROL_PARAMETERS_ISNUM_EXCEPTION, "提现冻结设置参数必须为大于0的正整数");
+		exceptionMap.put(ExceptionConstant.UNWINDORDER_CANNOTCANCEL_EXCEPTION, "平仓订单不能取消委托操作");
 
 	}
 }

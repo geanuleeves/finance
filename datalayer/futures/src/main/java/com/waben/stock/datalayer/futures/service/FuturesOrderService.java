@@ -1100,7 +1100,8 @@ public class FuturesOrderService {
 			TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(), domain, order.getOpenGatewayOrderId());
 		}
 		if (order.getState() == FuturesOrderState.SellingEntrust) {
-			TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(), domain, order.getCloseGatewayOrderId());
+			throw new ServiceException(ExceptionConstant.UNWINDORDER_CANNOTCANCEL_EXCEPTION);
+			// TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(), domain, order.getCloseGatewayOrderId());
 		}
 		return order;
 	}

@@ -112,8 +112,8 @@ public class LogicServerHandler extends ChannelInboundHandlerAdapter{
 		//channel失效处理,客户端下线或者强制退出等任何情况都触发这个方法
 		if(ctx.channel().isOpen()){
 			ctx.channel().close();
-			channelRepository.remove(ctx.channel().attr(clientInfo).get());
 		}
+		channelRepository.remove(ctx.channel().attr(clientInfo).get());
 	}
 
 	@Override

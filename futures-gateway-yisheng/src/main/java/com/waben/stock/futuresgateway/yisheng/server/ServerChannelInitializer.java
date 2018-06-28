@@ -32,7 +32,11 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
     @Override
     protected void initChannel(SocketChannel socketChannel) throws Exception {
     	ChannelPipeline p = socketChannel.pipeline();
-
+    	
+    	//添加心跳机制,n秒查看一次在线的客户端channel是否空闲
+        p.addLast("idleStateHandler", new IdleStateHandler(READER_IDLE_TIME_SECONDS
+                , WRITER_IDLE_TIME_SECONDS, ALL_IDLE_TIME_SECONDS, TimeUnit.SECONDS));
+        
         // 用于在序列化的字节数组前加上一个简单的包头，只包含序列化的字节长度。
         p.addLast("frameEncoder",
                 new ProtobufVarint32LengthFieldPrepender());
@@ -46,9 +50,6 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
         p.addLast("protobufDecoder",
                 new ProtobufDecoder(Message.MessageBase.getDefaultInstance()));
 
-      //添加心跳机制,n秒查看一次在线的客户端channel是否空闲
-        p.addLast("idleStateHandler", new IdleStateHandler(READER_IDLE_TIME_SECONDS
-                , WRITER_IDLE_TIME_SECONDS, ALL_IDLE_TIME_SECONDS, TimeUnit.SECONDS));
 
 
         p.addLast("logicServerHandler", logicServerHandler);
