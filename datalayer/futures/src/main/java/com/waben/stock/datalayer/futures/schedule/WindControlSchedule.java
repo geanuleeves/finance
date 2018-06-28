@@ -511,9 +511,9 @@ public class WindControlSchedule {
 	}
 
 	/**
-	 * 获取所有持仓中的正式单
+	 * 获取所有持仓中的订单
 	 * 
-	 * @return 持仓中的正式订单
+	 * @return 持仓中的订单
 	 */
 	private List<FuturesOrder> retrivePositionOrders() {
 		FuturesOrderState[] states = { FuturesOrderState.Position, FuturesOrderState.SellingEntrust };
