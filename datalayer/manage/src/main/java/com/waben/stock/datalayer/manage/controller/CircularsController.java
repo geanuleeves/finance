@@ -1,18 +1,7 @@
 package com.waben.stock.datalayer.manage.controller;
 
-import com.waben.stock.datalayer.manage.entity.Banner;
-import com.waben.stock.datalayer.manage.entity.Circulars;
-import com.waben.stock.datalayer.manage.entity.Staff;
-import com.waben.stock.datalayer.manage.service.CircularsService;
-import com.waben.stock.interfaces.dto.manage.BannerDto;
-import com.waben.stock.interfaces.dto.manage.CircularsDto;
-import com.waben.stock.interfaces.dto.stockcontent.StrategyTypeDto;
-import com.waben.stock.interfaces.pojo.Response;
-import com.waben.stock.interfaces.pojo.query.CircularsQuery;
-import com.waben.stock.interfaces.pojo.query.PageInfo;
-import com.waben.stock.interfaces.service.manage.CircularsInterface;
-import com.waben.stock.interfaces.util.CopyBeanUtils;
-import com.waben.stock.interfaces.util.PageToPageInfo;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +11,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.waben.stock.datalayer.manage.entity.Circulars;
+import com.waben.stock.datalayer.manage.entity.Staff;
+import com.waben.stock.datalayer.manage.service.CircularsService;
+import com.waben.stock.interfaces.dto.manage.CircularsDto;
+import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.query.CircularsQuery;
+import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.service.manage.CircularsInterface;
+import com.waben.stock.interfaces.util.CopyBeanUtils;
+import com.waben.stock.interfaces.util.PageToPageInfo;
 
 /***
  * @author yuyidi 2017-11-21 11:08:50
