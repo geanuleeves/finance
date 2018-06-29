@@ -30,6 +30,9 @@ public class FuturesOrderQuery extends PageAndSortQuery {
 	@ApiModelProperty(value = "结束时间")
 	private Date endBuyingTime;
 
+	@ApiModelProperty(value = "查询收益了的交易")
+	private boolean onlyProfit;
+
 	public FuturesOrderQuery() {
 		super();
 	}
@@ -94,6 +97,14 @@ public class FuturesOrderQuery extends PageAndSortQuery {
 
 	public void setEndBuyingTime(Date endBuyingTime) {
 		this.endBuyingTime = endBuyingTime;
+	}
+
+	public boolean isOnlyProfit() {
+		return onlyProfit;
+	}
+
+	public void setOnlyProfit(boolean onlyProfit) {
+		this.onlyProfit = onlyProfit;
 	}
 
 }

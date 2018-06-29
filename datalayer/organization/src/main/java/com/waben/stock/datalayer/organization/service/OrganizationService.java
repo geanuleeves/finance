@@ -825,21 +825,21 @@ public class OrganizationService {
 				// 没有设置全局成本价
 				throw new ServiceException(ExceptionConstant.NOT_GLOBAL_COST_PRICE_ISSET_EXCEPTION);
 			}
-			if (currentPrice.getCostReserveFund() == null) {
+			/*if (currentPrice.getCostReserveFund() == null) {
 				currentPrice.setCostReserveFund(contractDto.getPerUnitReserveFund());
 			} else if (currentPrice.getCostReserveFund().compareTo(contractDto.getPerUnitReserveFund()) < 0) {
 				// 成本保证金不能比全局设置的低
 				throw new ServiceException(ExceptionConstant.COST_MARGIN_CANNOT_LOWER_THAN_GLOBAL_SETTING_EXCEPTION,
 						new Object[] { contractDto.getName(), contractDto.getPerUnitReserveFund() });
-			}
+			}*/
 			if (currentPrice.getCostOpenwindServiceFee() == null) {
 				currentPrice.setCostOpenwindServiceFee(contractDto.getOpenwindServiceFee());
-			} else if (currentPrice.getCostOpenwindServiceFee().compareTo(contractDto.getOpenwindServiceFee()) < 0) {
+			} /*else if (currentPrice.getCostOpenwindServiceFee().compareTo(contractDto.getOpenwindServiceFee()) < 0) {
 				// 成本开仓手续费不能比全局设置的低
 				throw new ServiceException(
 						ExceptionConstant.COST_OPENING_WAREHOUSE_SHOULDNOT_LOWER_OVERALL_SETTING_EXCEPTION,
 						new Object[] { contractDto.getName(), contractDto.getOpenwindServiceFee() });
-			}
+			}*/
 			if (currentPrice.getSaleOpenwindServiceFee() == null) {
 				currentPrice.setSaleOpenwindServiceFee(currentPrice.getCostOpenwindServiceFee());
 			} else if (currentPrice.getCostOpenwindServiceFee()
@@ -850,11 +850,11 @@ public class OrganizationService {
 			}
 			if (currentPrice.getCostUnwindServiceFee() == null) {
 				currentPrice.setCostUnwindServiceFee(contractDto.getUnwindServiceFee());
-			} else if (currentPrice.getCostUnwindServiceFee().compareTo(contractDto.getUnwindServiceFee()) < 0) {
+			} /*else if (currentPrice.getCostUnwindServiceFee().compareTo(contractDto.getUnwindServiceFee()) < 0) {
 				// 成本平仓手续费不能比全局设置的低
 				throw new ServiceException(ExceptionConstant.COST_ISNOT_LOWER_OVERALL_SETTING_EXCEPTION,
 						new Object[] { contractDto.getName(), contractDto.getUnwindServiceFee() });
-			}
+			}*/
 			if (currentPrice.getSaleUnwindServiceFee() == null) {
 				currentPrice.setSaleUnwindServiceFee(currentPrice.getCostUnwindServiceFee());
 			} else if (currentPrice.getCostUnwindServiceFee().compareTo(currentPrice.getSaleUnwindServiceFee()) > 0) {
@@ -864,12 +864,12 @@ public class OrganizationService {
 			}
 			if (currentPrice.getCostDeferredFee() == null) {
 				currentPrice.setCostDeferredFee(contractDto.getOvernightPerUnitDeferredFee());
-			} else if (currentPrice.getCostDeferredFee().compareTo(contractDto.getOvernightPerUnitDeferredFee()) < 0) {
+			} /*else if (currentPrice.getCostDeferredFee().compareTo(contractDto.getOvernightPerUnitDeferredFee()) < 0) {
 				// 成本递延费不能比全局设置的低
 				throw new ServiceException(
 						ExceptionConstant.COST_DEFERREDFEE_SHOULD_NOTBE_LOWER_GLOBAL_SETTING_EXCEPTION,
 						new Object[] { contractDto.getName(), contractDto.getOvernightPerUnitDeferredFee() });
-			}
+			}*/
 			if (currentPrice.getSaleDeferredFee() == null) {
 				currentPrice.setSaleDeferredFee(currentPrice.getCostDeferredFee());
 			} else if (currentPrice.getCostDeferredFee().compareTo(currentPrice.getSaleDeferredFee()) > 0) {
@@ -886,13 +886,13 @@ public class OrganizationService {
 				throw new ServiceException(ExceptionConstant.COST_MARGIN_CANNOT_LOWER_GLOBAL_SETTING_EXCEPTION,
 						new Object[] { contractDto.getName() });
 			}
-			if (currentPrice.getCostReserveFund() == null) {
+			/*if (currentPrice.getCostReserveFund() == null) {
 				currentPrice.setCostReserveFund(agentPrice.getCostReserveFund());
 			} else if (currentPrice.getCostReserveFund().compareTo(agentPrice.getCostReserveFund()) < 0) {
 				// 成本保证金不能比上级设置的低
 				throw new ServiceException(ExceptionConstant.COST_MARGIN_CANNOT_LOWER_GLOBAL_SETTING_EXCEPTION,
 						new Object[] { contractDto.getName(), agentPrice.getCostReserveFund() });
-			}
+			}*/
 
 			if (currentPrice.getCostOpenwindServiceFee() == null) {
 				currentPrice.setCostOpenwindServiceFee(agentPrice.getCostOpenwindServiceFee());

@@ -45,8 +45,6 @@ public class FuturesMarketController {
 	@Autowired
 	private ProfileBusiness profileBusiness;
 
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-
 	@GetMapping("/{symbol}/{contractNo}")
 	@ApiOperation(value = "期货合约行情")
 	@ApiImplicitParams({
@@ -115,6 +113,7 @@ public class FuturesMarketController {
 	 * @return 国内时间
 	 */
 	private String timeZoneConversion(Integer timeZoneGap, String time) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		String timeStr = "";
 		try {
 			if (StringUtil.isEmpty(time)) {

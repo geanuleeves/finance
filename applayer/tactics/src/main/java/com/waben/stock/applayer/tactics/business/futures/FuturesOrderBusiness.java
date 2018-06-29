@@ -60,7 +60,7 @@ public class FuturesOrderBusiness {
 
 	@Autowired
 	private AnalogDataBusiness analogDataBusiness;
-	
+
 	@Autowired
 	private ProfileBusiness profileBusiness;
 
@@ -177,8 +177,8 @@ public class FuturesOrderBusiness {
 				orderMarket.setPerWaveMoney(contract.getPerWaveMoney());
 				orderMarket.setMinWave(contract.getMinWave());
 				// 获取行情信息
-				FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(), orderMarket.getCommoditySymbol(),
-						orderMarket.getContractNo());
+				FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(),
+						orderMarket.getCommoditySymbol(), orderMarket.getContractNo());
 				if (market == null) {
 					break;
 				}
@@ -232,6 +232,7 @@ public class FuturesOrderBusiness {
 		unwindQuery.setStates(unwindStates);
 		unwindQuery.setPage(page);
 		unwindQuery.setSize(size / 2);
+		unwindQuery.setOnlyProfit(true);
 		PageInfo<FuturesOrderDto> pageUnwindOrder = pageOrder(unwindQuery);
 
 		// 持仓中订单
@@ -239,6 +240,7 @@ public class FuturesOrderBusiness {
 		FuturesOrderState[] positionStates = { FuturesOrderState.Position };
 		positionQuery.setStates(positionStates);
 		positionQuery.setPage(page);
+		positionQuery.setOnlyProfit(true);
 		positionQuery.setSize(size - pageUnwindOrder.getContent().size());
 		PageInfo<FuturesOrderDto> pagePositionOrder = pageOrder(positionQuery);
 

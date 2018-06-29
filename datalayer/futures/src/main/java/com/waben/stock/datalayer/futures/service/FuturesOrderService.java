@@ -333,6 +333,10 @@ public class FuturesOrderService {
 				if (query.getStates() != null && query.getStates().length > 0) {
 					predicateList.add(root.get("state").in(query.getStates()));
 				}
+				// 盈利了的交易
+				if (query.isOnlyProfit()) {
+					predicateList.add(criteriaBuilder.gt(root.get("publisherProfitOrLoss").as(BigDecimal.class), new BigDecimal(0)));
+				}
 				// 合约名称
 				if (!StringUtil.isEmpty(query.getContractName())) {
 					Predicate contractName = criteriaBuilder.like(join.get("name").as(String.class),
@@ -1101,7 +1105,8 @@ public class FuturesOrderService {
 		}
 		if (order.getState() == FuturesOrderState.SellingEntrust) {
 			throw new ServiceException(ExceptionConstant.UNWINDORDER_CANNOTCANCEL_EXCEPTION);
-			// TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(), domain, order.getCloseGatewayOrderId());
+			// TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(),
+			// domain, order.getCloseGatewayOrderId());
 		}
 		return order;
 	}

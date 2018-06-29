@@ -507,13 +507,18 @@ public class FuturesOrderController {
 		}
 		gainLoss.setUnwindProFee(totalIncome.setScale(2, RoundingMode.DOWN));
 
-		// 获取当天持仓浮动盈亏
+		// 获取持仓浮动盈亏
+		FuturesOrderQuery positionOrderQuery = new FuturesOrderQuery();
 		FuturesOrderState[] positionState = { FuturesOrderState.Position };
-		orderQuery.setStates(positionState);
-		List<FuturesOrderMarketDto> positionList = futuresOrderBusiness.pageOrderMarket(orderQuery).getContent();
+		positionOrderQuery.setStates(positionState);
+		positionOrderQuery.setPage(0);
+		positionOrderQuery.setSize(Integer.MAX_VALUE);
+		positionOrderQuery.setPublisherId(SecurityUtil.getUserId());
+		List<FuturesOrderMarketDto> positionList = futuresOrderBusiness.pageOrderMarket(positionOrderQuery).getContent();
 		BigDecimal positionTotalIncome = new BigDecimal(0);
 		for (FuturesOrderMarketDto futuresOrderMarketDto : positionList) {
-			positionTotalIncome = positionTotalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss());
+			positionTotalIncome = positionTotalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss() == null
+					? new BigDecimal(0) : futuresOrderMarketDto.getPublisherProfitOrLoss());
 		}
 		gainLoss.setPositionFee(positionTotalIncome.setScale(2, RoundingMode.DOWN));
 
