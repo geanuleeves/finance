@@ -339,5 +339,7 @@ public class ExceptionConstant {
 	public static final String WINDCONTROL_PARAMETERS_ISNUM_EXCEPTION = "13038";
 	// 平仓订单不能取消委托操作
 	public static final String UNWINDORDER_CANNOTCANCEL_EXCEPTION = "13039";
-
+	// 不在可提现时间内
+	public static final String ISNOT_EXIST_PUTFORWARDTIME_EXCEPTION = "13040";
+	
 }

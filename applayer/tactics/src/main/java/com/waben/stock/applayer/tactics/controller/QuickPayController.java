@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,16 +27,20 @@ import com.waben.stock.applayer.tactics.business.CapitalAccountBusiness;
 import com.waben.stock.applayer.tactics.business.PaymentBusiness;
 import com.waben.stock.applayer.tactics.business.PublisherBusiness;
 import com.waben.stock.applayer.tactics.business.QuickPayBusiness;
+import com.waben.stock.applayer.tactics.business.futures.FuturesTradeLimitBusiness;
 import com.waben.stock.applayer.tactics.payapi.wbpay.config.WBConfig;
 import com.waben.stock.applayer.tactics.security.SecurityUtil;
 import com.waben.stock.interfaces.commonapi.wabenpay.common.WabenBankType;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesGlobalConfigDto;
+import com.waben.stock.interfaces.dto.admin.futures.PutForwardDto;
 import com.waben.stock.interfaces.dto.publisher.BindCardDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
 import com.waben.stock.interfaces.enums.BankType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.util.PasswordCrypt;
 
 import io.swagger.annotations.ApiOperation;
@@ -57,12 +63,17 @@ public class QuickPayController {
 
     @Autowired
     private CapitalAccountBusiness capitalAccountBusiness;
+    
+    @Autowired
+	private FuturesTradeLimitBusiness limitBusiness;
 
     @Autowired
     private PaymentBusiness paymentBusiness;
     
     @Autowired
     private WBConfig wbConfig;
+    
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     @GetMapping("/sdquickpay")
     @ApiOperation(value = "杉德快捷支付")
@@ -230,10 +241,35 @@ public class QuickPayController {
     @ResponseBody
     public Response<String> wbcsa(@RequestParam(required = true) BigDecimal amount,
                                           @RequestParam(required = true) Long bindCardId, @RequestParam(required = true) String paymentPassword) {
+    	
         // 判断是否为测试用户，测试用户不能提现
         PublisherDto publisher = publisherBusiness.findById(SecurityUtil.getUserId());
         if (publisher.getIsTest() != null && publisher.getIsTest()) {
             throw new ServiceException(ExceptionConstant.TESTUSER_NOWITHDRAWALS_EXCEPTION);
+        }
+        
+        //判断是否处于提现时间内
+        PageInfo<PutForwardDto> forward = limitBusiness.pagesPutForward();
+        if(forward.getContent()!=null && forward.getContent().size()>0){
+        	PutForwardDto put = forward.getContent().get(0);
+        	try {
+        		Date currTime = new Date();
+        		if(put.getStartTime()!=null && !"".equals(put.getStartTime())){
+        			Date startTime = sdf.parse(put.getStartTime());
+        			if(currTime.getTime()<startTime.getTime()){
+        				throw new ServiceException(ExceptionConstant.ISNOT_EXIST_PUTFORWARDTIME_EXCEPTION);
+        			}
+        		}
+        		if(put.getEndTime()!=null && !"".equals(put.getEndTime())){
+        			Date endTime = sdf.parse(put.getEndTime());
+        			if(currTime.getTime()>endTime.getTime()){
+        				throw new ServiceException(ExceptionConstant.ISNOT_EXIST_PUTFORWARDTIME_EXCEPTION);
+        			}
+        		}
+				
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
         }
         // 验证支付密码
         CapitalAccountDto capitalAccount = capitalAccountBusiness.findByPublisherId(SecurityUtil.getUserId());
@@ -249,6 +285,26 @@ public class QuickPayController {
             throw new ServiceException(ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION);
         }
         Response<String> resp = new Response<String>();
+        //判断是否符合冻结设置
+        PageInfo<FuturesGlobalConfigDto> globalConfig = limitBusiness.pageConfig();
+        if(globalConfig.getContent()!=null && globalConfig.getContent().size()>0){
+        	FuturesGlobalConfigDto config = globalConfig.getContent().get(0);
+        	if(config.getWindControlParameters() !=null && !"".equals(config.getWindControlParameters())){
+        		BigDecimal multiple = new BigDecimal(config.getWindControlParameters());
+        		if(capitalAccount.getAvailableBalance().compareTo(capitalAccount.getFrozenCapital().multiply(multiple).add(amount))<0){
+        			Integer count = capitalAccount.getAvailableBalance().subtract(capitalAccount.getFrozenCapital().multiply(multiple).add(amount)).intValue();
+        			if(count>0){
+        				resp.setResult("可提现余额为"+count+"元");
+        			}else{
+        				resp.setResult("可提现余额为0元");
+        			}
+        			return resp;
+        		}
+        	}
+        }
+        
+        
+        
         BindCardDto bindCard = bindCardBusiness.findById(bindCardId);
         // CzBankType bankType = CzBankType.getByPlateformBankType(BankType.getByBank(bindCard.getBankName()));
         WabenBankType bankType = WabenBankType.getByPlateformBankType(BankType.getByBank(bindCard.getBankName()));
