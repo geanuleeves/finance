@@ -60,6 +60,10 @@ public class CircularsService {
                 if (!StringUtils.isEmpty(query.getType())){
                 	predicatesList.add(criteriaBuilder.equal(root.get("type").as(String.class), query.getType()));
                 }
+                
+                if (!StringUtils.isEmpty(query.getState())){
+                	predicatesList.add(criteriaBuilder.equal(root.get("state").as(Integer.class), query.getState()));
+                }
                 criteriaQuery.where(predicatesList.toArray(new Predicate[predicatesList.size()]));
                 criteriaQuery.orderBy(criteriaBuilder.desc(root.<Date>get("createTime").as(Date.class)));
                 return criteriaQuery.getRestriction();
