@@ -11,7 +11,6 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.waben.stock.datalayer.organization.business.FuturesAgentPriceBusiness;
 import com.waben.stock.datalayer.organization.business.FuturesCommodityBusiness;
 import com.waben.stock.datalayer.organization.entity.BenefitConfig;
 import com.waben.stock.datalayer.organization.entity.FuturesAgentPrice;
@@ -314,10 +313,26 @@ public class OrganizationSettlementService {
 			if (agentPrice != null) {
 				result.add(agentPrice);
 			} else {
+				// if (i > 0) {
+				// Organization orgParent = orgTreeList.get(i - 1);
+				// FuturesAgentPrice agentPriceParent =
+				// agentPriceDao.findByCommodityIdAndOrgId(commodityId,
+				// orgParent.getId());
+				// if (agentPriceParent != null) {
+				// agentPrice = new FuturesAgentPrice();
+				// agentPrice.setOrgId(org.getId());
+				// agentPrice.setCostReserveFund(agentPriceParent.getCostReserveFund());
+				// agentPrice.setCostOpenwindServiceFee(agentPriceParent.getCostOpenwindServiceFee());
+				// agentPrice.setCostUnwindServiceFee(agentPriceParent.getCostUnwindServiceFee());
+				// agentPrice.setCostDeferredFee(agentPriceParent.getCostDeferredFee());
+				// agentPrice.setSaleOpenwindServiceFee(agentPriceParent.getCostOpenwindServiceFee());
+				// agentPrice.setSaleUnwindServiceFee(agentPriceParent.getCostUnwindServiceFee());
+				// agentPrice.setSaleDeferredFee(agentPriceParent.getCostDeferredFee());
+				// } else {
 				// FuturesCommodityDto commodity =
 				// commodityBusiness.getFuturesByCommodityId(commodityId);
-				agentPrice = new FuturesAgentPrice();
-				agentPrice.setOrgId(org.getId());
+				// agentPrice = new FuturesAgentPrice();
+				// agentPrice.setOrgId(org.getId());
 				// agentPrice.setCostReserveFund(commodity.getPerUnitReserveFund());
 				// agentPrice.setCostOpenwindServiceFee(commodity.getOpenwindServiceFee());
 				// agentPrice.setCostUnwindServiceFee(commodity.getUnwindServiceFee());
@@ -325,14 +340,42 @@ public class OrganizationSettlementService {
 				// agentPrice.setSaleOpenwindServiceFee(commodity.getOpenwindServiceFee());
 				// agentPrice.setSaleUnwindServiceFee(commodity.getUnwindServiceFee());
 				// agentPrice.setSaleDeferredFee(commodity.getOvernightPerUnitDeferredFee());
+				// }
+				// result.add(agentPrice);
+				//
+				// } else {
+				// FuturesCommodityDto commodity =
+				// commodityBusiness.getFuturesByCommodityId(commodityId);
+				// agentPrice = new FuturesAgentPrice();
+				// agentPrice.setOrgId(org.getId());
+				// agentPrice.setCostReserveFund(commodity.getPerUnitReserveFund());
+				// agentPrice.setCostOpenwindServiceFee(commodity.getOpenwindServiceFee());
+				// agentPrice.setCostUnwindServiceFee(commodity.getUnwindServiceFee());
+				// agentPrice.setCostDeferredFee(commodity.getOvernightPerUnitDeferredFee());
+				// agentPrice.setSaleOpenwindServiceFee(commodity.getOpenwindServiceFee());
+				// agentPrice.setSaleUnwindServiceFee(commodity.getUnwindServiceFee());
+				// agentPrice.setSaleDeferredFee(commodity.getOvernightPerUnitDeferredFee());
+				//
+				// // agentPrice.setCostReserveFund(BigDecimal.ZERO);
+				// // agentPrice.setCostOpenwindServiceFee(BigDecimal.ZERO);
+				// // agentPrice.setCostUnwindServiceFee(BigDecimal.ZERO);
+				// // agentPrice.setCostDeferredFee(BigDecimal.ZERO);
+				// // agentPrice.setSaleOpenwindServiceFee(BigDecimal.ZERO);
+				// // agentPrice.setSaleUnwindServiceFee(BigDecimal.ZERO);
+				// // agentPrice.setSaleDeferredFee(BigDecimal.ZERO);
+				// result.add(agentPrice);
+				// }
 
-				agentPrice.setCostReserveFund(BigDecimal.ZERO);
-				agentPrice.setCostOpenwindServiceFee(BigDecimal.ZERO);
-				agentPrice.setCostUnwindServiceFee(BigDecimal.ZERO);
-				agentPrice.setCostDeferredFee(BigDecimal.ZERO);
-				agentPrice.setSaleOpenwindServiceFee(BigDecimal.ZERO);
-				agentPrice.setSaleUnwindServiceFee(BigDecimal.ZERO);
-				agentPrice.setSaleDeferredFee(BigDecimal.ZERO);
+				FuturesCommodityDto commodity = commodityBusiness.getFuturesByCommodityId(commodityId);
+				agentPrice = new FuturesAgentPrice();
+				agentPrice.setOrgId(org.getId());
+				agentPrice.setCostReserveFund(commodity.getPerUnitReserveFund());
+				agentPrice.setCostOpenwindServiceFee(commodity.getOpenwindServiceFee());
+				agentPrice.setCostUnwindServiceFee(commodity.getUnwindServiceFee());
+				agentPrice.setCostDeferredFee(commodity.getOvernightPerUnitDeferredFee());
+				agentPrice.setSaleOpenwindServiceFee(commodity.getOpenwindServiceFee());
+				agentPrice.setSaleUnwindServiceFee(commodity.getUnwindServiceFee());
+				agentPrice.setSaleDeferredFee(commodity.getOvernightPerUnitDeferredFee());
 				result.add(agentPrice);
 			}
 		}
@@ -433,8 +476,18 @@ public class OrganizationSettlementService {
 					// 给其他级结算，下级的成本价-自己的成本价
 					BigDecimal selfCostPrice = retriveCostPrice(agentPriceList, flowType, i);
 					BigDecimal childCostPrice = retriveCostPrice(agentPriceList, flowType, i + 1);
-					if (selfCostPrice != null && childCostPrice != null
-							&& selfCostPrice.compareTo(childCostPrice) <= 0) {
+					// 给平台结算
+					if (org.getLevel() == 1) {
+						if (childCostPrice != null) {
+							salePrice = childCostPrice;
+						}
+						if (BigDecimal.ZERO.compareTo(salePrice) <= 0) {
+							accountService.benefit(org, salePrice.multiply(totalQuantity),
+									salePrice.subtract(BigDecimal.ZERO).multiply(totalQuantity), flowType,
+									flowResourceType, flowResourceId, tradeNo);
+						}
+					} else if (selfCostPrice != null && childCostPrice != null
+					/* && selfCostPrice.compareTo(childCostPrice) <= 0 */) {
 						accountService.benefit(org, salePrice.multiply(totalQuantity),
 								childCostPrice.subtract(selfCostPrice).multiply(totalQuantity), flowType,
 								flowResourceType, flowResourceId, tradeNo);

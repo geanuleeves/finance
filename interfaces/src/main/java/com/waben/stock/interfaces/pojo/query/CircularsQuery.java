@@ -15,6 +15,8 @@ public class CircularsQuery extends PageAndSortQuery{
     
     @ApiModelProperty(value = "类型")
     private String type;
+    
+    private Integer state;
 
     public String getTitle() {
         return title;
@@ -30,5 +32,13 @@ public class CircularsQuery extends PageAndSortQuery{
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public Integer getState() {
+		return state;
+	}
+
+	public void setState(Integer state) {
+		this.state = state;
 	}
 }
