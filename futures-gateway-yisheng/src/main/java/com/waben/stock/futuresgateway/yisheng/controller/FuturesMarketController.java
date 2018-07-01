@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.waben.stock.futuresgateway.yisheng.esapi.ImportDayK;
 import com.waben.stock.futuresgateway.yisheng.pojo.FuturesContractLineData;
 import com.waben.stock.futuresgateway.yisheng.pojo.FuturesQuoteData;
 import com.waben.stock.futuresgateway.yisheng.pojo.Response;
@@ -32,6 +33,9 @@ public class FuturesMarketController {
 	@Autowired
 	public FuturesMarketService service;
 
+	@Autowired
+	private ImportDayK importDayK;
+
 	@GetMapping("/{commodityNo}/{contractNo}")
 	@ApiOperation(value = "期货合约行情")
 	public Response<FuturesQuoteData> market(@PathVariable("commodityNo") String commodityNo,
@@ -50,12 +54,12 @@ public class FuturesMarketController {
 	@ApiOperation(value = "期货合约分K线", notes = "startTime和endTime格式为:yyyy-MM-DD HH:mm:ss，不设置值默认为1天")
 	public Response<List<FuturesContractLineData>> minsLine(@PathVariable("commodityNo") String commodityNo,
 			@PathVariable("contractNo") String contractNo, String startTime, String endTime, Integer mins) {
-		if(mins == null || mins < 1) {
+		if (mins == null || mins < 1) {
 			mins = 1;
 		}
 		return new Response<>(service.minsLine(commodityNo, contractNo, startTime, endTime, mins));
 	}
-	
+
 	@GetMapping("/{commodityNo}/{contractNo}/computedayline")
 	@ApiOperation(value = "计算日K数据")
 	public Response<String> computeDayline(@PathVariable("commodityNo") String commodityNo,
@@ -66,6 +70,15 @@ public class FuturesMarketController {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
+		Response<String> result = new Response<>();
+		result.setResult("success");
+		return result;
+	}
+
+	@GetMapping("/importDayline")
+	@ApiOperation(value = "计算日K数据")
+	public Response<String> importDayline(String dirPath) {
+		importDayK.importData(dirPath);
 		Response<String> result = new Response<>();
 		result.setResult("success");
 		return result;

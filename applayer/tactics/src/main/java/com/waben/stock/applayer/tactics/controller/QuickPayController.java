@@ -183,11 +183,20 @@ public class QuickPayController {
     /**************************网贝支付**********************/
 
     @RequestMapping("/quickbank")
-    @ApiOperation(value = "网贝收银台支付调接口")
+    @ApiOperation(value = "快捷支付")
     @ResponseBody
     public Response<Map<String, String>> quickBank(@RequestParam(required = true) BigDecimal amount, HttpServletRequest request) {
     	String endType = request.getHeader("endType");
         Response<Map<String, String>> result = quickPayBusiness.wabenPay(amount, SecurityUtil.getUserId(), endType);
+        return result;
+    }
+    
+    @PostMapping("/netbank")
+    @ApiOperation(value = "网关支付")
+    @ResponseBody
+    public Response<Map<String, String>> netBank(@RequestParam(required = true) BigDecimal amount, HttpServletRequest request) {
+    	String endType = request.getHeader("endType");
+        Response<Map<String, String>> result = quickPayBusiness.netBank(amount, SecurityUtil.getUserId(), endType);
         return result;
     }
 
@@ -224,6 +233,16 @@ public class QuickPayController {
         String result = quickPayBusiness.wbCallback(request);
         return result;
     }
+    
+	@RequestMapping("/unionpaytempfronturl")
+	@ApiOperation(value = "网贝网银支付H5跳转临时地址")
+	@ResponseBody
+	public void unionpayTempFrontUrl(HttpServletResponse httpResp) {
+		try {
+			httpResp.sendRedirect(wbConfig.getUnionpayFrontUrl());
+		} catch (IOException e) {
+		}
+	}
 
     @PostMapping("/wbcsa")
     @ApiOperation(value = "网贝提现")

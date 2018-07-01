@@ -28,8 +28,10 @@ import com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData;
 import com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase;
 import com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteSimpleData.FuturesQuoteSimpleDataBase;
 import com.waben.stock.futuresgateway.yisheng.common.protobuf.Message;
+import com.waben.stock.futuresgateway.yisheng.esapi.schedule.QuoteDayKSchedule;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqProducer;
+import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.EsQuoteInfo;
 import com.waben.stock.futuresgateway.yisheng.server.ChannelRepository;
 
 import io.netty.channel.Channel;
@@ -72,6 +74,9 @@ public class EsQuoteWrapper implements QuoteApiListener {
 
 	@Autowired
 	private RabbitmqProducer rabbitmqProducer;
+
+	@Autowired
+	private QuoteDayKSchedule dayKSchedule;
 
 	private final AttributeKey<String> clientInfo = AttributeKey.valueOf("clientInfo");
 	private final AttributeKey<Long> requestTypeInfo = AttributeKey.valueOf("requestTypeInfo");
@@ -162,7 +167,11 @@ public class EsQuoteWrapper implements QuoteApiListener {
 	@Override
 	public void onRtnQuote(TapAPIQuoteWhole info) {
 		// 放入队列和缓存
-		rabbitmqProducer.sendMessage(RabbitmqConfiguration.quoteQueueName, info);
+		EsQuoteInfo quoteInfo = new EsQuoteInfo();
+		quoteInfo.setInfo(info);
+		quoteInfo.setQuoteIndex(dayKSchedule.getQuoteIndex());
+		dayKSchedule.increaseQuoteIndex();
+		rabbitmqProducer.sendMessage(RabbitmqConfiguration.quoteQueueName, quoteInfo);
 		String commodityNo = info.getContract().getCommodity().getCommodityNo();
 		String contractNo = info.getContract().getContractNo1();
 		String quoteCacheKey = getQuoteCacheKey(commodityNo, contractNo);
@@ -171,7 +180,11 @@ public class EsQuoteWrapper implements QuoteApiListener {
 		pushQuote(info);
 	}
 
-	private String getQuoteCacheKey(String commodityNo, String contractNo) {
+	public Map<String, TapAPIQuoteWhole> getQuoteCache() {
+		return quoteCache;
+	}
+
+	public String getQuoteCacheKey(String commodityNo, String contractNo) {
 		return commodityNo + "-" + contractNo;
 	}
 
@@ -215,7 +228,7 @@ public class EsQuoteWrapper implements QuoteApiListener {
 							new BigDecimal(info.getQBidPrice()[4]).setScale(scale, RoundingMode.HALF_UP).toString())
 					.setBidSize5(info.getQBidQty()[4])
 					.setClosePrice(
-							new BigDecimal(info.getQClosingPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+							new BigDecimal(info.getQPreClosingPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
 					.setHighPrice(new BigDecimal(info.getQHighPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
 					.setLastPrice(new BigDecimal(info.getQLastPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
 					.setLastSize(info.getQLastQty())
@@ -247,8 +260,8 @@ public class EsQuoteWrapper implements QuoteApiListener {
 					.setHighPrice(
 							new BigDecimal(quote.getQHighPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
 					.setLowPrice(new BigDecimal(quote.getQLowPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
-					.setClosePrice(
-							new BigDecimal(quote.getQClosingPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setClosePrice(new BigDecimal(quote.getQPreClosingPrice()).setScale(scale, RoundingMode.HALF_UP)
+							.toString())
 					.build();
 			msg = Message.MessageBase.newBuilder(msg).addFqList(simple).build();
 		}

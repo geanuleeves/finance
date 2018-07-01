@@ -107,6 +107,8 @@ public class FuturesQuote {
 	private long totalBidQty;
 	/** 委卖总量 */
 	private long totalAskQty;
+	/** 行情索引 */
+	private Long quoteIndex;
 
 	public String getId() {
 		return id;
@@ -498,6 +500,14 @@ public class FuturesQuote {
 
 	public void setTotalAskQty(long totalAskQty) {
 		this.totalAskQty = totalAskQty;
+	}
+
+	public Long getQuoteIndex() {
+		return quoteIndex;
+	}
+
+	public void setQuoteIndex(Long quoteIndex) {
+		this.quoteIndex = quoteIndex;
 	}
 
 }

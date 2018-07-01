@@ -99,6 +99,11 @@ public class FuturesContractMarket {
 	@ApiModelProperty(value = "昨天的收盘价")
 	private BigDecimal closePrice;
 	/**
+	 * 当前行情收盘价
+	 */
+	@ApiModelProperty(value = "当前行情收盘价")
+	private BigDecimal nowClosePrice;
+	/**
 	 * 当天成交量
 	 */
 	@ApiModelProperty(value = "当天成交量")
@@ -387,6 +392,14 @@ public class FuturesContractMarket {
 
 	public void setAskSize5(Long askSize5) {
 		this.askSize5 = askSize5;
+	}
+
+	public BigDecimal getNowClosePrice() {
+		return nowClosePrice;
+	}
+
+	public void setNowClosePrice(BigDecimal nowClosePrice) {
+		this.nowClosePrice = nowClosePrice;
 	}
 
 }
