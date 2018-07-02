@@ -45,6 +45,7 @@ public class RetriveAllQuoteSchedule {
 		timer.schedule(new WindControlTask(), Execute_Interval);
 	}
 
+	// TODO 先使用轮询请求，后续修改为推送接收行情的方式
 	private class WindControlTask extends TimerTask {
 		@Override
 		public void run() {
