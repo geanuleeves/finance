@@ -640,8 +640,8 @@ public class OrganizationService {
 						+ " LEFT JOIN bind_card t8 on t7.bank_card=t8.bank_card"
 						+ " LEFT JOIN p_organization_publisher t9 ON t9.publisher_id = t5.id"
 						+ " LEFT JOIN p_organization t10 ON t10.code = t9.org_code"
-						+ " LEFT JOIN f_futures_order t11 on t1.extend_type=6 and t1.extend_id=t11.id "
 						+ " LEFT JOIN f_futures_overnight_record t12 on t1.extend_type=7 and t1.extend_id=t12.id "
+						+ " LEFT JOIN f_futures_order t11 on (t1.extend_type=6 and t1.extend_id=t11.id ) or (t1.extend_type=7 and t11.id=t12.order_id) "
 						+ " WHERE 1=1 and t10.id is not null  %s %s %s %s %s %s %s %s %s %s order by t1.occurrence_time desc limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(),
 				customerNameQuery, tradingNumberQuery, startTimeCondition, endTimeCondition, typeCondition,
