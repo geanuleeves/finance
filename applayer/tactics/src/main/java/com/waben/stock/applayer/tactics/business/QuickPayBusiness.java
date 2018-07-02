@@ -37,6 +37,8 @@ import com.waben.stock.applayer.tactics.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.applayer.tactics.rabbitmq.RabbitmqProducer;
 import com.waben.stock.applayer.tactics.rabbitmq.message.WithdrawQueryMessage;
 import com.waben.stock.interfaces.commonapi.wabenpay.WabenPayOverHttp;
+import com.waben.stock.interfaces.commonapi.wabenpay.bean.GatewayPayParam;
+import com.waben.stock.interfaces.commonapi.wabenpay.bean.GatewayPayRet;
 import com.waben.stock.interfaces.commonapi.wabenpay.bean.SwiftPayParam;
 import com.waben.stock.interfaces.commonapi.wabenpay.bean.SwiftPayRet;
 import com.waben.stock.interfaces.commonapi.wabenpay.bean.WithdrawParam;
@@ -959,4 +961,52 @@ public class QuickPayBusiness {
         } else
             return false;
     }
+
+	public Response<Map<String, String>> netBank(BigDecimal amount, Long publisherId, String endType) {
+		CapitalAccountDto account = accountBusiness.findByPublisherId(publisherId);
+    	if (account.getState() != null && account.getState() == 2) {
+			throw new ServiceException(ExceptionConstant.CAPITALACCOUNT_FROZEN_EXCEPTION);
+		}
+        PublisherDto publisher = publisherBusiness.findById(publisherId);
+        RealNameDto realNameDto = realNameBusiness.fetch(ResourceType.PUBLISHER, publisherId);
+        //创建订单
+        PaymentOrderDto paymentOrder = new PaymentOrderDto();
+        paymentOrder.setAmount(amount);
+        String paymentNo = UniqueCodeGenerator.generatePaymentNo();
+        paymentOrder.setPaymentNo(paymentNo);
+        paymentOrder.setType(PaymentType.QuickPay);
+        paymentOrder.setState(PaymentState.Unpaid);
+        paymentOrder.setPublisherId(publisher.getId());
+        paymentOrder.setCreateTime(new Date());
+        paymentOrder.setUpdateTime(new Date());
+        paymentOrder = this.savePaymentOrder(paymentOrder);
+        // 封装请求参数
+        GatewayPayParam param = new GatewayPayParam();
+		param.setAppId(wbConfig.getMerchantNo());
+		param.setUserId(String.valueOf(publisherId));
+		param.setSubject(publisherId + "充值");
+		param.setBody(publisherId + "充值" + amount + "元");
+		param.setTotalFee(isProd ? amount : new BigDecimal("0.01"));
+		param.setOutOrderNo(paymentNo);
+		param.setFrontSkipUrl(wbConfig.getUnionpayFrontUrl());
+		param.setReturnUrl(wbConfig.getNotifyUrl());
+		param.setTimestamp(sdf.format(new Date()));
+		param.setVersion("1.0");
+		param.setBankCode("01050000");
+		GatewayPayRet payRet = WabenPayOverHttp.gatewayPay(param, wbConfig.getKey());
+		if(payRet != null && payRet.getTradeNo() != null) {
+			paymentOrder.setThirdPaymentNo(payRet.getTradeNo());
+			this.modifyPaymentOrder(paymentOrder);
+		}
+		
+		Response<Map<String, String>> resp = new Response<Map<String, String>>();
+        if (payRet.getCode() == 1) {
+            Map<String, String> resultUrl = new HashMap<>();
+            resultUrl.put("url", payRet.getPayUrl());
+            resp.setResult(resultUrl);
+        } else {
+        	throw new ServiceException(ExceptionConstant.REQUEST_RECHARGE_EXCEPTION);
+        }
+        return resp;
+	}
 }

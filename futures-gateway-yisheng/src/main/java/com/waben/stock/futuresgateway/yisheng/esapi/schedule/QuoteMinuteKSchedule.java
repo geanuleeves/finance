@@ -91,12 +91,19 @@ public class QuoteMinuteKSchedule {
 				beforeMinuteK.setTime(currentMin);
 				beforeMinuteK.setTimeStr(fullSdf.format(currentMin));
 				beforeMinuteK.setTotalVolume(quoteList.get(quoteList.size() - 1).getPositionQty());
+				FuturesQuoteMinuteK beforeBeforeMinuteK = minuteKServcie
+						.getByCommodityNoAndContractNoAndTime(commodityNo, contractNo, before);
+				if (beforeBeforeMinuteK != null) {
+					beforeMinuteK.setStartTotalQty(beforeBeforeMinuteK.getEndTotalQty());
+				} else {
+					beforeMinuteK.setStartTotalQty(quoteList.get(0).getTotalQty());
+				}
 				beforeMinuteK.setEndTotalQty(quoteList.get(quoteList.size() - 1).getTotalQty());
-				beforeMinuteK.setStartTotalQty(quoteList.get(0).getTotalQty());
-				beforeMinuteK
-						.setVolume(quoteList.get(quoteList.size() - 1).getTotalQty() - quoteList.get(0).getTotalQty());
-				beforeMinuteK.setOpenPrice(new BigDecimal(quoteList.get(0).getLastPrice()));
-				beforeMinuteK.setClosePrice(new BigDecimal(quoteList.get(quoteList.size() - 1).getLastPrice()));
+				beforeMinuteK.setVolume(beforeMinuteK.getEndTotalQty() - beforeMinuteK.getStartTotalQty());
+				BigDecimal openPrice = new BigDecimal(quoteList.get(0).getLastPrice());
+				beforeMinuteK.setOpenPrice(openPrice);
+				BigDecimal closePrice = new BigDecimal(quoteList.get(quoteList.size() - 1).getLastPrice());
+				beforeMinuteK.setClosePrice(closePrice);
 				// step 3.4 : 计算最高价、最低价
 				BigDecimal highPrice = new BigDecimal(quoteList.get(0).getLastPrice());
 				BigDecimal lowPrice = new BigDecimal(quoteList.get(0).getLastPrice());
@@ -111,25 +118,28 @@ public class QuoteMinuteKSchedule {
 				beforeMinuteK.setHighPrice(highPrice);
 				beforeMinuteK.setLowPrice(lowPrice);
 				// step 3.5 : 保存计算出来的分K数据
-				if (lowPrice != null && lowPrice.compareTo(BigDecimal.ZERO) > 0) {
+				if (openPrice != null && openPrice.compareTo(BigDecimal.ZERO) > 0 && closePrice != null
+						&& closePrice.compareTo(BigDecimal.ZERO) > 0 && highPrice != null
+						&& highPrice.compareTo(BigDecimal.ZERO) > 0 && lowPrice != null
+						&& lowPrice.compareTo(BigDecimal.ZERO) > 0) {
 					minuteKServcie.addFuturesQuoteMinuteK(beforeMinuteK);
-				}
-				// step 3.6 : 删除该分钟的行情数据
-				for (int i = 0; i < quoteList.size(); i++) {
-					FuturesQuote quote = quoteList.get(i);
-					EsDeleteQuoteMessage delQuote = new EsDeleteQuoteMessage();
-					delQuote.setCommodityNo(commodityNo);
-					delQuote.setContractNo(contractNo);
-					delQuote.setQuoteId(quote.getId());
-					delQuote.setType(1);
-					producer.sendMessage(RabbitmqConfiguration.deleteQuoteQueueName, delQuote);
-					if (i == quoteList.size() - 1) {
-						// 判断当前分钟有没有行情数据，如果没有的话，将这条数据保存到FuturesQuoteLast中
-						Long count = quoteService.countByTimeGreaterThanEqual(commodityNo, contractNo, currentMin);
-						if (count <= 0) {
-							FuturesQuoteLast quoteLast = convertToQuoteLast(quote);
-							quoteLast.setId(null);
-							quoteLastService.addFuturesQuoteLast(quoteLast);
+					// step 3.6 : 删除该分钟的行情数据
+					for (int i = 0; i < quoteList.size(); i++) {
+						FuturesQuote quote = quoteList.get(i);
+						EsDeleteQuoteMessage delQuote = new EsDeleteQuoteMessage();
+						delQuote.setCommodityNo(commodityNo);
+						delQuote.setContractNo(contractNo);
+						delQuote.setQuoteId(quote.getId());
+						delQuote.setType(1);
+						producer.sendMessage(RabbitmqConfiguration.deleteQuoteQueueName, delQuote);
+						if (i == quoteList.size() - 1) {
+							// 判断当前分钟有没有行情数据，如果没有的话，将这条数据保存到FuturesQuoteLast中
+							Long count = quoteService.countByTimeGreaterThanEqual(commodityNo, contractNo, currentMin);
+							if (count <= 0) {
+								FuturesQuoteLast quoteLast = convertToQuoteLast(quote);
+								quoteLast.setId(null);
+								quoteLastService.addFuturesQuoteLast(quoteLast);
+							}
 						}
 					}
 				}

@@ -8,11 +8,16 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.future.api.es.external.quote.bean.TapAPIQuoteWhole;
 import com.waben.stock.futuresgateway.yisheng.dao.FuturesCommodityDao;
 import com.waben.stock.futuresgateway.yisheng.dao.FuturesQuoteDao;
 import com.waben.stock.futuresgateway.yisheng.dao.FuturesQuoteDayKDao;
@@ -25,11 +30,14 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteDayK;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteLast;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteK;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteKGroup;
+import com.waben.stock.futuresgateway.yisheng.esapi.EsEngine;
+import com.waben.stock.futuresgateway.yisheng.esapi.EsQuoteWrapper;
 import com.waben.stock.futuresgateway.yisheng.pojo.FuturesContractLineData;
 import com.waben.stock.futuresgateway.yisheng.pojo.FuturesQuoteData;
 import com.waben.stock.futuresgateway.yisheng.util.CopyBeanUtils;
 import com.waben.stock.futuresgateway.yisheng.util.JacksonUtil;
 import com.waben.stock.futuresgateway.yisheng.util.StringUtil;
+import com.waben.stock.futuresgateway.yisheng.util.TimeZoneUtil;
 
 /**
  * 期货行情 Service
@@ -39,6 +47,8 @@ import com.waben.stock.futuresgateway.yisheng.util.StringUtil;
  */
 @Service
 public class FuturesMarketService {
+
+	Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private FuturesCommodityDao commodityDao;
@@ -57,14 +67,15 @@ public class FuturesMarketService {
 
 	@Autowired
 	private FuturesQuoteDayKDao dayKDao;
-	
+
 	@Autowired
 	private FuturesQuoteDayKService dayKServcie;
 
 	@Autowired
 	private FuturesQuoteMinuteKGroupService minuteKGroupServcie;
 
-	private SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	@Autowired
+	private EsQuoteWrapper quoteWrapper;
 
 	public FuturesQuoteData quote(String commodityNo, String contractNo) {
 		FuturesQuoteData result = new FuturesQuoteData();
@@ -108,7 +119,8 @@ public class FuturesMarketService {
 				result.setBidSize4(bidSizeList.get(3));
 				result.setBidPrice5(bidPriceList.get(4).setScale(scale, RoundingMode.HALF_UP));
 				result.setBidSize5(bidSizeList.get(4));
-				result.setClosePrice(new BigDecimal(quote.getClosingPrice()).setScale(scale, RoundingMode.HALF_UP));
+				result.setClosePrice(new BigDecimal(quote.getPreClosingPrice()).setScale(scale, RoundingMode.HALF_UP));
+				result.setNowClosePrice(new BigDecimal(quote.getClosingPrice()).setScale(scale, RoundingMode.HALF_UP));
 				result.setHighPrice(new BigDecimal(quote.getHighPrice()).setScale(scale, RoundingMode.HALF_UP));
 				result.setLastPrice(new BigDecimal(quote.getLastPrice()).setScale(scale, RoundingMode.HALF_UP));
 				result.setLastSize(quote.getLastQty());
@@ -161,6 +173,8 @@ public class FuturesMarketService {
 
 	public List<FuturesContractLineData> dayLine(String commodityNo, String contractNo, String startTimeStr,
 			String endTimeStr) {
+		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		// 获取开始和结束时间
 		Date startTime = null;
 		Date endTime = null;
@@ -174,8 +188,10 @@ public class FuturesMarketService {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
+		boolean isNeedAddToday = false;
 		if (endTime == null) {
 			endTime = new Date();
+			isNeedAddToday = true;
 		}
 		if (startTime == null) {
 			Calendar cal = Calendar.getInstance();
@@ -187,11 +203,53 @@ public class FuturesMarketService {
 		List<FuturesQuoteDayK> dayKList = dayKDao
 				.retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(commodityNo, contractNo,
 						startTime, endTime);
+		if (isNeedAddToday) {
+			FuturesQuoteDayK last = null;
+			if (dayKList != null && dayKList.size() > 0) {
+				last = dayKList.get(dayKList.size() - 1);
+			}
+			TapAPIQuoteWhole quote = quoteWrapper.getQuoteCache()
+					.get(quoteWrapper.getQuoteCacheKey(commodityNo, contractNo));
+			if (quote != null) {
+				if (last == null || quote.getDateTimeStamp().substring(0, quote.getDateTimeStamp().length() - 13)
+						.compareTo(last.getTimeStr().substring(0, last.getTimeStr().length() - 9)) > 0) {
+					if (quote.getQClosingPrice() > 0 && quote.getQHighPrice() > 0 && quote.getQLowPrice() > 0
+							&& quote.getQOpeningPrice() > 0) {
+						Integer scale = EsEngine.commodityScaleMap.get(commodityNo);
+						if (scale != null) {
+							FuturesQuoteDayK add = new FuturesQuoteDayK();
+							add.setClosePrice(
+									new BigDecimal(quote.getQLastPrice()).setScale(scale, RoundingMode.HALF_UP));
+							add.setCommodityNo(commodityNo);
+							add.setContractNo(contractNo);
+							add.setEndTotalQty(quote.getQTotalQty());
+							add.setHighPrice(
+									new BigDecimal(quote.getQHighPrice()).setScale(scale, RoundingMode.HALF_UP));
+							add.setLowPrice(new BigDecimal(quote.getQLowPrice()).setScale(scale, RoundingMode.HALF_UP));
+							add.setOpenPrice(
+									new BigDecimal(quote.getQOpeningPrice()).setScale(scale, RoundingMode.HALF_UP));
+							try {
+								add.setTime(sdf.parse(
+										quote.getDateTimeStamp().substring(0, quote.getDateTimeStamp().length() - 13)));
+								add.setTimeStr(
+										quote.getDateTimeStamp().substring(0, quote.getDateTimeStamp().length() - 13));
+								add.setVolume(quote.getQTotalQty());
+								add.setTotalVolume(quote.getQPositionQty());
+								dayKList.add(add);
+							} catch (ParseException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				}
+			}
+		}
 		return CopyBeanUtils.copyListBeanPropertiesToList(dayKList, FuturesContractLineData.class);
 	}
 
 	public List<FuturesContractLineData> minsLine(String commodityNo, String contractNo, String startTimeStr,
 			String endTimeStr, Integer mins) {
+		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		// 获取开始和结束时间
 		Date startTime = null;
 		Date endTime = null;
@@ -209,12 +267,19 @@ public class FuturesMarketService {
 			endTime = new Date();
 		}
 		if (startTime == null) {
+			int openHour = TimeZoneUtil.getOpenTimeHour();
+			int closeHour = TimeZoneUtil.getCloseTimeHour();
+
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(endTime);
-			cal.set(Calendar.HOUR_OF_DAY, 0);
+			cal.set(Calendar.HOUR_OF_DAY, openHour);
 			cal.set(Calendar.MINUTE, 0);
-			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.SECOND, 1);
 			cal.set(Calendar.MILLISECOND, 0);
+			Calendar now = Calendar.getInstance();
+			if (now.get(Calendar.HOUR_OF_DAY) <= closeHour) {
+				cal.add(Calendar.DAY_OF_MONTH, -1);
+			}
 			startTime = cal.getTime();
 		}
 		// 查询分时数据
@@ -306,7 +371,7 @@ public class FuturesMarketService {
 	public void computeDayline(String commodityNo, String contractNo, Date time) {
 		innerComputeDayK(commodityNo, contractNo, time);
 	}
-	
+
 	private void innerComputeDayK(String commodityNo, String contractNo, Date date) {
 		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date[] arr = retriveBeijingTimeInterval(date);
@@ -360,6 +425,63 @@ public class FuturesMarketService {
 		Date startTime = startCal.getTime();
 
 		return new Date[] { startTime, endTime };
+	}
+
+	public Map<String, FuturesQuoteData> quoteAll() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MMdd HH:mm:ss");
+		Map<String, FuturesQuoteData> result = new HashMap<>();
+		Map<String, TapAPIQuoteWhole> quoteCache = quoteWrapper.getQuoteCache();
+		for (Map.Entry<String, TapAPIQuoteWhole> entry : quoteCache.entrySet()) {
+			TapAPIQuoteWhole info = entry.getValue();
+			String commodityNo = info.getContract().getCommodity().getCommodityNo();
+			Integer scale = EsEngine.commodityScaleMap.get(commodityNo);
+			if (scale != null) {
+
+				try {
+					FuturesQuoteData data = new FuturesQuoteData();
+					data.setCommodityNo(commodityNo);
+					data.setContractNo(entry.getValue().getContract().getContractNo1());
+					data.setTime(sdf.parse(info.getDateTimeStamp().substring(0, info.getDateTimeStamp().length() - 4)));
+					data.setAskPrice(new BigDecimal(info.getQAskPrice()[0]).setScale(scale, RoundingMode.HALF_UP));
+					data.setAskSize(info.getQAskQty()[0]);
+					data.setBidPrice(new BigDecimal(info.getQBidPrice()[0]).setScale(scale, RoundingMode.HALF_UP));
+					data.setBidSize(info.getQBidQty()[0]);
+					data.setAskPrice2(new BigDecimal(info.getQAskPrice()[1]).setScale(scale, RoundingMode.HALF_UP));
+					data.setAskSize2(info.getQAskQty()[1]);
+					data.setBidPrice2(new BigDecimal(info.getQBidPrice()[1]).setScale(scale, RoundingMode.HALF_UP));
+					data.setBidSize2(info.getQBidQty()[1]);
+					data.setAskPrice3(new BigDecimal(info.getQAskPrice()[2]).setScale(scale, RoundingMode.HALF_UP));
+					data.setAskSize3(info.getQAskQty()[2]);
+					data.setBidPrice3(new BigDecimal(info.getQBidPrice()[2]).setScale(scale, RoundingMode.HALF_UP));
+					data.setBidSize3(info.getQBidQty()[2]);
+					data.setAskPrice4(new BigDecimal(info.getQAskPrice()[3]).setScale(scale, RoundingMode.HALF_UP));
+					data.setAskSize4(info.getQAskQty()[3]);
+					data.setBidPrice4(new BigDecimal(info.getQBidPrice()[3]).setScale(scale, RoundingMode.HALF_UP));
+					data.setBidSize4(info.getQBidQty()[3]);
+					data.setAskPrice5(new BigDecimal(info.getQAskPrice()[4]).setScale(scale, RoundingMode.HALF_UP));
+					data.setAskSize5(info.getQAskQty()[4]);
+					data.setBidPrice5(new BigDecimal(info.getQBidPrice()[4]).setScale(scale, RoundingMode.HALF_UP));
+					data.setBidSize5(info.getQBidQty()[4]);
+					data.setNowClosePrice(
+							new BigDecimal(info.getQClosingPrice()).setScale(scale, RoundingMode.HALF_UP));
+					data.setClosePrice(
+							new BigDecimal(info.getQPreClosingPrice()).setScale(scale, RoundingMode.HALF_UP));
+					data.setHighPrice(new BigDecimal(info.getQHighPrice()).setScale(scale, RoundingMode.HALF_UP));
+					data.setLastPrice(new BigDecimal(info.getQLastPrice()).setScale(scale, RoundingMode.HALF_UP));
+					data.setLastSize(info.getQLastQty());
+					data.setLowPrice(new BigDecimal(info.getQLowPrice()).setScale(scale, RoundingMode.HALF_UP));
+					data.setOpenPrice(new BigDecimal(info.getQOpeningPrice()).setScale(scale, RoundingMode.HALF_UP));
+					data.setVolume(info.getQLastQty());
+					data.setTotalVolume(info.getQTotalQty());
+					result.put(entry.getKey(), data);
+				} catch (ParseException e) {
+					logger.error("行情日期格式有误：{}-{}-{}", commodityNo, entry.getValue().getContract().getContractNo1(),
+							info.getDateTimeStamp().substring(0, info.getDateTimeStamp().length() - 4));
+					e.printStackTrace();
+				}
+			}
+		}
+		return result;
 	}
 
 }

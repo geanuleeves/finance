@@ -1,7 +1,9 @@
 package com.waben.stock.interfaces.commonapi.retrivefutures;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.client.RestTemplate;
 
@@ -62,7 +64,8 @@ public class RetriveFuturesOverHttp {
 		}
 	}
 
-	public static FuturesGatewayContract fetchByCommodityNoAndContractNo(boolean isProd, String commodityNo, String contractNo) {
+	public static FuturesGatewayContract fetchByCommodityNoAndContractNo(boolean isProd, String commodityNo,
+			String contractNo) {
 		String url = getBaseUrl(isProd) + "futuresContract/" + commodityNo + "/" + contractNo;
 		String response = restTemplate.getForObject(url, String.class);
 		Response<FuturesGatewayContract> responseObj = JacksonUtil.decode(response,
@@ -86,6 +89,18 @@ public class RetriveFuturesOverHttp {
 		}
 	}
 
+	public static Map<String, FuturesContractMarket> marketAll(boolean isProd) {
+		String url = getBaseUrl(isProd) + "market/all";
+		String response = restTemplate.getForObject(url, String.class);
+		Response<HashMap<String, FuturesContractMarket>> responseObj = JacksonUtil.decode(response, JacksonUtil.getGenericType(
+				Response.class, JacksonUtil.getGenericType(HashMap.class, FuturesContractMarket.class)));
+		if ("200".equals(responseObj.getCode())) {
+			return responseObj.getResult();
+		} else {
+			throw new RuntimeException("http获取期货行情异常!" + responseObj.getCode());
+		}
+	}
+
 	public static List<FuturesContractLineData> timeLine(boolean isProd, String commodityNo, String contractNo) {
 		String url = getBaseUrl(isProd) + "market/" + commodityNo + "/" + contractNo + "/minsline?mins=1";
 		String response = restTemplate.getForObject(url, String.class);
@@ -98,8 +113,8 @@ public class RetriveFuturesOverHttp {
 		}
 	}
 
-	public static List<FuturesContractLineData> dayLine(boolean isProd, String commodityNo, String contractNo, String startTime,
-			String endTime) {
+	public static List<FuturesContractLineData> dayLine(boolean isProd, String commodityNo, String contractNo,
+			String startTime, String endTime) {
 		String url = getBaseUrl(isProd) + "market/" + commodityNo + "/" + contractNo + "/dayline?";
 		if (!StringUtil.isEmpty(startTime)) {
 			url += "&startTime=" + startTime;
@@ -117,9 +132,10 @@ public class RetriveFuturesOverHttp {
 		}
 	}
 
-	public static List<FuturesContractLineData> minsLine(boolean isProd, String commodityNo, String contractNo, Integer mins) {
+	public static List<FuturesContractLineData> minsLine(boolean isProd, String commodityNo, String contractNo,
+			Integer mins) {
 		String url = getBaseUrl(isProd) + "market/" + commodityNo + "/" + contractNo + "/minsline";
-		if(mins == null || mins < 1) {
+		if (mins == null || mins < 1) {
 			mins = 1;
 		}
 		url += "?mins=" + mins;

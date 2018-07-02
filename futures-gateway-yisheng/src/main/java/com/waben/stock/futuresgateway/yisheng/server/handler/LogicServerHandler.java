@@ -45,7 +45,7 @@ public class LogicServerHandler extends ChannelInboundHandlerAdapter{
 	@Override
 	public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
 		final Message.MessageBase msgBase = (Message.MessageBase)msg;
-		log.info("服务器端收到消息:" + msgBase.getClientId());
+		// log.info("服务器端收到消息:" + msgBase.getClientId());
 
 		String clientId = msgBase.getClientId();
 		if(StringUtils.isEmpty(clientId)){
@@ -61,12 +61,9 @@ public class LogicServerHandler extends ChannelInboundHandlerAdapter{
 			channelRepository.put(clientId, ch);
 		}
 
-		log.info("requestType:" + ctx.channel().attr(requestTypeInfo));
-
 		if(msgBase.getCmd().equals(Command.CommandType.PING)) {
 			//处理ping消息
-			log.info("服务端接受到ping");
-
+			// log.info("服务端接受到ping");
 			ctx.writeAndFlush(createData(clientId, Command.CommandType.PING, "你的请求类型是" + ctx.channel().attr(requestTypeInfo)).build());
 		}else if(msgBase.getCmd().equals(Command.CommandType.AUTH)){
 

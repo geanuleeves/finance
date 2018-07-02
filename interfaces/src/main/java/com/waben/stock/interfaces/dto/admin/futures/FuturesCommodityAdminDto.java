@@ -10,19 +10,19 @@ public class FuturesCommodityAdminDto {
 	 * 品种ID
 	 */
 	private Long id;
-	
+
 	private Long exchangeId;
-	
+
 	/**
 	 * 交易所代码
 	 */
 	private String exchangcode;
-	
+
 	/**
 	 * 交易所全称
 	 */
 	private String exchangename;
-	
+
 	/**
 	 * 交易所类型
 	 * <ul>
@@ -31,42 +31,42 @@ public class FuturesCommodityAdminDto {
 	 * </ul>
 	 */
 	private Integer exchangeType;
-	
+
 	/**
 	 * 产品代码
 	 */
 	private String symbol;
-	
+
 	/**
 	 * 产品名称
 	 */
 	private String name;
-	
+
 	/**
 	 * 交易单位
 	 */
 	private String tradeUnit;
-	
+
 	/**
 	 * 报价单位
 	 */
 	private String qutoteUnit;
-	
+
 	/**
 	 * 货币
 	 */
 	private String currency;
-	
+
 	/**
 	 * 图标
 	 */
 	private String icon;
-	
+
 	/**
 	 * 汇率
 	 */
 	private BigDecimal rate;
-	
+
 	/**
 	 * 产品类型
 	 */
@@ -83,11 +83,11 @@ public class FuturesCommodityAdminDto {
 	 * 波动一次盈亏金额，单位为该合约的货币单位
 	 */
 	private BigDecimal perWaveMoney;
-	
+
 	/**
 	 * 1手合约价值
 	 */
-	private BigDecimal perContractValue;
+	private String perContractValue;
 	/**
 	 * 一手保证金
 	 */
@@ -104,7 +104,7 @@ public class FuturesCommodityAdminDto {
 	 * </ul>
 	 */
 	private Integer unwindPointType;
-	
+
 	private BigDecimal cordon;
 	/**
 	 * 该合约总计的可使用的额度（手）
@@ -157,22 +157,22 @@ public class FuturesCommodityAdminDto {
 	 * 3 异常
 	 * </p>
 	 */
-//	private Integer state;
+	// private Integer state;
 
 	/**
 	 * 每个合约的描述
 	 */
 	private String contractDesc;
-	
+
 	/**
 	 * 返还隔夜保证金的时间（交易所时间）
 	 */
 	private String returnOvernightReserveFundTime;
-	
+
 	private List<FuturesPreQuantityDto> preQuantityDto;
-	
+
 	private Date createTime;
-	
+
 	/**
 	 * 周一交易时间(交易所)
 	 * <p>
@@ -180,72 +180,71 @@ public class FuturesCommodityAdminDto {
 	 * <p>
 	 */
 	private String monTradeTime;
-	
+
 	/**
 	 * 周一交易时间描述
 	 */
 	private String monTradeTimeDesc;
-	
+
 	/**
 	 * 周二交易时间(交易所)
 	 */
 	private String tueTradeTime;
-	
+
 	/**
 	 * 周二交易时间描述
 	 */
 	private String tueTradeTimeDesc;
-	
+
 	/**
 	 * 周三交易时间(交易所)
 	 */
 	private String wedTradeTime;
-	
+
 	/**
 	 * 周三交易时间描述
 	 */
 	private String wedTradeTimeDesc;
-	
+
 	/**
 	 * 周四交易时间(交易所)
 	 */
 	private String thuTradeTime;
-	
+
 	/**
 	 * 周四交易时间描述
 	 */
 	private String thuTradeTimeDesc;
-	
+
 	/**
 	 * 周五交易时间(交易所)
 	 */
 	private String friTradeTime;
-	
+
 	/**
 	 * 周五交易时间描述
 	 */
 	private String friTradeTimeDesc;
-	
+
 	/**
 	 * 周六交易时间(交易所)
 	 */
 	private String satTradeTime;
-	
+
 	/**
 	 * 周六交易时间描述
 	 */
 	private String satTradeTimeDesc;
-	
+
 	/**
 	 * 周日交易时间(交易所)
 	 */
 	private String sunTradeTime;
-	
+
 	/**
 	 * 周日交易时间描述
 	 */
 	private String sunTradeTimeDesc;
-
 
 	public Long getId() {
 		return id;
@@ -375,11 +374,11 @@ public class FuturesCommodityAdminDto {
 		this.perWaveMoney = perWaveMoney;
 	}
 
-	public BigDecimal getPerContractValue() {
+	public String getPerContractValue() {
 		return perContractValue;
 	}
 
-	public void setPerContractValue(BigDecimal perContractValue) {
+	public void setPerContractValue(String perContractValue) {
 		this.perContractValue = perContractValue;
 	}
 

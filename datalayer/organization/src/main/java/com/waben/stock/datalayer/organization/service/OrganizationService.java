@@ -829,19 +829,24 @@ public class OrganizationService {
 				// 没有设置全局成本价
 				throw new ServiceException(ExceptionConstant.NOT_GLOBAL_COST_PRICE_ISSET_EXCEPTION);
 			}
-			/*
-			 * if (currentPrice.getCostReserveFund() == null) {
-			 * currentPrice.setCostReserveFund(contractDto.getPerUnitReserveFund
-			 * ()); } else if
-			 * (currentPrice.getCostReserveFund().compareTo(contractDto.
-			 * getPerUnitReserveFund()) < 0) { // 成本保证金不能比全局设置的低 throw new
-			 * ServiceException(ExceptionConstant.
-			 * COST_MARGIN_CANNOT_LOWER_THAN_GLOBAL_SETTING_EXCEPTION, new
-			 * Object[] { contractDto.getName(),
-			 * contractDto.getPerUnitReserveFund() }); }
-			 */
+
+			if (currentPrice.getCostReserveFund() == null) {
+				currentPrice.setCostReserveFund(contractDto.getPerUnitReserveFund());
+			} else if (currentPrice.getCostReserveFund() == BigDecimal.ZERO) {
+				currentPrice.setCostReserveFund(null);
+			} /*
+				 * else if
+				 * (currentPrice.getCostReserveFund().compareTo(contractDto.
+				 * getPerUnitReserveFund()) < 0) { // 成本保证金不能比全局设置的低 throw new
+				 * ServiceException(ExceptionConstant.
+				 * COST_MARGIN_CANNOT_LOWER_THAN_GLOBAL_SETTING_EXCEPTION, new
+				 * Object[] { contractDto.getName(),
+				 * contractDto.getPerUnitReserveFund() }); }
+				 */
 			if (currentPrice.getCostOpenwindServiceFee() == null) {
 				currentPrice.setCostOpenwindServiceFee(contractDto.getOpenwindServiceFee());
+			} else if (currentPrice.getCostOpenwindServiceFee() == BigDecimal.ZERO) {
+				currentPrice.setCostOpenwindServiceFee(null);
 			} /*
 				 * else if (currentPrice.getCostOpenwindServiceFee().compareTo(
 				 * contractDto.getOpenwindServiceFee()) < 0) { //
@@ -853,6 +858,8 @@ public class OrganizationService {
 				 */
 			if (currentPrice.getSaleOpenwindServiceFee() == null) {
 				currentPrice.setSaleOpenwindServiceFee(currentPrice.getCostOpenwindServiceFee());
+			} else if (currentPrice.getSaleOpenwindServiceFee() == BigDecimal.ZERO) {
+				currentPrice.setSaleOpenwindServiceFee(null);
 			} else if (currentPrice.getCostOpenwindServiceFee()
 					.compareTo(currentPrice.getSaleOpenwindServiceFee()) > 0) {
 				// 销售开仓手续费不能比成本开仓手续费的低
@@ -861,6 +868,8 @@ public class OrganizationService {
 			}
 			if (currentPrice.getCostUnwindServiceFee() == null) {
 				currentPrice.setCostUnwindServiceFee(contractDto.getUnwindServiceFee());
+			} else if (currentPrice.getCostUnwindServiceFee() == BigDecimal.ZERO) {
+				currentPrice.setCostUnwindServiceFee(null);
 			} /*
 				 * else if
 				 * (currentPrice.getCostUnwindServiceFee().compareTo(contractDto
@@ -872,6 +881,8 @@ public class OrganizationService {
 				 */
 			if (currentPrice.getSaleUnwindServiceFee() == null) {
 				currentPrice.setSaleUnwindServiceFee(currentPrice.getCostUnwindServiceFee());
+			} else if (currentPrice.getSaleUnwindServiceFee() == BigDecimal.ZERO) {
+				currentPrice.setSaleUnwindServiceFee(null);
 			} else if (currentPrice.getCostUnwindServiceFee().compareTo(currentPrice.getSaleUnwindServiceFee()) > 0) {
 				// 销售平仓手续费不能比成本开仓手续费的低
 				throw new ServiceException(ExceptionConstant.SALES_CLOSINGFEE_CANNOT_LOWER_COST_OPENINGFEE_EXCEPTION,
@@ -879,6 +890,8 @@ public class OrganizationService {
 			}
 			if (currentPrice.getCostDeferredFee() == null) {
 				currentPrice.setCostDeferredFee(contractDto.getOvernightPerUnitDeferredFee());
+			} else if (currentPrice.getCostDeferredFee() == BigDecimal.ZERO) {
+				currentPrice.setCostDeferredFee(null);
 			} /*
 				 * else if
 				 * (currentPrice.getCostDeferredFee().compareTo(contractDto.
@@ -890,6 +903,8 @@ public class OrganizationService {
 				 */
 			if (currentPrice.getSaleDeferredFee() == null) {
 				currentPrice.setSaleDeferredFee(currentPrice.getCostDeferredFee());
+			} else if (currentPrice.getSaleDeferredFee() == BigDecimal.ZERO) {
+				currentPrice.setSaleDeferredFee(null);
 			} else if (currentPrice.getCostDeferredFee().compareTo(currentPrice.getSaleDeferredFee()) > 0) {
 				// 销售递延费不能比成本递延费的低
 				throw new ServiceException(
@@ -904,19 +919,24 @@ public class OrganizationService {
 				throw new ServiceException(ExceptionConstant.COST_MARGIN_CANNOT_LOWER_GLOBAL_SETTING_EXCEPTION,
 						new Object[] { contractDto.getName() });
 			}
-			/*
-			 * if (currentPrice.getCostReserveFund() == null) {
-			 * currentPrice.setCostReserveFund(agentPrice.getCostReserveFund());
-			 * } else if
-			 * (currentPrice.getCostReserveFund().compareTo(agentPrice.
-			 * getCostReserveFund()) < 0) { // 成本保证金不能比上级设置的低 throw new
-			 * ServiceException(ExceptionConstant.
-			 * COST_MARGIN_CANNOT_LOWER_GLOBAL_SETTING_EXCEPTION, new Object[] {
-			 * contractDto.getName(), agentPrice.getCostReserveFund() }); }
-			 */
 
+			if (currentPrice.getCostReserveFund() == null) {
+				currentPrice.setCostReserveFund(agentPrice.getCostReserveFund());
+			} else if (currentPrice.getCostReserveFund() == BigDecimal.ZERO) {
+				currentPrice.setCostReserveFund(null);
+			} /*
+				 * else if
+				 * (currentPrice.getCostReserveFund().compareTo(agentPrice.
+				 * getCostReserveFund()) < 0) { // 成本保证金不能比上级设置的低 throw new
+				 * ServiceException(ExceptionConstant.
+				 * COST_MARGIN_CANNOT_LOWER_GLOBAL_SETTING_EXCEPTION, new
+				 * Object[] { contractDto.getName(),
+				 * agentPrice.getCostReserveFund() }); }
+				 */
 			if (currentPrice.getCostOpenwindServiceFee() == null) {
 				currentPrice.setCostOpenwindServiceFee(agentPrice.getCostOpenwindServiceFee());
+			} else if (currentPrice.getCostOpenwindServiceFee() == BigDecimal.ZERO) {
+				currentPrice.setCostOpenwindServiceFee(null);
 			} else if (currentPrice.getCostOpenwindServiceFee().compareTo(agentPrice.getCostOpenwindServiceFee()) < 0) {
 				// 成本开仓手续费不能比上级设置的低
 				throw new ServiceException(ExceptionConstant.COST_OPENINGCHARGES_CANNOT_LOWER_GLOBAL_SETTING_EXCEPTION,
@@ -925,6 +945,8 @@ public class OrganizationService {
 
 			if (currentPrice.getSaleOpenwindServiceFee() == null) {
 				currentPrice.setSaleOpenwindServiceFee(currentPrice.getCostOpenwindServiceFee());
+			} else if (currentPrice.getSaleOpenwindServiceFee() == BigDecimal.ZERO) {
+				currentPrice.setSaleOpenwindServiceFee(null);
 			} else if (currentPrice.getSaleOpenwindServiceFee()
 					.compareTo(currentPrice.getCostOpenwindServiceFee()) < 0) {
 				// 销售开仓手续费不能比成本开仓手续费的低
@@ -934,6 +956,8 @@ public class OrganizationService {
 
 			if (currentPrice.getCostUnwindServiceFee() == null) {
 				currentPrice.setCostUnwindServiceFee(agentPrice.getCostUnwindServiceFee());
+			} else if (currentPrice.getCostUnwindServiceFee() == BigDecimal.ZERO) {
+				currentPrice.setCostUnwindServiceFee(null);
 			} else if (currentPrice.getCostUnwindServiceFee().compareTo(agentPrice.getCostUnwindServiceFee()) < 0) {
 				// 成本平仓手续费不能比上级设置的低
 				throw new ServiceException(ExceptionConstant.COST_NOT_LOWER_OVERALL_SETTING_EXCEPTION,
@@ -942,6 +966,8 @@ public class OrganizationService {
 
 			if (currentPrice.getSaleUnwindServiceFee() == null) {
 				currentPrice.setSaleUnwindServiceFee(currentPrice.getSaleUnwindServiceFee());
+			} else if (currentPrice.getSaleUnwindServiceFee() == BigDecimal.ZERO) {
+				currentPrice.setSaleUnwindServiceFee(null);
 			} else if (currentPrice.getSaleUnwindServiceFee().compareTo(currentPrice.getCostUnwindServiceFee()) < 0) {
 				// 销售平仓手续费不能比成本平仓手续费的低
 				throw new ServiceException(ExceptionConstant.SALES_CLOSINGFEE_CANNOT_LOWER_COST_OPENINGFEE_EXCEPTION,
@@ -950,6 +976,8 @@ public class OrganizationService {
 
 			if (currentPrice.getCostDeferredFee() == null) {
 				currentPrice.setCostDeferredFee(agentPrice.getCostDeferredFee());
+			} else if (currentPrice.getCostDeferredFee() == BigDecimal.ZERO) {
+				currentPrice.setCostDeferredFee(null);
 			} else if (currentPrice.getCostDeferredFee().compareTo(agentPrice.getCostDeferredFee()) < 0) {
 				// 成本递延费不能比上级设置的低
 				throw new ServiceException(ExceptionConstant.COST_DEFERREDFEE_SHOULD_NOT_LOWER_GLOBAL_SETTING_EXCEPTION,
@@ -958,6 +986,8 @@ public class OrganizationService {
 
 			if (currentPrice.getSaleDeferredFee() == null) {
 				currentPrice.setSaleDeferredFee(currentPrice.getCostDeferredFee());
+			} else if (currentPrice.getSaleDeferredFee() == BigDecimal.ZERO) {
+				currentPrice.setSaleDeferredFee(null);
 			} else if (currentPrice.getSaleDeferredFee().compareTo(currentPrice.getCostDeferredFee()) < 0) {
 				// 销售递延费不能比成本递延费的低
 				throw new ServiceException(

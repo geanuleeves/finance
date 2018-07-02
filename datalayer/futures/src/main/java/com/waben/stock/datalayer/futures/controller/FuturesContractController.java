@@ -112,7 +112,7 @@ public class FuturesContractController implements FuturesContractInterface {
 			// 转换后的当前时间
 			Date exchangeTime = retriveExchangeTime(now, timeZoneGap);
 			// 转换后当前时间的明天
-			Date nextTime = nextTime(exchangeTime);
+			// Date nextTime = nextTime(exchangeTime);
 			// 获取交易所提供时间
 			boolean isTradeTime = false;
 			String tradeTime = retriveExchangeTradeTimeStr(timeZoneGap, contractDto, now);
@@ -140,12 +140,14 @@ public class FuturesContractController implements FuturesContractInterface {
 									tradeTimePointArr[0].trim(), tradeTimePointArr[1].trim()));
 							break;
 						} else {
-							String tomorrow = daySdf.format(nextTime);
-							String tomorrowHour = getNextTradingTime(exchangeTime, contractDto) == null ? ""
-									: getNextTradingTime(exchangeTime, contractDto);
+							// String tomorrow = daySdf.format(nextTime);
+							String tomorrowHour = getNextTradingHourTime(exchangeTime, contractDto) == null ? ""
+									: getNextTradingHourTime(exchangeTime, contractDto);
 							// 获取转换后的明天时间交易开始时间
-							String tomorrowTime = tomorrow + " " + tomorrowHour.split("-")[0];
-							contractDto.setNextTradingTime(tomorrowTime);
+							// String tomorrowTime = tomorrow + " " +
+							// tomorrowHour.split("-")[0];
+							contractDto.setNextTradingTime(getNextTradingDayTime(exchangeTime, contractDto) == null ? ""
+									: getNextTradingDayTime(exchangeTime, contractDto));
 							contractDto.setCurrentTradeTimeDesc(currentTradeTimeDesc(timeZoneGap,
 									tomorrowHour.split("-")[0].trim(), tomorrowHour.split("-")[1].trim()));
 						}
@@ -210,7 +212,7 @@ public class FuturesContractController implements FuturesContractInterface {
 		return tradeTime;
 	}
 
-	private String getNextTradingTime(Date localTime, FuturesContractDto contract) {
+	private String getNextTradingHourTime(Date localTime, FuturesContractDto contract) {
 		String nextTime = null;
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(localTime);
@@ -228,8 +230,59 @@ public class FuturesContractController implements FuturesContractInterface {
 			nextTime = contract.getFriTradeTime().trim().split(",")[0];
 		} else if (dayForweek == 6) {
 			nextTime = contract.getSatTradeTime().trim().split(",")[0];
+			if (nextTime != null) {
+				String[] time = nextTime.split("-");
+				if ((time[0].trim()).equals(time[1].trim())) {
+					return getNextTradingHourTime(nextTime(localTime), contract);
+				}
+			}
 		} else if (dayForweek == 7) {
 			nextTime = contract.getSunTradeTime().trim().split(",")[0];
+			if (nextTime != null) {
+				String[] time = nextTime.split("-");
+				if ((time[0]).equals(time[1])) {
+					return getNextTradingHourTime(nextTime(localTime), contract);
+				}
+			}
+		}
+		return nextTime;
+	}
+
+	private String getNextTradingDayTime(Date localTime, FuturesContractDto contract) {
+		String nextTime = null;
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(localTime);
+		int dayForweek = cal.get(Calendar.DAY_OF_WEEK);
+		String tomorrow = daySdf.format(cal.getTime());
+		if (dayForweek == 1) {
+			// str.substring(0, str.indexOf("#"));
+			nextTime = tomorrow + " " + contract.getMonTradeTime().trim().split(",")[0].split("-")[0];
+		} else if (dayForweek == 2) {
+			nextTime = tomorrow + " " + contract.getTueTradeTime().trim().split(",")[0].split("-")[0];
+		} else if (dayForweek == 3) {
+			nextTime = tomorrow + " " + contract.getWedTradeTime().trim().split(",")[0].split("-")[0];
+		} else if (dayForweek == 4) {
+			nextTime = tomorrow + " " + contract.getThuTradeTime().trim().split(",")[0].split("-")[0];
+		} else if (dayForweek == 5) {
+			nextTime = tomorrow + " " + contract.getFriTradeTime().trim().split(",")[0].split("-")[0];
+		} else if (dayForweek == 6) {
+			nextTime = contract.getSatTradeTime().trim().split(",")[0];
+			if (nextTime != null) {
+				String[] time = nextTime.split("-");
+				if ((time[0]).equals(time[1])) {
+					return getNextTradingDayTime(nextTime(localTime), contract);
+				}
+			}
+			nextTime = tomorrow + " " + contract.getSatTradeTime().trim().split(",")[0].split("-")[0];
+		} else if (dayForweek == 7) {
+			nextTime = contract.getSunTradeTime().trim().split(",")[0];
+			if (nextTime != null) {
+				String[] time = nextTime.split("-");
+				if ((time[0]).equals(time[1])) {
+					return getNextTradingDayTime(nextTime(localTime), contract);
+				}
+			}
+			nextTime = tomorrow + " " + contract.getSatTradeTime().trim().split(",")[0].split("-")[0];
 		}
 		return nextTime;
 	}

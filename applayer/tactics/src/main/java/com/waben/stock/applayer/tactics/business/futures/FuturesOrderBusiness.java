@@ -354,4 +354,12 @@ public class FuturesOrderBusiness {
 		throw new ServiceException(response.getCode());
 	}
 
+	public BigDecimal getUnsettledProfitOrLoss(Long publisherId) {
+		Response<BigDecimal> response = futuresOrderInterface.getUnsettledProfitOrLoss(publisherId);
+		if (response.getCode().equals("200")) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
 }
