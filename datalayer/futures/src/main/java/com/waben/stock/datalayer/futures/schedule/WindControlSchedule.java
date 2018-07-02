@@ -109,7 +109,7 @@ public class WindControlSchedule {
 									.getWindControlType() == null
 									|| order.getWindControlType() == FuturesWindControlType.InitPosition
 									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
-								orderService.canceledOrder(order.getId());
+								orderService.cancelOrder(order.getId(), order.getPublisherId());
 								continue;
 							}
 							orderService.sellingEntrust(order, FuturesWindControlType.ReachContractExpiration,
@@ -125,7 +125,7 @@ public class WindControlSchedule {
 									.getWindControlType() == null
 									|| order.getWindControlType() == FuturesWindControlType.InitPosition
 									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
-								orderService.canceledOrder(order.getId());
+								orderService.cancelOrder(order.getId(), order.getPublisherId());
 								continue;
 							}
 							orderService.sellingEntrust(order, FuturesWindControlType.ReachProfitPoint,
@@ -138,7 +138,7 @@ public class WindControlSchedule {
 //									.getWindControlType() == null
 //									|| order.getWindControlType() == FuturesWindControlType.InitPosition
 //									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
-//								orderService.canceledOrder(order.getId());
+//								orderService.cancelOrder(order.getId(), order.getPublisherId());
 //								continue;
 //							}
 //							orderService.sellingEntrust(order, FuturesWindControlType.ReachStrongPoint,
@@ -151,7 +151,7 @@ public class WindControlSchedule {
 									.getWindControlType() == null
 									|| order.getWindControlType() == FuturesWindControlType.InitPosition
 									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
-								orderService.canceledOrder(order.getId());
+								orderService.cancelOrder(order.getId(), order.getPublisherId());
 								continue;
 							}
 							orderService.sellingEntrust(order, FuturesWindControlType.ReachLossPoint,
@@ -164,7 +164,7 @@ public class WindControlSchedule {
 									.getWindControlType() == null
 									|| order.getWindControlType() == FuturesWindControlType.InitPosition
 									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
-								orderService.canceledOrder(order.getId());
+								orderService.cancelOrder(order.getId(), order.getPublisherId());
 								continue;
 							}
 							orderService.overnight(order, timeZoneGap);

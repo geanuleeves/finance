@@ -76,12 +76,12 @@ public class BuyingEntrustOrderMonitorSchedule {
 						// step 3 : 是否合约到期
 						if (orderService.isTradeTime(timeZoneGap, contract)
 								&& isReachContractExpiration(timeZoneGap, contract)) {
-							orderService.canceledOrder(order.getId());
+							orderService.cancelOrder(order.getId(), order.getPublisherId());
 							continue;
 						}
 						// step 4 : 是否触发隔夜时间
 						if (orderService.isTradeTime(timeZoneGap, contract) && isTriggerOvernight(order, timeZoneGap)) {
-							orderService.canceledOrder(order.getId());
+							orderService.cancelOrder(order.getId(), order.getPublisherId());
 							continue;
 						}
 					}

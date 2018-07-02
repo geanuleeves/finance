@@ -116,11 +116,11 @@ public class JacksonUtil {
 		return null;
 	}
 
-	public static JavaType getGenericType(Class<?> outClass, Class<?> elementClass) {
+	public static JavaType getGenericType(Class<?> outClass, Class<?>... elementClass) {
 		return objectMapper.getTypeFactory().constructParametricType(outClass, elementClass);
 	}
 	
-	public static JavaType getGenericType(Class<?> outClass, JavaType elementType) {
+	public static JavaType getGenericType(Class<?> outClass, JavaType... elementType) {
 		return objectMapper.getTypeFactory().constructParametricType(outClass, elementType);
 	}
 	

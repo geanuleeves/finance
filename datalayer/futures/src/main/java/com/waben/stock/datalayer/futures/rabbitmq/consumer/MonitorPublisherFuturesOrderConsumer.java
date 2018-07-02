@@ -96,7 +96,7 @@ public class MonitorPublisherFuturesOrderConsumer {
 								&& order.getSellingPriceType() == FuturesTradePriceType.LMT) {
 							order.setWindControlType(FuturesWindControlType.ReachStrongPoint);
 							orderService.revisionOrder(order);
-							orderService.canceledOrder(order.getId());
+							orderService.cancelOrder(order.getId(), publisherId);
 						}
 					}
 					// 从监控队列中移除

@@ -93,7 +93,7 @@ public class RetriveFuturesOverHttp {
 		String url = getBaseUrl(isProd) + "market/all";
 		String response = restTemplate.getForObject(url, String.class);
 		Response<HashMap<String, FuturesContractMarket>> responseObj = JacksonUtil.decode(response, JacksonUtil.getGenericType(
-				Response.class, JacksonUtil.getGenericType(HashMap.class, FuturesContractMarket.class)));
+				Response.class, JacksonUtil.getGenericType(HashMap.class, String.class, FuturesContractMarket.class)));
 		if ("200".equals(responseObj.getCode())) {
 			return responseObj.getResult();
 		} else {

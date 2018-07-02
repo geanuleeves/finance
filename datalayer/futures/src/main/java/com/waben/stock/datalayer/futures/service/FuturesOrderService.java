@@ -133,7 +133,7 @@ public class FuturesOrderService {
 
 	@Autowired
 	private RetriveAllQuoteSchedule allQuote;
-	
+
 	@Autowired
 	private MonitorPublisherFuturesOrderConsumer monitorPublisher;
 
@@ -688,6 +688,7 @@ public class FuturesOrderService {
 		FuturesOrder order = orderDao.retrieve(id);
 		if (!(order.getState() == FuturesOrderState.Posted || order.getState() == FuturesOrderState.BuyingEntrust
 				|| order.getState() == FuturesOrderState.SellingEntrust)) {
+			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
 			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
 		}
 		if (order.getState() == FuturesOrderState.SellingEntrust) {
@@ -728,6 +729,7 @@ public class FuturesOrderService {
 		FuturesOrder order = orderDao.retrieve(id);
 		if (!(order.getState() == FuturesOrderState.Posted || order.getState() == FuturesOrderState.BuyingEntrust
 				|| order.getState() == FuturesOrderState.SellingEntrust)) {
+			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
 			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
 		}
 		if (order.getState() == FuturesOrderState.SellingEntrust) {
@@ -759,6 +761,7 @@ public class FuturesOrderService {
 		FuturesOrder order = orderDao.retrieve(id);
 		if (!(order.getState() == FuturesOrderState.Posted || order.getState() == FuturesOrderState.BuyingEntrust
 				|| order.getState() == FuturesOrderState.PartPosition)) {
+			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
 			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
 		}
 		// 修改订单状态
@@ -779,6 +782,7 @@ public class FuturesOrderService {
 		FuturesOrder order = orderDao.retrieve(id);
 		if (!(order.getState() == FuturesOrderState.Position || order.getState() == FuturesOrderState.SellingEntrust
 				|| order.getState() == FuturesOrderState.PartUnwind)) {
+			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
 			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
 		}
 		// 修改订单状态
@@ -801,6 +805,7 @@ public class FuturesOrderService {
 		FuturesOrder order = orderDao.retrieve(id);
 		if (!(order.getState() == FuturesOrderState.Posted || order.getState() == FuturesOrderState.BuyingEntrust
 				|| order.getState() == FuturesOrderState.PartPosition)) {
+			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
 			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
 		}
 		// 修改订单状态
@@ -834,8 +839,12 @@ public class FuturesOrderService {
 	 */
 	public FuturesOrder unwindOrder(Long id, BigDecimal sellingPrice) {
 		FuturesOrder order = orderDao.retrieve(id);
+		if (order.getState() == FuturesOrderState.Unwind) {
+			return order;
+		}
 		if (!(order.getState() == FuturesOrderState.Position || order.getState() == FuturesOrderState.SellingEntrust
 				|| order.getState() == FuturesOrderState.PartUnwind)) {
+			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
 			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
 		}
 		// 盈亏（交易所货币）
@@ -961,6 +970,7 @@ public class FuturesOrderService {
 		}
 		// step 2 : 检查订单状态是否正确
 		if (order.getState() != FuturesOrderState.Position) {
+			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
 			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
 		}
 		// 修改订单状态
@@ -1020,6 +1030,7 @@ public class FuturesOrderService {
 	@Transactional
 	public FuturesOrder overnight(FuturesOrder order, Integer timeZoneGap) {
 		if (order.getState() != FuturesOrderState.Position) {
+			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
 			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
 		}
 		// step 1 : 检查余额是否充足
@@ -1114,6 +1125,7 @@ public class FuturesOrderService {
 		}
 		if (!(order.getState() == FuturesOrderState.BuyingEntrust
 				|| order.getState() == FuturesOrderState.SellingEntrust)) {
+			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
 			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
 		}
 		// step 3 : 请求网关取消订单
@@ -1250,7 +1262,16 @@ public class FuturesOrderService {
 		PublisherDto publisher = publisherBusiness.findById(order.getPublisherId());
 		backhandOrder.setIsTest(publisher.getIsTest());
 		// 请求下单
-		return save(backhandOrder, contract.getId());
+		try {
+			return save(backhandOrder, contract.getId());
+		} catch (ServiceException ex) {
+			if (!ex.getType().equals(ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION)) {
+				throw ex;
+			} else {
+				logger.error("余额不足，反手失败，orderId:{}", orderId);
+				return null;
+			}
+		}
 	}
 
 	public FuturesOrder backhandUnwind(Long orderId, Long publisherId) {
@@ -1446,9 +1467,13 @@ public class FuturesOrderService {
 		// 货币汇率
 		FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
 		// 计算浮动盈亏
-		return lastPrice.subtract(buyingPrice).divide(order.getContract().getCommodity().getMinWave())
-				.multiply(order.getContract().getCommodity().getPerWaveMoney()).multiply(rate.getRate())
-				.multiply(order.getTotalQuantity());
+		if (lastPrice != null) {
+			return lastPrice.subtract(buyingPrice).divide(order.getContract().getCommodity().getMinWave())
+					.multiply(order.getContract().getCommodity().getPerWaveMoney()).multiply(rate.getRate())
+					.multiply(order.getTotalQuantity());
+		} else {
+			return BigDecimal.ZERO;
+		}
 	}
 
 	public BigDecimal getStrongMoney(FuturesOrder order) {
