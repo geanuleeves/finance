@@ -1,5 +1,6 @@
 package com.waben.stock.datalayer.buyrecord.repository.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,12 @@ public class DeferredRecordDaoImpl implements DeferredRecordDao {
 	@Override
 	public List<DeferredRecord> retrieveByPublisherIdAndBuyRecordId(Long publisherId, Long buyRecordId) {
 		return repository.findByPublisherIdAndBuyRecordId(publisherId, buyRecordId);
+	}
+
+	@Override
+	public List<DeferredRecord> retrieveByPublisherIdAndBuyRecordIdAndDeferredTime(Long publisherId, Long buyRecordId,
+			Date deferredTime) {
+		return repository.findByPublisherIdAndBuyRecordIdAndDeferredTime(publisherId, buyRecordId, deferredTime);
 	}
 
 }

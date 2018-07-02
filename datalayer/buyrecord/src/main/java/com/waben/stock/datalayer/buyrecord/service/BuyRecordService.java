@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -113,18 +114,17 @@ public class BuyRecordService {
 	@Transactional
 	public BuyRecord save(BuyRecord buyRecord) {
 		// step 1 : 获取股票行情
-		StockMarket market = RetriveStockOverHttp.singleStockMarket(restTemplate, buyRecord.getStockCode());
-		if (market == null || market.getLastPrice() == null
-				|| market.getLastPrice().compareTo(new BigDecimal(0)) <= 0) {
-			throw new ServiceException(ExceptionConstant.UNKNOW_EXCEPTION,
-					String.format("获取股票{}的最新行情失败!", buyRecord.getStockCode()));
-		}
+		// StockMarket market =
+		// RetriveStockOverHttp.singleStockMarket(restTemplate,
+		// buyRecord.getStockCode());
+		// if (market == null || market.getLastPrice() == null
+		// || market.getLastPrice().compareTo(new BigDecimal(0)) <= 0) {
+		// throw new ServiceException(ExceptionConstant.UNKNOW_EXCEPTION,
+		// String.format("获取股票{}的最新行情失败!", buyRecord.getStockCode()));
+		// }
 		// step 2 : 再检查一余额是否充足
 		CapitalAccountDto account = accountBusiness.fetchByPublisherId(buyRecord.getPublisherId());
 		BigDecimal totalFee = buyRecord.getServiceFee().add(buyRecord.getReserveFund());
-		if (buyRecord.getDeferred()) {
-			totalFee = totalFee.add(buyRecord.getDeferredFee());
-		}
 		if (account.getAvailableBalance().compareTo(totalFee) < 0) {
 			throw new ServiceException(ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION);
 		}
@@ -164,7 +164,8 @@ public class BuyRecordService {
 		// step 5 : 买入，以当前行情买入
 		buyRecord.setInvestorId(1L);
 		buyRecord.setDelegateNumber(String.valueOf(System.currentTimeMillis()));
-		BigDecimal buyingPrice = market.getLastPrice();
+		// BigDecimal buyingPrice = market.getLastPrice();
+		BigDecimal buyingPrice = buyRecord.getDelegatePrice();
 		buyRecord.setBuyingPrice(buyingPrice);
 		buyRecord.setBuyingTime(new Date());
 		// 止盈点位价格 = 买入价格 + ((市值 * 止盈点)/股数)
@@ -183,11 +184,12 @@ public class BuyRecordService {
 						.multiply(new BigDecimal(0.9)).setScale(2, RoundingMode.HALF_EVEN)));
 		// 修改点买记录状态
 		StrategyTypeDto strategyType = strategyTypeBusiness.fetchById(buyRecord.getStrategyTypeId());
-		if (buyRecord.getDeferred()) {
-			buyRecord.setExpireTime(holidayBusiness.getAfterTradeDate(date, strategyType.getCycle() + 1));
-		} else {
-			buyRecord.setExpireTime(holidayBusiness.getAfterTradeDate(date, strategyType.getCycle()));
-		}
+		// if (buyRecord.getDeferred()) {
+		// buyRecord.setExpireTime(holidayBusiness.getAfterTradeDate(date,
+		// strategyType.getCycle() + 1));
+		// } else {
+		buyRecord.setExpireTime(holidayBusiness.getAfterTradeDate(date, strategyType.getCycle()));
+		// }
 		buyRecord.setState(BuyRecordState.HOLDPOSITION);
 		buyRecord.setUpdateTime(buyRecord.getBuyingTime());
 		buyRecordDao.update(buyRecord);
@@ -732,7 +734,6 @@ public class BuyRecordService {
 		return buyRecord;
 	}
 
-	@Deprecated
 	public BuyRecord deferred(Long id) {
 		BuyRecord buyRecord = buyRecordDao.retrieve(id);
 		if (buyRecord == null) {
@@ -741,8 +742,14 @@ public class BuyRecordService {
 		if (!buyRecord.getDeferred()) {
 			throw new ServiceException(ExceptionConstant.BUYRECORD_USERNOTDEFERRED_EXCEPTION);
 		}
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		Date time = cal.getTime();
 		List<DeferredRecord> deferredRecordList = deferredRecordDao
-				.retrieveByPublisherIdAndBuyRecordId(buyRecord.getPublisherId(), id);
+				.retrieveByPublisherIdAndBuyRecordIdAndDeferredTime(buyRecord.getPublisherId(), id, time);
 		if (deferredRecordList != null && deferredRecordList.size() > 0) {
 			throw new ServiceException(ExceptionConstant.BUYRECORD_ALREADY_DEFERRED_EXCEPTION);
 		}
@@ -751,15 +758,17 @@ public class BuyRecordService {
 		DeferredRecord deferredRecord = new DeferredRecord();
 		deferredRecord.setBuyRecordId(id);
 		deferredRecord.setCycle(strategyType.getCycle());
-		deferredRecord.setDeferredTime(new Date());
-		deferredRecord.setFee(new BigDecimal(strategyType.getDeferred()));
+		deferredRecord.setCreateTime(new Date());
+		deferredRecord.setDeferredTime(time);
+		BigDecimal realMoney = new BigDecimal(buyRecord.getNumberOfStrand()).multiply(buyRecord.getBuyingPrice());
+		deferredRecord.setFee(new BigDecimal(strategyType.getDeferred())
+				.multiply(realMoney.divide(new BigDecimal("10000"))).setScale(2, RoundingMode.HALF_UP));
 		deferredRecord.setPublisherId(buyRecord.getPublisherId());
 		deferredRecord.setStrategyTypeId(strategyType.getId());
 		deferredRecord.setStrategyTypeName(strategyType.getName());
 		deferredRecordDao.create(deferredRecord);
-		// buyRecord.setExpireTime(holidayBusiness.getAfterTradeDate(buyRecord.getExpireTime(),
-		// 1));
-		// buyRecordDao.update(buyRecord);
+		buyRecord.setExpireTime(holidayBusiness.getAfterTradeDate(buyRecord.getExpireTime(), 1));
+		buyRecordDao.update(buyRecord);
 		// 扣递延费
 		accountBusiness.deferredCharges(buyRecord.getPublisherId(), id, deferredRecord.getFee());
 		return buyRecord;

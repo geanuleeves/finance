@@ -43,7 +43,7 @@ public class WindControlSchedule {
 	 * 如果是工作日，每间隔5秒中获取持仓中的股票，判断持仓中的股票
 	 * </p>
 	 */
-	public static final long Execute_Interval = 5 * 1000;
+	public static final long Execute_Interval = 3 * 1000;
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -59,6 +59,15 @@ public class WindControlSchedule {
 
 	@Autowired
 	private RestTemplate restTemplate;
+
+	/**
+	 * 递延费扣除时间
+	 */
+	public static final String deferredDeductionTime = "14:00:00";
+	/**
+	 * 递延费不足强平时间
+	 */
+	public static final String deferredForceTime = "14:50:00";
 
 	@PostConstruct
 	public void initTask() {
@@ -148,10 +157,21 @@ public class WindControlSchedule {
 							BigDecimal lastPrice = market.getLastPrice();
 							// step 2 : 处理到期
 							boolean isExpire = false;
-							if (fullSdf.format(now).compareTo(sdf.format(record.getExpireTime()) + " 14:55:00") >= 0) {
-								isExpire = true;
+							if (fullSdf.format(now)
+									.compareTo(sdf.format(record.getExpireTime()) + " " + deferredDeductionTime) >= 0) {
+								// 扣除递延费
+								try {
+									service.deferred(record.getId());
+								} catch (ServiceException ex) {
+									if (ex.getType() == ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION) {
+										isExpire = true;
+									} else if (ex.getType() == ExceptionConstant.BUYRECORD_USERNOTDEFERRED_EXCEPTION) {
+										isExpire = true;
+									}
+								}
 							}
-							if (isExpire) {
+							if (isExpire && fullSdf.format(now)
+									.compareTo(sdf.format(record.getExpireTime()) + " " + deferredForceTime) >= 0) {
 								service.sellWithMarket(record.getId(), WindControlType.TRADINGEND, lastPrice);
 								continue;
 							}

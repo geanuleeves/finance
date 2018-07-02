@@ -2,6 +2,7 @@ package com.waben.stock.applayer.tactics.controller;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import com.waben.stock.applayer.tactics.business.BuyRecordBusiness;
 import com.waben.stock.applayer.tactics.business.CapitalAccountBusiness;
@@ -24,6 +26,8 @@ import com.waben.stock.applayer.tactics.business.StockBusiness;
 import com.waben.stock.applayer.tactics.dto.buyrecord.BuyRecordWithMarketDto;
 import com.waben.stock.applayer.tactics.dto.buyrecord.TradeDynamicDto;
 import com.waben.stock.applayer.tactics.security.SecurityUtil;
+import com.waben.stock.interfaces.commonapi.retrivestock.RetriveStockOverHttp;
+import com.waben.stock.interfaces.commonapi.retrivestock.bean.StockMarket;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.buyrecord.BuyRecordDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
@@ -50,6 +54,9 @@ import io.swagger.annotations.ApiOperation;
 public class BuyRecordController {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
+	
+	@Autowired
+	private RestTemplate restTemplate;
 
 	@Autowired
 	private BuyRecordBusiness buyRecordBusiness;
@@ -105,6 +112,10 @@ public class BuyRecordController {
 			throw new ServiceException(ExceptionConstant.STRATEGYQUALIFY_NOTENOUGH_EXCEPTION);
 		}
 		// 判断该市值是否足够购买一手股票
+		List<String> codes = new ArrayList<>();
+		codes.add(stockCode);
+		StockMarket market = RetriveStockOverHttp.listStockMarket(restTemplate, codes).get(0);
+		delegatePrice = market.getLastPrice();
 		BigDecimal temp = applyAmount.divide(delegatePrice, 2, RoundingMode.HALF_DOWN);
 		Integer numberOfStrand = temp.divideAndRemainder(BigDecimal.valueOf(100))[0].multiply(BigDecimal.valueOf(100))
 				.intValue();
@@ -122,9 +133,6 @@ public class BuyRecordController {
 		if (!(lossPoint.abs().compareTo(new BigDecimal(0)) > 0 && lossPoint.abs().compareTo(new BigDecimal(1)) < 0)) {
 			throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION);
 		}
-		if (deferred && (deferredFee == null || deferredFee.compareTo(new BigDecimal(0)) <= 0)) {
-			throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION);
-		}
 		// 验证支付密码
 		CapitalAccountDto capitalAccount = capitalAccountBusiness.findByPublisherId(SecurityUtil.getUserId());
 		String storePaymentPassword = capitalAccount.getPaymentPassword();
@@ -135,12 +143,7 @@ public class BuyRecordController {
 			throw new ServiceException(ExceptionConstant.PAYMENTPASSWORD_WRONG_EXCEPTION);
 		}
 		// 检查余额
-		BigDecimal totalFee = new BigDecimal(0);
-		if (deferred) {
-			totalFee = totalFee.add(serviceFee).add(reserveFund).add(deferredFee);
-		} else {
-			totalFee = totalFee.add(serviceFee).add(reserveFund);
-		}
+		BigDecimal totalFee = serviceFee.add(reserveFund);
 		if (totalFee.compareTo(capitalAccount.getAvailableBalance()) > 0) {
 			throw new ServiceException(ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION);
 		}
@@ -158,7 +161,6 @@ public class BuyRecordController {
 		dto.setLossMultiple(lossMultiple);
 		dto.setStockCode(stockCode);
 		dto.setDeferred(deferred);
-		dto.setDeferredFee(deferred ? deferredFee : new BigDecimal(0));
 		dto.setDelegatePrice(delegatePrice);
 		// 设置对应的publisher
 		dto.setPublisherId(SecurityUtil.getUserId());

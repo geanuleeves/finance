@@ -58,6 +58,11 @@ public class DeferredRecord {
 	 */
 	@Column(name = "publisher_id")
 	private Long publisherId;
+	/**
+	 * 创建时间
+	 */
+	@Column(name = "create_time")
+	private Date createTime;
 
 	public Long getId() {
 		return id;
@@ -121,6 +126,14 @@ public class DeferredRecord {
 
 	public void setCycle(Integer cycle) {
 		this.cycle = cycle;
+	}
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
 	}
 
 }
