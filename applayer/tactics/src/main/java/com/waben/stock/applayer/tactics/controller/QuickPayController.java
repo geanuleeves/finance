@@ -27,6 +27,7 @@ import com.waben.stock.applayer.tactics.business.CapitalAccountBusiness;
 import com.waben.stock.applayer.tactics.business.PaymentBusiness;
 import com.waben.stock.applayer.tactics.business.PublisherBusiness;
 import com.waben.stock.applayer.tactics.business.QuickPayBusiness;
+import com.waben.stock.applayer.tactics.business.futures.FuturesOrderBusiness;
 import com.waben.stock.applayer.tactics.business.futures.FuturesTradeLimitBusiness;
 import com.waben.stock.applayer.tactics.payapi.wbpay.config.WBConfig;
 import com.waben.stock.applayer.tactics.security.SecurityUtil;
@@ -66,6 +67,9 @@ public class QuickPayController {
     
     @Autowired
 	private FuturesTradeLimitBusiness limitBusiness;
+    
+    @Autowired
+	private FuturesOrderBusiness futuresOrderBusiness;
 
     @Autowired
     private PaymentBusiness paymentBusiness;
@@ -260,7 +264,6 @@ public class QuickPayController {
     @ResponseBody
     public Response<String> wbcsa(@RequestParam(required = true) BigDecimal amount,
                                           @RequestParam(required = true) Long bindCardId, @RequestParam(required = true) String paymentPassword) {
-    	
         // 判断是否为测试用户，测试用户不能提现
         PublisherDto publisher = publisherBusiness.findById(SecurityUtil.getUserId());
         if (publisher.getIsTest() != null && publisher.getIsTest()) {
@@ -303,6 +306,13 @@ public class QuickPayController {
         if (amount.compareTo(capitalAccount.getAvailableBalance()) > 0) {
             throw new ServiceException(ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION);
         }
+        BigDecimal unsettledProfitOrLoss = futuresOrderBusiness.getUnsettledProfitOrLoss(SecurityUtil.getUserId());
+		if(unsettledProfitOrLoss != null && unsettledProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+			if(amount.add(unsettledProfitOrLoss.abs()).compareTo(capitalAccount.getAvailableBalance()) > 0) {
+				throw new ServiceException(ExceptionConstant.HOLDINGLOSS_LEADTO_NOTENOUGH_EXCEPTION);
+			}
+		}
+        
         Response<String> resp = new Response<String>();
         //判断是否符合冻结设置
         PageInfo<FuturesGlobalConfigDto> globalConfig = limitBusiness.pageConfig();

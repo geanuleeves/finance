@@ -157,4 +157,12 @@ public interface FuturesOrderInterface {
 	@RequestMapping(value = "/turnover/statisty/record", method = RequestMethod.GET)
 	Response<TurnoverStatistyRecordDto> getTurnoverStatisty(@RequestParam("publisherId") Long publisherId);
 
+	/**
+	 * 获取未结算订单的浮动盈亏
+	 * 
+	 * @return 浮动盈亏
+	 */
+	@RequestMapping(value = "/{publisherId}/unsettled/profitOrLoss", method = RequestMethod.GET)
+	Response<BigDecimal> getUnsettledProfitOrLoss(@PathVariable("publisherId") Long publisherId);
+
 }

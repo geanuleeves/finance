@@ -3,6 +3,7 @@ package com.waben.stock.futuresgateway.yisheng.controller;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,6 +42,12 @@ public class FuturesMarketController {
 	public Response<FuturesQuoteData> market(@PathVariable("commodityNo") String commodityNo,
 			@PathVariable("contractNo") String contractNo) {
 		return new Response<>(service.quote(commodityNo, contractNo));
+	}
+	
+	@GetMapping("/all")
+	@ApiOperation(value = "所有期货合约行情")
+	public Response<Map<String, FuturesQuoteData>> marketAll() {
+		return new Response<>(service.quoteAll());
 	}
 
 	@GetMapping("/{commodityNo}/{contractNo}/dayline")

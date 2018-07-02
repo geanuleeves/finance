@@ -341,5 +341,7 @@ public class ExceptionConstant {
 	public static final String UNWINDORDER_CANNOTCANCEL_EXCEPTION = "13039";
 	// 不在可提现时间内
 	public static final String ISNOT_EXIST_PUTFORWARDTIME_EXCEPTION = "13040";
+	// 持仓亏损，导致余额不足
+	public static final String HOLDINGLOSS_LEADTO_NOTENOUGH_EXCEPTION = "13041";
 	
 }

@@ -17,6 +17,8 @@ public class RabbitmqConfiguration {
 	Logger logger = LoggerFactory.getLogger(getClass());
 
 	public static final String entrustQueryQueueName = "futures-entrustQuery";
+	
+	public static final String monitorPublisherFuturesOrderQueueName = "futures-monitorPublisherFuturesOrder";
 
 	@Autowired
 	private ConnectionFactory connectionFactory;
@@ -35,6 +37,14 @@ public class RabbitmqConfiguration {
 	@Bean
 	public Queue entrustQueryQueue() {
 		return new Queue(entrustQueryQueueName);
+	}
+	
+	/**
+	 * 创建 监控用户期货订单 队列
+	 */
+	@Bean
+	public Queue monitorPublisherFuturesOrderQueue() {
+		return new Queue(monitorPublisherFuturesOrderQueueName);
 	}
 
 }

@@ -39,6 +39,7 @@ import com.waben.stock.datalayer.futures.business.ProfileBusiness;
 import com.waben.stock.datalayer.futures.business.PublisherBusiness;
 import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
+import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
@@ -46,12 +47,14 @@ import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesOrderStateC
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControlTypeConverter;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqProducer;
+import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorPublisherFuturesOrderConsumer;
 import com.waben.stock.datalayer.futures.rabbitmq.message.EntrustQueryMessage;
 import com.waben.stock.datalayer.futures.repository.DynamicQuerySqlDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
 import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
 import com.waben.stock.datalayer.futures.repository.FuturesOvernightRecordDao;
 import com.waben.stock.datalayer.futures.repository.impl.MethodDesc;
+import com.waben.stock.datalayer.futures.schedule.RetriveAllQuoteSchedule;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.TradeFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
@@ -127,6 +130,12 @@ public class FuturesOrderService {
 
 	@Autowired
 	private FuturesTradeLimitService futuresTradeLimitService;
+
+	@Autowired
+	private RetriveAllQuoteSchedule allQuote;
+	
+	@Autowired
+	private MonitorPublisherFuturesOrderConsumer monitorPublisher;
 
 	@Autowired
 	private ProfileBusiness profileBusiness;
@@ -335,7 +344,8 @@ public class FuturesOrderService {
 				}
 				// 盈利了的交易
 				if (query.isOnlyProfit()) {
-					predicateList.add(criteriaBuilder.gt(root.get("publisherProfitOrLoss").as(BigDecimal.class), new BigDecimal(0)));
+					predicateList.add(criteriaBuilder.gt(root.get("publisherProfitOrLoss").as(BigDecimal.class),
+							new BigDecimal(0)));
 				}
 				// 合约名称
 				if (!StringUtil.isEmpty(query.getContractName())) {
@@ -684,6 +694,11 @@ public class FuturesOrderService {
 			order.setState(FuturesOrderState.Position);
 			order.setUpdateTime(new Date());
 			orderDao.update(order);
+			if (order.getWindControlType() != null
+					&& order.getWindControlType() == FuturesWindControlType.ReachStrongPoint) {
+				// 市价卖出
+				this.sellingEntrust(order, FuturesWindControlType.ReachStrongPoint, FuturesTradePriceType.MKT, null);
+			}
 		} else {
 			// 撤单退款
 			accountBusiness.futuresOrderRevoke(order.getPublisherId(), order.getId(), order.getServiceFee());
@@ -801,6 +816,8 @@ public class FuturesOrderService {
 					order.getId(), order.getTradeNo(), order.getTotalQuantity(), order.getOpenwindServiceFee(),
 					order.getUnwindServiceFee());
 		}
+		// 放入监控队列
+		monitorPublisher.monitorPublisher(order.getPublisherId());
 		// 站外消息推送
 		sendOutsideMessage(order);
 		return order;
@@ -1265,6 +1282,10 @@ public class FuturesOrderService {
 		return sellingEntrust(order, FuturesWindControlType.BackhandUnwind, FuturesTradePriceType.MKT, null);
 	}
 
+	public FuturesOrder revisionOrder(FuturesOrder order) {
+		return orderDao.update(order);
+	}
+
 	/************************************* START获取交易所时间、判断是否在交易时间段 ******************************************/
 
 	/**
@@ -1415,6 +1436,57 @@ public class FuturesOrderService {
 			return content.get(0);
 		}
 		return null;
+	}
+
+	public BigDecimal getProfitOrLoss(FuturesOrder order) {
+		String commodityNo = order.getCommoditySymbol();
+		String contractNo = order.getContractNo();
+		BigDecimal lastPrice = allQuote.getLastPrice(commodityNo, contractNo);
+		BigDecimal buyingPrice = order.getBuyingPrice();
+		// 货币汇率
+		FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
+		// 计算浮动盈亏
+		return lastPrice.subtract(buyingPrice).divide(order.getContract().getCommodity().getMinWave())
+				.multiply(order.getContract().getCommodity().getPerWaveMoney()).multiply(rate.getRate())
+				.multiply(order.getTotalQuantity());
+	}
+
+	public BigDecimal getStrongMoney(FuturesOrder order) {
+		// 合约设置
+		Integer unwindPointType = order.getUnwindPointType();
+		BigDecimal perUnitUnwindPoint = order.getPerUnitUnwindPoint();
+		if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 1) {
+			if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(new BigDecimal(100)) < 0
+					&& perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
+				return order.getReserveFund()
+						.multiply(new BigDecimal(100).subtract(perUnitUnwindPoint).divide(new BigDecimal(100)));
+			}
+		} else if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 2) {
+			if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(BigDecimal.ZERO) >= 0
+					&& perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
+				return order.getReserveFund().subtract(perUnitUnwindPoint.multiply(order.getTotalQuantity()));
+			}
+		}
+		return order.getReserveFund();
+	}
+
+	public BigDecimal getUnsettledProfitOrLoss(Long publisherId) {
+		// 获取订单
+		FuturesOrderState[] states = { FuturesOrderState.Position, FuturesOrderState.SellingEntrust,
+				FuturesOrderState.PartUnwind };
+		FuturesOrderQuery query = new FuturesOrderQuery();
+		query.setPage(0);
+		query.setSize(Integer.MAX_VALUE);
+		query.setStates(states);
+		query.setPublisherId(publisherId);
+		Page<FuturesOrder> pages = this.pagesOrder(query);
+		List<FuturesOrder> orderList = pages.getContent();
+		BigDecimal totalProfitOrLoss = BigDecimal.ZERO;
+		for (FuturesOrder order : orderList) {
+			// 计算浮动盈亏
+			totalProfitOrLoss.add(this.getProfitOrLoss(order));
+		}
+		return totalProfitOrLoss;
 	}
 
 }

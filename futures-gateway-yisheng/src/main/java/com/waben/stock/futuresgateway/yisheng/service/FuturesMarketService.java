@@ -8,8 +8,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +47,8 @@ import com.waben.stock.futuresgateway.yisheng.util.TimeZoneUtil;
  */
 @Service
 public class FuturesMarketService {
+
+	Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private FuturesCommodityDao commodityDao;
@@ -419,6 +425,63 @@ public class FuturesMarketService {
 		Date startTime = startCal.getTime();
 
 		return new Date[] { startTime, endTime };
+	}
+
+	public Map<String, FuturesQuoteData> quoteAll() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MMdd HH:mm:ss");
+		Map<String, FuturesQuoteData> result = new HashMap<>();
+		Map<String, TapAPIQuoteWhole> quoteCache = quoteWrapper.getQuoteCache();
+		for (Map.Entry<String, TapAPIQuoteWhole> entry : quoteCache.entrySet()) {
+			TapAPIQuoteWhole info = entry.getValue();
+			String commodityNo = info.getContract().getCommodity().getCommodityNo();
+			Integer scale = EsEngine.commodityScaleMap.get(commodityNo);
+			if (scale != null) {
+
+				try {
+					FuturesQuoteData data = new FuturesQuoteData();
+					data.setCommodityNo(commodityNo);
+					data.setContractNo(entry.getValue().getContract().getContractNo1());
+					data.setTime(sdf.parse(info.getDateTimeStamp().substring(0, info.getDateTimeStamp().length() - 4)));
+					data.setAskPrice(new BigDecimal(info.getQAskPrice()[0]).setScale(scale, RoundingMode.HALF_UP));
+					data.setAskSize(info.getQAskQty()[0]);
+					data.setBidPrice(new BigDecimal(info.getQBidPrice()[0]).setScale(scale, RoundingMode.HALF_UP));
+					data.setBidSize(info.getQBidQty()[0]);
+					data.setAskPrice2(new BigDecimal(info.getQAskPrice()[1]).setScale(scale, RoundingMode.HALF_UP));
+					data.setAskSize2(info.getQAskQty()[1]);
+					data.setBidPrice2(new BigDecimal(info.getQBidPrice()[1]).setScale(scale, RoundingMode.HALF_UP));
+					data.setBidSize2(info.getQBidQty()[1]);
+					data.setAskPrice3(new BigDecimal(info.getQAskPrice()[2]).setScale(scale, RoundingMode.HALF_UP));
+					data.setAskSize3(info.getQAskQty()[2]);
+					data.setBidPrice3(new BigDecimal(info.getQBidPrice()[2]).setScale(scale, RoundingMode.HALF_UP));
+					data.setBidSize3(info.getQBidQty()[2]);
+					data.setAskPrice4(new BigDecimal(info.getQAskPrice()[3]).setScale(scale, RoundingMode.HALF_UP));
+					data.setAskSize4(info.getQAskQty()[3]);
+					data.setBidPrice4(new BigDecimal(info.getQBidPrice()[3]).setScale(scale, RoundingMode.HALF_UP));
+					data.setBidSize4(info.getQBidQty()[3]);
+					data.setAskPrice5(new BigDecimal(info.getQAskPrice()[4]).setScale(scale, RoundingMode.HALF_UP));
+					data.setAskSize5(info.getQAskQty()[4]);
+					data.setBidPrice5(new BigDecimal(info.getQBidPrice()[4]).setScale(scale, RoundingMode.HALF_UP));
+					data.setBidSize5(info.getQBidQty()[4]);
+					data.setNowClosePrice(
+							new BigDecimal(info.getQClosingPrice()).setScale(scale, RoundingMode.HALF_UP));
+					data.setClosePrice(
+							new BigDecimal(info.getQPreClosingPrice()).setScale(scale, RoundingMode.HALF_UP));
+					data.setHighPrice(new BigDecimal(info.getQHighPrice()).setScale(scale, RoundingMode.HALF_UP));
+					data.setLastPrice(new BigDecimal(info.getQLastPrice()).setScale(scale, RoundingMode.HALF_UP));
+					data.setLastSize(info.getQLastQty());
+					data.setLowPrice(new BigDecimal(info.getQLowPrice()).setScale(scale, RoundingMode.HALF_UP));
+					data.setOpenPrice(new BigDecimal(info.getQOpeningPrice()).setScale(scale, RoundingMode.HALF_UP));
+					data.setVolume(info.getQLastQty());
+					data.setTotalVolume(info.getQTotalQty());
+					result.put(entry.getKey(), data);
+				} catch (ParseException e) {
+					logger.error("行情日期格式有误：{}-{}-{}", commodityNo, entry.getValue().getContract().getContractNo1(),
+							info.getDateTimeStamp().substring(0, info.getDateTimeStamp().length() - 4));
+					e.printStackTrace();
+				}
+			}
+		}
+		return result;
 	}
 
 }
