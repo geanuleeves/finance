@@ -112,7 +112,7 @@ public class FuturesContractController implements FuturesContractInterface {
 			// 转换后的当前时间
 			Date exchangeTime = retriveExchangeTime(now, timeZoneGap);
 			// 转换后当前时间的明天
-			Date nextTime = nextTime(exchangeTime);
+			// Date nextTime = nextTime(exchangeTime);
 			// 获取交易所提供时间
 			boolean isTradeTime = false;
 			String tradeTime = retriveExchangeTradeTimeStr(timeZoneGap, contractDto, now);
