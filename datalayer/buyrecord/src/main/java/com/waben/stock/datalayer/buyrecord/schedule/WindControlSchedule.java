@@ -18,7 +18,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.waben.stock.datalayer.buyrecord.business.HolidayBusiness;
+import com.waben.stock.datalayer.buyrecord.business.OrganizationSettlementBusiness;
 import com.waben.stock.datalayer.buyrecord.entity.BuyRecord;
+import com.waben.stock.datalayer.buyrecord.entity.DeferredRecord;
 import com.waben.stock.datalayer.buyrecord.service.BuyRecordService;
 import com.waben.stock.interfaces.commonapi.retrivestock.RetriveStockOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivestock.bean.StockMarket;
@@ -56,6 +58,9 @@ public class WindControlSchedule {
 
 	@Autowired
 	private BuyRecordService service;
+
+	@Autowired
+	private OrganizationSettlementBusiness orgSettlementBusiness;
 
 	@Autowired
 	private RestTemplate restTemplate;
@@ -161,12 +166,20 @@ public class WindControlSchedule {
 									.compareTo(sdf.format(record.getExpireTime()) + " " + deferredDeductionTime) >= 0) {
 								// 扣除递延费
 								try {
-									service.deferred(record.getId());
-								} catch (ServiceException ex) {
-									if (ex.getType() == ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION) {
-										isExpire = true;
-									} else if (ex.getType() == ExceptionConstant.BUYRECORD_USERNOTDEFERRED_EXCEPTION) {
-										isExpire = true;
+									DeferredRecord deferredRecord = service.deferred(record.getId());
+									orgSettlementBusiness.strategySettlement(record.getPublisherId(), record.getId(),
+											record.getTradeNo(), record.getStrategyTypeId(), BigDecimal.ZERO,
+											deferredRecord.getFee());
+
+								} catch (Exception ex) {
+									if (ex instanceof ServiceException) {
+										ServiceException sex = (ServiceException) ex;
+										if (sex.getType() == ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION) {
+											isExpire = true;
+										} else if (sex
+												.getType() == ExceptionConstant.BUYRECORD_USERNOTDEFERRED_EXCEPTION) {
+											isExpire = true;
+										}
 									}
 								}
 							}

@@ -600,39 +600,47 @@ public class BuyRecordService {
 			}
 		}
 		// 如果点买记录勾选了递延，判断是否递延了，如果没递延，退回递延费，递延了则产生递延记录
-		Date expireTime = buyRecord.getExpireTime();
-		BigDecimal deferredFee = buyRecord.getDeferred() ? buyRecord.getDeferredFee() : BigDecimal.ZERO;
-		if (buyRecord.getDeferred() && buyRecord.getDeferredFee() != null
-				&& buyRecord.getDeferredFee().compareTo(new BigDecimal(0)) > 0 && expireTime != null) {
-			String nowStr = sdf.format(new Date());
-			String expireStr = sdf.format(expireTime);
-			if (nowStr.compareTo(expireStr) < 0) {
-				// 退回递延费
-				accountBusiness.returnDeferredFee(buyRecord.getPublisherId(), buyRecord.getId(),
-						buyRecord.getDeferredFee());
-				deferredFee = BigDecimal.ZERO;
-			} else {
-				// 生成递延记录
-				StrategyTypeDto strategyType = strategyTypeBusiness.fetchById(buyRecord.getStrategyTypeId());
-				DeferredRecord deferredRecord = new DeferredRecord();
-				deferredRecord.setBuyRecordId(id);
-				deferredRecord.setCycle(1);
-				deferredRecord.setDeferredTime(new Date());
-				deferredRecord.setFee(buyRecord.getDeferredFee());
-				deferredRecord.setPublisherId(buyRecord.getPublisherId());
-				deferredRecord.setStrategyTypeId(strategyType.getId());
-				deferredRecord.setStrategyTypeName(strategyType.getName());
-				deferredRecordDao.create(deferredRecord);
-			}
-		}
+//		Date expireTime = buyRecord.getExpireTime();
+//		BigDecimal deferredFee = buyRecord.getDeferred() ? buyRecord.getDeferredFee() : BigDecimal.ZERO;
+//		if (buyRecord.getDeferred() && buyRecord.getDeferredFee() != null
+//				&& buyRecord.getDeferredFee().compareTo(new BigDecimal(0)) > 0 && expireTime != null) {
+//			String nowStr = sdf.format(new Date());
+//			String expireStr = sdf.format(expireTime);
+//			if (nowStr.compareTo(expireStr) < 0) {
+//				// 退回递延费
+//				accountBusiness.returnDeferredFee(buyRecord.getPublisherId(), buyRecord.getId(),
+//						buyRecord.getDeferredFee());
+//				deferredFee = BigDecimal.ZERO;
+//			} else {
+//				// 生成递延记录
+//				StrategyTypeDto strategyType = strategyTypeBusiness.fetchById(buyRecord.getStrategyTypeId());
+//				DeferredRecord deferredRecord = new DeferredRecord();
+//				deferredRecord.setBuyRecordId(id);
+//				deferredRecord.setCycle(1);
+//				deferredRecord.setDeferredTime(new Date());
+//				deferredRecord.setFee(buyRecord.getDeferredFee());
+//				deferredRecord.setPublisherId(buyRecord.getPublisherId());
+//				deferredRecord.setStrategyTypeId(strategyType.getId());
+//				deferredRecord.setStrategyTypeName(strategyType.getName());
+//				deferredRecordDao.create(deferredRecord);
+//			}
+//		}
 		// 给机构结算
 		orgSettlementBusiness.strategySettlement(buyRecord.getPublisherId(), buyRecord.getId(), buyRecord.getTradeNo(),
-				buyRecord.getStrategyTypeId(), buyRecord.getServiceFee(), deferredFee);
+				buyRecord.getStrategyTypeId(), buyRecord.getServiceFee(), BigDecimal.ZERO);
 		// 修改点买记录状态
 		buyRecord.setState(BuyRecordState.UNWIND);
 		buyRecord.setUpdateTime(buyRecord.getSellingTime());
 		buyRecordDao.update(buyRecord);
-		// step 4 : 发送站外消息
+		// step 4 : 判断当天是否扣除了递延费，没有，则扣除递延费
+		try {
+			DeferredRecord deferredRecord = this.deferred(buyRecord.getId());
+			orgSettlementBusiness.strategySettlement(buyRecord.getPublisherId(), buyRecord.getId(), buyRecord.getTradeNo(),
+					buyRecord.getStrategyTypeId(), BigDecimal.ZERO, deferredRecord.getFee());
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		// step 5 : 发送站外消息
 		sendOutsideMessage(buyRecord);
 		return buyRecord;
 	}
@@ -734,7 +742,47 @@ public class BuyRecordService {
 		return buyRecord;
 	}
 
-	public BuyRecord deferred(Long id) {
+	public DeferredRecord deferred(Long id) {
+		BuyRecord buyRecord = buyRecordDao.retrieve(id);
+		if (buyRecord == null) {
+			throw new ServiceException(ExceptionConstant.BUYRECORD_NOT_FOUND_EXCEPTION);
+		}
+		if (!buyRecord.getDeferred()) {
+			throw new ServiceException(ExceptionConstant.BUYRECORD_USERNOTDEFERRED_EXCEPTION);
+		}
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		Date time = cal.getTime();
+		List<DeferredRecord> deferredRecordList = deferredRecordDao
+				.retrieveByPublisherIdAndBuyRecordIdAndDeferredTime(buyRecord.getPublisherId(), id, time);
+		if (deferredRecordList != null && deferredRecordList.size() > 0) {
+			throw new ServiceException(ExceptionConstant.BUYRECORD_ALREADY_DEFERRED_EXCEPTION);
+		}
+		// 获取策略类型
+		StrategyTypeDto strategyType = strategyTypeBusiness.fetchById(buyRecord.getStrategyTypeId());
+		DeferredRecord deferredRecord = new DeferredRecord();
+		deferredRecord.setBuyRecordId(id);
+		deferredRecord.setCycle(strategyType.getCycle());
+		deferredRecord.setCreateTime(new Date());
+		deferredRecord.setDeferredTime(time);
+		BigDecimal realMoney = new BigDecimal(buyRecord.getNumberOfStrand()).multiply(buyRecord.getBuyingPrice());
+		deferredRecord.setFee(new BigDecimal(strategyType.getDeferred())
+				.multiply(realMoney.divide(new BigDecimal("10000"))).setScale(2, RoundingMode.HALF_UP));
+		deferredRecord.setPublisherId(buyRecord.getPublisherId());
+		deferredRecord.setStrategyTypeId(strategyType.getId());
+		deferredRecord.setStrategyTypeName(strategyType.getName());
+		deferredRecordDao.create(deferredRecord);
+		buyRecord.setExpireTime(holidayBusiness.getAfterTradeDate(buyRecord.getExpireTime(), 1));
+		buyRecordDao.update(buyRecord);
+		// 扣递延费
+		accountBusiness.deferredCharges(buyRecord.getPublisherId(), id, deferredRecord.getFee());
+		return deferredRecord;
+	}
+	
+	public BuyRecord deferredOrigin(Long id) {
 		BuyRecord buyRecord = buyRecordDao.retrieve(id);
 		if (buyRecord == null) {
 			throw new ServiceException(ExceptionConstant.BUYRECORD_NOT_FOUND_EXCEPTION);

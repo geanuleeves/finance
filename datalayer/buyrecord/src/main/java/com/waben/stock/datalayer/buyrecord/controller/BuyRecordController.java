@@ -122,7 +122,7 @@ public class BuyRecordController implements BuyRecordInterface {
     
     @Override
 	public Response<BuyRecordDto> deferred(@PathVariable Long id) {
-    	BuyRecord buyRecord = buyRecordService.deferred(id);
+    	BuyRecord buyRecord = buyRecordService.deferredOrigin(id);
         return new Response<>(CopyBeanUtils.copyBeanProperties(BuyRecordDto.class, buyRecord, false));
 	}
     

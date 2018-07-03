@@ -2,8 +2,10 @@ package com.waben.stock.datalayer.organization.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -61,12 +63,26 @@ public class OrganizationSettlementService {
 		}
 		// 结算递延费
 		if (deferredFee != null && deferredFee.compareTo(BigDecimal.ZERO) > 0) {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			List<OrganizationAccountFlow> checkFlowList = flowDao.retrieveByTypeAndResourceTypeAndResourceId(
 					OrganizationAccountFlowType.DeferredChargesAssign, ResourceType.BUYRECORD, buyRecordId);
 			// 判断之前是否结算过
 			if (checkFlowList == null || checkFlowList.size() == 0) {
 				settlement(publisherId, BenefitConfigType.DeferredFee, deferredFee, strategyTypeId, buyRecordId,
 						tradeNo);
+			} else {
+				boolean isNeedSettlement = true;
+				for (OrganizationAccountFlow flow : checkFlowList) {
+					String occurrenceTime = sdf.format(flow.getOccurrenceTime());
+					String nowTime = sdf.format(new Date());
+					if (nowTime.equals(occurrenceTime)) {
+						isNeedSettlement = false;
+					}
+				}
+				if (isNeedSettlement) {
+					settlement(publisherId, BenefitConfigType.DeferredFee, deferredFee, strategyTypeId, buyRecordId,
+							tradeNo);
+				}
 			}
 		}
 	}
