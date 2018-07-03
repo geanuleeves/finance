@@ -24,6 +24,11 @@ public class CapitalAccountDto {
 	@ApiModelProperty(value = "账户可用余额")
 	private BigDecimal availableBalance;
 	/**
+	 * 账户浮动可用余额
+	 */
+	@ApiModelProperty(value = "账户浮动可用余额")
+	private BigDecimal floatAvailableBalance;
+	/**
 	 * 冻结资金
 	 */
 	@ApiModelProperty(value = "员工id")
@@ -153,6 +158,14 @@ public class CapitalAccountDto {
 
 	public void setRealProfitOrLoss(BigDecimal realProfitOrLoss) {
 		this.realProfitOrLoss = realProfitOrLoss;
+	}
+
+	public BigDecimal getFloatAvailableBalance() {
+		return floatAvailableBalance;
+	}
+
+	public void setFloatAvailableBalance(BigDecimal floatAvailableBalance) {
+		this.floatAvailableBalance = floatAvailableBalance;
 	}
 
 }

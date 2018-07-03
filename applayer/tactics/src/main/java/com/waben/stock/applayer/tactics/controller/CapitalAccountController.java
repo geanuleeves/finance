@@ -1,5 +1,7 @@
 package com.waben.stock.applayer.tactics.controller;
 
+import java.math.BigDecimal;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.waben.stock.applayer.tactics.business.CapitalAccountBusiness;
+import com.waben.stock.applayer.tactics.business.futures.FuturesOrderBusiness;
 import com.waben.stock.applayer.tactics.dto.publisher.CapitalStatisticDto;
 import com.waben.stock.applayer.tactics.security.SecurityUtil;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
@@ -32,10 +35,21 @@ public class CapitalAccountController {
 	@Autowired
 	private CapitalAccountBusiness capitalAccountBusiness;
 
+	@Autowired
+	private FuturesOrderBusiness orderBusiness;
+
 	@GetMapping("/")
 	@ApiOperation(value = "获取当前资金账户")
 	public Response<CapitalAccountDto> fetchCapitalAccount() {
 		CapitalAccountDto result = capitalAccountBusiness.findByPublisherId(SecurityUtil.getUserId());
+		BigDecimal unsettledProfitOrLoss = orderBusiness.getUnsettledProfitOrLoss(SecurityUtil.getUserId());
+		if (unsettledProfitOrLoss != null && unsettledProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+			if (unsettledProfitOrLoss.abs().compareTo(result.getAvailableBalance()) > 0) {
+				result.setFloatAvailableBalance(BigDecimal.ZERO);
+			} else {
+				result.setFloatAvailableBalance(result.getAvailableBalance().subtract(unsettledProfitOrLoss.abs()));
+			}
+		}
 		result.setPaymentPassword(null);
 		return new Response<>(result);
 	}
