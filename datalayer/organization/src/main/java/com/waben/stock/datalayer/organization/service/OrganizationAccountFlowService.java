@@ -336,13 +336,7 @@ public class OrganizationAccountFlowService {
 						+ "t5.name as b_publisher_name, t6.name as s_publisher_name, t1.available_balance, "
 						+ "t8.commodity_symbol, t8.commodity_name, t8.publisher_id AS o_publisher_id, t14.name AS o_publisher_name ,t15.phone AS o_publisher_phone, "
 
-						+ "t1.amount as maid_fee, CASE WHEN t1.type = 7 AND t4.level != 1 THEN t11.sale_openwind_service_fee * t8.total_quantity "
-						+ "WHEN t1.type = 8 AND t4.level != 1 THEN t11.sale_unwind_service_fee * t8.total_quantity "
-						+ "WHEN t1.type = 9 AND t4.level != 1 THEN t11.sale_deferred_fee * t8.total_quantity "
-						+ "WHEN t1.type = 7 AND t4.level = 1 THEN t10.openwind_service_fee * t8.total_quantity "
-						+ "WHEN t1.type = 8 AND t4.level = 1 THEN t10.unwind_service_fee * t8.total_quantity "
-						+ "WHEN t1.type = 9 AND t4.level = 1 THEN t10.overnight_per_unit_deferred_fee * t8.total_quantity "
-						+ "ELSE 0 END AS commission, t8.trade_no "
+						+ "t1.amount as maid_fee, t1.origin_amount AS commission, t8.trade_no "
 
 						+ "from p_organization_account_flow t1 "
 						+ "LEFT JOIN buy_record t2 on t1.resource_type=1 and t1.resource_id=t2.id "

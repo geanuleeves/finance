@@ -33,6 +33,9 @@ public class FuturesOrderQuery extends PageAndSortQuery {
 	@ApiModelProperty(value = "查询收益了的交易")
 	private boolean onlyProfit;
 
+	@ApiModelProperty(value = "交易动态过滤到期数据")
+	private boolean expire;
+
 	public FuturesOrderQuery() {
 		super();
 	}
@@ -105,6 +108,14 @@ public class FuturesOrderQuery extends PageAndSortQuery {
 
 	public void setOnlyProfit(boolean onlyProfit) {
 		this.onlyProfit = onlyProfit;
+	}
+
+	public boolean isExpire() {
+		return expire;
+	}
+
+	public void setExpire(boolean expire) {
+		this.expire = expire;
 	}
 
 }

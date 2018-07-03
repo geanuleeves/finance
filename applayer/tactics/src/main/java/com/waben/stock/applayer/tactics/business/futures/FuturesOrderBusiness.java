@@ -233,6 +233,7 @@ public class FuturesOrderBusiness {
 		unwindQuery.setPage(page);
 		unwindQuery.setSize(size / 2);
 		unwindQuery.setOnlyProfit(true);
+		unwindQuery.setExpire(true);
 		PageInfo<FuturesOrderDto> pageUnwindOrder = pageOrder(unwindQuery);
 
 		// 持仓中订单
@@ -241,6 +242,7 @@ public class FuturesOrderBusiness {
 		positionQuery.setStates(positionStates);
 		positionQuery.setPage(page);
 		positionQuery.setOnlyProfit(true);
+		unwindQuery.setExpire(true);
 		positionQuery.setSize(size - pageUnwindOrder.getContent().size());
 		PageInfo<FuturesOrderDto> pagePositionOrder = pageOrder(positionQuery);
 

@@ -419,6 +419,42 @@ public class OrganizationSettlementService {
 	}
 
 	/**
+	 * 获取代理商销售价
+	 * 
+	 * @param agentPriceList
+	 *            代理商设置价格列表
+	 * @param flowType
+	 *            期货结算流水类型
+	 * @param index
+	 *            当前代理商索引
+	 * @return 代理商销售价
+	 */
+	private BigDecimal retriveSalePrice(List<FuturesAgentPrice> agentPriceList, OrganizationAccountFlowType flowType,
+			int index) {
+		BigDecimal salePrice = null;
+		for (int i = index; i >= 0; i--) {
+			FuturesAgentPrice agentPrice = agentPriceList.get(i);
+			if (flowType == OrganizationAccountFlowType.FuturesOpeningFeeAssign) {
+				if (agentPrice.getSaleOpenwindServiceFee() != null) {
+					salePrice = agentPrice.getSaleOpenwindServiceFee();
+					break;
+				}
+			} else if (flowType == OrganizationAccountFlowType.FuturesCloseFeeAssigne) {
+				if (agentPrice.getSaleUnwindServiceFee() != null) {
+					salePrice = agentPrice.getSaleUnwindServiceFee();
+					break;
+				}
+			} else if (flowType == OrganizationAccountFlowType.FuturesDeferredFeeAssign) {
+				if (agentPrice.getSaleDeferredFee() != null) {
+					salePrice = agentPrice.getSaleDeferredFee();
+					break;
+				}
+			}
+		}
+		return salePrice;
+	}
+
+	/**
 	 * 获取系统设置的统一成本价
 	 * 
 	 * @param commodity
@@ -461,6 +497,9 @@ public class OrganizationSettlementService {
 			// 自底向上结算
 			for (int i = length - 1; i >= 0; i--) {
 				Organization org = orgDao.findByOrgId(agentPriceList.get(i).getOrgId());
+				// 当前层级的自带销售价
+				BigDecimal carrySalePrice = retriveSalePrice(agentPriceList, flowType, i) == null ? BigDecimal.ZERO
+						: retriveSalePrice(agentPriceList, flowType, i);
 				if (i == length - 1) {
 					// 给最后一级结算，销售价-成本价
 					BigDecimal costPrice = retriveCostPrice(agentPriceList, flowType, i);
@@ -468,7 +507,7 @@ public class OrganizationSettlementService {
 						costPrice = retriveSystemCostPrice(commodity, flowType);
 					}
 					if (costPrice != null && costPrice.compareTo(salePrice) <= 0) {
-						accountService.benefit(org, salePrice.multiply(totalQuantity),
+						accountService.benefit(org, carrySalePrice.multiply(totalQuantity),
 								salePrice.subtract(costPrice).multiply(totalQuantity), flowType, flowResourceType,
 								flowResourceId, tradeNo);
 					}
@@ -482,13 +521,13 @@ public class OrganizationSettlementService {
 							salePrice = childCostPrice;
 						}
 						if (BigDecimal.ZERO.compareTo(salePrice) <= 0) {
-							accountService.benefit(org, salePrice.multiply(totalQuantity),
+							accountService.benefit(org, carrySalePrice.multiply(totalQuantity),
 									salePrice.subtract(BigDecimal.ZERO).multiply(totalQuantity), flowType,
 									flowResourceType, flowResourceId, tradeNo);
 						}
 					} else if (selfCostPrice != null && childCostPrice != null
 					/* && selfCostPrice.compareTo(childCostPrice) <= 0 */) {
-						accountService.benefit(org, salePrice.multiply(totalQuantity),
+						accountService.benefit(org, carrySalePrice.multiply(totalQuantity),
 								childCostPrice.subtract(selfCostPrice).multiply(totalQuantity), flowType,
 								flowResourceType, flowResourceId, tradeNo);
 					}
