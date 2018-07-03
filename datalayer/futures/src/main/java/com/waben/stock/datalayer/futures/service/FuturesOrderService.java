@@ -347,6 +347,13 @@ public class FuturesOrderService {
 					predicateList.add(criteriaBuilder.gt(root.get("publisherProfitOrLoss").as(BigDecimal.class),
 							new BigDecimal(0)));
 				}
+				// 交易动态过滤已到期数据
+				if (query.isExpire()) {
+					Join<FuturesOrder, FuturesContract> contractJoin = root.join("contract", JoinType.LEFT);
+					Predicate expirationDate = criteriaBuilder
+							.lessThan(contractJoin.get("expirationDate").as(Date.class), new Date());
+					predicateList.add(criteriaBuilder.and(expirationDate));
+				}
 				// 合约名称
 				if (!StringUtil.isEmpty(query.getContractName())) {
 					Predicate contractName = criteriaBuilder.like(join.get("name").as(String.class),
