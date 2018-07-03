@@ -10,6 +10,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
 
 import com.waben.stock.applayer.tactics.dto.buyrecord.BuyRecordWithMarketDto;
@@ -102,6 +103,14 @@ public class BuyRecordBusiness {
 
 	public PageInfo<BuyRecordDto> pages(BuyRecordQuery buyRecordQuery) {
 		Response<PageInfo<BuyRecordDto>> response = buyRecordReference.pagesByQuery(buyRecordQuery);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+	
+	public List<DeferredRecordDto> deferredRecordList(Long publisherId, Long buyRecordId) {
+		Response<List<DeferredRecordDto>> response = deferredRecordReference.fetchByPublisherIdAndBuyRecordId(publisherId, buyRecordId);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}

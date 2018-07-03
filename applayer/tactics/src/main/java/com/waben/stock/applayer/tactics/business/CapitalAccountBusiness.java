@@ -13,6 +13,7 @@ import com.waben.stock.applayer.tactics.dto.stockoption.StockOptionTradeWithMark
 import com.waben.stock.applayer.tactics.reference.CapitalAccountReference;
 import com.waben.stock.applayer.tactics.security.SecurityUtil;
 import com.waben.stock.interfaces.dto.buyrecord.BuyRecordDto;
+import com.waben.stock.interfaces.dto.buyrecord.DeferredRecordDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.dto.stockoption.StockOptionTradeDto;
 import com.waben.stock.interfaces.enums.BuyRecordState;
@@ -177,9 +178,10 @@ public class CapitalAccountBusiness {
 		List<BuyRecordDto> content = response.getContent();
 		if (content != null && content.size() > 0) {
 			for (BuyRecordDto buyRecord : content) {
-				if (buyRecord.getDeferred() && buyRecord.getDeferredFee() != null
-						&& buyRecord.getDeferredFee().compareTo(BigDecimal.ZERO) > 0)
-					result = result.add(buyRecord.getDeferredFee());
+				List<DeferredRecordDto> deferredRecordList = buyRecordBusiness.deferredRecordList(publisherId, buyRecord.getId());
+				for(DeferredRecordDto deferredRecord : deferredRecordList) {
+					result = result.add(deferredRecord.getFee());
+				}
 			}
 		}
 		return result;
