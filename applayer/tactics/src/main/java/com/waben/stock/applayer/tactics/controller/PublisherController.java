@@ -1,5 +1,6 @@
 package com.waben.stock.applayer.tactics.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +23,7 @@ import com.waben.stock.applayer.tactics.business.OrganizationPublisherBusiness;
 import com.waben.stock.applayer.tactics.business.PublisherBusiness;
 import com.waben.stock.applayer.tactics.business.RealNameBusiness;
 import com.waben.stock.applayer.tactics.business.SmsBusiness;
+import com.waben.stock.applayer.tactics.business.futures.FuturesOrderBusiness;
 import com.waben.stock.applayer.tactics.dto.publisher.PublisherCapitalAccountDto;
 import com.waben.stock.applayer.tactics.dto.publisher.SettingRemindDto;
 import com.waben.stock.applayer.tactics.security.CustomUserDetails;
@@ -82,6 +84,9 @@ public class PublisherController {
 
 	@Autowired
 	private OrganizationBusiness orgBusiness;
+	
+	@Autowired
+	private FuturesOrderBusiness orderBusiness;
 
 	@GetMapping("/{id}")
 	public Response<PublisherDto> echo(@PathVariable Long id) {
@@ -157,6 +162,16 @@ public class PublisherController {
 	public Response<PublisherCapitalAccountDto> getCurrent() {
 		PublisherDto publisher = publisherBusiness.findById(SecurityUtil.getUserId());
 		CapitalAccountDto account = accountBusiness.findByPublisherId(SecurityUtil.getUserId());
+		BigDecimal unsettledProfitOrLoss = orderBusiness.getUnsettledProfitOrLoss(SecurityUtil.getUserId());
+		if (unsettledProfitOrLoss != null && unsettledProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+			if (unsettledProfitOrLoss.abs().compareTo(account.getAvailableBalance()) > 0) {
+				account.setFloatAvailableBalance(BigDecimal.ZERO);
+			} else {
+				account.setFloatAvailableBalance(account.getAvailableBalance().subtract(unsettledProfitOrLoss.abs()));
+			}
+		} else {
+			account.setFloatAvailableBalance(account.getAvailableBalance());
+		}
 		return new Response<>(new PublisherCapitalAccountDto(publisher, account));
 	}
 

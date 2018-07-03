@@ -49,6 +49,8 @@ public class CapitalAccountController {
 			} else {
 				result.setFloatAvailableBalance(result.getAvailableBalance().subtract(unsettledProfitOrLoss.abs()));
 			}
+		} else {
+			result.setFloatAvailableBalance(result.getAvailableBalance());
 		}
 		result.setPaymentPassword(null);
 		return new Response<>(result);
