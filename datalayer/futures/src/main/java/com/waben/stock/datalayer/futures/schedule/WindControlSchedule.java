@@ -101,7 +101,7 @@ public class WindControlSchedule {
 						Integer timeZoneGap = orderService.retriveTimeZoneGap(order);
 						FuturesContract contract = order.getContract();
 						// step 3 : 是否触发退还隔夜保证金时间
-						checkAndDoReturnOvernightReserveFund(order, timeZoneGap, contract);
+						// checkAndDoReturnOvernightReserveFund(order, timeZoneGap, contract);
 						// step 4 : 是否合约到期
 						if (orderService.isTradeTime(timeZoneGap, contract)
 								&& isReachContractExpiration(timeZoneGap, contract)) {
@@ -159,17 +159,17 @@ public class WindControlSchedule {
 							continue;
 						}
 						// step 9 : 是否触发隔夜时间
-						if (orderService.isTradeTime(timeZoneGap, contract) && isTriggerOvernight(order, timeZoneGap)) {
-							if (order.getState() == FuturesOrderState.SellingEntrust && (order
-									.getWindControlType() == null
-									|| order.getWindControlType() == FuturesWindControlType.InitPosition
-									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
-								orderService.cancelOrder(order.getId(), order.getPublisherId());
-								continue;
-							}
-							orderService.overnight(order, timeZoneGap);
-							continue;
-						}
+//						if (orderService.isTradeTime(timeZoneGap, contract) && isTriggerOvernight(order, timeZoneGap)) {
+//							if (order.getState() == FuturesOrderState.SellingEntrust && (order
+//									.getWindControlType() == null
+//									|| order.getWindControlType() == FuturesWindControlType.InitPosition
+//									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
+//								orderService.cancelOrder(order.getId(), order.getPublisherId());
+//								continue;
+//							}
+//							orderService.overnight(order, timeZoneGap);
+//							continue;
+//						}
 					}
 				}
 			} catch (Exception ex) {
