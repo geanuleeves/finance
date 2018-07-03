@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
+import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqProducer;
@@ -89,18 +90,20 @@ public class MonitorPublisherFuturesOrderConsumer {
 						&& account.getAvailableBalance().add(totalStrong).compareTo(totalProfitOrLoss.abs()) <= 0) {
 					// 强平
 					for (FuturesOrder order : orderList) {
-						if (order.getState() == FuturesOrderState.Position) {
-							orderService.sellingEntrust(order, FuturesWindControlType.ReachStrongPoint,
-									FuturesTradePriceType.MKT, null);
-						} else if (order.getState() == FuturesOrderState.SellingEntrust
-								&& order.getSellingPriceType() == FuturesTradePriceType.LMT) {
-							order.setWindControlType(FuturesWindControlType.ReachStrongPoint);
-							orderService.revisionOrder(order);
-							orderService.cancelOrder(order.getId(), publisherId);
+						FuturesContract contract = order.getContract();
+						if(orderService.isTradeTime(contract.getCommodity().getExchange().getTimeZoneGap(), contract)) {
+							if (order.getState() == FuturesOrderState.Position) {
+								orderService.sellingEntrust(order, FuturesWindControlType.ReachStrongPoint,
+										FuturesTradePriceType.MKT, null);
+							} else if (order.getState() == FuturesOrderState.SellingEntrust
+									&& order.getSellingPriceType() == FuturesTradePriceType.LMT
+									&& order.getWindControlType() != FuturesWindControlType.ReachStrongPoint) {
+								order.setWindControlType(FuturesWindControlType.ReachStrongPoint);
+								orderService.revisionOrder(order);
+								orderService.cancelOrder(order.getId(), publisherId);
+							}
 						}
 					}
-					// 从监控队列中移除
-					monitorPublisherList.remove(publisherId);
 				}
 			} else {
 				// 从监控队列中移除

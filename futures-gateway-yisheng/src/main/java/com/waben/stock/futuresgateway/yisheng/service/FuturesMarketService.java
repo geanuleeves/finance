@@ -12,19 +12,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.future.api.es.external.common.bean.TapAPICommodity;
+import com.future.api.es.external.common.bean.TapAPIContract;
 import com.future.api.es.external.quote.bean.TapAPIQuoteWhole;
 import com.waben.stock.futuresgateway.yisheng.dao.FuturesCommodityDao;
+import com.waben.stock.futuresgateway.yisheng.dao.FuturesContractDao;
 import com.waben.stock.futuresgateway.yisheng.dao.FuturesQuoteDao;
 import com.waben.stock.futuresgateway.yisheng.dao.FuturesQuoteDayKDao;
 import com.waben.stock.futuresgateway.yisheng.dao.FuturesQuoteLastDao;
 import com.waben.stock.futuresgateway.yisheng.dao.FuturesQuoteMinuteKDao;
 import com.waben.stock.futuresgateway.yisheng.dao.FuturesQuoteMinuteKGroupDao;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesCommodity;
+import com.waben.stock.futuresgateway.yisheng.entity.FuturesContract;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuote;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteDayK;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteLast;
@@ -54,6 +60,9 @@ public class FuturesMarketService {
 	private FuturesCommodityDao commodityDao;
 
 	@Autowired
+	private FuturesContractDao contractDao;
+
+	@Autowired
 	private FuturesQuoteDao quoteDao;
 
 	@Autowired
@@ -76,6 +85,38 @@ public class FuturesMarketService {
 
 	@Autowired
 	private EsQuoteWrapper quoteWrapper;
+
+	@PostConstruct
+	public void initQuoteCache() {
+		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Map<String, TapAPIQuoteWhole> quoteCache = quoteWrapper.getQuoteCache();
+		List<FuturesContract> contractList = contractDao.retriveByEnable(true);
+		for (FuturesContract contract : contractList) {
+			FuturesQuoteData quote = quote(contract.getCommodityNo(), contract.getContractNo());
+			TapAPIQuoteWhole quoteWhole = new TapAPIQuoteWhole();
+			quoteWhole.setQAskPrice(new double[] { quote.getAskPrice().doubleValue() });
+			quoteWhole.setQAskQty(new long[] { quote.getAskSize().longValue() });
+			quoteWhole.setQBidPrice(new double[] { quote.getBidPrice().doubleValue() });
+			quoteWhole.setQBidQty(new long[] { quote.getBidSize().longValue() });
+			quoteWhole.setDateTimeStamp(fullSdf.format(quote.getTime()) + ".000");
+			quoteWhole.setQLastPrice(quote.getLastPrice().doubleValue());
+			quoteWhole.setQLastQty(quote.getLastSize().longValue());
+			quoteWhole.setQClosingPrice(quote.getNowClosePrice().doubleValue());
+			quoteWhole.setQPreClosingPrice(quote.getClosePrice().doubleValue());
+			quoteWhole.setQHighPrice(quote.getHighPrice().doubleValue());
+			quoteWhole.setQLowPrice(quote.getLowPrice().doubleValue());
+			quoteWhole.setQOpeningPrice(quote.getOpenPrice().doubleValue());
+			quoteWhole.setQTotalQty(quote.getTotalVolume());
+			TapAPIContract apiContract = new TapAPIContract();
+			apiContract.setContractNo1(quote.getContractNo());
+			TapAPICommodity apiCommodity = new TapAPICommodity();
+			apiCommodity.setCommodityNo(quote.getCommodityNo());
+			apiContract.setCommodity(apiCommodity);
+			quoteWhole.setContract(apiContract);
+			
+			quoteCache.put(quoteWrapper.getQuoteCacheKey(quote.getCommodityNo(), quote.getContractNo()), quoteWhole);
+		}
+	}
 
 	public FuturesQuoteData quote(String commodityNo, String contractNo) {
 		FuturesQuoteData result = new FuturesQuoteData();
@@ -436,7 +477,6 @@ public class FuturesMarketService {
 			String commodityNo = info.getContract().getCommodity().getCommodityNo();
 			Integer scale = EsEngine.commodityScaleMap.get(commodityNo);
 			if (scale != null) {
-
 				try {
 					FuturesQuoteData data = new FuturesQuoteData();
 					data.setCommodityNo(commodityNo);
@@ -446,22 +486,24 @@ public class FuturesMarketService {
 					data.setAskSize(info.getQAskQty()[0]);
 					data.setBidPrice(new BigDecimal(info.getQBidPrice()[0]).setScale(scale, RoundingMode.HALF_UP));
 					data.setBidSize(info.getQBidQty()[0]);
-					data.setAskPrice2(new BigDecimal(info.getQAskPrice()[1]).setScale(scale, RoundingMode.HALF_UP));
-					data.setAskSize2(info.getQAskQty()[1]);
-					data.setBidPrice2(new BigDecimal(info.getQBidPrice()[1]).setScale(scale, RoundingMode.HALF_UP));
-					data.setBidSize2(info.getQBidQty()[1]);
-					data.setAskPrice3(new BigDecimal(info.getQAskPrice()[2]).setScale(scale, RoundingMode.HALF_UP));
-					data.setAskSize3(info.getQAskQty()[2]);
-					data.setBidPrice3(new BigDecimal(info.getQBidPrice()[2]).setScale(scale, RoundingMode.HALF_UP));
-					data.setBidSize3(info.getQBidQty()[2]);
-					data.setAskPrice4(new BigDecimal(info.getQAskPrice()[3]).setScale(scale, RoundingMode.HALF_UP));
-					data.setAskSize4(info.getQAskQty()[3]);
-					data.setBidPrice4(new BigDecimal(info.getQBidPrice()[3]).setScale(scale, RoundingMode.HALF_UP));
-					data.setBidSize4(info.getQBidQty()[3]);
-					data.setAskPrice5(new BigDecimal(info.getQAskPrice()[4]).setScale(scale, RoundingMode.HALF_UP));
-					data.setAskSize5(info.getQAskQty()[4]);
-					data.setBidPrice5(new BigDecimal(info.getQBidPrice()[4]).setScale(scale, RoundingMode.HALF_UP));
-					data.setBidSize5(info.getQBidQty()[4]);
+					if (info.getQAskPrice().length > 1) {
+						data.setAskPrice2(new BigDecimal(info.getQAskPrice()[1]).setScale(scale, RoundingMode.HALF_UP));
+						data.setAskSize2(info.getQAskQty()[1]);
+						data.setBidPrice2(new BigDecimal(info.getQBidPrice()[1]).setScale(scale, RoundingMode.HALF_UP));
+						data.setBidSize2(info.getQBidQty()[1]);
+						data.setAskPrice3(new BigDecimal(info.getQAskPrice()[2]).setScale(scale, RoundingMode.HALF_UP));
+						data.setAskSize3(info.getQAskQty()[2]);
+						data.setBidPrice3(new BigDecimal(info.getQBidPrice()[2]).setScale(scale, RoundingMode.HALF_UP));
+						data.setBidSize3(info.getQBidQty()[2]);
+						data.setAskPrice4(new BigDecimal(info.getQAskPrice()[3]).setScale(scale, RoundingMode.HALF_UP));
+						data.setAskSize4(info.getQAskQty()[3]);
+						data.setBidPrice4(new BigDecimal(info.getQBidPrice()[3]).setScale(scale, RoundingMode.HALF_UP));
+						data.setBidSize4(info.getQBidQty()[3]);
+						data.setAskPrice5(new BigDecimal(info.getQAskPrice()[4]).setScale(scale, RoundingMode.HALF_UP));
+						data.setAskSize5(info.getQAskQty()[4]);
+						data.setBidPrice5(new BigDecimal(info.getQBidPrice()[4]).setScale(scale, RoundingMode.HALF_UP));
+						data.setBidSize5(info.getQBidQty()[4]);
+					}
 					data.setNowClosePrice(
 							new BigDecimal(info.getQClosingPrice()).setScale(scale, RoundingMode.HALF_UP));
 					data.setClosePrice(
