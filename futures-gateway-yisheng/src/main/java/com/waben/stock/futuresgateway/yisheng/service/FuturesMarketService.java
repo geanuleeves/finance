@@ -98,10 +98,14 @@ public class FuturesMarketService {
 			quoteWhole.setQAskQty(new long[] { quote.getAskSize().longValue() });
 			quoteWhole.setQBidPrice(new double[] { quote.getBidPrice().doubleValue() });
 			quoteWhole.setQBidQty(new long[] { quote.getBidSize().longValue() });
-			quoteWhole.setDateTimeStamp(fullSdf.format(quote.getTime()) + ".000");
+			if(quote.getTime() != null) {
+				quoteWhole.setDateTimeStamp(fullSdf.format(quote.getTime()) + ".000");
+			}
 			quoteWhole.setQLastPrice(quote.getLastPrice().doubleValue());
 			quoteWhole.setQLastQty(quote.getLastSize().longValue());
-			quoteWhole.setQClosingPrice(quote.getNowClosePrice().doubleValue());
+			if(quote.getNowClosePrice() != null) {
+				quoteWhole.setQClosingPrice(quote.getNowClosePrice().doubleValue());
+			}
 			quoteWhole.setQPreClosingPrice(quote.getClosePrice().doubleValue());
 			quoteWhole.setQHighPrice(quote.getHighPrice().doubleValue());
 			quoteWhole.setQLowPrice(quote.getLowPrice().doubleValue());
@@ -481,7 +485,9 @@ public class FuturesMarketService {
 					FuturesQuoteData data = new FuturesQuoteData();
 					data.setCommodityNo(commodityNo);
 					data.setContractNo(entry.getValue().getContract().getContractNo1());
-					data.setTime(sdf.parse(info.getDateTimeStamp().substring(0, info.getDateTimeStamp().length() - 4)));
+					if(info.getDateTimeStamp() != null) {
+						data.setTime(sdf.parse(info.getDateTimeStamp().substring(0, info.getDateTimeStamp().length() - 4)));
+					}
 					data.setAskPrice(new BigDecimal(info.getQAskPrice()[0]).setScale(scale, RoundingMode.HALF_UP));
 					data.setAskSize(info.getQAskQty()[0]);
 					data.setBidPrice(new BigDecimal(info.getQBidPrice()[0]).setScale(scale, RoundingMode.HALF_UP));
