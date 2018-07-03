@@ -2,6 +2,10 @@ package com.waben.stock.applayer.admin.wrapper;
 
 import java.util.List;
 
+import javax.servlet.MultipartConfigElement;
+
+import org.springframework.boot.web.servlet.MultipartConfigFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -19,12 +23,12 @@ import com.waben.stock.interfaces.warpper.converter.UniversalEnumConverterFactor
 @Configuration
 public class WebConfigurer extends WebMvcConfigurerAdapter {
 
-    @Override
-    public void addFormatters(FormatterRegistry registry) {
-        super.addFormatters(registry);
-        registry.addConverterFactory(new UniversalEnumConverterFactory());
-        registry.addConverter(new DateConverter());
-    }
+	@Override
+	public void addFormatters(FormatterRegistry registry) {
+		super.addFormatters(registry);
+		registry.addConverterFactory(new UniversalEnumConverterFactory());
+		registry.addConverter(new DateConverter());
+	}
 
 	@Override
 	public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> exceptionResolvers) {
@@ -32,16 +36,22 @@ public class WebConfigurer extends WebMvcConfigurerAdapter {
 		super.configureHandlerExceptionResolvers(exceptionResolvers);
 	}
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/static/**")
-                .addResourceLocations("classpath:/static/");
-        super.addResourceHandlers(registry);
-    }
-    
-    @Override
-    public void configurePathMatch(PathMatchConfigurer configurer) {
-    	configurer.setUseSuffixPatternMatch(false);
-    }
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
+		super.addResourceHandlers(registry);
+	}
+
+	@Override
+	public void configurePathMatch(PathMatchConfigurer configurer) {
+		configurer.setUseSuffixPatternMatch(false);
+	}
+
+	@Bean
+	public MultipartConfigElement multipartConfigElement() {
+		MultipartConfigFactory factory = new MultipartConfigFactory();
+		factory.setLocation("/mnt/application/tmp");
+		return factory.createMultipartConfig();
+	}
 
 }
