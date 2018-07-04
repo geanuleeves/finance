@@ -54,12 +54,12 @@ public class FuturesHolidayService {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
 				Join<FuturesHoliday,FuturesCommodity> join = root.join("commodity", JoinType.LEFT);
 				
-				if(!StringUtil.isEmpty(query.getCommoditySymbol())){
-					predicateList.add(criteriaBuilder.like(join.get("symbol").as(String.class), "%"+query.getCommoditySymbol()+"%"));
+				if(!StringUtil.isEmpty(query.getSymbol())){
+					predicateList.add(criteriaBuilder.like(join.get("symbol").as(String.class), "%"+query.getSymbol()+"%"));
 				}
 				
-				if(!StringUtil.isEmpty(query.getCommodityName())){
-					predicateList.add(criteriaBuilder.like(join.get("name").as(String.class), "%"+query.getCommodityName()+"%"));
+				if(!StringUtil.isEmpty(query.getName())){
+					predicateList.add(criteriaBuilder.like(join.get("name").as(String.class), "%"+query.getName()+"%"));
 				}
 
 				if (predicateList.size() > 0) {

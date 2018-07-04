@@ -61,7 +61,6 @@ public class FuturesHolidayController implements FuturesHolidayInterface {
 			FuturesCommodity commodity = commodityService.retrieve(dto.getCommodityId());
 			holiday.setCommodity(commodity);
 		}
-		holiday.setEnable(false);
 		FuturesHoliday result = service.saveAndModify(holiday);
 		FuturesHolidayDto response = CopyBeanUtils.copyBeanProperties(result, new FuturesHolidayDto(), false);
 		if(result.getCommodity()!=null){

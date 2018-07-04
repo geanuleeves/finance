@@ -9,10 +9,10 @@ public class FuturesHolidayQuery extends PageAndSortQuery {
 	private Long id;
 	
 	@ApiModelProperty(value = "交易代码")
-	private String commoditySymbol;
+	private String symbol;
 	
 	@ApiModelProperty(value = "交易品种")
-	private String commodityName;
+	private String name;
 
 	public Long getId() {
 		return id;
@@ -22,21 +22,22 @@ public class FuturesHolidayQuery extends PageAndSortQuery {
 		this.id = id;
 	}
 
-	public String getCommoditySymbol() {
-		return commoditySymbol;
+	public String getSymbol() {
+		return symbol;
 	}
 
-	public void setCommoditySymbol(String commoditySymbol) {
-		this.commoditySymbol = commoditySymbol;
+	public void setSymbol(String symbol) {
+		this.symbol = symbol;
 	}
 
-	public String getCommodityName() {
-		return commodityName;
+	public String getName() {
+		return name;
 	}
 
-	public void setCommodityName(String commodityName) {
-		this.commodityName = commodityName;
+	public void setName(String name) {
+		this.name = name;
 	}
+
 	
 	
 }
