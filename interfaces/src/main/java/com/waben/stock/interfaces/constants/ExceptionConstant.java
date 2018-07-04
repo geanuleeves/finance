@@ -343,5 +343,7 @@ public class ExceptionConstant {
 	public static final String ISNOT_EXIST_PUTFORWARDTIME_EXCEPTION = "13040";
 	// 持仓亏损，导致余额不足
 	public static final String HOLDINGLOSS_LEADTO_NOTENOUGH_EXCEPTION = "13041";
-	
+	// 该合约已过期
+	public static final String CONTRACT_DOESNOT_OVERDUE_EXIST_EXCEPTION = "13042";
+
 }

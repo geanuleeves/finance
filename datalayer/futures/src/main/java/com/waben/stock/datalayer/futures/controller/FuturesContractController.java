@@ -128,69 +128,9 @@ public class FuturesContractController implements FuturesContractInterface {
 			boolean isTradeTime = false;
 			String tradeTime = retriveExchangeTradeTimeStr(timeZoneGap, contractDto, now);
 			if (!StringUtil.isEmpty(tradeTime)) {
-				// 当天最后一个时间节点 tradeTime.substring(tradeTime.lastIndexOf("-") +
-				// 1))
-				contractDto.setAutomaticWarehouseTime(timeZoneConversion(timeZoneGap, contractDto.getOvernightTime()));
-				String[] tradeTimeArr = tradeTime.split(",");
-				String dayStr = daySdf.format(exchangeTime);
-				String fullStr = fullSdf.format(exchangeTime);
-				for (String tradeTimeDuration : tradeTimeArr) {
-					String[] tradeTimePointArr = tradeTimeDuration.trim().split("-");
-					if (fullStr.compareTo(dayStr + " " + tradeTimePointArr[0].trim()) >= 0
-							&& fullStr.compareTo(dayStr + " " + tradeTimePointArr[1].trim()) < 0) {
-						contractDto.setCurrentHoldingTime(dayStr + " " + tradeTimePointArr[1].trim());
-						contractDto.setCurrentTradeTimeDesc(currentTradeTimeDesc(timeZoneGap,
-								tradeTimePointArr[0].trim(), tradeTimePointArr[1].trim()));
-						contractDto.setNextTradingTime("");
-						isTradeTime = true;
-						break;
-					} else {
-						if (fullStr.compareTo(dayStr + " " + tradeTimePointArr[0].trim()) < 0) {
-							contractDto.setNextTradingTime(dayStr + " " + tradeTimePointArr[0].trim());
-							contractDto.setCurrentTradeTimeDesc(currentTradeTimeDesc(timeZoneGap,
-									tradeTimePointArr[0].trim(), tradeTimePointArr[1].trim()));
-							break;
-						} else {
-							// String tomorrow = daySdf.format(nextTime);
-							String tomorrowHour = getNextTradingHourTime(exchangeTime, contractDto) == null ? ""
-									: getNextTradingHourTime(exchangeTime, contractDto);
-							// 获取转换后的明天时间交易开始时间
-							// String tomorrowTime = tomorrow + " " +
-							// tomorrowHour.split("-")[0];
-							contractDto.setNextTradingTime(getNextTradingDayTime(exchangeTime, contractDto) == null ? ""
-									: getNextTradingDayTime(exchangeTime, contractDto));
-							contractDto.setCurrentTradeTimeDesc(currentTradeTimeDesc(timeZoneGap,
-									tomorrowHour.split("-")[0].trim(), tomorrowHour.split("-")[1].trim()));
-						}
-					}
-				}
-				if (isTradeTime) {
-					contractDto.setState(1);
-					List<FuturesTradeLimit> limitList = futuresTradeLimitService.findByContractId(contractDto.getId());
-					if (limitList != null && limitList.size() > 0) {
-						// 判断该交易在开仓时是否在后台设置的期货交易限制内
-						Integer openWind = checkedLimitOpenwind(limitList, exchangeTime);
-						if (openWind == 2) {
-							contractDto.setState(openWind);
-							contractDto.setCurrentTradeTimeDesc("当前时段禁止开仓");
-						}
-						Integer umwind = checkedLimitUnwind(limitList, exchangeTime);
-						if (umwind == 2) {
-							contractDto.setState(umwind);
-							contractDto.setCurrentTradeTimeDesc("当前时段禁止平仓");
-						}
-					}
-					FuturesHoliday holiday = futuresHolidayService.findById(contractDto.getCommodityId());
-					if (holiday != null) {
-						Integer holidayBan = checkedFuturesHoliday(holiday, exchangeTime);
-						if (holidayBan == 2) {
-							contractDto.setState(holidayBan);
-							contractDto.setCurrentTradeTimeDesc("当前时段为节假日时间");
-						}
-					}
-				} else {
-					contractDto.setState(2);
-				}
+				// 判断合约是否在交易时间内，计算下一次交易时间，当天交易时间描述，本时段持仓时间
+				contractDto = checkedTradingTime(contractDto, timeZoneGap, exchangeTime, tradeTime, isTradeTime);
+
 			}
 		}
 		result.setContent(content);
@@ -515,19 +455,19 @@ public class FuturesContractController implements FuturesContractInterface {
 	 * @param exchangeTime
 	 *            当前时间
 	 */
-	public Integer checkedLimitOpenwind(List<FuturesTradeLimit> limitList, Date exchangeTime) {
+	public String checkedLimitOpenwind(List<FuturesTradeLimit> limitList, Date exchangeTime) {
 		String fullStr = fullSdf.format(exchangeTime);
 		for (FuturesTradeLimit limit : limitList) {
 			if (limit.getEnable()) {
 				if (limit.getLimitType() == FuturesTradeLimitType.LimitOpenwind) {
 					if (fullStr.compareTo(limit.getStartLimitTime()) >= 0
 							&& fullStr.compareTo(limit.getEndLimitTime()) < 0) {
-						return 2;
+						return limit.getEndLimitTime();
 					}
 				}
 			}
 		}
-		return 1;
+		return "1";
 	}
 
 	/**
@@ -538,19 +478,19 @@ public class FuturesContractController implements FuturesContractInterface {
 	 * @param exchangeTime
 	 *            当前时间
 	 */
-	public Integer checkedLimitUnwind(List<FuturesTradeLimit> limitList, Date exchangeTime) {
+	public String checkedLimitUnwind(List<FuturesTradeLimit> limitList, Date exchangeTime) {
 		String fullStr = fullSdf.format(exchangeTime);
 		for (FuturesTradeLimit limit : limitList) {
 			if (limit.getEnable()) {
 				if (limit.getLimitType() == FuturesTradeLimitType.LimitUnwind) {
 					if (fullStr.compareTo(limit.getStartLimitTime()) >= 0
 							&& fullStr.compareTo(limit.getEndLimitTime()) < 0) {
-						return 2;
+						return limit.getEndLimitTime();
 					}
 				}
 			}
 		}
-		return 1;
+		return "1";
 	}
 
 	/**
@@ -572,6 +512,120 @@ public class FuturesContractController implements FuturesContractInterface {
 			}
 		}
 		return 1;
+	}
+
+	/**
+	 * 判断合约是否在交易时间内，计算下一次交易时间，当天交易时间描述，本时段持仓时间
+	 * 
+	 * @param contractDto
+	 *            合约数据
+	 * @param timeZoneGap
+	 *            时差
+	 * @param exchangeTime
+	 *            当前时间
+	 * @param tradeTime
+	 *            当天可交易时间
+	 * @param isTradeTime
+	 *            是否在交易时间内： true 为在交易时间；false 不在交易时间
+	 * @return 合约数据
+	 */
+	public FuturesContractDto checkedTradingTime(FuturesContractDto contractDto, Integer timeZoneGap, Date exchangeTime,
+			String tradeTime, boolean isTradeTime) {
+		// 当天最后一个时间节点 tradeTime.substring(tradeTime.lastIndexOf("-") +
+		// 1))
+		contractDto.setAutomaticWarehouseTime(timeZoneConversion(timeZoneGap, contractDto.getOvernightTime()));
+		String[] tradeTimeArr = tradeTime.split(",");
+		String dayStr = daySdf.format(exchangeTime);
+		String fullStr = fullSdf.format(exchangeTime);
+		for (String tradeTimeDuration : tradeTimeArr) {
+			String[] tradeTimePointArr = tradeTimeDuration.trim().split("-");
+			if (fullStr.compareTo(dayStr + " " + tradeTimePointArr[0].trim()) >= 0
+					&& fullStr.compareTo(dayStr + " " + tradeTimePointArr[1].trim()) < 0) {
+				contractDto.setCurrentHoldingTime(dayStr + " " + tradeTimePointArr[1].trim());
+				contractDto.setCurrentTradeTimeDesc(
+						currentTradeTimeDesc(timeZoneGap, tradeTimePointArr[0].trim(), tradeTimePointArr[1].trim()));
+				contractDto.setNextTradingTime("");
+				isTradeTime = true;
+				break;
+			} else {
+				if (fullStr.compareTo(dayStr + " " + tradeTimePointArr[0].trim()) < 0) {
+					contractDto.setNextTradingTime(dayStr + " " + tradeTimePointArr[0].trim());
+					contractDto.setCurrentTradeTimeDesc(currentTradeTimeDesc(timeZoneGap, tradeTimePointArr[0].trim(),
+							tradeTimePointArr[1].trim()));
+					break;
+				} else {
+					// String tomorrow = daySdf.format(nextTime);
+					String tomorrowHour = getNextTradingHourTime(exchangeTime, contractDto) == null ? ""
+							: getNextTradingHourTime(exchangeTime, contractDto);
+					// 获取转换后的明天时间交易开始时间
+					// String tomorrowTime = tomorrow + " " +
+					// tomorrowHour.split("-")[0];
+					contractDto.setNextTradingTime(getNextTradingDayTime(exchangeTime, contractDto) == null ? ""
+							: getNextTradingDayTime(exchangeTime, contractDto));
+					contractDto.setCurrentTradeTimeDesc(currentTradeTimeDesc(timeZoneGap,
+							tomorrowHour.split("-")[0].trim(), tomorrowHour.split("-")[1].trim()));
+				}
+			}
+		}
+		if (isTradeTime) {
+			contractDto.setState(1);
+			List<FuturesTradeLimit> limitList = futuresTradeLimitService.findByContractId(contractDto.getId());
+			if (limitList != null && limitList.size() > 0) {
+				// 判断该交易在开仓时是否在后台设置的期货交易限制内
+				String openWind = checkedLimitOpenwind(limitList, exchangeTime);
+				if (!openWind.equals("1")) {
+					contractDto.setState(2);
+					contractDto.setNextTradingTime(dayStr + " " + openWind);
+					contractDto.setCurrentTradeTimeDesc("当前时段禁止开仓");
+				}
+				String umwind = checkedLimitUnwind(limitList, exchangeTime);
+				if (!umwind.equals("1")) {
+					contractDto.setState(2);
+					contractDto.setNextTradingTime(dayStr + " " + umwind);
+					contractDto.setCurrentTradeTimeDesc("当前时段禁止平仓");
+				}
+			}
+			List<FuturesHoliday> holidayList = futuresHolidayService.findByCommodityId(contractDto.getCommodityId());
+			FuturesHoliday holiday = null;
+			if (holidayList != null && holidayList.size() > 0) {
+				holiday = holidayList.get(0);
+			}
+			if (holiday != null) {
+				Integer holidayBan = checkedFuturesHoliday(holiday, exchangeTime);
+				if (holidayBan == 2) {
+					contractDto.setState(holidayBan);
+					contractDto.setNextTradingTime(fullSdf.format(holiday.getNextTradeTime()));
+					contractDto.setCurrentTradeTimeDesc("当前时段为节假日时间");
+					// if (holiday.getNextTradeTime() != null) {
+					// SimpleDateFormat hourSdf = new
+					// SimpleDateFormat("HH:mm:ss");
+					// String nextTime =
+					// getNextTradingHourTime(holiday.getNextTradeTime(),
+					// contractDto) == null
+					// ? "" :
+					// getNextTradingHourTime(holiday.getNextTradeTime(),
+					// contractDto);
+					// String nextStartTime = nextTime.split("-")[0];
+					// String nextEndTime = nextTime.split("-")[1];
+					// String holidayNextTime =
+					// hourSdf.format(holiday.getNextTradeTime());
+					//
+					// if ((holidayNextTime.compareTo(nextStartTime) >= 0
+					// && holidayNextTime.compareTo(nextEndTime) < 0)
+					// || holidayNextTime.compareTo(nextStartTime) < 0) {
+					// contractDto.setCurrentTradeTimeDesc(
+					// currentTradeTimeDesc(timeZoneGap, nextStartTime,
+					// nextEndTime));
+					// }else{
+					//
+					// }
+					// }
+				}
+			}
+		} else {
+			contractDto.setState(2);
+		}
+		return contractDto;
 	}
 
 }

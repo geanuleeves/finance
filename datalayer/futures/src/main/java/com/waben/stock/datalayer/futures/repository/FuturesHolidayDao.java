@@ -8,4 +8,6 @@ import com.waben.stock.datalayer.futures.entity.FuturesHoliday;
 public interface FuturesHolidayDao extends BaseDao<FuturesHoliday, Long> {
 
 	List<FuturesHoliday> findByCommodity(FuturesCommodity commodity);
+
+	List<FuturesHoliday> findByCommodityId(Long commodityId);
 }

@@ -97,20 +97,7 @@ public class MonitorPublisherFuturesOrderConsumer {
 				// step 3 : 判断是否达到强平
 				if (isReachStongPoint(orderList, account)) {
 					for (FuturesOrder order : orderList) {
-						FuturesContract contract = order.getContract();
-						if (orderService.isTradeTime(contract.getCommodity().getExchange().getTimeZoneGap(),
-								contract)) {
-							if (order.getState() == FuturesOrderState.Position) {
-								orderService.sellingEntrust(order, FuturesWindControlType.ReachStrongPoint,
-										FuturesTradePriceType.MKT, null);
-							} else if (order.getState() == FuturesOrderState.SellingEntrust
-									&& order.getSellingPriceType() == FuturesTradePriceType.LMT
-									&& order.getWindControlType() != FuturesWindControlType.ReachStrongPoint) {
-								order.setWindControlType(FuturesWindControlType.ReachStrongPoint);
-								orderService.revisionOrder(order);
-								orderService.cancelOrder(order.getId(), publisherId);
-							}
-						}
+						strongUnwind(order, FuturesWindControlType.ReachStrongPoint);
 					}
 				} else {
 					// step 4 : 判断是否触发隔夜，是否足够过夜
@@ -125,7 +112,7 @@ public class MonitorPublisherFuturesOrderConsumer {
 						} else {
 							// step 4.2 : 不满足隔夜条件，强平
 							for (FuturesOrder order : overnightOrderList) {
-								strongUnwind(order);
+								strongUnwind(order, FuturesWindControlType.DayUnwind);
 							}
 						}
 					}
@@ -141,16 +128,16 @@ public class MonitorPublisherFuturesOrderConsumer {
 		}
 	}
 
-	private void strongUnwind(FuturesOrder order) {
+	private void strongUnwind(FuturesOrder order, FuturesWindControlType windControlType) {
 		FuturesContract contract = order.getContract();
 		if (orderService.isTradeTime(contract.getCommodity().getExchange().getTimeZoneGap(), contract)) {
 			if (order.getState() == FuturesOrderState.Position) {
-				orderService.sellingEntrust(order, FuturesWindControlType.ReachStrongPoint, FuturesTradePriceType.MKT,
-						null);
+				orderService.sellingEntrust(order, windControlType, FuturesTradePriceType.MKT, null);
 			} else if (order.getState() == FuturesOrderState.SellingEntrust
 					&& order.getSellingPriceType() == FuturesTradePriceType.LMT
-					&& order.getWindControlType() != FuturesWindControlType.ReachStrongPoint) {
-				order.setWindControlType(FuturesWindControlType.ReachStrongPoint);
+					&& order.getWindControlType() != FuturesWindControlType.ReachStrongPoint
+					&& order.getWindControlType() != FuturesWindControlType.DayUnwind) {
+				order.setWindControlType(windControlType);
 				orderService.revisionOrder(order);
 				orderService.cancelOrder(order.getId(), order.getPublisherId());
 			}
@@ -214,8 +201,13 @@ public class MonitorPublisherFuturesOrderConsumer {
 					.add(order.getTotalQuantity().multiply(order.getOvernightPerUnitReserveFund()));
 		}
 
+		if (totalProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+			if (account.getAvailableBalance().add(totalProfitOrLoss).compareTo(totalOvernightDeferredFee) < 0) {
+				return false;
+			}
+		}
 		if (account.getAvailableBalance().add(totalProfitOrLoss).add(totalTradeReserveFund)
-				.add(totalOvernightDeferredFee).compareTo(totalOvernightReserveFund) >= 0) {
+				.compareTo(totalOvernightReserveFund.add(totalOvernightDeferredFee)) >= 0) {
 			return true;
 		} else {
 			return false;
@@ -233,6 +225,7 @@ public class MonitorPublisherFuturesOrderConsumer {
 		List<FuturesOrder> result = new ArrayList<>();
 		SimpleDateFormat daySdf = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date now = new Date();
 		for (FuturesOrder order : orderList) {
 			String overnightTimeGroup = overnightTimeMap().get(order.getContract().getCommodityId());
 			if (overnightTimeGroup != null) {
@@ -241,7 +234,6 @@ public class MonitorPublisherFuturesOrderConsumer {
 				Integer timeZoneGap = Integer.parseInt(group[0]);
 				String overnightTime = group[1];
 				FuturesOvernightRecord record = overnightService.findNewestOvernightRecord(order);
-				Date now = new Date();
 				Date nowExchangeTime = orderService.retriveExchangeTime(now, timeZoneGap);
 				String nowStr = daySdf.format(nowExchangeTime);
 				// 判断是否有今天的隔夜记录
