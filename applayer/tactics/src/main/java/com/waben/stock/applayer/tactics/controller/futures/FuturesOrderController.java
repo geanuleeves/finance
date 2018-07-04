@@ -82,6 +82,9 @@ public class FuturesOrderController {
 	@Autowired
 	private CapitalAccountBusiness capitalAccountBusiness;
 
+	@Autowired
+	private FuturesOrderBusiness orderBusiness;
+
 	// private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	private SimpleDateFormat exprotSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -337,12 +340,14 @@ public class FuturesOrderController {
 			sign = list.get(0).getCurrencySign();
 			rate = list.get(0).getRate();
 		}
-
+		// 获取用户账户资金
+		CapitalAccountDto capital = capitalAccountBusiness.findByPublisherId(SecurityUtil.getUserId());
 		FuturesOrderProfitDto result = new FuturesOrderProfitDto();
 		result.setTotalIncome(totalIncome.setScale(2, RoundingMode.DOWN));
 		result.setRate(rate.setScale(2, RoundingMode.DOWN));
 		result.setCurrencySign(sign);
-		result.setTotalBalance(futuresOrderBusiness.totalBalance(page, size));
+		result.setTotalBalance(capital.getAvailableBalance()
+				.add(futuresOrderBusiness.totalBalance(0, Integer.MAX_VALUE)).setScale(2, RoundingMode.DOWN));
 		return new Response<>(result);
 	}
 
@@ -530,13 +535,23 @@ public class FuturesOrderController {
 					? new BigDecimal(0) : futuresOrderMarketDto.getPublisherProfitOrLoss());
 		}
 		gainLoss.setPositionFee(positionTotalIncome.setScale(2, RoundingMode.DOWN));
-		gainLoss.setTotalBalance(futuresOrderBusiness.totalBalance(0, Integer.MAX_VALUE));
 
 		// 获取用户账户资金
 		CapitalAccountDto result = capitalAccountBusiness.findByPublisherId(SecurityUtil.getUserId());
+		BigDecimal unsettledProfitOrLoss = orderBusiness.getUnsettledProfitOrLoss(SecurityUtil.getUserId());
+		if (unsettledProfitOrLoss != null && unsettledProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+			if (unsettledProfitOrLoss.abs().compareTo(result.getAvailableBalance()) > 0) {
+				gainLoss.setFloatAvailableBalance(BigDecimal.ZERO);
+			} else {
+				gainLoss.setFloatAvailableBalance(result.getAvailableBalance().subtract(unsettledProfitOrLoss.abs()));
+			}
+		} else {
+			gainLoss.setFloatAvailableBalance(result.getAvailableBalance());
+		}
 		result.setPaymentPassword(null);
-		gainLoss.setBalance(result.getBalance());
-		gainLoss.setAvailableBalance(result.getFloatAvailableBalance());
+		gainLoss.setTotalBalance(result.getAvailableBalance()
+				.add(futuresOrderBusiness.totalBalance(0, Integer.MAX_VALUE)).setScale(2, RoundingMode.DOWN));
+		gainLoss.setAvailableBalance(result.getAvailableBalance());
 		gainLoss.setFrozenCapital(result.getFrozenCapital());
 		return new Response<>(gainLoss);
 	}

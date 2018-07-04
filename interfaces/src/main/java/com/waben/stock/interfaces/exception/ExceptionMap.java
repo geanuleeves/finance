@@ -193,6 +193,7 @@ public class ExceptionMap {
 		exceptionMap.put(ExceptionConstant.UNWINDORDER_CANNOTCANCEL_EXCEPTION, "平仓订单不能取消委托操作");
 		exceptionMap.put(ExceptionConstant.ISNOT_EXIST_PUTFORWARDTIME_EXCEPTION, "不在可提现时间内");
 		exceptionMap.put(ExceptionConstant.HOLDINGLOSS_LEADTO_NOTENOUGH_EXCEPTION, "持仓亏损，导致余额不足");
+		exceptionMap.put(ExceptionConstant.CONTRACT_DOESNOT_OVERDUE_EXIST_EXCEPTION, "该合约已过期");
 
 	}
 }
