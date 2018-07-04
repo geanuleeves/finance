@@ -202,7 +202,7 @@ public class MonitorPublisherFuturesOrderConsumer {
 		}
 
 		if (account.getAvailableBalance().add(totalProfitOrLoss).add(totalTradeReserveFund)
-				.add(totalOvernightDeferredFee).compareTo(totalOvernightReserveFund) >= 0) {
+				.compareTo(totalOvernightReserveFund.add(totalOvernightDeferredFee)) >= 0) {
 			return true;
 		} else {
 			return false;
