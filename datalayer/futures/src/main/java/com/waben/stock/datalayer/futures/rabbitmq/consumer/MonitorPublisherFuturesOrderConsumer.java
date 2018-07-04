@@ -201,6 +201,11 @@ public class MonitorPublisherFuturesOrderConsumer {
 					.add(order.getTotalQuantity().multiply(order.getOvernightPerUnitReserveFund()));
 		}
 
+		if (totalProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+			if (account.getAvailableBalance().add(totalProfitOrLoss).compareTo(totalOvernightDeferredFee) < 0) {
+				return false;
+			}
+		}
 		if (account.getAvailableBalance().add(totalProfitOrLoss).add(totalTradeReserveFund)
 				.compareTo(totalOvernightReserveFund.add(totalOvernightDeferredFee)) >= 0) {
 			return true;
