@@ -42,7 +42,7 @@ public class EsCommodityConsumer {
 					commodity.setCommodityEngName(msgObj.getCommodityEngName());
 					commodity.setCommodityName(msgObj.getCommodityName());
 					commodity.setCommodityNo(msgObj.getCommodity().getCommodityNo());
-					if("CD".equals(commodityNo)) {
+					if ("CD".equals(commodityNo) || "EC".equals(commodityNo)) {
 						commodity.setCommodityTickSize(new BigDecimal("0.00005"));
 					} else {
 						commodity.setCommodityTickSize(new BigDecimal(msgObj.getCommodityTickSize()));
@@ -57,7 +57,7 @@ public class EsCommodityConsumer {
 					commodity.setCommodityEngName(msgObj.getCommodityEngName());
 					commodity.setCommodityName(msgObj.getCommodityName());
 					commodity.setCommodityNo(msgObj.getCommodity().getCommodityNo());
-					if("CD".equals(commodityNo)) {
+					if ("CD".equals(commodityNo) || "EC".equals(commodityNo)) {
 						commodity.setCommodityTickSize(new BigDecimal("0.00005"));
 					} else {
 						commodity.setCommodityTickSize(new BigDecimal(msgObj.getCommodityTickSize()));
