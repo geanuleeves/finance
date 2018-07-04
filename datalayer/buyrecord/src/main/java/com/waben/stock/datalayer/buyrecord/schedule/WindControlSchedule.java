@@ -162,7 +162,7 @@ public class WindControlSchedule {
 							BigDecimal lastPrice = market.getLastPrice();
 							// step 2 : 处理到期
 							boolean isExpire = false;
-							if (fullSdf.format(now)
+							if (sdf.format(now).equals(sdf.format(record.getExpireTime())) && fullSdf.format(now)
 									.compareTo(sdf.format(record.getExpireTime()) + " " + deferredDeductionTime) >= 0) {
 								// 扣除递延费
 								try {
@@ -170,7 +170,6 @@ public class WindControlSchedule {
 									orgSettlementBusiness.strategySettlement(record.getPublisherId(), record.getId(),
 											record.getTradeNo(), record.getStrategyTypeId(), BigDecimal.ZERO,
 											deferredRecord.getFee());
-
 								} catch (Exception ex) {
 									if (ex instanceof ServiceException) {
 										ServiceException sex = (ServiceException) ex;
