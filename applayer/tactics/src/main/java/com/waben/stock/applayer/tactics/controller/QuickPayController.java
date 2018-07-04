@@ -267,10 +267,10 @@ public class QuickPayController {
     public Response<String> wbcsa(@RequestParam(required = true) BigDecimal amount,
                                           @RequestParam(required = true) Long bindCardId, @RequestParam(required = true) String paymentPassword) {
         // 判断是否为测试用户，测试用户不能提现
-//        PublisherDto publisher = publisherBusiness.findById(SecurityUtil.getUserId());
-//        if (publisher.getIsTest() != null && publisher.getIsTest()) {
-//            throw new ServiceException(ExceptionConstant.TESTUSER_NOWITHDRAWALS_EXCEPTION);
-//        }
+        PublisherDto publisher = publisherBusiness.findById(SecurityUtil.getUserId());
+        if (publisher.getIsTest() != null && publisher.getIsTest()) {
+            throw new ServiceException(ExceptionConstant.TESTUSER_NOWITHDRAWALS_EXCEPTION);
+        }
         
         //判断是否处于提现时间内
         PageInfo<PutForwardDto> forward = limitBusiness.pagesPutForward();
