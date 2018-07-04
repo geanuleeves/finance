@@ -20,13 +20,18 @@ import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.entity.FuturesExchange;
+import com.waben.stock.datalayer.futures.entity.FuturesHoliday;
+import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
 import com.waben.stock.datalayer.futures.service.FuturesCommodityService;
 import com.waben.stock.datalayer.futures.service.FuturesContractService;
 import com.waben.stock.datalayer.futures.service.FuturesCurrencyRateService;
 import com.waben.stock.datalayer.futures.service.FuturesExchangeService;
+import com.waben.stock.datalayer.futures.service.FuturesHolidayService;
+import com.waben.stock.datalayer.futures.service.FuturesTradeLimitService;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesContractAdminDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
+import com.waben.stock.interfaces.enums.FuturesTradeLimitType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
@@ -55,6 +60,12 @@ public class FuturesContractController implements FuturesContractInterface {
 
 	@Autowired
 	private FuturesCommodityService commodityService;
+
+	@Autowired
+	private FuturesTradeLimitService futuresTradeLimitService;
+
+	@Autowired
+	private FuturesHolidayService futuresHolidayService;
 
 	private SimpleDateFormat daySdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -155,6 +166,28 @@ public class FuturesContractController implements FuturesContractInterface {
 				}
 				if (isTradeTime) {
 					contractDto.setState(1);
+					List<FuturesTradeLimit> limitList = futuresTradeLimitService.findByContractId(contractDto.getId());
+					if (limitList != null && limitList.size() > 0) {
+						// 判断该交易在开仓时是否在后台设置的期货交易限制内
+						Integer openWind = checkedLimitOpenwind(limitList, exchangeTime);
+						if (openWind == 2) {
+							contractDto.setState(openWind);
+							contractDto.setCurrentTradeTimeDesc("当前时段禁止开仓");
+						}
+						Integer umwind = checkedLimitUnwind(limitList, exchangeTime);
+						if (umwind == 2) {
+							contractDto.setState(umwind);
+							contractDto.setCurrentTradeTimeDesc("当前时段禁止平仓");
+						}
+					}
+					FuturesHoliday holiday = futuresHolidayService.findById(contractDto.getCommodityId());
+					if (holiday != null) {
+						Integer holidayBan = checkedFuturesHoliday(holiday, exchangeTime);
+						if (holidayBan == 2) {
+							contractDto.setState(holidayBan);
+							contractDto.setCurrentTradeTimeDesc("当前时段为节假日时间");
+						}
+					}
 				} else {
 					contractDto.setState(2);
 				}
@@ -472,6 +505,73 @@ public class FuturesContractController implements FuturesContractInterface {
 			return timeZoneConversion(timeZoneGap, overnightTime);
 		}
 
+	}
+
+	/**
+	 * 禁止开仓
+	 * 
+	 * @param limitList
+	 *            期货交易限制列表
+	 * @param exchangeTime
+	 *            当前时间
+	 */
+	public Integer checkedLimitOpenwind(List<FuturesTradeLimit> limitList, Date exchangeTime) {
+		String fullStr = fullSdf.format(exchangeTime);
+		for (FuturesTradeLimit limit : limitList) {
+			if (limit.getEnable()) {
+				if (limit.getLimitType() == FuturesTradeLimitType.LimitOpenwind) {
+					if (fullStr.compareTo(limit.getStartLimitTime()) >= 0
+							&& fullStr.compareTo(limit.getEndLimitTime()) < 0) {
+						return 2;
+					}
+				}
+			}
+		}
+		return 1;
+	}
+
+	/**
+	 * 禁止平仓
+	 * 
+	 * @param limitList
+	 *            期货交易限制列表
+	 * @param exchangeTime
+	 *            当前时间
+	 */
+	public Integer checkedLimitUnwind(List<FuturesTradeLimit> limitList, Date exchangeTime) {
+		String fullStr = fullSdf.format(exchangeTime);
+		for (FuturesTradeLimit limit : limitList) {
+			if (limit.getEnable()) {
+				if (limit.getLimitType() == FuturesTradeLimitType.LimitUnwind) {
+					if (fullStr.compareTo(limit.getStartLimitTime()) >= 0
+							&& fullStr.compareTo(limit.getEndLimitTime()) < 0) {
+						return 2;
+					}
+				}
+			}
+		}
+		return 1;
+	}
+
+	/**
+	 * 判断当前品种是否在节假日内
+	 * 
+	 * @param holiday
+	 *            假期实体
+	 * @param exchangeTime
+	 *            交易所当前时间
+	 * @return 2 休市；1 正常
+	 */
+	public Integer checkedFuturesHoliday(FuturesHoliday holiday, Date exchangeTime) {
+		String fullStr = fullSdf.format(exchangeTime);
+		String startTime = fullSdf.format(holiday.getStartTime());
+		String endTime = fullSdf.format(holiday.getEndTime());
+		if (holiday.getEnable()) {
+			if (fullStr.compareTo(startTime) >= 0 && fullStr.compareTo(endTime) < 0) {
+				return 2;
+			}
+		}
+		return 1;
 	}
 
 }

@@ -530,12 +530,13 @@ public class FuturesOrderController {
 					? new BigDecimal(0) : futuresOrderMarketDto.getPublisherProfitOrLoss());
 		}
 		gainLoss.setPositionFee(positionTotalIncome.setScale(2, RoundingMode.DOWN));
+		gainLoss.setTotalBalance(futuresOrderBusiness.totalBalance(0, Integer.MAX_VALUE));
 
 		// 获取用户账户资金
 		CapitalAccountDto result = capitalAccountBusiness.findByPublisherId(SecurityUtil.getUserId());
 		result.setPaymentPassword(null);
 		gainLoss.setBalance(result.getBalance());
-		gainLoss.setAvailableBalance(result.getAvailableBalance());
+		gainLoss.setAvailableBalance(result.getFloatAvailableBalance());
 		gainLoss.setFrozenCapital(result.getFrozenCapital());
 		return new Response<>(gainLoss);
 	}
