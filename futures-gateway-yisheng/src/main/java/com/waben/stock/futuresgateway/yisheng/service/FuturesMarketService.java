@@ -93,32 +93,35 @@ public class FuturesMarketService {
 		List<FuturesContract> contractList = contractDao.retriveByEnable(true);
 		for (FuturesContract contract : contractList) {
 			FuturesQuoteData quote = quote(contract.getCommodityNo(), contract.getContractNo());
-			TapAPIQuoteWhole quoteWhole = new TapAPIQuoteWhole();
-			quoteWhole.setQAskPrice(new double[] { quote.getAskPrice().doubleValue() });
-			quoteWhole.setQAskQty(new long[] { quote.getAskSize().longValue() });
-			quoteWhole.setQBidPrice(new double[] { quote.getBidPrice().doubleValue() });
-			quoteWhole.setQBidQty(new long[] { quote.getBidSize().longValue() });
-			if(quote.getTime() != null) {
-				quoteWhole.setDateTimeStamp(fullSdf.format(quote.getTime()) + ".000");
+			if (quote.getLastPrice().compareTo(BigDecimal.ZERO) > 0) {
+				TapAPIQuoteWhole quoteWhole = new TapAPIQuoteWhole();
+				quoteWhole.setQAskPrice(new double[] { quote.getAskPrice().doubleValue() });
+				quoteWhole.setQAskQty(new long[] { quote.getAskSize().longValue() });
+				quoteWhole.setQBidPrice(new double[] { quote.getBidPrice().doubleValue() });
+				quoteWhole.setQBidQty(new long[] { quote.getBidSize().longValue() });
+				if (quote.getTime() != null) {
+					quoteWhole.setDateTimeStamp(fullSdf.format(quote.getTime()) + ".000");
+				}
+				quoteWhole.setQLastPrice(quote.getLastPrice().doubleValue());
+				quoteWhole.setQLastQty(quote.getLastSize().longValue());
+				if (quote.getNowClosePrice() != null) {
+					quoteWhole.setQClosingPrice(quote.getNowClosePrice().doubleValue());
+				}
+				quoteWhole.setQPreClosingPrice(quote.getClosePrice().doubleValue());
+				quoteWhole.setQHighPrice(quote.getHighPrice().doubleValue());
+				quoteWhole.setQLowPrice(quote.getLowPrice().doubleValue());
+				quoteWhole.setQOpeningPrice(quote.getOpenPrice().doubleValue());
+				quoteWhole.setQTotalQty(quote.getTotalVolume());
+				TapAPIContract apiContract = new TapAPIContract();
+				apiContract.setContractNo1(quote.getContractNo());
+				TapAPICommodity apiCommodity = new TapAPICommodity();
+				apiCommodity.setCommodityNo(quote.getCommodityNo());
+				apiContract.setCommodity(apiCommodity);
+				quoteWhole.setContract(apiContract);
+
+				quoteCache.put(quoteWrapper.getQuoteCacheKey(quote.getCommodityNo(), quote.getContractNo()),
+						quoteWhole);
 			}
-			quoteWhole.setQLastPrice(quote.getLastPrice().doubleValue());
-			quoteWhole.setQLastQty(quote.getLastSize().longValue());
-			if(quote.getNowClosePrice() != null) {
-				quoteWhole.setQClosingPrice(quote.getNowClosePrice().doubleValue());
-			}
-			quoteWhole.setQPreClosingPrice(quote.getClosePrice().doubleValue());
-			quoteWhole.setQHighPrice(quote.getHighPrice().doubleValue());
-			quoteWhole.setQLowPrice(quote.getLowPrice().doubleValue());
-			quoteWhole.setQOpeningPrice(quote.getOpenPrice().doubleValue());
-			quoteWhole.setQTotalQty(quote.getTotalVolume());
-			TapAPIContract apiContract = new TapAPIContract();
-			apiContract.setContractNo1(quote.getContractNo());
-			TapAPICommodity apiCommodity = new TapAPICommodity();
-			apiCommodity.setCommodityNo(quote.getCommodityNo());
-			apiContract.setCommodity(apiCommodity);
-			quoteWhole.setContract(apiContract);
-			
-			quoteCache.put(quoteWrapper.getQuoteCacheKey(quote.getCommodityNo(), quote.getContractNo()), quoteWhole);
 		}
 	}
 
@@ -211,6 +214,8 @@ public class FuturesMarketService {
 		result.setLastPrice(BigDecimal.ZERO);
 		result.setLastSize(0L);
 		result.setLowPrice(BigDecimal.ZERO);
+		result.setOpenPrice(BigDecimal.ZERO);
+		result.setNowClosePrice(BigDecimal.ZERO);
 		result.setTotalVolume(0L);
 		result.setVolume(0L);
 		return result;
@@ -222,6 +227,7 @@ public class FuturesMarketService {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		// 获取开始和结束时间
 		Date startTime = null;
+		Date betweenTime = null;
 		Date endTime = null;
 		try {
 			if (!StringUtil.isEmpty(startTimeStr)) {
@@ -244,18 +250,44 @@ public class FuturesMarketService {
 			cal.add(Calendar.YEAR, -1);
 			startTime = cal.getTime();
 		}
+
+		FuturesContract contract = contractDao.retrieveByCommodityNoAndContractNo(commodityNo, contractNo);
+		if (contract == null) {
+			return new ArrayList<>();
+		} else {
+			if (contract.getDayKMainContractEndTime() != null
+					&& contract.getDayKMainContractEndTime().getTime() > startTime.getTime()) {
+				betweenTime = contract.getDayKMainContractEndTime();
+			} else {
+				betweenTime = startTime;
+			}
+		}
+
+		// 获取主力合约的日K数据
+		List<FuturesQuoteDayK> mainDayKList = dayKDao
+				.retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(commodityNo, "main",
+						startTime, betweenTime);
+		if (mainDayKList == null) {
+			mainDayKList = new ArrayList<>();
+		}
 		// 获取日K数据
 		List<FuturesQuoteDayK> dayKList = dayKDao
 				.retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(commodityNo, contractNo,
-						startTime, endTime);
+						betweenTime, endTime);
+		if (dayKList == null) {
+			dayKList = new ArrayList<>();
+		}
+		mainDayKList.addAll(dayKList);
+
 		if (isNeedAddToday) {
 			FuturesQuoteDayK last = null;
-			if (dayKList != null && dayKList.size() > 0) {
-				last = dayKList.get(dayKList.size() - 1);
+			if (mainDayKList != null && mainDayKList.size() > 0) {
+				last = mainDayKList.get(mainDayKList.size() - 1);
 			}
 			TapAPIQuoteWhole quote = quoteWrapper.getQuoteCache()
 					.get(quoteWrapper.getQuoteCacheKey(commodityNo, contractNo));
-			if (quote != null) {
+			if (quote != null && quote.getDateTimeStamp().substring(0, quote.getDateTimeStamp().length() - 13)
+					.equals(sdf.format(new Date()))) {
 				if (last == null || quote.getDateTimeStamp().substring(0, quote.getDateTimeStamp().length() - 13)
 						.compareTo(last.getTimeStr().substring(0, last.getTimeStr().length() - 9)) > 0) {
 					if (quote.getQClosingPrice() > 0 && quote.getQHighPrice() > 0 && quote.getQLowPrice() > 0
@@ -280,7 +312,7 @@ public class FuturesMarketService {
 										quote.getDateTimeStamp().substring(0, quote.getDateTimeStamp().length() - 13));
 								add.setVolume(quote.getQTotalQty());
 								add.setTotalVolume(quote.getQPositionQty());
-								dayKList.add(add);
+								mainDayKList.add(add);
 							} catch (ParseException e) {
 								e.printStackTrace();
 							}
@@ -289,7 +321,7 @@ public class FuturesMarketService {
 				}
 			}
 		}
-		return CopyBeanUtils.copyListBeanPropertiesToList(dayKList, FuturesContractLineData.class);
+		return CopyBeanUtils.copyListBeanPropertiesToList(mainDayKList, FuturesContractLineData.class);
 	}
 
 	public List<FuturesContractLineData> minsLine(String commodityNo, String contractNo, String startTimeStr,
@@ -485,8 +517,9 @@ public class FuturesMarketService {
 					FuturesQuoteData data = new FuturesQuoteData();
 					data.setCommodityNo(commodityNo);
 					data.setContractNo(entry.getValue().getContract().getContractNo1());
-					if(info.getDateTimeStamp() != null) {
-						data.setTime(sdf.parse(info.getDateTimeStamp().substring(0, info.getDateTimeStamp().length() - 4)));
+					if (info.getDateTimeStamp() != null) {
+						data.setTime(
+								sdf.parse(info.getDateTimeStamp().substring(0, info.getDateTimeStamp().length() - 4)));
 					}
 					data.setAskPrice(new BigDecimal(info.getQAskPrice()[0]).setScale(scale, RoundingMode.HALF_UP));
 					data.setAskSize(info.getQAskQty()[0]);

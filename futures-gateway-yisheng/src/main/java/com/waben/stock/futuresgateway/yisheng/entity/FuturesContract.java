@@ -1,5 +1,7 @@
 package com.waben.stock.futuresgateway.yisheng.entity;
 
+import java.util.Date;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -43,6 +45,8 @@ public class FuturesContract {
 	private String commodityNo;
 	/** 是否可用 */
 	private Boolean enable;
+	/** 从哪个时间之前取主力合约的日K数据 */
+	private Date dayKMainContractEndTime;
 
 	public Long getId() {
 		return id;
@@ -146,6 +150,14 @@ public class FuturesContract {
 
 	public void setYtExchange(String ytExchange) {
 		this.ytExchange = ytExchange;
+	}
+
+	public Date getDayKMainContractEndTime() {
+		return dayKMainContractEndTime;
+	}
+
+	public void setDayKMainContractEndTime(Date dayKMainContractEndTime) {
+		this.dayKMainContractEndTime = dayKMainContractEndTime;
 	}
 
 }
