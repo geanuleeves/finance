@@ -384,12 +384,11 @@ public class FuturesOrderBusiness {
 		PageInfo<FuturesOrderDto> pageOrder = pageOrder(orderQuery);
 		for (FuturesOrderDto market : pageOrder.getContent()) {
 			if (market.getUnwindPointType() == 2) {
-				totalIncome = totalIncome.add(market.getReserveFund().subtract(market.getPerUnitUnwindPoint())
-						.multiply(market.getTotalQuantity()));
+				totalIncome = totalIncome.add(market.getReserveFund()
+						.subtract(market.getPerUnitUnwindPoint().multiply(market.getTotalQuantity())));
 			} else {
 				totalIncome = totalIncome.add(market.getReserveFund().multiply(
-						new BigDecimal(100).subtract(market.getPerUnitUnwindPoint()).divide(new BigDecimal(100)))
-						.multiply(market.getTotalQuantity()));
+						new BigDecimal(100).subtract(market.getPerUnitUnwindPoint()).divide(new BigDecimal(100))));
 			}
 		}
 
