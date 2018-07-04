@@ -536,7 +536,7 @@ public class FuturesOrderController {
 		CapitalAccountDto result = capitalAccountBusiness.findByPublisherId(SecurityUtil.getUserId());
 		result.setPaymentPassword(null);
 		gainLoss.setBalance(result.getBalance());
-		gainLoss.setAvailableBalance(result.getAvailableBalance());
+		gainLoss.setAvailableBalance(result.getFloatAvailableBalance());
 		gainLoss.setFrozenCapital(result.getFrozenCapital());
 		return new Response<>(gainLoss);
 	}
