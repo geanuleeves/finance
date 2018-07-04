@@ -28,7 +28,7 @@ public class FuturesQuoteDayK {
 	private String commodityNo;
 	/** 合约ID */
 	private Long contractId;
-	/** 合约编号 */
+	/** 合约编号，合约编号为main表示主力合约 */
 	private String contractNo;
 	/** 时间 */
 	private Date time;

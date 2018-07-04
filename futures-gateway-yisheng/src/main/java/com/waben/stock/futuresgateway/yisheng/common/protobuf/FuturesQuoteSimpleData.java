@@ -97,6 +97,36 @@ public final class FuturesQuoteSimpleData {
      */
     com.google.protobuf.ByteString
         getClosePriceBytes();
+
+    /**
+     * <code>optional string bidPrice = 9;</code>
+     */
+    java.lang.String getBidPrice();
+    /**
+     * <code>optional string bidPrice = 9;</code>
+     */
+    com.google.protobuf.ByteString
+        getBidPriceBytes();
+
+    /**
+     * <code>optional int64 bidSize = 10;</code>
+     */
+    long getBidSize();
+
+    /**
+     * <code>optional string askPrice = 11;</code>
+     */
+    java.lang.String getAskPrice();
+    /**
+     * <code>optional string askPrice = 11;</code>
+     */
+    com.google.protobuf.ByteString
+        getAskPriceBytes();
+
+    /**
+     * <code>optional int64 askSize = 12;</code>
+     */
+    long getAskSize();
   }
   /**
    * Protobuf type {@code FuturesQuoteSimpleDataBase}
@@ -118,6 +148,10 @@ public final class FuturesQuoteSimpleData {
       highPrice_ = "";
       lowPrice_ = "";
       closePrice_ = "";
+      bidPrice_ = "";
+      bidSize_ = 0L;
+      askPrice_ = "";
+      askSize_ = 0L;
     }
 
     @java.lang.Override
@@ -191,6 +225,28 @@ public final class FuturesQuoteSimpleData {
               java.lang.String s = input.readStringRequireUtf8();
 
               closePrice_ = s;
+              break;
+            }
+            case 74: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              bidPrice_ = s;
+              break;
+            }
+            case 80: {
+
+              bidSize_ = input.readInt64();
+              break;
+            }
+            case 90: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              askPrice_ = s;
+              break;
+            }
+            case 96: {
+
+              askSize_ = input.readInt64();
               break;
             }
           }
@@ -488,6 +544,92 @@ public final class FuturesQuoteSimpleData {
       }
     }
 
+    public static final int BIDPRICE_FIELD_NUMBER = 9;
+    private volatile java.lang.Object bidPrice_;
+    /**
+     * <code>optional string bidPrice = 9;</code>
+     */
+    public java.lang.String getBidPrice() {
+      java.lang.Object ref = bidPrice_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        bidPrice_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string bidPrice = 9;</code>
+     */
+    public com.google.protobuf.ByteString
+        getBidPriceBytes() {
+      java.lang.Object ref = bidPrice_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        bidPrice_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int BIDSIZE_FIELD_NUMBER = 10;
+    private long bidSize_;
+    /**
+     * <code>optional int64 bidSize = 10;</code>
+     */
+    public long getBidSize() {
+      return bidSize_;
+    }
+
+    public static final int ASKPRICE_FIELD_NUMBER = 11;
+    private volatile java.lang.Object askPrice_;
+    /**
+     * <code>optional string askPrice = 11;</code>
+     */
+    public java.lang.String getAskPrice() {
+      java.lang.Object ref = askPrice_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        askPrice_ = s;
+        return s;
+      }
+    }
+    /**
+     * <code>optional string askPrice = 11;</code>
+     */
+    public com.google.protobuf.ByteString
+        getAskPriceBytes() {
+      java.lang.Object ref = askPrice_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        askPrice_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int ASKSIZE_FIELD_NUMBER = 12;
+    private long askSize_;
+    /**
+     * <code>optional int64 askSize = 12;</code>
+     */
+    public long getAskSize() {
+      return askSize_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -524,6 +666,18 @@ public final class FuturesQuoteSimpleData {
       if (!getClosePriceBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 8, closePrice_);
       }
+      if (!getBidPriceBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 9, bidPrice_);
+      }
+      if (bidSize_ != 0L) {
+        output.writeInt64(10, bidSize_);
+      }
+      if (!getAskPriceBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 11, askPrice_);
+      }
+      if (askSize_ != 0L) {
+        output.writeInt64(12, askSize_);
+      }
     }
 
     public int getSerializedSize() {
@@ -554,6 +708,20 @@ public final class FuturesQuoteSimpleData {
       }
       if (!getClosePriceBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(8, closePrice_);
+      }
+      if (!getBidPriceBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(9, bidPrice_);
+      }
+      if (bidSize_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(10, bidSize_);
+      }
+      if (!getAskPriceBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(11, askPrice_);
+      }
+      if (askSize_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(12, askSize_);
       }
       memoizedSize = size;
       return size;
@@ -587,6 +755,14 @@ public final class FuturesQuoteSimpleData {
           .equals(other.getLowPrice());
       result = result && getClosePrice()
           .equals(other.getClosePrice());
+      result = result && getBidPrice()
+          .equals(other.getBidPrice());
+      result = result && (getBidSize()
+          == other.getBidSize());
+      result = result && getAskPrice()
+          .equals(other.getAskPrice());
+      result = result && (getAskSize()
+          == other.getAskSize());
       return result;
     }
 
@@ -613,6 +789,16 @@ public final class FuturesQuoteSimpleData {
       hash = (53 * hash) + getLowPrice().hashCode();
       hash = (37 * hash) + CLOSEPRICE_FIELD_NUMBER;
       hash = (53 * hash) + getClosePrice().hashCode();
+      hash = (37 * hash) + BIDPRICE_FIELD_NUMBER;
+      hash = (53 * hash) + getBidPrice().hashCode();
+      hash = (37 * hash) + BIDSIZE_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getBidSize());
+      hash = (37 * hash) + ASKPRICE_FIELD_NUMBER;
+      hash = (53 * hash) + getAskPrice().hashCode();
+      hash = (37 * hash) + ASKSIZE_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getAskSize());
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -747,6 +933,14 @@ public final class FuturesQuoteSimpleData {
 
         closePrice_ = "";
 
+        bidPrice_ = "";
+
+        bidSize_ = 0L;
+
+        askPrice_ = "";
+
+        askSize_ = 0L;
+
         return this;
       }
 
@@ -777,6 +971,10 @@ public final class FuturesQuoteSimpleData {
         result.highPrice_ = highPrice_;
         result.lowPrice_ = lowPrice_;
         result.closePrice_ = closePrice_;
+        result.bidPrice_ = bidPrice_;
+        result.bidSize_ = bidSize_;
+        result.askPrice_ = askPrice_;
+        result.askSize_ = askSize_;
         onBuilt();
         return result;
       }
@@ -849,6 +1047,20 @@ public final class FuturesQuoteSimpleData {
         if (!other.getClosePrice().isEmpty()) {
           closePrice_ = other.closePrice_;
           onChanged();
+        }
+        if (!other.getBidPrice().isEmpty()) {
+          bidPrice_ = other.bidPrice_;
+          onChanged();
+        }
+        if (other.getBidSize() != 0L) {
+          setBidSize(other.getBidSize());
+        }
+        if (!other.getAskPrice().isEmpty()) {
+          askPrice_ = other.askPrice_;
+          onChanged();
+        }
+        if (other.getAskSize() != 0L) {
+          setAskSize(other.getAskSize());
         }
         onChanged();
         return this;
@@ -1427,6 +1639,196 @@ public final class FuturesQuoteSimpleData {
         onChanged();
         return this;
       }
+
+      private java.lang.Object bidPrice_ = "";
+      /**
+       * <code>optional string bidPrice = 9;</code>
+       */
+      public java.lang.String getBidPrice() {
+        java.lang.Object ref = bidPrice_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          bidPrice_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string bidPrice = 9;</code>
+       */
+      public com.google.protobuf.ByteString
+          getBidPriceBytes() {
+        java.lang.Object ref = bidPrice_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          bidPrice_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string bidPrice = 9;</code>
+       */
+      public Builder setBidPrice(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        bidPrice_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string bidPrice = 9;</code>
+       */
+      public Builder clearBidPrice() {
+        
+        bidPrice_ = getDefaultInstance().getBidPrice();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string bidPrice = 9;</code>
+       */
+      public Builder setBidPriceBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        bidPrice_ = value;
+        onChanged();
+        return this;
+      }
+
+      private long bidSize_ ;
+      /**
+       * <code>optional int64 bidSize = 10;</code>
+       */
+      public long getBidSize() {
+        return bidSize_;
+      }
+      /**
+       * <code>optional int64 bidSize = 10;</code>
+       */
+      public Builder setBidSize(long value) {
+        
+        bidSize_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 bidSize = 10;</code>
+       */
+      public Builder clearBidSize() {
+        
+        bidSize_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object askPrice_ = "";
+      /**
+       * <code>optional string askPrice = 11;</code>
+       */
+      public java.lang.String getAskPrice() {
+        java.lang.Object ref = askPrice_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          askPrice_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string askPrice = 11;</code>
+       */
+      public com.google.protobuf.ByteString
+          getAskPriceBytes() {
+        java.lang.Object ref = askPrice_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          askPrice_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string askPrice = 11;</code>
+       */
+      public Builder setAskPrice(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        askPrice_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string askPrice = 11;</code>
+       */
+      public Builder clearAskPrice() {
+        
+        askPrice_ = getDefaultInstance().getAskPrice();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string askPrice = 11;</code>
+       */
+      public Builder setAskPriceBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        askPrice_ = value;
+        onChanged();
+        return this;
+      }
+
+      private long askSize_ ;
+      /**
+       * <code>optional int64 askSize = 12;</code>
+       */
+      public long getAskSize() {
+        return askSize_;
+      }
+      /**
+       * <code>optional int64 askSize = 12;</code>
+       */
+      public Builder setAskSize(long value) {
+        
+        askSize_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 askSize = 12;</code>
+       */
+      public Builder clearAskSize() {
+        
+        askSize_ = 0L;
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -1490,14 +1892,16 @@ public final class FuturesQuoteSimpleData {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\034FuturesQuoteSimpleData.proto\"\262\001\n\032Futur" +
+      "\n\034FuturesQuoteSimpleData.proto\"\370\001\n\032Futur" +
       "esQuoteSimpleDataBase\022\014\n\004time\030\001 \001(\t\022\023\n\013c" +
       "ommodityNo\030\002 \001(\t\022\022\n\ncontractNo\030\003 \001(\t\022\021\n\t" +
       "lastPrice\030\004 \001(\t\022\021\n\topenPrice\030\005 \001(\t\022\021\n\thi" +
       "ghPrice\030\006 \001(\t\022\020\n\010lowPrice\030\007 \001(\t\022\022\n\nclose" +
-      "Price\030\010 \001(\tBP\n6com.waben.stock.futuresga" +
-      "teway.yisheng.common.protobufB\026FuturesQu" +
-      "oteSimpleDatab\006proto3"
+      "Price\030\010 \001(\t\022\020\n\010bidPrice\030\t \001(\t\022\017\n\007bidSize" +
+      "\030\n \001(\003\022\020\n\010askPrice\030\013 \001(\t\022\017\n\007askSize\030\014 \001(" +
+      "\003BP\n6com.waben.stock.futuresgateway.yish" +
+      "eng.common.protobufB\026FuturesQuoteSimpleD" +
+      "atab\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1516,7 +1920,7 @@ public final class FuturesQuoteSimpleData {
     internal_static_FuturesQuoteSimpleDataBase_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_FuturesQuoteSimpleDataBase_descriptor,
-        new java.lang.String[] { "Time", "CommodityNo", "ContractNo", "LastPrice", "OpenPrice", "HighPrice", "LowPrice", "ClosePrice", });
+        new java.lang.String[] { "Time", "CommodityNo", "ContractNo", "LastPrice", "OpenPrice", "HighPrice", "LowPrice", "ClosePrice", "BidPrice", "BidSize", "AskPrice", "AskSize", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

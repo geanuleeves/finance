@@ -253,6 +253,12 @@ public class EsQuoteWrapper implements QuoteApiListener {
 			Integer scale = EsEngine.commodityScaleMap.get(commodityNo);
 			FuturesQuoteSimpleDataBase simple = FuturesQuoteSimpleDataBase.newBuilder()
 					.setTime(quote.getDateTimeStamp()).setCommodityNo(commodityNo).setContractNo(contractNo)
+					.setAskPrice(
+							new BigDecimal(quote.getQAskPrice()[0]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setAskSize(quote.getQAskQty()[0])
+					.setBidPrice(
+							new BigDecimal(quote.getQBidPrice()[0]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setBidSize(quote.getQBidQty()[0])
 					.setLastPrice(
 							new BigDecimal(quote.getQLastPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
 					.setOpenPrice(
@@ -277,8 +283,6 @@ public class EsQuoteWrapper implements QuoteApiListener {
 		for (Map.Entry<String, Channel> entry : ChannelRepository.channelCache.entrySet()) {
 			String clientId = entry.getKey();
 			Channel channel = entry.getValue();
-			boolean isOpen = channel.isOpen();
-			// if (isOpen) {
 			// 请求类型
 			Attribute<Long> rtinfo = channel.attr(requestTypeInfo);
 			if (singleQuote != null && rtinfo.get() != null && rtinfo.get() == 1) {
@@ -295,7 +299,6 @@ public class EsQuoteWrapper implements QuoteApiListener {
 				allQuote = Message.MessageBase.newBuilder(allQuote).setClientId(clientId).build();
 				channel.writeAndFlush(allQuote);
 			}
-			// }
 		}
 	}
 

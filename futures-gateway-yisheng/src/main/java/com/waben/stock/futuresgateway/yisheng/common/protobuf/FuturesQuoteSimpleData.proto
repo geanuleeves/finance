@@ -12,4 +12,8 @@ message FuturesQuoteSimpleDataBase {
 	string highPrice = 6;
 	string lowPrice = 7;
 	string closePrice = 8;
+	string bidPrice = 9;
+	int64 bidSize = 10;
+	string askPrice = 11;
+	int64 askSize = 12;
 }

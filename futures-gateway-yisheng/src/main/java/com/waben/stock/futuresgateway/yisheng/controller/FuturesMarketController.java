@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,7 +44,7 @@ public class FuturesMarketController {
 			@PathVariable("contractNo") String contractNo) {
 		return new Response<>(service.quote(commodityNo, contractNo));
 	}
-	
+
 	@GetMapping("/all")
 	@ApiOperation(value = "所有期货合约行情")
 	public Response<Map<String, FuturesQuoteData>> marketAll() {
@@ -86,6 +87,39 @@ public class FuturesMarketController {
 	@ApiOperation(value = "计算日K数据")
 	public Response<String> importDayline(String dirPath) {
 		importDayK.importData(dirPath);
+		Response<String> result = new Response<>();
+		result.setResult("success");
+		return result;
+	}
+
+	@GetMapping("/importMainDayline")
+	@ApiOperation(value = "导入主力合约日K数据")
+	public Response<String> importMainDayline(String dirPath) {
+		importDayK.importMainDayline(dirPath);
+		Response<String> result = new Response<>();
+		result.setResult("success");
+		return result;
+	}
+	
+	@PostMapping("/updateMainDayline")
+	@ApiOperation(value = "更新主力合约日K数据")
+	public Response<String> updateMainDayline(String commodityNo) {
+		importDayK.updateMainDayline(commodityNo);
+		Response<String> result = new Response<>();
+		result.setResult("success");
+		return result;
+	}
+
+	@PostMapping("/setDayKMainContractEndTime")
+	@ApiOperation(value = "设置主力合约的日K结束时间")
+	public Response<String> setDayKMainContractEndTime(String commodityNo, String contractNo,
+			String dayKMainContractEndTime) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		try {
+			importDayK.setDayKMainContractEndTime(commodityNo, contractNo, sdf.parse(dayKMainContractEndTime));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		Response<String> result = new Response<>();
 		result.setResult("success");
 		return result;
