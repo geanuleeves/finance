@@ -828,10 +828,10 @@ public class FuturesOrderService {
 					order.getId(), order.getTradeNo(), order.getTotalQuantity(), order.getOpenwindServiceFee(),
 					order.getUnwindServiceFee());
 		}
-		// 放入监控队列
-		monitorPublisher.monitorPublisher(order.getPublisherId());
 		// 站外消息推送
 		sendOutsideMessage(order);
+		// 放入监控队列
+		monitorPublisher.monitorPublisher(order.getPublisherId());
 		return order;
 	}
 
