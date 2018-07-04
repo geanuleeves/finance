@@ -130,6 +130,7 @@ public class MonitorPublisherFuturesOrderConsumer {
 						}
 					}
 				}
+				retry(messgeObj);
 			} else {
 				// 从监控队列中移除
 				monitorPublisherList.remove(publisherId);
