@@ -84,7 +84,7 @@ public class FuturesOrderDayGainLossDto {
 	}
 
 	public BigDecimal getFrozenCapital() {
-		return frozenCapital;
+		return frozenCapital != null ? frozenCapital.stripTrailingZeros() : null;
 	}
 
 	public void setFrozenCapital(BigDecimal frozenCapital) {
@@ -100,7 +100,7 @@ public class FuturesOrderDayGainLossDto {
 	}
 
 	public BigDecimal getFloatAvailableBalance() {
-		return floatAvailableBalance;
+		return floatAvailableBalance != null ? floatAvailableBalance.stripTrailingZeros() : null;
 	}
 
 	public void setFloatAvailableBalance(BigDecimal floatAvailableBalance) {
