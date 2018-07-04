@@ -207,9 +207,11 @@ public class MonitorPublisherFuturesOrderConsumer {
 			// 计算交易保证金
 			totalTradeReserveFund = totalTradeReserveFund.add(order.getReserveFund());
 			// 计算隔夜手续费
-			totalOvernightDeferredFee = totalOvernightDeferredFee.add(order.getTotalQuantity().multiply(order.getOvernightPerUnitDeferredFee()));
+			totalOvernightDeferredFee = totalOvernightDeferredFee
+					.add(order.getTotalQuantity().multiply(order.getOvernightPerUnitDeferredFee()));
 			// 计算隔夜保证金
-			totalOvernightReserveFund = totalOvernightReserveFund.add(order.getTotalQuantity().multiply(order.getOvernightPerUnitReserveFund()));
+			totalOvernightReserveFund = totalOvernightReserveFund
+					.add(order.getTotalQuantity().multiply(order.getOvernightPerUnitReserveFund()));
 		}
 
 		if (account.getAvailableBalance().add(totalProfitOrLoss).add(totalTradeReserveFund)
@@ -337,13 +339,23 @@ public class MonitorPublisherFuturesOrderConsumer {
 		}
 	}
 
-	public void monitorPublisher(Long publisherId) {
-		if (!monitorPublisherList.contains(publisherId)) {
-			MonitorPublisherFuturesOrderMessage messgeObj = new MonitorPublisherFuturesOrderMessage();
-			messgeObj.setPublisherId(publisherId);
-			producer.sendMessage(RabbitmqConfiguration.monitorPublisherFuturesOrderQueueName, messgeObj);
-			monitorPublisherList.add(publisherId);
-		}
+	public void monitorPublisher(final Long publisherId) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				if (!monitorPublisherList.contains(publisherId)) {
+					MonitorPublisherFuturesOrderMessage messgeObj = new MonitorPublisherFuturesOrderMessage();
+					messgeObj.setPublisherId(publisherId);
+					producer.sendMessage(RabbitmqConfiguration.monitorPublisherFuturesOrderQueueName, messgeObj);
+					monitorPublisherList.add(publisherId);
+				}
+			}
+		}).start();
 	}
 
 }
