@@ -44,7 +44,7 @@ public class FuturesOrderDayGainLossDto {
 	 */
 	@ApiModelProperty(value = "总强平金额")
 	private BigDecimal totalBalance;
-	
+
 	/**
 	 * 账户浮动可用余额
 	 */
@@ -76,7 +76,7 @@ public class FuturesOrderDayGainLossDto {
 	}
 
 	public BigDecimal getAvailableBalance() {
-		return availableBalance;
+		return availableBalance != null ? availableBalance.stripTrailingZeros() : null;
 	}
 
 	public void setAvailableBalance(BigDecimal availableBalance) {
@@ -106,7 +106,5 @@ public class FuturesOrderDayGainLossDto {
 	public void setFloatAvailableBalance(BigDecimal floatAvailableBalance) {
 		this.floatAvailableBalance = floatAvailableBalance;
 	}
-	
-	
 
 }
