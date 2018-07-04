@@ -25,41 +25,48 @@ import com.waben.stock.interfaces.util.StringUtil;
 
 @Service
 public class FuturesHolidayService {
-	
+
 	@Autowired
 	private FuturesHolidayDao holidayDao;
-	
-	public FuturesHoliday saveAndModify(FuturesHoliday t){
+
+	public FuturesHoliday saveAndModify(FuturesHoliday t) {
 		return holidayDao.create(t);
 	}
-	
-	public void delete(Long id){
+
+	public void delete(Long id) {
 		holidayDao.delete(id);
 	}
-	
-	public FuturesHoliday findById(Long id){
+
+	public FuturesHoliday findById(Long id) {
 		return holidayDao.retrieve(id);
 	}
-	
-	public List<FuturesHoliday> findByCommodity(FuturesCommodity commodity){
+
+	public List<FuturesHoliday> findByCommodity(FuturesCommodity commodity) {
 		return holidayDao.findByCommodity(commodity);
 	}
-	
-	public Page<FuturesHoliday> page(final FuturesHolidayQuery query){
+
+	public List<FuturesHoliday> findByCommodityId(Long commodityId) {
+		return holidayDao.findByCommodityId(commodityId);
+	}
+
+	public Page<FuturesHoliday> page(final FuturesHolidayQuery query) {
 		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
 		Page<FuturesHoliday> page = holidayDao.page(new Specification<FuturesHoliday>() {
-			
+
 			@Override
-			public Predicate toPredicate(Root<FuturesHoliday> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+			public Predicate toPredicate(Root<FuturesHoliday> root, CriteriaQuery<?> criteriaQuery,
+					CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
-				Join<FuturesHoliday,FuturesCommodity> join = root.join("commodity", JoinType.LEFT);
-				
-				if(!StringUtil.isEmpty(query.getSymbol())){
-					predicateList.add(criteriaBuilder.like(join.get("symbol").as(String.class), "%"+query.getSymbol()+"%"));
+				Join<FuturesHoliday, FuturesCommodity> join = root.join("commodity", JoinType.LEFT);
+
+				if (!StringUtil.isEmpty(query.getSymbol())) {
+					predicateList.add(
+							criteriaBuilder.like(join.get("symbol").as(String.class), "%" + query.getSymbol() + "%"));
 				}
-				
-				if(!StringUtil.isEmpty(query.getName())){
-					predicateList.add(criteriaBuilder.like(join.get("name").as(String.class), "%"+query.getName()+"%"));
+
+				if (!StringUtil.isEmpty(query.getName())) {
+					predicateList
+							.add(criteriaBuilder.like(join.get("name").as(String.class), "%" + query.getName() + "%"));
 				}
 
 				if (predicateList.size() > 0) {
@@ -69,7 +76,7 @@ public class FuturesHolidayService {
 				return criteriaQuery.getRestriction();
 			}
 		}, pageable);
-		
+
 		return page;
 	}
 

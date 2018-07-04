@@ -533,7 +533,6 @@ public class FuturesContractController implements FuturesContractInterface {
 			String tradeTime, boolean isTradeTime) {
 		// 当天最后一个时间节点 tradeTime.substring(tradeTime.lastIndexOf("-") +
 		// 1))
-		String name = contractDto.getName();
 		contractDto.setAutomaticWarehouseTime(timeZoneConversion(timeZoneGap, contractDto.getOvernightTime()));
 		String[] tradeTimeArr = tradeTime.split(",");
 		String dayStr = daySdf.format(exchangeTime);
@@ -586,7 +585,11 @@ public class FuturesContractController implements FuturesContractInterface {
 					contractDto.setCurrentTradeTimeDesc("当前时段禁止平仓");
 				}
 			}
-			FuturesHoliday holiday = futuresHolidayService.findById(contractDto.getCommodityId());
+			List<FuturesHoliday> holidayList = futuresHolidayService.findByCommodityId(contractDto.getCommodityId());
+			FuturesHoliday holiday = null;
+			if (holidayList != null && holidayList.size() > 0) {
+				holiday = holidayList.get(0);
+			}
 			if (holiday != null) {
 				Integer holidayBan = checkedFuturesHoliday(holiday, exchangeTime);
 				if (holidayBan == 2) {

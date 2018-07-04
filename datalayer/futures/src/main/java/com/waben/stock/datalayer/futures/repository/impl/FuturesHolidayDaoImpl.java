@@ -16,12 +16,13 @@ import com.waben.stock.datalayer.futures.repository.impl.jpa.FuturesHolidayRepos
 
 /**
  * 节假日管理
+ * 
  * @author pengzhenliang
  *
  */
 @Repository
 public class FuturesHolidayDaoImpl implements FuturesHolidayDao {
-	
+
 	@Autowired
 	private FuturesHolidayRepository repository;
 
@@ -63,6 +64,11 @@ public class FuturesHolidayDaoImpl implements FuturesHolidayDao {
 	@Override
 	public List<FuturesHoliday> findByCommodity(FuturesCommodity commodity) {
 		return repository.findByCommodity(commodity);
+	}
+
+	@Override
+	public List<FuturesHoliday> findByCommodityId(Long commodityId) {
+		return repository.findByCommodityId(commodityId);
 	}
 
 }
