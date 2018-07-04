@@ -1,6 +1,7 @@
 package com.waben.stock.applayer.tactics.business.futures;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import com.waben.stock.applayer.tactics.business.AnalogDataBusiness;
 import com.waben.stock.applayer.tactics.business.ProfileBusiness;
 import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderMarketDto;
 import com.waben.stock.applayer.tactics.dto.futures.TransactionDynamicsDto;
+import com.waben.stock.applayer.tactics.security.SecurityUtil;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
@@ -233,6 +235,7 @@ public class FuturesOrderBusiness {
 		unwindQuery.setPage(page);
 		unwindQuery.setSize(size / 2);
 		unwindQuery.setOnlyProfit(true);
+		unwindQuery.setExpire(true);
 		PageInfo<FuturesOrderDto> pageUnwindOrder = pageOrder(unwindQuery);
 
 		// 持仓中订单
@@ -241,6 +244,7 @@ public class FuturesOrderBusiness {
 		positionQuery.setStates(positionStates);
 		positionQuery.setPage(page);
 		positionQuery.setOnlyProfit(true);
+		unwindQuery.setExpire(true);
 		positionQuery.setSize(size - pageUnwindOrder.getContent().size());
 		PageInfo<FuturesOrderDto> pagePositionOrder = pageOrder(positionQuery);
 
@@ -360,6 +364,37 @@ public class FuturesOrderBusiness {
 			return response.getResult();
 		}
 		throw new ServiceException(response.getCode());
+	}
+
+	/**
+	 * 获取总强平金额
+	 * 
+	 * @param page
+	 * @param size
+	 * @return 总强平金额
+	 */
+	public BigDecimal totalBalance(int page, int size) {
+		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
+		FuturesOrderState[] states = { FuturesOrderState.Position, FuturesOrderState.SellingEntrust,
+				FuturesOrderState.PartUnwind };
+		orderQuery.setStates(states);
+		orderQuery.setPage(page);
+		orderQuery.setSize(size);
+		orderQuery.setPublisherId(SecurityUtil.getUserId());
+		BigDecimal totalIncome = new BigDecimal(0);
+		PageInfo<FuturesOrderDto> pageOrder = pageOrder(orderQuery);
+		for (FuturesOrderDto market : pageOrder.getContent()) {
+			if (market.getUnwindPointType() == 2) {
+				totalIncome = totalIncome.add(market.getReserveFund().subtract(market.getPerUnitUnwindPoint())
+						.multiply(market.getTotalQuantity()));
+			} else {
+				totalIncome = totalIncome.add(market.getReserveFund().multiply(
+						new BigDecimal(100).subtract(market.getPerUnitUnwindPoint()).divide(new BigDecimal(100)))
+						.multiply(market.getTotalQuantity()));
+			}
+		}
+
+		return totalIncome.setScale(2, RoundingMode.DOWN);
 	}
 
 }

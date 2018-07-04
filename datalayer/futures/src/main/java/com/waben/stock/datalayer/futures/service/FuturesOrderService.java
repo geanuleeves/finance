@@ -347,6 +347,13 @@ public class FuturesOrderService {
 					predicateList.add(criteriaBuilder.gt(root.get("publisherProfitOrLoss").as(BigDecimal.class),
 							new BigDecimal(0)));
 				}
+				// 交易动态过滤已到期数据
+				if (query.isExpire()) {
+					Join<FuturesOrder, FuturesContract> contractJoin = root.join("contract", JoinType.LEFT);
+					Predicate expirationDate = criteriaBuilder
+							.lessThan(contractJoin.get("expirationDate").as(Date.class), new Date());
+					predicateList.add(criteriaBuilder.and(expirationDate));
+				}
 				// 合约名称
 				if (!StringUtil.isEmpty(query.getContractName())) {
 					Predicate contractName = criteriaBuilder.like(join.get("name").as(String.class),
@@ -881,7 +888,7 @@ public class FuturesOrderService {
 		order.setState(FuturesOrderState.Unwind);
 		order.setUpdateTime(date);
 		orderDao.update(order);
-		unwindReturnOvernightReserveFund(order);
+		// unwindReturnOvernightReserveFund(order);
 		// 站外消息推送
 		sendOutsideMessage(order);
 		return order;
@@ -1037,7 +1044,8 @@ public class FuturesOrderService {
 		CapitalAccountDto account = accountBusiness.fetchByPublisherId(order.getPublisherId());
 		BigDecimal deferredFee = order.getOvernightPerUnitDeferredFee().multiply(order.getTotalQuantity());
 		BigDecimal reserveFund = order.getOvernightPerUnitReserveFund().multiply(order.getTotalQuantity());
-		BigDecimal totalFee = deferredFee.add(reserveFund);
+		// BigDecimal totalFee = deferredFee.add(reserveFund);
+		BigDecimal totalFee = deferredFee;
 		if (account.getAvailableBalance().compareTo(totalFee) < 0) {
 			// step 1.1 : 余额不足，强制平仓
 			return sellingEntrust(order, FuturesWindControlType.DayUnwind, FuturesTradePriceType.MKT, null);
@@ -1065,7 +1073,7 @@ public class FuturesOrderService {
 			if (deferredFee.compareTo(BigDecimal.ZERO) > 0 || reserveFund.compareTo(BigDecimal.ZERO) > 0) {
 				try {
 					accountBusiness.futuresOrderOvernight(order.getPublisherId(), overnightRecord.getId(), deferredFee,
-							reserveFund);
+							BigDecimal.ZERO);
 					// 给渠道推广机构结算
 					if (order.getIsTest() == null || order.getIsTest() == false) {
 						orgBusiness.futuresDeferredSettlement(order.getPublisherId(),
@@ -1468,9 +1476,15 @@ public class FuturesOrderService {
 		FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
 		// 计算浮动盈亏
 		if (lastPrice != null) {
-			return lastPrice.subtract(buyingPrice).divide(order.getContract().getCommodity().getMinWave())
-					.multiply(order.getContract().getCommodity().getPerWaveMoney()).multiply(rate.getRate())
-					.multiply(order.getTotalQuantity());
+			if (order.getOrderType() == FuturesOrderType.BuyUp) {
+				return lastPrice.subtract(buyingPrice).divide(order.getContract().getCommodity().getMinWave())
+						.multiply(order.getContract().getCommodity().getPerWaveMoney()).multiply(rate.getRate())
+						.multiply(order.getTotalQuantity());
+			} else {
+				return buyingPrice.subtract(lastPrice).divide(order.getContract().getCommodity().getMinWave())
+						.multiply(order.getContract().getCommodity().getPerWaveMoney()).multiply(rate.getRate())
+						.multiply(order.getTotalQuantity());
+			}
 		} else {
 			return BigDecimal.ZERO;
 		}
@@ -1509,7 +1523,7 @@ public class FuturesOrderService {
 		BigDecimal totalProfitOrLoss = BigDecimal.ZERO;
 		for (FuturesOrder order : orderList) {
 			// 计算浮动盈亏
-			totalProfitOrLoss.add(this.getProfitOrLoss(order));
+			totalProfitOrLoss = totalProfitOrLoss.add(this.getProfitOrLoss(order));
 		}
 		return totalProfitOrLoss;
 	}

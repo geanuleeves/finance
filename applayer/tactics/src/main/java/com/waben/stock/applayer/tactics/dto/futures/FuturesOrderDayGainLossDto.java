@@ -39,6 +39,12 @@ public class FuturesOrderDayGainLossDto {
 	@ApiModelProperty(value = "冻结资金")
 	private BigDecimal frozenCapital;
 
+	/**
+	 * 总强平金额
+	 */
+	@ApiModelProperty(value = "总强平金额")
+	private BigDecimal totalBalance;
+
 	public BigDecimal getPositionFee() {
 		return positionFee;
 	}
@@ -77,6 +83,14 @@ public class FuturesOrderDayGainLossDto {
 
 	public void setFrozenCapital(BigDecimal frozenCapital) {
 		this.frozenCapital = frozenCapital;
+	}
+
+	public BigDecimal getTotalBalance() {
+		return totalBalance;
+	}
+
+	public void setTotalBalance(BigDecimal totalBalance) {
+		this.totalBalance = totalBalance;
 	}
 
 }

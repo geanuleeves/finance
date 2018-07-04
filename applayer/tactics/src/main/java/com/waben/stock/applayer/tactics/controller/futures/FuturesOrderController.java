@@ -128,12 +128,12 @@ public class FuturesOrderController {
 			throw new ServiceException(ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION);
 		}
 		BigDecimal unsettledProfitOrLoss = futuresOrderBusiness.getUnsettledProfitOrLoss(SecurityUtil.getUserId());
-		if(unsettledProfitOrLoss != null && unsettledProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
-			if(totalFee.add(unsettledProfitOrLoss.abs()).compareTo(capitalAccount.getAvailableBalance()) > 0) {
+		if (unsettledProfitOrLoss != null && unsettledProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+			if (totalFee.add(unsettledProfitOrLoss.abs()).compareTo(capitalAccount.getAvailableBalance()) > 0) {
 				throw new ServiceException(ExceptionConstant.HOLDINGLOSS_LEADTO_NOTENOUGH_EXCEPTION);
 			}
 		}
-		
+
 		FuturesOrderDto orderDto = new FuturesOrderDto();
 		orderDto.setPublisherId(SecurityUtil.getUserId());
 		orderDto.setOrderType(buysellDto.getOrderType());
@@ -342,6 +342,7 @@ public class FuturesOrderController {
 		result.setTotalIncome(totalIncome.setScale(2, RoundingMode.DOWN));
 		result.setRate(rate.setScale(2, RoundingMode.DOWN));
 		result.setCurrencySign(sign);
+		result.setTotalBalance(futuresOrderBusiness.totalBalance(page, size));
 		return new Response<>(result);
 	}
 
@@ -521,13 +522,15 @@ public class FuturesOrderController {
 		positionOrderQuery.setPage(0);
 		positionOrderQuery.setSize(Integer.MAX_VALUE);
 		positionOrderQuery.setPublisherId(SecurityUtil.getUserId());
-		List<FuturesOrderMarketDto> positionList = futuresOrderBusiness.pageOrderMarket(positionOrderQuery).getContent();
+		List<FuturesOrderMarketDto> positionList = futuresOrderBusiness.pageOrderMarket(positionOrderQuery)
+				.getContent();
 		BigDecimal positionTotalIncome = new BigDecimal(0);
 		for (FuturesOrderMarketDto futuresOrderMarketDto : positionList) {
 			positionTotalIncome = positionTotalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss() == null
 					? new BigDecimal(0) : futuresOrderMarketDto.getPublisherProfitOrLoss());
 		}
 		gainLoss.setPositionFee(positionTotalIncome.setScale(2, RoundingMode.DOWN));
+		gainLoss.setTotalBalance(futuresOrderBusiness.totalBalance(0, Integer.MAX_VALUE));
 
 		// 获取用户账户资金
 		CapitalAccountDto result = capitalAccountBusiness.findByPublisherId(SecurityUtil.getUserId());

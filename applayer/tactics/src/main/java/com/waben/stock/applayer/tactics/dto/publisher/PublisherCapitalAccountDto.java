@@ -35,6 +35,10 @@ public class PublisherCapitalAccountDto {
 	 */
 	private BigDecimal availableBalance;
 	/**
+	 * 账户浮动可用余额
+	 */
+	private BigDecimal floatAvailableBalance;
+	/**
 	 * 头像
 	 */
 	private String headPortrait;
@@ -49,6 +53,7 @@ public class PublisherCapitalAccountDto {
 	public PublisherCapitalAccountDto(PublisherDto publisher, CapitalAccountDto capitalAccount) {
 		this.setBalance(capitalAccount.getBalance());
 		this.setAvailableBalance(capitalAccount.getAvailableBalance());
+		this.setFloatAvailableBalance(capitalAccount.getFloatAvailableBalance());
 		this.setId(publisher.getId());
 		this.setPhone(publisher.getPhone());
 		this.setPromotionCode(publisher.getPromotionCode());
@@ -118,6 +123,14 @@ public class PublisherCapitalAccountDto {
 
 	public void setHeadPortrait(String headPortrait) {
 		this.headPortrait = headPortrait;
+	}
+
+	public BigDecimal getFloatAvailableBalance() {
+		return floatAvailableBalance;
+	}
+
+	public void setFloatAvailableBalance(BigDecimal floatAvailableBalance) {
+		this.floatAvailableBalance = floatAvailableBalance;
 	}
 
 }
