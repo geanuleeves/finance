@@ -11,6 +11,12 @@ public class FuturesOrderProfitDto {
 	 */
 	@ApiModelProperty(value = "盈亏")
 	private BigDecimal totalIncome;
+
+	/**
+	 * 总强平金额
+	 */
+	@ApiModelProperty(value = "总强平金额")
+	private BigDecimal totalBalance;
 	/**
 	 * 汇率
 	 */
@@ -44,6 +50,14 @@ public class FuturesOrderProfitDto {
 
 	public void setCurrencySign(String currencySign) {
 		this.currencySign = currencySign;
+	}
+
+	public BigDecimal getTotalBalance() {
+		return totalBalance;
+	}
+
+	public void setTotalBalance(BigDecimal totalBalance) {
+		this.totalBalance = totalBalance;
 	}
 
 }
