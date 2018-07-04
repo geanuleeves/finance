@@ -346,7 +346,8 @@ public class FuturesOrderController {
 		result.setTotalIncome(totalIncome.setScale(2, RoundingMode.DOWN));
 		result.setRate(rate.setScale(2, RoundingMode.DOWN));
 		result.setCurrencySign(sign);
-		result.setTotalBalance(capital.getAvailableBalance().add(futuresOrderBusiness.totalBalance(page, size)));
+		result.setTotalBalance(capital.getAvailableBalance()
+				.add(futuresOrderBusiness.totalBalance(0, Integer.MAX_VALUE)).setScale(2, RoundingMode.DOWN));
 		return new Response<>(result);
 	}
 
@@ -548,8 +549,8 @@ public class FuturesOrderController {
 			gainLoss.setFloatAvailableBalance(result.getAvailableBalance());
 		}
 		result.setPaymentPassword(null);
-		gainLoss.setTotalBalance(
-				result.getAvailableBalance().add(futuresOrderBusiness.totalBalance(0, Integer.MAX_VALUE)));
+		gainLoss.setTotalBalance(result.getAvailableBalance()
+				.add(futuresOrderBusiness.totalBalance(0, Integer.MAX_VALUE)).setScale(2, RoundingMode.DOWN));
 		gainLoss.setAvailableBalance(result.getAvailableBalance());
 		gainLoss.setFrozenCapital(result.getFrozenCapital());
 		return new Response<>(gainLoss);

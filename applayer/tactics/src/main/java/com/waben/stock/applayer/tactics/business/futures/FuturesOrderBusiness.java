@@ -1,7 +1,6 @@
 package com.waben.stock.applayer.tactics.business.futures;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -394,7 +393,7 @@ public class FuturesOrderBusiness {
 			}
 		}
 
-		return totalIncome.setScale(2, RoundingMode.DOWN);
+		return totalIncome;
 	}
 
 }
