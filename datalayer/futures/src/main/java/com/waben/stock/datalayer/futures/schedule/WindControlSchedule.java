@@ -45,7 +45,7 @@ import com.waben.stock.interfaces.util.RandomUtil;
  * @author luomengan
  *
  */
-//@Component
+@Component
 public class WindControlSchedule {
 
 	/**
@@ -222,14 +222,15 @@ public class WindControlSchedule {
 	 * @return 否达到止盈点
 	 */
 	private boolean isReachProfitPoint(FuturesOrder order, FuturesContractMarket market) {
-		BigDecimal lastPrice = market.getLastPrice();
 		FuturesOrderType orderType = order.getOrderType();
 		BigDecimal limitProfitPrice = computeLimitProfitPrice(order);
 		if (orderType == FuturesOrderType.BuyUp) {
+			BigDecimal lastPrice = market.getBidPrice();
 			if (lastPrice != null && limitProfitPrice != null && lastPrice.compareTo(limitProfitPrice) >= 0) {
 				return true;
 			}
 		} else {
+			BigDecimal lastPrice = market.getAskPrice();
 			if (lastPrice != null && limitProfitPrice != null && lastPrice.compareTo(limitProfitPrice) <= 0) {
 				return true;
 			}
@@ -391,14 +392,15 @@ public class WindControlSchedule {
 	 * @return 是否达到止损点
 	 */
 	private boolean isReachLossPoint(FuturesOrder order, FuturesContractMarket market) {
-		BigDecimal lastPrice = market.getLastPrice();
 		FuturesOrderType orderType = order.getOrderType();
 		BigDecimal limitLossPrice = computeLimitLossPrice(order);
 		if (orderType == FuturesOrderType.BuyUp) {
+			BigDecimal lastPrice = market.getBidPrice();
 			if (lastPrice != null && limitLossPrice != null && lastPrice.compareTo(limitLossPrice) <= 0) {
 				return true;
 			}
 		} else {
+			BigDecimal lastPrice = market.getAskPrice();
 			if (lastPrice != null && limitLossPrice != null && lastPrice.compareTo(limitLossPrice) >= 0) {
 				return true;
 			}

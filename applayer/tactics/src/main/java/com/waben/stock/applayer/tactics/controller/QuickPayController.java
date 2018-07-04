@@ -325,22 +325,22 @@ public class QuickPayController {
         
         Response<String> resp = new Response<String>();
         //判断是否符合冻结设置
-        PageInfo<FuturesGlobalConfigDto> globalConfig = limitBusiness.pageConfig();
-        if(globalConfig.getContent()!=null && globalConfig.getContent().size()>0){
-        	FuturesGlobalConfigDto config = globalConfig.getContent().get(0);
-        	if(config.getWindControlParameters() !=null && !"".equals(config.getWindControlParameters())){
-        		BigDecimal multiple = new BigDecimal(config.getWindControlParameters());
-        		if(capitalAccount.getAvailableBalance().compareTo(capitalAccount.getFrozenCapital().multiply(multiple).add(amount))<0){
-        			Integer count = capitalAccount.getAvailableBalance().subtract(capitalAccount.getFrozenCapital().multiply(multiple).add(amount)).intValue();
-        			if(count>0){
-        				resp.setResult("可提现余额为"+count+"元");
-        			}else{
-        				resp.setResult("可提现余额为0元");
-        			}
-        			return resp;
-        		}
-        	}
-        }
+//        PageInfo<FuturesGlobalConfigDto> globalConfig = limitBusiness.pageConfig();
+//        if(globalConfig.getContent()!=null && globalConfig.getContent().size()>0){
+//        	FuturesGlobalConfigDto config = globalConfig.getContent().get(0);
+//        	if(config.getWindControlParameters() !=null && !"".equals(config.getWindControlParameters())){
+//        		BigDecimal multiple = new BigDecimal(config.getWindControlParameters());
+//        		if(capitalAccount.getAvailableBalance().compareTo(capitalAccount.getFrozenCapital().multiply(multiple).add(amount))<0){
+//        			Integer count = capitalAccount.getAvailableBalance().subtract(capitalAccount.getFrozenCapital().multiply(multiple).add(amount)).intValue();
+//        			if(count>0){
+//        				resp.setResult("可提现余额为"+count+"元");
+//        			}else{
+//        				resp.setResult("可提现余额为0元");
+//        			}
+//        			return resp;
+//        		}
+//        	}
+//        }
         
         
         
