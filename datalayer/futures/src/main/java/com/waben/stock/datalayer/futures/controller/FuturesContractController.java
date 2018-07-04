@@ -566,60 +566,64 @@ public class FuturesContractController implements FuturesContractInterface {
 							tomorrowHour.split("-")[0].trim(), tomorrowHour.split("-")[1].trim()));
 				}
 			}
-			if (isTradeTime) {
-				contractDto.setState(1);
-				List<FuturesTradeLimit> limitList = futuresTradeLimitService.findByContractId(contractDto.getId());
-				if (limitList != null && limitList.size() > 0) {
-					// 判断该交易在开仓时是否在后台设置的期货交易限制内
-					String openWind = checkedLimitOpenwind(limitList, exchangeTime);
-					if (!openWind.equals("1")) {
-						contractDto.setState(2);
-						contractDto.setNextTradingTime(dayStr + " " + openWind);
-						contractDto.setCurrentTradeTimeDesc("当前时段禁止开仓");
-					}
-					String umwind = checkedLimitUnwind(limitList, exchangeTime);
-					if (!umwind.equals("1")) {
-						contractDto.setState(2);
-						contractDto.setNextTradingTime(dayStr + " " + umwind);
-						contractDto.setCurrentTradeTimeDesc("当前时段禁止平仓");
-					}
+		}
+		if (isTradeTime) {
+			contractDto.setState(1);
+			List<FuturesTradeLimit> limitList = futuresTradeLimitService.findByContractId(contractDto.getId());
+			if (limitList != null && limitList.size() > 0) {
+				// 判断该交易在开仓时是否在后台设置的期货交易限制内
+				String openWind = checkedLimitOpenwind(limitList, exchangeTime);
+				if (!openWind.equals("1")) {
+					contractDto.setState(2);
+					contractDto.setNextTradingTime(dayStr + " " + openWind);
+					contractDto.setCurrentTradeTimeDesc("当前时段禁止开仓");
 				}
-				FuturesHoliday holiday = futuresHolidayService.findById(contractDto.getCommodityId());
-				if (holiday != null) {
-					Integer holidayBan = checkedFuturesHoliday(holiday, exchangeTime);
-					if (holidayBan == 2) {
-						contractDto.setState(holidayBan);
-						contractDto.setNextTradingTime(fullSdf.format(holiday.getNextTradeTime()));
-						contractDto.setCurrentTradeTimeDesc("当前时段为节假日时间");
-						// if (holiday.getNextTradeTime() != null) {
-						// SimpleDateFormat hourSdf = new
-						// SimpleDateFormat("HH:mm:ss");
-						// String nextTime =
-						// getNextTradingHourTime(holiday.getNextTradeTime(),
-						// contractDto) == null
-						// ? "" :
-						// getNextTradingHourTime(holiday.getNextTradeTime(),
-						// contractDto);
-						// String nextStartTime = nextTime.split("-")[0];
-						// String nextEndTime = nextTime.split("-")[1];
-						// String holidayNextTime =
-						// hourSdf.format(holiday.getNextTradeTime());
-						//
-						// if ((holidayNextTime.compareTo(nextStartTime) >= 0
-						// && holidayNextTime.compareTo(nextEndTime) < 0)
-						// || holidayNextTime.compareTo(nextStartTime) < 0) {
-						// contractDto.setCurrentTradeTimeDesc(
-						// currentTradeTimeDesc(timeZoneGap, nextStartTime,
-						// nextEndTime));
-						// }else{
-						//
-						// }
-						// }
-					}
+				String umwind = checkedLimitUnwind(limitList, exchangeTime);
+				if (!umwind.equals("1")) {
+					contractDto.setState(2);
+					contractDto.setNextTradingTime(dayStr + " " + umwind);
+					contractDto.setCurrentTradeTimeDesc("当前时段禁止平仓");
 				}
-			} else {
-				contractDto.setState(2);
 			}
+			List<FuturesHoliday> holidayList = futuresHolidayService.findByCommodityId(contractDto.getCommodityId());
+			FuturesHoliday holiday = null;
+			if (holidayList != null && holidayList.size() > 0) {
+				holiday = holidayList.get(0);
+			}
+			if (holiday != null) {
+				Integer holidayBan = checkedFuturesHoliday(holiday, exchangeTime);
+				if (holidayBan == 2) {
+					contractDto.setState(holidayBan);
+					contractDto.setNextTradingTime(fullSdf.format(holiday.getNextTradeTime()));
+					contractDto.setCurrentTradeTimeDesc("当前时段为节假日时间");
+					// if (holiday.getNextTradeTime() != null) {
+					// SimpleDateFormat hourSdf = new
+					// SimpleDateFormat("HH:mm:ss");
+					// String nextTime =
+					// getNextTradingHourTime(holiday.getNextTradeTime(),
+					// contractDto) == null
+					// ? "" :
+					// getNextTradingHourTime(holiday.getNextTradeTime(),
+					// contractDto);
+					// String nextStartTime = nextTime.split("-")[0];
+					// String nextEndTime = nextTime.split("-")[1];
+					// String holidayNextTime =
+					// hourSdf.format(holiday.getNextTradeTime());
+					//
+					// if ((holidayNextTime.compareTo(nextStartTime) >= 0
+					// && holidayNextTime.compareTo(nextEndTime) < 0)
+					// || holidayNextTime.compareTo(nextStartTime) < 0) {
+					// contractDto.setCurrentTradeTimeDesc(
+					// currentTradeTimeDesc(timeZoneGap, nextStartTime,
+					// nextEndTime));
+					// }else{
+					//
+					// }
+					// }
+				}
+			}
+		} else {
+			contractDto.setState(2);
 		}
 		return contractDto;
 	}

@@ -351,7 +351,7 @@ public class FuturesOrderService {
 				if (query.isExpire()) {
 					Join<FuturesOrder, FuturesContract> contractJoin = root.join("contract", JoinType.LEFT);
 					Predicate expirationDate = criteriaBuilder
-							.lessThan(contractJoin.get("expirationDate").as(Date.class), new Date());
+							.greaterThan(contractJoin.get("expirationDate").as(Date.class), new Date());
 					predicateList.add(criteriaBuilder.and(expirationDate));
 				}
 				// 合约名称

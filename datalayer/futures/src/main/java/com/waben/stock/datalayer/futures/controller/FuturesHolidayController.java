@@ -1,5 +1,6 @@
 package com.waben.stock.datalayer.futures.controller;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -105,7 +106,7 @@ public class FuturesHolidayController implements FuturesHolidayInterface {
 				result.getContent().get(i).setCommoditySymbol(list.get(i).getCommodity().getSymbol());
 				if(list.get(i).getEndTime()!=null){
 					Long endTime = list.get(i).getEndTime().getTime();
-					Long currTime = new Date().getTime();
+					Long currTime = retriveExchangeTime(new Date(),list.get(i).getCommodity().getExchange().getTimeZoneGap()).getTime();
 					if(currTime>endTime){
 						result.getContent().get(i).setState("3");
 					}else{
@@ -133,6 +134,22 @@ public class FuturesHolidayController implements FuturesHolidayInterface {
 			response.setCommoditySymbol(result.getCommodity().getSymbol());
 		}
 		return new Response<>(response);
+	}
+	
+	/**
+	 * 获取交易所的对应时间
+	 * 
+	 * @param localTime
+	 *            日期
+	 * @param timeZoneGap
+	 *            和交易所的时差
+	 * @return 交易所的对应时间
+	 */
+	public Date retriveExchangeTime(Date localTime, Integer timeZoneGap) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(localTime);
+		cal.add(Calendar.HOUR_OF_DAY, timeZoneGap * -1);
+		return cal.getTime();
 	}
 
 }

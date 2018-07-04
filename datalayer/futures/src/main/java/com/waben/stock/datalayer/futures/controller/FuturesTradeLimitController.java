@@ -2,6 +2,7 @@ package com.waben.stock.datalayer.futures.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,7 +116,7 @@ public class FuturesTradeLimitController implements FuturesTradeLimitInterface {
 				pages.getContent().get(i).setLimitType(li.getLimitType().getType());
 			}
 			if(li.getEndLimitTime()!=null && !"".equals(li.getEndLimitTime())){
-				Date curreyTime = new Date();
+				Date curreyTime = retriveExchangeTime(new Date(),li.getContract().getCommodity().getExchange().getTimeZoneGap());
 				try {
 					if(curreyTime.before(sdf.parse(li.getEndLimitTime()))){
 						if(li.getEnable()){
@@ -133,6 +134,22 @@ public class FuturesTradeLimitController implements FuturesTradeLimitInterface {
 			}
 		}
 		return new Response<>(pages);
+	}
+	
+	/**
+	 * 获取交易所的对应时间
+	 * 
+	 * @param localTime
+	 *            日期
+	 * @param timeZoneGap
+	 *            和交易所的时差
+	 * @return 交易所的对应时间
+	 */
+	public Date retriveExchangeTime(Date localTime, Integer timeZoneGap) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(localTime);
+		cal.add(Calendar.HOUR_OF_DAY, timeZoneGap * -1);
+		return cal.getTime();
 	}
 
 }

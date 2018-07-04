@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -78,6 +79,7 @@ public class QuickPayController {
     private WBConfig wbConfig;
     
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
     @GetMapping("/sdquickpay")
     @ApiOperation(value = "杉德快捷支付")
@@ -265,33 +267,41 @@ public class QuickPayController {
     public Response<String> wbcsa(@RequestParam(required = true) BigDecimal amount,
                                           @RequestParam(required = true) Long bindCardId, @RequestParam(required = true) String paymentPassword) {
         // 判断是否为测试用户，测试用户不能提现
-        PublisherDto publisher = publisherBusiness.findById(SecurityUtil.getUserId());
-        if (publisher.getIsTest() != null && publisher.getIsTest()) {
-            throw new ServiceException(ExceptionConstant.TESTUSER_NOWITHDRAWALS_EXCEPTION);
-        }
+//        PublisherDto publisher = publisherBusiness.findById(SecurityUtil.getUserId());
+//        if (publisher.getIsTest() != null && publisher.getIsTest()) {
+//            throw new ServiceException(ExceptionConstant.TESTUSER_NOWITHDRAWALS_EXCEPTION);
+//        }
         
         //判断是否处于提现时间内
         PageInfo<PutForwardDto> forward = limitBusiness.pagesPutForward();
         if(forward.getContent()!=null && forward.getContent().size()>0){
         	PutForwardDto put = forward.getContent().get(0);
-        	try {
-        		Date currTime = new Date();
-        		if(put.getStartTime()!=null && !"".equals(put.getStartTime())){
-        			Date startTime = sdf.parse(put.getStartTime());
-        			if(currTime.getTime()<startTime.getTime()){
-        				throw new ServiceException(ExceptionConstant.ISNOT_EXIST_PUTFORWARDTIME_EXCEPTION);
-        			}
+        	Date currTime = new Date();
+        	String strTime = sdf.format(new Date());
+        	if(put.getStartTime()!=null && !"".equals(put.getStartTime())){
+        		String ss = strTime+" "+put.getStartTime();
+        		Date startTime = null;
+				try {
+					startTime = sdf1.parse(ss);
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+        		if(currTime.before(startTime)){
+        			throw new ServiceException(ExceptionConstant.ISNOT_EXIST_PUTFORWARDTIME_EXCEPTION);
         		}
-        		if(put.getEndTime()!=null && !"".equals(put.getEndTime())){
-        			Date endTime = sdf.parse(put.getEndTime());
-        			if(currTime.getTime()>endTime.getTime()){
-        				throw new ServiceException(ExceptionConstant.ISNOT_EXIST_PUTFORWARDTIME_EXCEPTION);
-        			}
+        	}
+        	if(put.getEndTime()!=null && !"".equals(put.getEndTime())){
+        		String zz = strTime+" "+put.getEndTime();
+        		Date endTime = null;
+				try {
+					endTime = sdf1.parse(zz);
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+        		if(endTime.before(currTime)){
+        			throw new ServiceException(ExceptionConstant.ISNOT_EXIST_PUTFORWARDTIME_EXCEPTION);
         		}
-				
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
+        	}
         }
         // 验证支付密码
         CapitalAccountDto capitalAccount = capitalAccountBusiness.findByPublisherId(SecurityUtil.getUserId());
