@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
+import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesHoliday;
 import com.waben.stock.datalayer.futures.repository.FuturesHolidayDao;
 import com.waben.stock.datalayer.futures.repository.impl.jpa.FuturesHolidayRepository;
@@ -57,6 +58,11 @@ public class FuturesHolidayDaoImpl implements FuturesHolidayDao {
 	@Override
 	public List<FuturesHoliday> list() {
 		return repository.findAll();
+	}
+
+	@Override
+	public List<FuturesHoliday> findByCommodity(FuturesCommodity commodity) {
+		return repository.findByCommodity(commodity);
 	}
 
 }

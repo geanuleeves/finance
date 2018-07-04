@@ -87,7 +87,11 @@ public class FuturesHolidayController implements FuturesHolidayInterface {
 	@Override
 	public Response<String> delete(@RequestBody FuturesHolidayQuery query) {
 		service.delete(query.getId());
-		return new Response<>("1");
+		Response<String> response = new Response<String>();
+		response.setCode("200");
+		response.setResult("1");
+		response.setMessage("响应成功");
+		return response;
 	}
 
 	@Override

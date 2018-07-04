@@ -41,6 +41,10 @@ public class FuturesHolidayService {
 		return holidayDao.retrieve(id);
 	}
 	
+	public List<FuturesHoliday> findByCommodity(FuturesCommodity commodity){
+		return holidayDao.findByCommodity(commodity);
+	}
+	
 	public Page<FuturesHoliday> page(final FuturesHolidayQuery query){
 		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
 		Page<FuturesHoliday> page = holidayDao.page(new Specification<FuturesHoliday>() {

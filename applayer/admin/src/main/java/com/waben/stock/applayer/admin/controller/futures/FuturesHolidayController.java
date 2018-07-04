@@ -56,7 +56,8 @@ public class FuturesHolidayController {
 		Response<String> response = new Response<String>();
 		response.setCode("200");
 		response.setMessage("响应成功");
-		response.setResult(business.delete(query));
+		String result = business.delete(query);
+		response.setResult(result);
 		return response;
 	}
 	
