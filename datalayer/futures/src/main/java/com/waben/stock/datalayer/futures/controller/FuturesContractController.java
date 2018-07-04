@@ -591,6 +591,30 @@ public class FuturesContractController implements FuturesContractInterface {
 						contractDto.setState(holidayBan);
 						contractDto.setNextTradingTime(fullSdf.format(holiday.getNextTradeTime()));
 						contractDto.setCurrentTradeTimeDesc("当前时段为节假日时间");
+						// if (holiday.getNextTradeTime() != null) {
+						// SimpleDateFormat hourSdf = new
+						// SimpleDateFormat("HH:mm:ss");
+						// String nextTime =
+						// getNextTradingHourTime(holiday.getNextTradeTime(),
+						// contractDto) == null
+						// ? "" :
+						// getNextTradingHourTime(holiday.getNextTradeTime(),
+						// contractDto);
+						// String nextStartTime = nextTime.split("-")[0];
+						// String nextEndTime = nextTime.split("-")[1];
+						// String holidayNextTime =
+						// hourSdf.format(holiday.getNextTradeTime());
+						//
+						// if ((holidayNextTime.compareTo(nextStartTime) >= 0
+						// && holidayNextTime.compareTo(nextEndTime) < 0)
+						// || holidayNextTime.compareTo(nextStartTime) < 0) {
+						// contractDto.setCurrentTradeTimeDesc(
+						// currentTradeTimeDesc(timeZoneGap, nextStartTime,
+						// nextEndTime));
+						// }else{
+						//
+						// }
+						// }
 					}
 				}
 			} else {
