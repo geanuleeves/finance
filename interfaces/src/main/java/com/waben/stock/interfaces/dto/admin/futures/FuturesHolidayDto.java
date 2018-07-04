@@ -17,6 +17,11 @@ public class FuturesHolidayDto {
 	private Date endTime;
 	
 	/**
+	 * 下一个交易日期
+	 */
+	private Date nextTradeTime;
+	
+	/**
 	 * 节假日备注
 	 */
 	private String remark;
@@ -76,6 +81,14 @@ public class FuturesHolidayDto {
 
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
+	}
+
+	public Date getNextTradeTime() {
+		return nextTradeTime;
+	}
+
+	public void setNextTradeTime(Date nextTradeTime) {
+		this.nextTradeTime = nextTradeTime;
 	}
 
 	public String getRemark() {
