@@ -455,19 +455,19 @@ public class FuturesContractController implements FuturesContractInterface {
 	 * @param exchangeTime
 	 *            当前时间
 	 */
-	public Integer checkedLimitOpenwind(List<FuturesTradeLimit> limitList, Date exchangeTime) {
+	public String checkedLimitOpenwind(List<FuturesTradeLimit> limitList, Date exchangeTime) {
 		String fullStr = fullSdf.format(exchangeTime);
 		for (FuturesTradeLimit limit : limitList) {
 			if (limit.getEnable()) {
 				if (limit.getLimitType() == FuturesTradeLimitType.LimitOpenwind) {
 					if (fullStr.compareTo(limit.getStartLimitTime()) >= 0
 							&& fullStr.compareTo(limit.getEndLimitTime()) < 0) {
-						return 2;
+						return limit.getEndLimitTime();
 					}
 				}
 			}
 		}
-		return 1;
+		return "1";
 	}
 
 	/**
@@ -478,19 +478,19 @@ public class FuturesContractController implements FuturesContractInterface {
 	 * @param exchangeTime
 	 *            当前时间
 	 */
-	public Integer checkedLimitUnwind(List<FuturesTradeLimit> limitList, Date exchangeTime) {
+	public String checkedLimitUnwind(List<FuturesTradeLimit> limitList, Date exchangeTime) {
 		String fullStr = fullSdf.format(exchangeTime);
 		for (FuturesTradeLimit limit : limitList) {
 			if (limit.getEnable()) {
 				if (limit.getLimitType() == FuturesTradeLimitType.LimitUnwind) {
 					if (fullStr.compareTo(limit.getStartLimitTime()) >= 0
 							&& fullStr.compareTo(limit.getEndLimitTime()) < 0) {
-						return 2;
+						return limit.getEndLimitTime();
 					}
 				}
 			}
 		}
-		return 1;
+		return "1";
 	}
 
 	/**
@@ -571,14 +571,16 @@ public class FuturesContractController implements FuturesContractInterface {
 				List<FuturesTradeLimit> limitList = futuresTradeLimitService.findByContractId(contractDto.getId());
 				if (limitList != null && limitList.size() > 0) {
 					// 判断该交易在开仓时是否在后台设置的期货交易限制内
-					Integer openWind = checkedLimitOpenwind(limitList, exchangeTime);
-					if (openWind == 2) {
-						contractDto.setState(openWind);
+					String openWind = checkedLimitOpenwind(limitList, exchangeTime);
+					if (!openWind.equals("1")) {
+						contractDto.setState(2);
+						contractDto.setNextTradingTime(dayStr + " " + openWind);
 						contractDto.setCurrentTradeTimeDesc("当前时段禁止开仓");
 					}
-					Integer umwind = checkedLimitUnwind(limitList, exchangeTime);
-					if (umwind == 2) {
-						contractDto.setState(umwind);
+					String umwind = checkedLimitUnwind(limitList, exchangeTime);
+					if (!umwind.equals("1")) {
+						contractDto.setState(2);
+						contractDto.setNextTradingTime(dayStr + " " + umwind);
 						contractDto.setCurrentTradeTimeDesc("当前时段禁止平仓");
 					}
 				}
