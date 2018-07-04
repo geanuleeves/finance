@@ -105,9 +105,9 @@ public class FuturesHolidayController implements FuturesHolidayInterface {
 				result.getContent().get(i).setCommodityName(list.get(i).getCommodity().getName());
 				result.getContent().get(i).setCommoditySymbol(list.get(i).getCommodity().getSymbol());
 				if(list.get(i).getEndTime()!=null){
-					Long endTime = list.get(i).getEndTime().getTime();
-					Long currTime = retriveExchangeTime(new Date(),list.get(i).getCommodity().getExchange().getTimeZoneGap()).getTime();
-					if(currTime>endTime){
+					Date endTime = list.get(i).getEndTime();
+					Date currTime = retriveExchangeTime(new Date(),list.get(i).getCommodity().getExchange().getTimeZoneGap());
+					if(endTime.before(currTime)){
 						result.getContent().get(i).setState("3");
 					}else{
 						if(list.get(i).getEnable()){
