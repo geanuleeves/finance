@@ -82,6 +82,9 @@ public class FuturesOrderController {
 	@Autowired
 	private CapitalAccountBusiness capitalAccountBusiness;
 
+	@Autowired
+	private FuturesOrderBusiness orderBusiness;
+
 	// private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	private SimpleDateFormat exprotSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -534,9 +537,18 @@ public class FuturesOrderController {
 
 		// 获取用户账户资金
 		CapitalAccountDto result = capitalAccountBusiness.findByPublisherId(SecurityUtil.getUserId());
+		BigDecimal unsettledProfitOrLoss = orderBusiness.getUnsettledProfitOrLoss(SecurityUtil.getUserId());
+		if (unsettledProfitOrLoss != null && unsettledProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+			if (unsettledProfitOrLoss.abs().compareTo(result.getAvailableBalance()) > 0) {
+				result.setFloatAvailableBalance(BigDecimal.ZERO);
+			} else {
+				result.setFloatAvailableBalance(result.getAvailableBalance().subtract(unsettledProfitOrLoss.abs()));
+			}
+		} else {
+			result.setFloatAvailableBalance(result.getAvailableBalance());
+		}
 		result.setPaymentPassword(null);
-		gainLoss.setBalance(result.getBalance());
-		gainLoss.setAvailableBalance(result.getFloatAvailableBalance());
+		gainLoss.setAvailableBalance(result.getAvailableBalance());
 		gainLoss.setFrozenCapital(result.getFrozenCapital());
 		return new Response<>(gainLoss);
 	}

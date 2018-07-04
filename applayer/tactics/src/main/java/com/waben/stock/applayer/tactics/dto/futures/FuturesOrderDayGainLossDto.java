@@ -44,6 +44,12 @@ public class FuturesOrderDayGainLossDto {
 	 */
 	@ApiModelProperty(value = "总强平金额")
 	private BigDecimal totalBalance;
+	
+	/**
+	 * 账户浮动可用余额
+	 */
+	@ApiModelProperty(value = "账户浮动可用余额")
+	private BigDecimal floatAvailableBalance;
 
 	public BigDecimal getPositionFee() {
 		return positionFee;
@@ -92,5 +98,15 @@ public class FuturesOrderDayGainLossDto {
 	public void setTotalBalance(BigDecimal totalBalance) {
 		this.totalBalance = totalBalance;
 	}
+
+	public BigDecimal getFloatAvailableBalance() {
+		return floatAvailableBalance;
+	}
+
+	public void setFloatAvailableBalance(BigDecimal floatAvailableBalance) {
+		this.floatAvailableBalance = floatAvailableBalance;
+	}
+	
+	
 
 }
