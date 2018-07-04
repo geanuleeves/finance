@@ -41,7 +41,7 @@ public class FuturesMarketController {
 
 	@Autowired
 	private FuturesContractBusiness futuresContractBusiness;
-	
+
 	@Autowired
 	private ProfileBusiness profileBusiness;
 
@@ -56,16 +56,20 @@ public class FuturesMarketController {
 		query.setPage(0);
 		query.setSize(1);
 		query.setSymbol(symbol);
-		FuturesContractDto contractPage = futuresContractBusiness.pagesContract(query).getContent().get(0);
+		List<FuturesContractDto> contractList = futuresContractBusiness.pagesContract(query).getContent();
 		FuturesContractMarketDto marketDto = CopyBeanUtils.copyBeanProperties(FuturesContractMarketDto.class,
 				RetriveFuturesOverHttp.market(profileBusiness.isProd(), symbol, contractNo), false);
-		marketDto.setContractName(contractPage.getName());
-		marketDto.setCurrencySign(contractPage.getCurrencySign());
-		marketDto.setContractState(contractPage.getState());
-		marketDto.setCurrentHoldingTime(
-				timeZoneConversion(contractPage.getTimeZoneGap(), contractPage.getCurrentHoldingTime()));
-		marketDto.setNextTradingTime(
-				timeZoneConversion(contractPage.getTimeZoneGap(), contractPage.getNextTradingTime()));
+		FuturesContractDto contractPage = null;
+		if (contractList != null && contractList.size() > 0) {
+			contractPage = contractList.get(0);
+			marketDto.setContractName(contractPage.getName());
+			marketDto.setCurrencySign(contractPage.getCurrencySign());
+			marketDto.setContractState(contractPage.getState());
+			marketDto.setCurrentHoldingTime(
+					timeZoneConversion(contractPage.getTimeZoneGap(), contractPage.getCurrentHoldingTime()));
+			marketDto.setNextTradingTime(
+					timeZoneConversion(contractPage.getTimeZoneGap(), contractPage.getNextTradingTime()));
+		}
 
 		return new Response<>(marketDto);
 	}
@@ -89,7 +93,8 @@ public class FuturesMarketController {
 			@ApiImplicitParam(name = "endTime", value = "结束时间", dataType = "string", paramType = "query", required = false) })
 	public Response<List<FuturesContractLineData>> dayLine(@PathVariable("symbol") String symbol,
 			@PathVariable("contractNo") String contractNo, String startTime, String endTime) {
-		return new Response<>(RetriveFuturesOverHttp.dayLine(profileBusiness.isProd(), symbol, contractNo, startTime, endTime));
+		return new Response<>(
+				RetriveFuturesOverHttp.dayLine(profileBusiness.isProd(), symbol, contractNo, startTime, endTime));
 	}
 
 	@GetMapping("/{symbol}/{contractNo}/minsline")
