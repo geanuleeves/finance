@@ -888,7 +888,7 @@ public class FuturesOrderService {
 		order.setState(FuturesOrderState.Unwind);
 		order.setUpdateTime(date);
 		orderDao.update(order);
-		unwindReturnOvernightReserveFund(order);
+		// unwindReturnOvernightReserveFund(order);
 		// 站外消息推送
 		sendOutsideMessage(order);
 		return order;
@@ -1476,9 +1476,15 @@ public class FuturesOrderService {
 		FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
 		// 计算浮动盈亏
 		if (lastPrice != null) {
-			return lastPrice.subtract(buyingPrice).divide(order.getContract().getCommodity().getMinWave())
-					.multiply(order.getContract().getCommodity().getPerWaveMoney()).multiply(rate.getRate())
-					.multiply(order.getTotalQuantity());
+			if (order.getOrderType() == FuturesOrderType.BuyUp) {
+				return lastPrice.subtract(buyingPrice).divide(order.getContract().getCommodity().getMinWave())
+						.multiply(order.getContract().getCommodity().getPerWaveMoney()).multiply(rate.getRate())
+						.multiply(order.getTotalQuantity());
+			} else {
+				return buyingPrice.subtract(lastPrice).divide(order.getContract().getCommodity().getMinWave())
+						.multiply(order.getContract().getCommodity().getPerWaveMoney()).multiply(rate.getRate())
+						.multiply(order.getTotalQuantity());
+			}
 		} else {
 			return BigDecimal.ZERO;
 		}
@@ -1517,7 +1523,7 @@ public class FuturesOrderService {
 		BigDecimal totalProfitOrLoss = BigDecimal.ZERO;
 		for (FuturesOrder order : orderList) {
 			// 计算浮动盈亏
-			totalProfitOrLoss.add(this.getProfitOrLoss(order));
+			totalProfitOrLoss = totalProfitOrLoss.add(this.getProfitOrLoss(order));
 		}
 		return totalProfitOrLoss;
 	}

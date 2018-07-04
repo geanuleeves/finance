@@ -130,6 +130,7 @@ public class MonitorPublisherFuturesOrderConsumer {
 						}
 					}
 				}
+				retry(messgeObj);
 			} else {
 				// 从监控队列中移除
 				monitorPublisherList.remove(publisherId);
@@ -170,9 +171,9 @@ public class MonitorPublisherFuturesOrderConsumer {
 		BigDecimal totalProfitOrLoss = BigDecimal.ZERO;
 		for (FuturesOrder order : orderList) {
 			// 计算强平金额
-			totalStrong.add(orderService.getStrongMoney(order));
+			totalStrong = totalStrong.add(orderService.getStrongMoney(order));
 			// 计算浮动盈亏
-			totalProfitOrLoss.add(orderService.getProfitOrLoss(order));
+			totalProfitOrLoss = totalProfitOrLoss.add(orderService.getProfitOrLoss(order));
 		}
 		if (totalProfitOrLoss.compareTo(BigDecimal.ZERO) < 0
 				&& account.getAvailableBalance().add(totalStrong).compareTo(totalProfitOrLoss.abs()) <= 0) {
@@ -202,13 +203,13 @@ public class MonitorPublisherFuturesOrderConsumer {
 		BigDecimal totalOvernightReserveFund = BigDecimal.ZERO;
 		for (FuturesOrder order : orderList) {
 			// 计算浮动盈亏
-			totalProfitOrLoss.add(orderService.getProfitOrLoss(order));
+			totalProfitOrLoss = totalProfitOrLoss.add(orderService.getProfitOrLoss(order));
 			// 计算交易保证金
-			totalTradeReserveFund.add(order.getReserveFund());
+			totalTradeReserveFund = totalTradeReserveFund.add(order.getReserveFund());
 			// 计算隔夜手续费
-			totalOvernightDeferredFee.add(order.getTotalQuantity().multiply(order.getOvernightPerUnitDeferredFee()));
+			totalOvernightDeferredFee = totalOvernightDeferredFee.add(order.getTotalQuantity().multiply(order.getOvernightPerUnitDeferredFee()));
 			// 计算隔夜保证金
-			totalOvernightReserveFund.add(order.getTotalQuantity().multiply(order.getOvernightPerUnitReserveFund()));
+			totalOvernightReserveFund = totalOvernightReserveFund.add(order.getTotalQuantity().multiply(order.getOvernightPerUnitReserveFund()));
 		}
 
 		if (account.getAvailableBalance().add(totalProfitOrLoss).add(totalTradeReserveFund)
