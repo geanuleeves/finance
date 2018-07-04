@@ -565,4 +565,26 @@ public class FuturesMarketService {
 		return result;
 	}
 
+	public void subcribe(String commodityNo, String contractNo) {
+		FuturesCommodity commodityEntity = commodityDao.retrieveByCommodityNo(commodityNo);
+		FuturesContract contractEntity = contractDao.retrieveByCommodityNoAndContractNo(commodityNo, contractNo);
+		if (commodityEntity != null && "F".equals(commodityEntity.getCommodityType()) && contractEntity != null) {
+			TapAPIContract contract = new TapAPIContract(
+					new TapAPICommodity(commodityEntity.getExchangeNo(), 'F', commodityEntity.getCommodityNo()),
+					contractEntity.getContractNo(), null, 'N', null, null, 'N');
+			quoteWrapper.getApi().subscribeQuote(contract);
+		}
+	}
+
+	public void unsubcribe(String commodityNo, String contractNo) {
+		FuturesCommodity commodityEntity = commodityDao.retrieveByCommodityNo(commodityNo);
+		FuturesContract contractEntity = contractDao.retrieveByCommodityNoAndContractNo(commodityNo, contractNo);
+		if (commodityEntity != null && "F".equals(commodityEntity.getCommodityType()) && contractEntity != null) {
+			TapAPIContract contract = new TapAPIContract(
+					new TapAPICommodity(commodityEntity.getExchangeNo(), 'F', commodityEntity.getCommodityNo()),
+					contractEntity.getContractNo(), null, 'N', null, null, 'N');
+			quoteWrapper.getApi().unSubscribeQuote(contract);
+		}
+	}
+
 }

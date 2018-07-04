@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.waben.stock.futuresgateway.yisheng.entity.FuturesContract;
 import com.waben.stock.futuresgateway.yisheng.esapi.ImportDayK;
 import com.waben.stock.futuresgateway.yisheng.pojo.FuturesContractLineData;
 import com.waben.stock.futuresgateway.yisheng.pojo.FuturesQuoteData;
@@ -83,6 +84,26 @@ public class FuturesMarketController {
 		return result;
 	}
 
+	@GetMapping("/{commodityNo}/{contractNo}/subcribe")
+	@ApiOperation(value = "订阅")
+	public Response<String> subcribe(@PathVariable("commodityNo") String commodityNo,
+			@PathVariable("contractNo") String contractNo) {
+		service.subcribe(commodityNo, contractNo);
+		Response<String> result = new Response<>();
+		result.setResult("success");
+		return result;
+	}
+
+	@GetMapping("/{commodityNo}/{contractNo}/unsubcribe")
+	@ApiOperation(value = "取消订阅")
+	public Response<String> unsubcribe(@PathVariable("commodityNo") String commodityNo,
+			@PathVariable("contractNo") String contractNo) {
+		service	.unsubcribe(commodityNo, contractNo);
+		Response<String> result = new Response<>();
+		result.setResult("success");
+		return result;
+	}
+
 	@GetMapping("/importDayline")
 	@ApiOperation(value = "计算日K数据")
 	public Response<String> importDayline(String dirPath) {
@@ -100,7 +121,7 @@ public class FuturesMarketController {
 		result.setResult("success");
 		return result;
 	}
-	
+
 	@PostMapping("/updateMainDayline")
 	@ApiOperation(value = "更新主力合约日K数据")
 	public Response<String> updateMainDayline(String commodityNo) {
