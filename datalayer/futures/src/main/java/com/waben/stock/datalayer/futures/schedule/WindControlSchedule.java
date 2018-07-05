@@ -51,7 +51,7 @@ public class WindControlSchedule {
 	/**
 	 * 监控间隔
 	 * <p>
-	 * 如果是工作日，每间隔1秒中获取持仓中的股票，判断持仓中的股票
+	 * 如果是工作日，每间隔10毫秒中获取持仓中的股票，判断持仓中的股票
 	 * </p>
 	 */
 	public static final long Execute_Interval = 10;
