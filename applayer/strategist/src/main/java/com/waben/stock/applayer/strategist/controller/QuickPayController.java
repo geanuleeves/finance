@@ -151,10 +151,15 @@ public class QuickPayController {
 		}
 		Response<String> resp = new Response<String>();
 		BindCardDto bindCard = bindCardBusiness.findById(bindCardId);
-		CzBankType bankType = CzBankType.getByPlateformBankType(BankType.getByBank(bindCard.getBankName()));
-		if (bankType == null) {
-			throw new ServiceException(ExceptionConstant.BANKCARD_NOTSUPPORT_EXCEPTION);
-		}
+//		CzBankType bankType = CzBankType.getByPlateformBankType(BankType.getByBank(bindCard.getBankName()));
+//		if (bankType == null) {
+//			throw new ServiceException(ExceptionConstant.BANKCARD_NOTSUPPORT_EXCEPTION);
+//		}
+		logger.info("发起提现申请:{}_{}_{}_{}", bindCard.getName(), bindCard.getIdCard(), bindCard.getPhone(), bindCard.getBankCard());
+		WabenBankType bankType = WabenBankType.getByPlateformBankType(BankType.getByCode(bindCard.getBankCode()));
+        if (bankType == null) {
+            throw new ServiceException(ExceptionConstant.BANKCARD_NOTSUPPORT_EXCEPTION);
+        }
 		logger.info("验证通过,提现开始");
 		quickPayBusiness.wbWithdrawals(SecurityUtil.getUserId(), amount, bindCard.getName(), bindCard.getPhone(),
 				bindCard.getIdCard(), bindCard.getBankCard(), bankType.getCode(), bindCard.getBranchName());
