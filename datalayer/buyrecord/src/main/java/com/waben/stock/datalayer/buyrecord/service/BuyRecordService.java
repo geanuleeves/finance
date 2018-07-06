@@ -562,6 +562,7 @@ public class BuyRecordService {
 	/**
 	 * 根据股票行情价格去卖出股票，不走机构
 	 */
+	@Transactional
 	public BuyRecord sellWithMarket(Long id, WindControlType windControlType, BigDecimal sellingPrice) {
 		// step 1 : 判断状态是否正常
 		BuyRecord buyRecord = findBuyRecord(id);
@@ -756,6 +757,7 @@ public class BuyRecordService {
 		return buyRecord;
 	}
 
+	@Transactional
 	public DeferredRecord deferred(Long id) {
 		BuyRecord buyRecord = buyRecordDao.retrieve(id);
 		if (buyRecord == null) {

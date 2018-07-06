@@ -161,15 +161,16 @@ public class WindControlSchedule {
 							}
 							BigDecimal lastPrice = market.getLastPrice();
 							// step 2 : 处理到期
-							boolean isExpire = false;
 							if (sdf.format(now).equals(sdf.format(record.getExpireTime())) && fullSdf.format(now)
 									.compareTo(sdf.format(record.getExpireTime()) + " " + deferredDeductionTime) >= 0) {
+								boolean isExpire = true;
 								// 扣除递延费
 								try {
 									DeferredRecord deferredRecord = service.deferred(record.getId());
 									orgSettlementBusiness.strategySettlement(record.getPublisherId(), record.getId(),
 											record.getTradeNo(), record.getStrategyTypeId(), BigDecimal.ZERO,
 											deferredRecord.getFee());
+									isExpire = false;
 								} catch (Exception ex) {
 									if (ex instanceof ServiceException) {
 										ServiceException sex = (ServiceException) ex;
@@ -178,14 +179,18 @@ public class WindControlSchedule {
 										} else if (sex
 												.getType() == ExceptionConstant.BUYRECORD_USERNOTDEFERRED_EXCEPTION) {
 											isExpire = true;
+										} else if (sex
+												.getType() == ExceptionConstant.BUYRECORD_ALREADY_DEFERRED_EXCEPTION) {
+											isExpire = false;
 										}
 									}
 								}
-							}
-							if (isExpire && fullSdf.format(now)
-									.compareTo(sdf.format(record.getExpireTime()) + " " + deferredForceTime) >= 0) {
-								service.sellWithMarket(record.getId(), WindControlType.TRADINGEND, lastPrice);
-								continue;
+								// 过期强制平仓
+								if (isExpire && fullSdf.format(now)
+										.compareTo(sdf.format(record.getExpireTime()) + " " + deferredForceTime) >= 0) {
+									service.sellWithMarket(record.getId(), WindControlType.TRADINGEND, lastPrice);
+									continue;
+								}
 							}
 							// step 3 : 判断是否达到涨停价或者跌停价
 							BigDecimal profitPosition = record.getProfitPosition();
