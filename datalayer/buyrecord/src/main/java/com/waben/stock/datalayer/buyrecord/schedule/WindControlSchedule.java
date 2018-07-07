@@ -53,6 +53,8 @@ public class WindControlSchedule {
 
 	private SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+	private SimpleDateFormat timeSdf = new SimpleDateFormat("HH:mm:ss");
+
 	@Autowired
 	private HolidayBusiness holidayBusiness;
 
@@ -161,8 +163,8 @@ public class WindControlSchedule {
 							}
 							BigDecimal lastPrice = market.getLastPrice();
 							// step 2 : 处理到期
-							if (sdf.format(now).equals(sdf.format(record.getExpireTime())) && fullSdf.format(now)
-									.compareTo(sdf.format(record.getExpireTime()) + " " + deferredDeductionTime) >= 0) {
+							if (now.getTime() > record.getExpireTime().getTime()
+									&& timeSdf.format(now).compareTo(deferredDeductionTime) >= 0) {
 								boolean isExpire = true;
 								// 扣除递延费
 								try {
@@ -186,8 +188,7 @@ public class WindControlSchedule {
 									}
 								}
 								// 过期强制平仓
-								if (isExpire && fullSdf.format(now)
-										.compareTo(sdf.format(record.getExpireTime()) + " " + deferredForceTime) >= 0) {
+								if (isExpire && timeSdf.format(now).compareTo(deferredForceTime) > 0) {
 									service.sellWithMarket(record.getId(), WindControlType.TRADINGEND, lastPrice);
 									continue;
 								}
@@ -195,12 +196,14 @@ public class WindControlSchedule {
 							// step 3 : 判断是否达到涨停价或者跌停价
 							BigDecimal profitPosition = record.getProfitPosition();
 							BigDecimal lossPosition = record.getLossPosition();
-							if (lastPrice.compareTo(profitPosition) >= 0) {
+							String nowStr = sdf.format(now);
+							String buyingTimeStr = sdf.format(record.getBuyingTime());
+							if (nowStr.compareTo(buyingTimeStr) > 0 && lastPrice.compareTo(profitPosition) >= 0) {
 								// 达到止盈点位
 								service.sellWithMarket(record.getId(), WindControlType.REACHPROFITPOINT, lastPrice);
 								continue;
 							}
-							if (lastPrice.compareTo(lossPosition) <= 0) {
+							if (nowStr.compareTo(buyingTimeStr) > 0 && lastPrice.compareTo(lossPosition) <= 0) {
 								// 达到止损点位
 								service.sellWithMarket(record.getId(), WindControlType.REACHLOSSPOINT, lastPrice);
 								continue;
