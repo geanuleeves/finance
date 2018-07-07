@@ -47,7 +47,7 @@ public class FuturesQuoteMinuteK {
 	/** 收盘价 */
 	private BigDecimal closePrice;
 	/** 昨结算价 */
-	private String preSettlePrice;
+	private BigDecimal preSettlePrice;
 	/** 成交量 */
 	private long volume;
 	/** 开始成交总量 */
@@ -177,11 +177,11 @@ public class FuturesQuoteMinuteK {
 		this.endTotalQty = endTotalQty;
 	}
 
-	public String getPreSettlePrice() {
+	public BigDecimal getPreSettlePrice() {
 		return preSettlePrice;
 	}
 
-	public void setPreSettlePrice(String preSettlePrice) {
+	public void setPreSettlePrice(BigDecimal preSettlePrice) {
 		this.preSettlePrice = preSettlePrice;
 	}
 

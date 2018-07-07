@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import com.future.api.es.external.quote.bean.TapAPIQuoteWhole;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuote;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqConfiguration;
+import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.EsQuoteInfo;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteService;
 import com.waben.stock.futuresgateway.yisheng.util.JacksonUtil;
 
@@ -27,8 +28,9 @@ public class EsQuoteConsumer {
 
 	@RabbitHandler
 	public void handlerMessage(String message) {
-		TapAPIQuoteWhole msgObj = JacksonUtil.decode(message, TapAPIQuoteWhole.class);
+		EsQuoteInfo msgBaseObj = JacksonUtil.decode(message, EsQuoteInfo.class);
 		try {
+			TapAPIQuoteWhole msgObj = msgBaseObj.getInfo();
 			String commodityNo = msgObj.getContract().getCommodity().getCommodityNo();
 			String contractNo = msgObj.getContract().getContractNo1();
 			char commodityType = msgObj.getContract().getCommodity().getCommodityType();
@@ -36,6 +38,7 @@ public class EsQuoteConsumer {
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 				// 保存行情信息
 				FuturesQuote quote = new FuturesQuote();
+				quote.setQuoteIndex(msgBaseObj.getQuoteIndex());
 				quote.setAskPrice(JacksonUtil.encode(msgObj.getQAskPrice()));
 				quote.setAskQty(JacksonUtil.encode(msgObj.getQAskQty()));
 				quote.setAveragePrice(String.valueOf(msgObj.getQAveragePrice()));

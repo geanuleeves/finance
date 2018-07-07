@@ -21,6 +21,11 @@ public class WBConfig {
 	@Value("${pay.protocolcallback}")
 	private String protocol_callback;
 
+	@Value("${pay.unionpaytempfrontUrl}")
+	private String unionpayTempFrontUrl;
+	@Value("${pay.unionpayfrontUrl}")
+	private String unionpayFrontUrl;
+
 	// public static final String tradeType = "quick_bank";
 	public static final String tradeType = "quick_wap";
 	public static final String platformType = "platform_wap";
@@ -85,6 +90,22 @@ public class WBConfig {
 
 	public void setH5ProxyfrontUrl(String h5ProxyfrontUrl) {
 		this.h5ProxyfrontUrl = h5ProxyfrontUrl;
+	}
+
+	public String getUnionpayTempFrontUrl() {
+		return unionpayTempFrontUrl;
+	}
+
+	public void setUnionpayTempFrontUrl(String unionpayTempFrontUrl) {
+		this.unionpayTempFrontUrl = unionpayTempFrontUrl;
+	}
+
+	public String getUnionpayFrontUrl() {
+		return unionpayFrontUrl;
+	}
+
+	public void setUnionpayFrontUrl(String unionpayFrontUrl) {
+		this.unionpayFrontUrl = unionpayFrontUrl;
 	}
 
 }

@@ -110,4 +110,9 @@ public class FuturesOrderController implements FuturesOrderInterface {
 		return new Response<>(futuresOrderService.getTurnoverStatisty(publisherId));
 	}
 
+	@Override
+	public Response<BigDecimal> getUnsettledProfitOrLoss(@PathVariable Long publisherId) {
+		return new Response<>(futuresOrderService.getUnsettledProfitOrLoss(publisherId));
+	}
+
 }

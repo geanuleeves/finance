@@ -21,6 +21,7 @@ import com.waben.stock.futuresgateway.yisheng.service.FuturesCommodityService;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesContractService;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteDayKService;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteMinuteKGroupService;
+import com.waben.stock.futuresgateway.yisheng.util.TimeZoneUtil;
 
 /**
  * 行情-日K组合作业
@@ -46,11 +47,17 @@ public class QuoteDayKSchedule {
 	@Autowired
 	private FuturesQuoteMinuteKGroupService minuteKGroupServcie;
 
+	/** 在明天的收盘~开盘的中间时间重置为1 */
+	private long quoteIndex = 1;
+
 	/**
 	 * 每小时组合一天的小时K，计算天K
 	 */
 	@Scheduled(cron = "0 20 0/1 * * ?")
 	public void computeDayK() {
+		// 此处为额外计算的内容
+		computeQuoteIndex();
+
 		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		// step 1 : 获取可用的合约
 		List<FuturesContract> contractList = contractService.getByEnable(true);
@@ -68,44 +75,70 @@ public class QuoteDayKSchedule {
 			cal.set(Calendar.SECOND, 0);
 			cal.set(Calendar.MILLISECOND, 0);
 			Date today = cal.getTime();
-			cal.add(Calendar.DAY_OF_MONTH, -1);
-			Date yesterday = cal.getTime();
 			// step 3 : 计算上一天的日K
-			innerComputeDayK(commodityNo, contractNo, today);
-			// step 4 : 计算今天的日K
-			innerComputeDayK(commodityNo, contractNo, yesterday);
+			try {
+				Calendar now = Calendar.getInstance();
+				if (now.get(Calendar.HOUR_OF_DAY) < TimeZoneUtil.getCloseTimeHour()) {
+					continue;
+				}
+				innerComputeDayK(commodityNo, contractNo, today);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				logger.error("计算日K数据异常:{}_{}_{}", commodityNo, contractNo, fullSdf.format(today));
+			}
 		}
 		logger.info("计算日K数据结束:" + fullSdf.format(new Date()));
 	}
 
+	private void computeQuoteIndex() {
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.HOUR_OF_DAY, TimeZoneUtil.getCloseTimeHour());
+		cal.set(Calendar.MINUTE, 10);
+		Date startTime = cal.getTime();
+		cal.set(Calendar.MINUTE, 50);
+		Date endTime = cal.getTime();
+
+		Date now = new Date();
+		if (now.getTime() > startTime.getTime() && now.getTime() < endTime.getTime() && quoteIndex > 10000) {
+			quoteIndex = 1;
+		}
+	}
+
 	private void innerComputeDayK(String commodityNo, String contractNo, Date date) {
 		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Date[] arr = retriveBeijingTimeInterval(date);
+		Date[] arr = TimeZoneUtil.retriveBeijingTimeInterval(date);
 		List<FuturesQuoteMinuteKGroup> groupList = minuteKGroupServcie
 				.getByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(commodityNo, contractNo, arr[0],
 						arr[1]);
 		if (groupList != null && groupList.size() > 0) {
-			FuturesQuoteDayK dayK = dayKServcie.getByCommodityNoAndContractNoAndTime(commodityNo, contractNo, date);
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(date);
+			cal.add(Calendar.DAY_OF_MONTH, -1);
+			Date yesterday = cal.getTime();
+			FuturesQuoteDayK dayK = dayKServcie.getByCommodityNoAndContractNoAndTime(commodityNo, contractNo,
+					yesterday);
 			if (dayK == null) {
 				dayK = new FuturesQuoteDayK();
 			}
 			// 初始化部分数据
 			dayK.setCommodityNo(commodityNo);
 			dayK.setContractNo(contractNo);
-			dayK.setTime(date);
-			dayK.setTimeStr(fullSdf.format(date));
+			dayK.setTime(yesterday);
+			dayK.setTimeStr(fullSdf.format(yesterday));
 			dayK.setTotalVolume(groupList.get(groupList.size() - 1).getTotalVolume());
 			Long startTotalQty = groupList.get(0).getStartTotalQty();
 			Long endTotalQty = groupList.get(groupList.size() - 1).getEndTotalQty();
 			dayK.setEndTotalQty(endTotalQty);
 			dayK.setStartTotalQty(startTotalQty);
-			if(endTotalQty != null && startTotalQty != null) {
-				dayK.setVolume(endTotalQty - startTotalQty);
+			if (endTotalQty != null) {
+				dayK.setVolume(endTotalQty);
 			} else {
 				dayK.setVolume(0L);
 			}
-			dayK.setOpenPrice(groupList.get(0).getOpenPrice());
-			dayK.setClosePrice(groupList.get(groupList.size() - 1).getClosePrice());
+			BigDecimal openPrice = groupList.get(0).getOpenPrice();
+			dayK.setOpenPrice(openPrice);
+			BigDecimal closePrice = groupList.get(groupList.size() - 1).getClosePrice();
+			dayK.setClosePrice(closePrice);
 			// 计算最高价、最低价
 			BigDecimal highPrice = groupList.get(0).getHighPrice();
 			BigDecimal lowPrice = groupList.get(0).getLowPrice();
@@ -120,25 +153,25 @@ public class QuoteDayKSchedule {
 			dayK.setHighPrice(highPrice);
 			dayK.setLowPrice(lowPrice);
 			// 保存计算出来的日K数据
-			dayKServcie.addFuturesQuoteDayK(dayK);
-
+			if (openPrice != null && openPrice.compareTo(BigDecimal.ZERO) > 0 && closePrice != null
+					&& closePrice.compareTo(BigDecimal.ZERO) > 0 && highPrice != null
+					&& highPrice.compareTo(BigDecimal.ZERO) > 0 && lowPrice != null
+					&& lowPrice.compareTo(BigDecimal.ZERO) > 0) {
+				dayKServcie.addFuturesQuoteDayK(dayK);
+			}
 		}
 	}
 
-	private Date[] retriveBeijingTimeInterval(Date date) {
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		cal.add(Calendar.HOUR_OF_DAY, 5);
-		cal.add(Calendar.MINUTE, 1);
-		Date endTime = cal.getTime();
+	public synchronized long getQuoteIndex() {
+		return quoteIndex;
+	}
 
-		Calendar startCal = Calendar.getInstance();
-		startCal.setTime(date);
-		startCal.add(Calendar.HOUR_OF_DAY, -18);
-		startCal.add(Calendar.MINUTE, 1);
-		Date startTime = startCal.getTime();
+	public void setQuoteIndex(long quoteIndex) {
+		this.quoteIndex = quoteIndex;
+	}
 
-		return new Date[] { startTime, endTime };
+	public synchronized void increaseQuoteIndex() {
+		this.quoteIndex += 1;
 	}
 
 }

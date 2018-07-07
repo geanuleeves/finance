@@ -94,7 +94,7 @@ public class QuoteMinuteKGroupSchedule {
 				Long endTotalQty = minuteKList.get(minuteKList.size() - 1).getEndTotalQty();
 				minuteKGroup.setEndTotalQty(endTotalQty);
 				minuteKGroup.setStartTotalQty(startTotalQty);
-				if(endTotalQty != null && startTotalQty != null) {
+				if (endTotalQty != null && startTotalQty != null) {
 					minuteKGroup.setVolume(endTotalQty - startTotalQty);
 				} else {
 					minuteKGroup.setVolume(0L);

@@ -133,18 +133,18 @@ public class WindControlSchedule {
 							continue;
 						}
 						// step 7 : 是否达到强平点
-						if (orderService.isTradeTime(timeZoneGap, contract) && isReachStongPoint(order, market)) {
-							if (order.getState() == FuturesOrderState.SellingEntrust && (order
-									.getWindControlType() == null
-									|| order.getWindControlType() == FuturesWindControlType.InitPosition
-									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
-								orderService.canceledOrder(order.getId());
-								continue;
-							}
-							orderService.sellingEntrust(order, FuturesWindControlType.ReachStrongPoint,
-									FuturesTradePriceType.MKT, null);
-							continue;
-						}
+//						if (orderService.isTradeTime(timeZoneGap, contract) && isReachStongPoint(order, market)) {
+//							if (order.getState() == FuturesOrderState.SellingEntrust && (order
+//									.getWindControlType() == null
+//									|| order.getWindControlType() == FuturesWindControlType.InitPosition
+//									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
+//								orderService.canceledOrder(order.getId());
+//								continue;
+//							}
+//							orderService.sellingEntrust(order, FuturesWindControlType.ReachStrongPoint,
+//									FuturesTradePriceType.MKT, null);
+//							continue;
+//						}
 						// step 8 : 是否达到止损点
 						if (orderService.isTradeTime(timeZoneGap, contract) && isReachLossPoint(order, market)) {
 							if (order.getState() == FuturesOrderState.SellingEntrust && (order
@@ -403,6 +403,7 @@ public class WindControlSchedule {
 	 *            行情
 	 * @return 是否达到强平点
 	 */
+	@SuppressWarnings("unused")
 	private boolean isReachStongPoint(FuturesOrder order, FuturesContractMarket market) {
 		BigDecimal lastPrice = market.getLastPrice();
 		FuturesOrderType orderType = order.getOrderType();

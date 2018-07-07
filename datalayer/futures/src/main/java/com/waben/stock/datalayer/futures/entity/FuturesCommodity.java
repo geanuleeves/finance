@@ -78,7 +78,7 @@ public class FuturesCommodity {
 	/**
 	 * 1手合约价值
 	 */
-	private BigDecimal perContractValue;
+	private String perContractValue;
 	/**
 	 * 波动一次盈亏金额，单位为该品种的货币单位
 	 */
@@ -312,11 +312,11 @@ public class FuturesCommodity {
 		this.minWave = minWave;
 	}
 
-	public BigDecimal getPerContractValue() {
+	public String getPerContractValue() {
 		return perContractValue;
 	}
 
-	public void setPerContractValue(BigDecimal perContractValue) {
+	public void setPerContractValue(String perContractValue) {
 		this.perContractValue = perContractValue;
 	}
 
@@ -444,7 +444,7 @@ public class FuturesCommodity {
 	}
 
 	public String getExchangeName() {
-		if(exchange != null) {
+		if (exchange != null) {
 			return exchange.getName();
 		}
 		return exchangeName;

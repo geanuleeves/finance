@@ -192,6 +192,7 @@ public class ExceptionMap {
 		exceptionMap.put(ExceptionConstant.WINDCONTROL_PARAMETERS_ISNUM_EXCEPTION, "提现冻结设置参数必须为大于0的正整数");
 		exceptionMap.put(ExceptionConstant.UNWINDORDER_CANNOTCANCEL_EXCEPTION, "平仓订单不能取消委托操作");
 		exceptionMap.put(ExceptionConstant.ISNOT_EXIST_PUTFORWARDTIME_EXCEPTION, "不在可提现时间内");
+		exceptionMap.put(ExceptionConstant.HOLDINGLOSS_LEADTO_NOTENOUGH_EXCEPTION, "持仓亏损，导致余额不足");
 
 	}
 }

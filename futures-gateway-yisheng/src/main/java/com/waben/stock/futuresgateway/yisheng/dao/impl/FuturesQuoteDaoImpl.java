@@ -82,7 +82,8 @@ public class FuturesQuoteDaoImpl implements FuturesQuoteDao {
 		Query query = new Query();
 		Pattern pattern = Pattern.compile("^" + dateTimeStamp + ".*", Pattern.CASE_INSENSITIVE);
 		query.addCriteria(Criteria.where("dateTimeStamp").regex(pattern));
-		query.with(new Sort(new Sort.Order(Direction.ASC, "dateTimeStamp")));
+		query.with(
+				new Sort(new Sort.Order(Direction.ASC, "dateTimeStamp"), new Sort.Order(Direction.ASC, "quoteIndex")));
 		return mongoTemplate.find(query, FuturesQuote.class,
 				quoteCollectionNamePrefix + commodityNo + "-" + contractNo);
 	}
