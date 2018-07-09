@@ -1295,9 +1295,11 @@ public class FuturesOrderService {
 		if (!isTradeTime) {
 			throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
 		}
-//		if (order.getState() == FuturesOrderState.PartPosition || order.getState() == FuturesOrderState.PartUnwind) {
-//			throw new ServiceException(ExceptionConstant.FUTURESORDER_PARTSUCCESS_CANNOTCANCEL_EXCEPTION);
-//		}
+		// if (order.getState() == FuturesOrderState.PartPosition ||
+		// order.getState() == FuturesOrderState.PartUnwind) {
+		// throw new
+		// ServiceException(ExceptionConstant.FUTURESORDER_PARTSUCCESS_CANNOTCANCEL_EXCEPTION);
+		// }
 		if (!(order.getState() == FuturesOrderState.BuyingEntrust || order.getState() == FuturesOrderState.PartPosition
 				|| order.getState() == FuturesOrderState.SellingEntrust
 				|| order.getState() == FuturesOrderState.PartUnwind)) {
@@ -1306,14 +1308,16 @@ public class FuturesOrderService {
 		}
 		// step 3 : 请求网关取消订单
 		canceledOrder(id);
-//		if (order.getState() == FuturesOrderState.BuyingEntrust) {
-//			TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(), domain, order.getOpenGatewayOrderId());
-//		}
-//		if (order.getState() == FuturesOrderState.SellingEntrust) {
-//			throw new ServiceException(ExceptionConstant.UNWINDORDER_CANNOTCANCEL_EXCEPTION);
-//			// TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(),
-//			// domain, order.getCloseGatewayOrderId());
-//		}
+		// if (order.getState() == FuturesOrderState.BuyingEntrust) {
+		// TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(), domain,
+		// order.getOpenGatewayOrderId());
+		// }
+		// if (order.getState() == FuturesOrderState.SellingEntrust) {
+		// throw new
+		// ServiceException(ExceptionConstant.UNWINDORDER_CANNOTCANCEL_EXCEPTION);
+		// // TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(),
+		// // domain, order.getCloseGatewayOrderId());
+		// }
 		return order;
 	}
 
@@ -1721,6 +1725,16 @@ public class FuturesOrderService {
 			BigDecimal totalQuantity) {
 		FuturesCommodity commodity = commodityDao.retrieveByCommodityNo(commodityNo);
 		FuturesContractMarket mkt = allQuote.getQuote(commodityNo, contractNo);
+		if (mkt == null) {
+			MarketAveragePrice result = new MarketAveragePrice();
+			result.setAvgFillPrice(BigDecimal.ZERO);
+			result.setCommodityNo(commodityNo);
+			result.setContractNo(contractNo);
+			result.setFilled(BigDecimal.ZERO);
+			result.setRemaining(totalQuantity);
+			result.setTotalFillCost(BigDecimal.ZERO);
+			return result;
+		}
 		if (actionType == FuturesActionType.BUY) {
 			MarketAveragePrice result = new MarketAveragePrice();
 			// 买方向，取卖档数据
@@ -1811,6 +1825,16 @@ public class FuturesOrderService {
 			BigDecimal totalQuantity, BigDecimal entrustPrice) {
 		FuturesCommodity commodity = commodityDao.retrieveByCommodityNo(commodityNo);
 		FuturesContractMarket mkt = allQuote.getQuote(commodityNo, contractNo);
+		if (mkt == null) {
+			MarketAveragePrice result = new MarketAveragePrice();
+			result.setAvgFillPrice(BigDecimal.ZERO);
+			result.setCommodityNo(commodityNo);
+			result.setContractNo(contractNo);
+			result.setFilled(BigDecimal.ZERO);
+			result.setRemaining(totalQuantity);
+			result.setTotalFillCost(BigDecimal.ZERO);
+			return result;
+		}
 		if (actionType == FuturesActionType.BUY) {
 			MarketAveragePrice result = new MarketAveragePrice();
 			// 买方向，取卖档数据
