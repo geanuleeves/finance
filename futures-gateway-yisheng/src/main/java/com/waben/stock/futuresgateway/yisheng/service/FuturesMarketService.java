@@ -326,6 +326,7 @@ public class FuturesMarketService {
 
 	public List<FuturesContractLineData> minsLine(String commodityNo, String contractNo, String startTimeStr,
 			String endTimeStr, Integer mins) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		// 获取开始和结束时间
 		Date startTime = null;
@@ -344,20 +345,28 @@ public class FuturesMarketService {
 			endTime = new Date();
 		}
 		if (startTime == null) {
-			int openHour = TimeZoneUtil.getOpenTimeHour();
-			int closeHour = TimeZoneUtil.getCloseTimeHour();
-
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(endTime);
-			cal.set(Calendar.HOUR_OF_DAY, openHour);
-			cal.set(Calendar.MINUTE, 0);
-			cal.set(Calendar.SECOND, 1);
-			cal.set(Calendar.MILLISECOND, 0);
-			Calendar now = Calendar.getInstance();
-			if (now.get(Calendar.HOUR_OF_DAY) <= closeHour) {
+			int weekDay = cal.get(Calendar.DAY_OF_WEEK);
+			if (weekDay == 7) {
+				// 星期六
+				cal.set(Calendar.HOUR_OF_DAY, 0);
+				cal.set(Calendar.MINUTE, 1);
+			} else if (weekDay == 1) {
+				// 星期日
 				cal.add(Calendar.DAY_OF_MONTH, -1);
+				cal.set(Calendar.HOUR_OF_DAY, 0);
+				cal.set(Calendar.MINUTE, 1);
+			} else if (weekDay == 2 && fullSdf.format(endTime)
+					.compareTo(sdf.format(endTime) + " " + TimeZoneUtil.getOpenTime(commodityNo)) < 0) {
+				// 星期一
+				cal.add(Calendar.DAY_OF_MONTH, -2);
+				cal.set(Calendar.HOUR_OF_DAY, 0);
+				cal.set(Calendar.MINUTE, 1);
 			}
-			startTime = cal.getTime();
+			Date computeTime = cal.getTime();
+			Date[] timeArr = TimeZoneUtil.retriveBeijingTimeInterval(computeTime, commodityNo);
+			startTime = timeArr[0];
 		}
 		// 查询分时数据
 		List<FuturesQuoteMinuteK> minuteKList = minuteKDao

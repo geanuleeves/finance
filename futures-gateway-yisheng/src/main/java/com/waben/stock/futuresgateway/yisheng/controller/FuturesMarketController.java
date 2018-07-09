@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.waben.stock.futuresgateway.yisheng.entity.FuturesContract;
 import com.waben.stock.futuresgateway.yisheng.esapi.ImportDayK;
 import com.waben.stock.futuresgateway.yisheng.pojo.FuturesContractLineData;
 import com.waben.stock.futuresgateway.yisheng.pojo.FuturesQuoteData;

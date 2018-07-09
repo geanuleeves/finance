@@ -166,18 +166,20 @@ public class EsQuoteWrapper implements QuoteApiListener {
 
 	@Override
 	public void onRtnQuote(TapAPIQuoteWhole info) {
-		// 放入队列和缓存
-		EsQuoteInfo quoteInfo = new EsQuoteInfo();
-		quoteInfo.setInfo(info);
-		quoteInfo.setQuoteIndex(dayKSchedule.getQuoteIndex());
-		dayKSchedule.increaseQuoteIndex();
-		rabbitmqProducer.sendMessage(RabbitmqConfiguration.quoteQueueName, quoteInfo);
-		String commodityNo = info.getContract().getCommodity().getCommodityNo();
-		String contractNo = info.getContract().getContractNo1();
-		String quoteCacheKey = getQuoteCacheKey(commodityNo, contractNo);
-		quoteCache.put(quoteCacheKey, info);
-		// 推送行情
-		pushQuote(info);
+		if(info.getQLastPrice() > 0) {
+			// 放入队列和缓存
+			EsQuoteInfo quoteInfo = new EsQuoteInfo();
+			quoteInfo.setInfo(info);
+			quoteInfo.setQuoteIndex(dayKSchedule.getQuoteIndex());
+			dayKSchedule.increaseQuoteIndex();
+			rabbitmqProducer.sendMessage(RabbitmqConfiguration.quoteQueueName, quoteInfo);
+			String commodityNo = info.getContract().getCommodity().getCommodityNo();
+			String contractNo = info.getContract().getContractNo1();
+			String quoteCacheKey = getQuoteCacheKey(commodityNo, contractNo);
+			quoteCache.put(quoteCacheKey, info);
+			// 推送行情
+			pushQuote(info);
+		}
 	}
 
 	public Map<String, TapAPIQuoteWhole> getQuoteCache() {

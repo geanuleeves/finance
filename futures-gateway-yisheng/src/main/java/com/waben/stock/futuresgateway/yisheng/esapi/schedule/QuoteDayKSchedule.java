@@ -53,11 +53,12 @@ public class QuoteDayKSchedule {
 	/**
 	 * 每小时组合一天的小时K，计算天K
 	 */
-	@Scheduled(cron = "0 20 0/1 * * ?")
+	@Scheduled(cron = "0 6 0/1 * * ?")
 	public void computeDayK() {
 		// 此处为额外计算的内容
-		computeQuoteIndex();
+		computeQuoteIndex("GC");
 
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		// step 1 : 获取可用的合约
 		List<FuturesContract> contractList = contractService.getByEnable(true);
@@ -78,10 +79,13 @@ public class QuoteDayKSchedule {
 			// step 3 : 计算上一天的日K
 			try {
 				Calendar now = Calendar.getInstance();
-				if (now.get(Calendar.HOUR_OF_DAY) < TimeZoneUtil.getCloseTimeHour()) {
+				int weekDay = cal.get(Calendar.DAY_OF_WEEK);
+				if (weekDay != 1 && weekDay != 2 && fullSdf.format(now.getTime())
+						.compareTo(sdf.format(cal.getTime()) + " " + TimeZoneUtil.getCloseTime(commodityNo)) > 0) {
+					innerComputeDayK(commodityNo, contractNo, today);
+				} else {
 					continue;
 				}
-				innerComputeDayK(commodityNo, contractNo, today);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				logger.error("计算日K数据异常:{}_{}_{}", commodityNo, contractNo, fullSdf.format(today));
@@ -90,23 +94,30 @@ public class QuoteDayKSchedule {
 		logger.info("计算日K数据结束:" + fullSdf.format(new Date()));
 	}
 
-	private void computeQuoteIndex() {
-		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.HOUR_OF_DAY, TimeZoneUtil.getCloseTimeHour());
-		cal.set(Calendar.MINUTE, 10);
-		Date startTime = cal.getTime();
-		cal.set(Calendar.MINUTE, 50);
-		Date endTime = cal.getTime();
+	private void computeQuoteIndex(String commodityNo) {
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			Date closeData = fullSdf.parse(sdf.format(new Date()) + " " + TimeZoneUtil.getCloseTime(commodityNo));
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(closeData);
+			cal.add(Calendar.MINUTE, 10);
+			Date startTime = cal.getTime();
+			cal.set(Calendar.MINUTE, 50);
+			Date endTime = cal.getTime();
 
-		Date now = new Date();
-		if (now.getTime() > startTime.getTime() && now.getTime() < endTime.getTime() && quoteIndex > 10000) {
-			quoteIndex = 1;
+			Date now = new Date();
+			if (now.getTime() > startTime.getTime() && now.getTime() < endTime.getTime() && quoteIndex > 10000) {
+				quoteIndex = 1;
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 
 	private void innerComputeDayK(String commodityNo, String contractNo, Date date) {
 		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Date[] arr = TimeZoneUtil.retriveBeijingTimeInterval(date);
+		Date[] arr = TimeZoneUtil.retriveBeijingTimeInterval(date, commodityNo);
 		List<FuturesQuoteMinuteKGroup> groupList = minuteKGroupServcie
 				.getByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(commodityNo, contractNo, arr[0],
 						arr[1]);

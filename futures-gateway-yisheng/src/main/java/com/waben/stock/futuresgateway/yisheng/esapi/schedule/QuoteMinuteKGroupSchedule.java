@@ -51,7 +51,7 @@ public class QuoteMinuteKGroupSchedule {
 	/**
 	 * 每小时组合上一小时的分钟K，计算小时K
 	 */
-	@Scheduled(cron = "0 10 0/1 * * ?")
+	@Scheduled(cron = "0 3 0/1 * * ?")
 	public void computeMinuteKGroup() {
 		// SimpleDateFormat hourSdf = new SimpleDateFormat("yyyy-MM-dd HH:");
 		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
