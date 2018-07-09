@@ -1,5 +1,7 @@
 package com.waben.stock.interfaces.service.manage;
 
+import java.util.List;
+
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,5 +38,8 @@ public interface StaffInterface {
 
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
 	void delete(@PathVariable("id") Long id);
+	
+	@RequestMapping(value = "/findAll", method = RequestMethod.GET, consumes = "application/json")
+	Response<List<StaffDto>> findAll();
 
 }

@@ -24,7 +24,7 @@ public class Staff {
 	@Column
 	private String password;
 	@JsonIgnore
-	@ManyToOne(targetEntity = Role.class, fetch = FetchType.LAZY)
+	@ManyToOne(targetEntity = Role.class, fetch = FetchType.EAGER)
 	@JoinColumn(name = "role")
 	private Role role;
 	@Column

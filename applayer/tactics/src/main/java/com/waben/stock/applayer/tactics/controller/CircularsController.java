@@ -1,5 +1,7 @@
 package com.waben.stock.applayer.tactics.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -7,10 +9,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.waben.stock.applayer.tactics.business.CircularsBusiness;
+import com.waben.stock.interfaces.dto.admin.BroadcastDto;
 import com.waben.stock.interfaces.dto.manage.CircularsDto;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.CircularsQuery;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.admin.BroadcastQuery;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -42,4 +46,10 @@ public class CircularsController {
         CircularsDto response = circularsBusiness.findById(id);
         return new Response<>(response);
     }
+	
+	@GetMapping("/findBroadcast")
+	@ApiOperation(value = "查询直播地址")
+	public Response<List<BroadcastDto>> findBytype(BroadcastQuery query){
+		return new Response<>(circularsBusiness.findByType(query));
+	}
 }
