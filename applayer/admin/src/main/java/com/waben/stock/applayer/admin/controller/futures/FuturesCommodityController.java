@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,6 +26,7 @@ import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesCommodityAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeTimeDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
+import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
@@ -96,6 +98,12 @@ public class FuturesCommodityController {
 	@ApiOperation(value = "删除品种")
 	public Response<String> delete(@PathVariable("id") Long id) {
 		return business.delete(id);
+	}
+
+	@PostMapping("/save/lossOrProfit")
+	@ApiOperation(value = "设置止损止盈")
+	public Response<Integer> addLossOrProfit(@RequestBody List<FuturesStopLossOrProfitDto> lossOrProfitDto) {
+		return new Response<>(business.saveLossOrProfit(lossOrProfitDto));
 	}
 
 	@GetMapping("/exportCoommodity")

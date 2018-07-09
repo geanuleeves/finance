@@ -194,6 +194,7 @@ public class ExceptionMap {
 		exceptionMap.put(ExceptionConstant.ISNOT_EXIST_PUTFORWARDTIME_EXCEPTION, "不在可提现时间内");
 		exceptionMap.put(ExceptionConstant.HOLDINGLOSS_LEADTO_NOTENOUGH_EXCEPTION, "持仓亏损，导致余额不足");
 		exceptionMap.put(ExceptionConstant.CONTRACT_DOESNOT_OVERDUE_EXIST_EXCEPTION, "该合约已过期");
+		exceptionMap.put(ExceptionConstant.COMMODITY_DONOT_EXIST_EXCEPTION, "该品种不存在");
 
 	}
 }

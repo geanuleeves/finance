@@ -626,6 +626,11 @@ public class OrganizationService {
 			commodityNameCondition = " and t11.commodity_name like '%" + query.getCommodityName() + "%' ";
 		}
 
+		String tradeType = "";
+		if (!StringUtil.isEmpty(query.getOrderType())) {
+			tradeType = " and t1.type = " + query.getOrderType() + "";
+		}
+
 		String sql = String.format(
 				"select t1.id, t1.amount, t1.flow_no, t1.occurrence_time, t1.publisher_id, t5.phone, t1.remark, t1.type, t4.name, "
 						+ "t2.stock_code as b_stock_code, t2.stock_name as b_stock_name, t11.commodity_symbol as commodity_symbol, t11.commodity_name as commodity_name, t11.contract_no as contract_no, "
@@ -642,10 +647,11 @@ public class OrganizationService {
 						+ " LEFT JOIN p_organization t10 ON t10.code = t9.org_code"
 						+ " LEFT JOIN f_futures_overnight_record t12 on t1.extend_type=7 and t1.extend_id=t12.id "
 						+ " LEFT JOIN f_futures_order t11 on (t1.extend_type=6 and t1.extend_id=t11.id ) or (t1.extend_type=7 and t11.id=t12.order_id) "
-						+ " WHERE 1=1 and t10.id is not null  %s %s %s %s %s %s %s %s %s %s order by t1.occurrence_time desc limit "
+						+ " WHERE 1=1 and t10.id is not null  %s %s %s %s %s %s %s %s %s %s %s order by t1.occurrence_time desc limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(),
 				customerNameQuery, tradingNumberQuery, startTimeCondition, endTimeCondition, typeCondition,
-				contractCodeQuery, agentCodeNameQuery, treeCodeQuery, commodityNameCondition, commoditySymbolCondition);
+				contractCodeQuery, agentCodeNameQuery, treeCodeQuery, commodityNameCondition, commoditySymbolCondition,
+				tradeType);
 		String countSql = "select count(*) from (" + sql.substring(0, sql.indexOf("limit")) + ") c";
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setId", new Class<?>[] { Long.class }));
