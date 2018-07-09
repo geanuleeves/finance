@@ -18,6 +18,7 @@ import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHtt
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
+import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationPublisherDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
@@ -26,6 +27,7 @@ import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesContractQuery;
 import com.waben.stock.interfaces.service.futures.FuturesBrokerInterface;
+import com.waben.stock.interfaces.service.futures.FuturesCommodityInterface;
 import com.waben.stock.interfaces.service.futures.FuturesContractInterface;
 import com.waben.stock.interfaces.service.futures.FuturesOrderInterface;
 import com.waben.stock.interfaces.service.organization.OrganizationInterface;
@@ -60,7 +62,11 @@ public class FuturesContractBusiness {
 	@Autowired
 	@Qualifier("organizationPublisherInterface")
 	private OrganizationPublisherInterface organizationPublisherInterface;
-	
+
+	@Autowired
+	@Qualifier("futuresCommodityInterface")
+	private FuturesCommodityInterface futuresCommodityInterface;
+
 	@Autowired
 	private ProfileBusiness profileBusiness;
 
@@ -85,8 +91,8 @@ public class FuturesContractBusiness {
 				FuturesContractQuotationDto.class);
 		if (quotationList.size() > 0) {
 			for (FuturesContractQuotationDto quotation : quotationList) {
-				FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(), quotation.getSymbol(),
-						quotation.getContractNo());
+				FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(),
+						quotation.getSymbol(), quotation.getContractNo());
 				// 设置行情信息
 				quotation.setLastPrice(market.getLastPrice());
 				quotation.setUpDropPrice(market.getUpDropPrice());
@@ -279,6 +285,14 @@ public class FuturesContractBusiness {
 			}
 		}
 		return contract;
+	}
+
+	public List<FuturesStopLossOrProfitDto> getLossOrProfits(Long commodityId) {
+		Response<List<FuturesStopLossOrProfitDto>> response = futuresCommodityInterface.getLossOrProfits(commodityId);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
 	}
 
 }

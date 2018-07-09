@@ -21,31 +21,31 @@ public class FuturesFowQuery extends PageAndSortQuery {
 	 * 交易账号
 	 */
 	private String publisherPhone;
-	
+
 	/**
 	 * 交易时间-查询开始时间
 	 */
 	@JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date startTime;
-	
+
 	/**
 	 * 交易时间-查询结束时间
 	 */
 	@JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date endTime;
-	
+
 	/**
 	 * 业务类型
 	 */
 	private String orderType;
-	
+
 	private String treeCode;
-	
+
 	/**
 	 * 流水类型，多个流水类型使用,号分割
 	 */
 	private String flowTypes;
-	
+
 	/**
 	 * 交易代码
 	 */
@@ -64,6 +64,8 @@ public class FuturesFowQuery extends PageAndSortQuery {
 	 * 所属代理商代码/名称
 	 */
 	private String orgCodeOrName;
+
+	private String tradeType;
 
 	public Long getCurrentOrgId() {
 		return currentOrgId;
@@ -160,4 +162,13 @@ public class FuturesFowQuery extends PageAndSortQuery {
 	public void setFlowTypes(String flowTypes) {
 		this.flowTypes = flowTypes;
 	}
+
+	public String getTradeType() {
+		return tradeType;
+	}
+
+	public void setTradeType(String tradeType) {
+		this.tradeType = tradeType;
+	}
+
 }

@@ -28,6 +28,7 @@ import com.waben.stock.interfaces.dto.admin.futures.FuturesPreQuantityDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeTimeDto;
 import com.waben.stock.interfaces.dto.admin.futures.SetSlipPointDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
+import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 import com.waben.stock.interfaces.enums.FuturesProductType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
@@ -292,6 +293,16 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 		FuturesCommodity commodity = commodityService.setSlipPoint(dto.getCommodityId(), dto.getBuyUpOpenSlipPoint(),
 				dto.getBuyUpCloseSlipPoint(), dto.getBuyFallOpenSlipPoint(), dto.getBuyFallCloseSlipPoint());
 		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesCommodityAdminDto.class, commodity, false));
+	}
+		
+	public Response<Integer> saveLossOrProfit(@RequestBody List<FuturesStopLossOrProfitDto> lossOrProfitDto) {
+		return new Response<>(commodityService.saveLossOrProfit(lossOrProfitDto));
+	}
+
+	@Override
+	public Response<List<FuturesStopLossOrProfitDto>> getLossOrProfits(@PathVariable Long commodityId) {
+		return new Response<>(CopyBeanUtils.copyListBeanPropertiesToList(commodityService.getLossOrProfits(commodityId),
+				FuturesStopLossOrProfitDto.class));
 	}
 
 }
