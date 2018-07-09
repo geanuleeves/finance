@@ -63,6 +63,9 @@ public class StaffDto implements Serializable {
 	private String ip;
 	@ApiModelProperty(value = "对应的角色")
 	private RoleDto roleDto;
+	
+	@ApiModelProperty(value = "角色ID")
+	private Long roleId;
 
 	public Long getId() {
 		return id;
@@ -150,6 +153,14 @@ public class StaffDto implements Serializable {
 
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
+	}
+
+	public Long getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(Long roleId) {
+		this.roleId = roleId;
 	}
 
 }
