@@ -347,5 +347,7 @@ public class ExceptionConstant {
 	public static final String CONTRACT_DOESNOT_OVERDUE_EXIST_EXCEPTION = "13042";
 	// 该品种不存在
 	public static final String COMMODITY_DONOT_EXIST_EXCEPTION = "13043";
+	// 未设置止损止盈
+	public static final String SETTING_STOP_LOSS_EXCEPTION = "13044";
 
 }

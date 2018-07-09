@@ -84,4 +84,7 @@ public interface FuturesCommodityInterface {
 	@RequestMapping(value = "/loss/profit/{commodityId}", method = RequestMethod.GET)
 	Response<List<FuturesStopLossOrProfitDto>> getLossOrProfits(@PathVariable("commodityId") Long commodityId);
 
+	@RequestMapping(value = "/lossOrprofit/{id}", method = RequestMethod.GET)
+	Response<FuturesStopLossOrProfitDto> getLossOrProfitsById(@PathVariable("id") Long id);
+
 }

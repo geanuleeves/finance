@@ -118,7 +118,7 @@ public class FuturesCommodityService {
 		commodity.setBuyFallCloseSlipPoint(buyFallCloseSlipPoint);
 		return dao.update(commodity);
 	}
-	
+
 	/**
 	 * 设置止损止盈
 	 * 
@@ -155,6 +155,10 @@ public class FuturesCommodityService {
 	 */
 	public List<FuturesStopLossOrProfit> getLossOrProfits(Long commodityId) {
 		return lossOrProfitDao.findByCommodityId(commodityId);
+	}
+
+	public FuturesStopLossOrProfit getLossOrProfitsById(Long id) {
+		return lossOrProfitDao.retrieve(id);
 	}
 
 }

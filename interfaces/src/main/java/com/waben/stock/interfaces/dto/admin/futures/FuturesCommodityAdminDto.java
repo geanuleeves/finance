@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FuturesCommodityAdminDto {
@@ -263,6 +264,8 @@ public class FuturesCommodityAdminDto {
 	 * 周日交易时间描述
 	 */
 	private String sunTradeTimeDesc;
+
+	private List<FuturesStopLossOrProfitDto> lossOrProfitDto;
 
 	public Long getId() {
 		return id;
@@ -670,6 +673,14 @@ public class FuturesCommodityAdminDto {
 
 	public void setBuyFallCloseSlipPoint(Integer buyFallCloseSlipPoint) {
 		this.buyFallCloseSlipPoint = buyFallCloseSlipPoint;
+	}
+
+	public List<FuturesStopLossOrProfitDto> getLossOrProfitDto() {
+		return lossOrProfitDto;
+	}
+
+	public void setLossOrProfitDto(List<FuturesStopLossOrProfitDto> lossOrProfitDto) {
+		this.lossOrProfitDto = lossOrProfitDto;
 	}
 
 }

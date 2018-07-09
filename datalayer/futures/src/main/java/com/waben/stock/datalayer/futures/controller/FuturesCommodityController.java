@@ -16,6 +16,7 @@ import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.entity.FuturesExchange;
 import com.waben.stock.datalayer.futures.entity.FuturesPreQuantity;
+import com.waben.stock.datalayer.futures.entity.FuturesStopLossOrProfit;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesProductTypeConverter;
 import com.waben.stock.datalayer.futures.service.FuturesCommodityService;
 import com.waben.stock.datalayer.futures.service.FuturesContractService;
@@ -77,6 +78,9 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 				if (rate != null) {
 					result.getContent().get(i).setRate(rate.getRate());
 				}
+				List<FuturesStopLossOrProfit> lossOrprofitList = commodityService.getLossOrProfits(commodity.getId());
+				result.getContent().get(i).setLossOrProfitDto(
+						CopyBeanUtils.copyListBeanPropertiesToList(lossOrprofitList, FuturesStopLossOrProfitDto.class));
 				List<FuturesPreQuantity> quantity = quantityService.findByCommodityId(commodity.getId());
 				List<FuturesPreQuantityDto> quDto = new ArrayList<FuturesPreQuantityDto>();
 				for (FuturesPreQuantity fq : quantity) {
@@ -294,7 +298,7 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 				dto.getBuyUpCloseSlipPoint(), dto.getBuyFallOpenSlipPoint(), dto.getBuyFallCloseSlipPoint());
 		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesCommodityAdminDto.class, commodity, false));
 	}
-		
+
 	public Response<Integer> saveLossOrProfit(@RequestBody List<FuturesStopLossOrProfitDto> lossOrProfitDto) {
 		return new Response<>(commodityService.saveLossOrProfit(lossOrProfitDto));
 	}
@@ -303,6 +307,12 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 	public Response<List<FuturesStopLossOrProfitDto>> getLossOrProfits(@PathVariable Long commodityId) {
 		return new Response<>(CopyBeanUtils.copyListBeanPropertiesToList(commodityService.getLossOrProfits(commodityId),
 				FuturesStopLossOrProfitDto.class));
+	}
+
+	@Override
+	public Response<FuturesStopLossOrProfitDto> getLossOrProfitsById(@PathVariable Long id) {
+		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesStopLossOrProfitDto.class,
+				commodityService.getLossOrProfitsById(id), false));
 	}
 
 }
