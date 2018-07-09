@@ -176,7 +176,7 @@ public class FuturesCommodityAdminDto {
 	 * 3 异常
 	 * </p>
 	 */
-	// private Integer state;
+	private Integer state;
 
 	/**
 	 * 每个合约的描述
@@ -265,7 +265,15 @@ public class FuturesCommodityAdminDto {
 	 */
 	private String sunTradeTimeDesc;
 
+	/**
+	 * 止损止盈
+	 */
 	private List<FuturesStopLossOrProfitDto> lossOrProfitDto;
+
+	/**
+	 * 合约数量
+	 */
+	private Integer contractNum;
 
 	public Long getId() {
 		return id;
@@ -681,6 +689,22 @@ public class FuturesCommodityAdminDto {
 
 	public void setLossOrProfitDto(List<FuturesStopLossOrProfitDto> lossOrProfitDto) {
 		this.lossOrProfitDto = lossOrProfitDto;
+	}
+
+	public Integer getContractNum() {
+		return contractNum;
+	}
+
+	public void setContractNum(Integer contractNum) {
+		this.contractNum = contractNum;
+	}
+
+	public Integer getState() {
+		return state;
+	}
+
+	public void setState(Integer state) {
+		this.state = state;
 	}
 
 }
