@@ -345,5 +345,7 @@ public class ExceptionConstant {
 	public static final String HOLDINGLOSS_LEADTO_NOTENOUGH_EXCEPTION = "13041";
 	// 该合约已过期
 	public static final String CONTRACT_DOESNOT_OVERDUE_EXIST_EXCEPTION = "13042";
+	// 该品种不存在
+	public static final String COMMODITY_DONOT_EXIST_EXCEPTION = "13043";
 
 }

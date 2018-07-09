@@ -267,6 +267,11 @@ public class FuturesOrderDto {
 	@ApiModelProperty(value = "交易所名称")
 	private String exchangeName;
 	/**
+	 * 品种ID
+	 */
+	@ApiModelProperty(value = "品种ID")
+	private Long commodityId;
+	/**
 	 * 期货隔夜记录
 	 */
 	private List<FuturesOvernightRecordDto> futuresOvernightRecord;
@@ -668,6 +673,14 @@ public class FuturesOrderDto {
 
 	public void setSellingEntrustTime(Date sellingEntrustTime) {
 		this.sellingEntrustTime = sellingEntrustTime;
+	}
+
+	public Long getCommodityId() {
+		return commodityId;
+	}
+
+	public void setCommodityId(Long commodityId) {
+		this.commodityId = commodityId;
 	}
 
 }

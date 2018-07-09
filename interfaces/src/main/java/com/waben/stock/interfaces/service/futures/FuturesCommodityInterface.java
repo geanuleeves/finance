@@ -3,6 +3,7 @@ package com.waben.stock.interfaces.service.futures;
 import java.util.List;
 
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.waben.stock.interfaces.dto.admin.futures.FuturesCommodityAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeTimeDto;
+import com.waben.stock.interfaces.dto.admin.futures.SetSlipPointDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
+import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesCommodityAdminQuery;
@@ -51,4 +54,34 @@ public interface FuturesCommodityInterface {
 
 	@RequestMapping(value = "/lists/{exchangeId}", method = RequestMethod.GET)
 	Response<List<FuturesCommodityDto>> listByExchangeId(@PathVariable("exchangeId") Long exchangeId);
+
+	/**
+	 * 设置品种交易点差
+	 * 
+	 * @param dto
+	 *            品种交易点差
+	 * @return 品种
+	 */
+	@RequestMapping(value = "/setSlipPoint", method = RequestMethod.POST, consumes = "application/json")
+	Response<FuturesCommodityAdminDto> setSlipPoint(@RequestBody SetSlipPointDto dto);
+
+	/**
+	 * 设置止损止盈
+	 * 
+	 * @param stopLossOrProfitDto
+	 *            止损止盈实体
+	 */
+	@RequestMapping(value = "/save/lossOrProfit", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	Response<Integer> saveLossOrProfit(@RequestBody List<FuturesStopLossOrProfitDto> lossOrProfitDto);
+
+	/**
+	 * 根据品种ID获取止损止盈列表
+	 * 
+	 * @param commodityId
+	 *            品种ID
+	 * @return 止损止盈列表
+	 */
+	@RequestMapping(value = "/loss/profit/{commodityId}", method = RequestMethod.GET)
+	Response<List<FuturesStopLossOrProfitDto>> getLossOrProfits(@PathVariable("commodityId") Long commodityId);
+
 }

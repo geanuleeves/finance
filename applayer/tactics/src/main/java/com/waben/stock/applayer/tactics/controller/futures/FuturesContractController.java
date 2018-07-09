@@ -21,6 +21,7 @@ import com.waben.stock.applayer.tactics.business.futures.FuturesContractBusiness
 import com.waben.stock.applayer.tactics.dto.futures.FuturesContractQuotationDto;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
+import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 import com.waben.stock.interfaces.enums.FuturesProductType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
@@ -109,6 +110,12 @@ public class FuturesContractController {
 			}
 		}
 		return new Response<>((FuturesContractQuotationDto) futuresContractBusiness.wrapperAgentPrice(contract));
+	}
+
+	@GetMapping("/lossOrProfit/{commodityId}")
+	@ApiOperation(value = "根据品种ID获取止损止盈列表")
+	public Response<List<FuturesStopLossOrProfitDto>> getLossOrProfits(@PathVariable Long commodityId) {
+		return new Response<>(futuresContractBusiness.getLossOrProfits(commodityId));
 	}
 
 }

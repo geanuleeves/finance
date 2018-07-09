@@ -50,6 +50,7 @@ import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqProducer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorPublisherFuturesOrderConsumer;
 import com.waben.stock.datalayer.futures.rabbitmq.message.EntrustQueryMessage;
 import com.waben.stock.datalayer.futures.repository.DynamicQuerySqlDao;
+import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
 import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
 import com.waben.stock.datalayer.futures.repository.FuturesOvernightRecordDao;
@@ -58,9 +59,9 @@ import com.waben.stock.datalayer.futures.schedule.RetriveAllQuoteSchedule;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.TradeFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
-import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesGatewayOrder;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
+import com.waben.stock.interfaces.dto.futures.MarketAveragePrice;
 import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
 import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
@@ -103,6 +104,9 @@ public class FuturesOrderService {
 
 	@Autowired
 	private FuturesContractDao contractDao;
+
+	@Autowired
+	private FuturesCommodityDao commodityDao;
 
 	@Autowired
 	private FuturesOvernightRecordService overnightService;
@@ -485,13 +489,16 @@ public class FuturesOrderService {
 						.subtract(new BigDecimal("3").multiply(contract.getCommodity().getMinWave()));
 			}
 		}
-		FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain,
-				order.getCommoditySymbol(), order.getContractNo(), order.getId(), action, order.getTotalQuantity(),
-				orderType, gatewayBuyingEntrustPrice);
+		// 修改成模拟下单，以下代码注释
+		// FuturesGatewayOrder gatewayOrder =
+		// TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain,
+		// order.getCommoditySymbol(), order.getContractNo(), order.getId(),
+		// action, order.getTotalQuantity(),
+		// orderType, gatewayBuyingEntrustPrice);
 		// TODO 委托下单异常情况处理，此处默认为所有的委托都能成功
 		// step 7 : 更新订单状态
 		order.setState(FuturesOrderState.BuyingEntrust);
-		order.setOpenGatewayOrderId(gatewayOrder.getId());
+		order.setOpenGatewayOrderId(-1L);
 		order.setBuyingEntrustTime(date);
 		order = orderDao.update(order);
 		// step 8 : 站外消息推送
@@ -499,7 +506,7 @@ public class FuturesOrderService {
 		// step 9 : 放入委托查询队列（开仓）
 		EntrustQueryMessage msg = new EntrustQueryMessage();
 		msg.setOrderId(order.getId());
-		msg.setGatewayOrderId(gatewayOrder.getId());
+		msg.setGatewayOrderId(-1L);
 		msg.setEntrustType(1);
 		producer.sendMessage(RabbitmqConfiguration.entrustQueryQueueName, msg);
 		return order;
@@ -757,48 +764,6 @@ public class FuturesOrderService {
 	}
 
 	/**
-	 * 部分买入成功
-	 * 
-	 * @param id
-	 *            订单ID
-	 * @return 订单
-	 */
-	@Transactional
-	public FuturesOrder partPositionOrder(Long id) {
-		FuturesOrder order = orderDao.retrieve(id);
-		if (!(order.getState() == FuturesOrderState.Posted || order.getState() == FuturesOrderState.BuyingEntrust
-				|| order.getState() == FuturesOrderState.PartPosition)) {
-			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
-			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
-		}
-		// 修改订单状态
-		order.setState(FuturesOrderState.PartPosition);
-		order.setUpdateTime(new Date());
-		return orderDao.update(order);
-	}
-
-	/**
-	 * 部分已平仓
-	 * 
-	 * @param id
-	 *            订单ID
-	 * @return 订单
-	 */
-	@Transactional
-	public FuturesOrder partUnwindOrder(Long id) {
-		FuturesOrder order = orderDao.retrieve(id);
-		if (!(order.getState() == FuturesOrderState.Position || order.getState() == FuturesOrderState.SellingEntrust
-				|| order.getState() == FuturesOrderState.PartUnwind)) {
-			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
-			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
-		}
-		// 修改订单状态
-		order.setState(FuturesOrderState.PartUnwind);
-		order.setUpdateTime(new Date());
-		return orderDao.update(order);
-	}
-
-	/**
 	 * 持仓中
 	 * 
 	 * @param id
@@ -833,6 +798,95 @@ public class FuturesOrderService {
 		// 放入监控队列
 		monitorPublisher.monitorPublisher(order.getPublisherId());
 		return order;
+	}
+
+	/**
+	 * 持仓中
+	 * 
+	 * @param id
+	 *            订单ID
+	 * @param buyingPrice
+	 *            买入价格
+	 * @return 订单
+	 */
+	@Transactional
+	public FuturesOrder positionOrder(Long id, BigDecimal filled, BigDecimal remaining, BigDecimal avgFillPrice,
+			BigDecimal totalFillCost, BigDecimal buyingPrice) {
+		FuturesOrder order = orderDao.retrieve(id);
+		if (!(order.getState() == FuturesOrderState.Posted || order.getState() == FuturesOrderState.BuyingEntrust
+				|| order.getState() == FuturesOrderState.PartPosition)) {
+			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
+			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
+		}
+		// 修改订单状态
+		Date date = new Date();
+		order.setBuyingPrice(buyingPrice);
+		order.setBuyingTime(date);
+		order.setOpenFilled(filled);
+		order.setOpenRemaining(remaining);
+		order.setOpenAvgFillPrice(avgFillPrice);
+		order.setOpenTotalFillCost(totalFillCost);
+		order.setState(FuturesOrderState.Position);
+		order.setUpdateTime(date);
+		orderDao.update(order);
+		// 给渠道推广机构结算
+		if (order.getIsTest() == null || order.getIsTest() == false) {
+			orgBusiness.futuresSettlement(order.getPublisherId(), order.getContract().getCommodity().getId(),
+					order.getId(), order.getTradeNo(), order.getTotalQuantity(), order.getOpenwindServiceFee(),
+					order.getUnwindServiceFee());
+		}
+		// 站外消息推送
+		sendOutsideMessage(order);
+		// 放入监控队列
+		monitorPublisher.monitorPublisher(order.getPublisherId());
+		return order;
+	}
+
+	/**
+	 * 部分买入成功
+	 * 
+	 * @param id
+	 *            订单ID
+	 * @return 订单
+	 */
+	@Transactional
+	public FuturesOrder partPositionOrder(Long id) {
+		FuturesOrder order = orderDao.retrieve(id);
+		if (!(order.getState() == FuturesOrderState.Posted || order.getState() == FuturesOrderState.BuyingEntrust
+				|| order.getState() == FuturesOrderState.PartPosition)) {
+			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
+			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
+		}
+		// 修改订单状态
+		order.setState(FuturesOrderState.PartPosition);
+		order.setUpdateTime(new Date());
+		return orderDao.update(order);
+	}
+
+	/**
+	 * 部分买入成功
+	 * 
+	 * @param id
+	 *            订单ID
+	 * @return 订单
+	 */
+	@Transactional
+	public FuturesOrder partPositionOrder(Long id, BigDecimal filled, BigDecimal remaining, BigDecimal avgFillPrice,
+			BigDecimal totalFillCost) {
+		FuturesOrder order = orderDao.retrieve(id);
+		if (!(order.getState() == FuturesOrderState.Posted || order.getState() == FuturesOrderState.BuyingEntrust
+				|| order.getState() == FuturesOrderState.PartPosition)) {
+			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
+			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
+		}
+		// 修改订单状态
+		order.setState(FuturesOrderState.PartPosition);
+		order.setOpenFilled(filled);
+		order.setOpenRemaining(remaining);
+		order.setOpenAvgFillPrice(avgFillPrice);
+		order.setOpenTotalFillCost(totalFillCost);
+		order.setUpdateTime(new Date());
+		return orderDao.update(order);
 	}
 
 	/**
@@ -892,6 +946,117 @@ public class FuturesOrderService {
 		// 站外消息推送
 		sendOutsideMessage(order);
 		return order;
+	}
+
+	/**
+	 * 已平仓
+	 * 
+	 * @param id
+	 *            订单ID
+	 * @param sellingPrice
+	 *            卖出价格
+	 * @return 订单
+	 */
+	public FuturesOrder unwindOrder(Long id, BigDecimal filled, BigDecimal remaining, BigDecimal avgFillPrice,
+			BigDecimal totalFillCost, BigDecimal sellingPrice) {
+		FuturesOrder order = orderDao.retrieve(id);
+		if (order.getState() == FuturesOrderState.Unwind) {
+			return order;
+		}
+		if (!(order.getState() == FuturesOrderState.Position || order.getState() == FuturesOrderState.SellingEntrust
+				|| order.getState() == FuturesOrderState.PartUnwind)) {
+			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
+			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
+		}
+		// 盈亏（交易所货币）
+		BigDecimal currencyProfitOrLoss = computeProfitOrLoss(order.getOrderType(), order.getTotalQuantity(),
+				order.getBuyingPrice(), sellingPrice, order.getContract().getCommodity().getMinWave(),
+				order.getContract().getCommodity().getPerWaveMoney());
+		// 盈亏（人民币）
+		BigDecimal rate = rateService.findByCurrency(order.getCommodityCurrency()).getRate();
+		BigDecimal profitOrLoss = currencyProfitOrLoss.multiply(rate).setScale(2, RoundingMode.DOWN);
+		// 给用户结算
+		CapitalAccountDto account = accountBusiness.futuresOrderSettlement(order.getPublisherId(), order.getId(),
+				profitOrLoss);
+		// 发布人盈亏（人民币）、平台盈亏（人民币）
+		BigDecimal publisherProfitOrLoss = BigDecimal.ZERO;
+		BigDecimal platformProfitOrLoss = BigDecimal.ZERO;
+		if (profitOrLoss.compareTo(BigDecimal.ZERO) > 0) {
+			publisherProfitOrLoss = profitOrLoss;
+		} else if (profitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+			publisherProfitOrLoss = account.getRealProfitOrLoss();
+			if (profitOrLoss.abs().compareTo(publisherProfitOrLoss.abs()) > 0) {
+				platformProfitOrLoss = profitOrLoss.abs().subtract(publisherProfitOrLoss.abs())
+						.multiply(new BigDecimal(-1));
+			}
+		}
+		// 修改订单状态
+		Date date = new Date();
+		order.setCloseFilled(filled);
+		order.setCloseRemaining(remaining);
+		order.setCloseAvgFillPrice(avgFillPrice);
+		order.setCloseTotalFillCost(totalFillCost);
+		order.setCurrencyProfitOrLoss(currencyProfitOrLoss);
+		order.setProfitOrLoss(profitOrLoss);
+		order.setPublisherProfitOrLoss(publisherProfitOrLoss);
+		order.setPlatformProfitOrLoss(platformProfitOrLoss);
+		order.setSettlementRate(rate);
+		order.setSellingPrice(sellingPrice);
+		order.setSellingTime(date);
+		order.setState(FuturesOrderState.Unwind);
+		order.setUpdateTime(date);
+		orderDao.update(order);
+		// unwindReturnOvernightReserveFund(order);
+		// 站外消息推送
+		sendOutsideMessage(order);
+		return order;
+	}
+
+	/**
+	 * 部分已平仓
+	 * 
+	 * @param id
+	 *            订单ID
+	 * @return 订单
+	 */
+	@Transactional
+	public FuturesOrder partUnwindOrder(Long id) {
+		FuturesOrder order = orderDao.retrieve(id);
+		if (!(order.getState() == FuturesOrderState.Position || order.getState() == FuturesOrderState.SellingEntrust
+				|| order.getState() == FuturesOrderState.PartUnwind)) {
+			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
+			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
+		}
+		// 修改订单状态
+		order.setState(FuturesOrderState.PartUnwind);
+		order.setUpdateTime(new Date());
+		return orderDao.update(order);
+	}
+
+	/**
+	 * 部分已平仓
+	 * 
+	 * @param id
+	 *            订单ID
+	 * @return 订单
+	 */
+	@Transactional
+	public FuturesOrder partUnwindOrder(Long id, BigDecimal filled, BigDecimal remaining, BigDecimal avgFillPrice,
+			BigDecimal totalFillCost) {
+		FuturesOrder order = orderDao.retrieve(id);
+		if (!(order.getState() == FuturesOrderState.Position || order.getState() == FuturesOrderState.SellingEntrust
+				|| order.getState() == FuturesOrderState.PartUnwind)) {
+			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
+			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
+		}
+		// 修改订单状态
+		order.setCloseFilled(filled);
+		order.setCloseRemaining(remaining);
+		order.setCloseAvgFillPrice(avgFillPrice);
+		order.setCloseTotalFillCost(totalFillCost);
+		order.setState(FuturesOrderState.PartUnwind);
+		order.setUpdateTime(new Date());
+		return orderDao.update(order);
 	}
 
 	private void unwindReturnOvernightReserveFund(FuturesOrder order) {
@@ -1006,10 +1171,12 @@ public class FuturesOrderService {
 				|| "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
 			orderType = 2;
 		}
-		FuturesGatewayOrder gatewayOrder = TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain,
-				order.getCommoditySymbol(), order.getContractNo(), order.getId(), action, order.getTotalQuantity(),
-				orderType, gatewayBuyingEntrustPrice);
-		order.setCloseGatewayOrderId(gatewayOrder.getId());
+		// FuturesGatewayOrder gatewayOrder =
+		// TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain,
+		// order.getCommoditySymbol(), order.getContractNo(), order.getId(),
+		// action, order.getTotalQuantity(),
+		// orderType, gatewayBuyingEntrustPrice);
+		// order.setCloseGatewayOrderId(gatewayOrder.getId());
 		// TODO 委托下单异常情况处理，此处默认为所有的委托都能成功
 		// 消息推送
 		sendOutsideMessage(order);
@@ -1022,7 +1189,7 @@ public class FuturesOrderService {
 			msg.setEntrustType(2);
 		}
 		msg.setOrderId(order.getId());
-		msg.setGatewayOrderId(gatewayOrder.getId());
+		msg.setGatewayOrderId(-1L);
 		producer.sendMessage(RabbitmqConfiguration.entrustQueryQueueName, msg);
 		return order;
 	}
@@ -1128,23 +1295,25 @@ public class FuturesOrderService {
 		if (!isTradeTime) {
 			throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
 		}
-		if (order.getState() == FuturesOrderState.PartPosition || order.getState() == FuturesOrderState.PartUnwind) {
-			throw new ServiceException(ExceptionConstant.FUTURESORDER_PARTSUCCESS_CANNOTCANCEL_EXCEPTION);
-		}
-		if (!(order.getState() == FuturesOrderState.BuyingEntrust
-				|| order.getState() == FuturesOrderState.SellingEntrust)) {
+//		if (order.getState() == FuturesOrderState.PartPosition || order.getState() == FuturesOrderState.PartUnwind) {
+//			throw new ServiceException(ExceptionConstant.FUTURESORDER_PARTSUCCESS_CANNOTCANCEL_EXCEPTION);
+//		}
+		if (!(order.getState() == FuturesOrderState.BuyingEntrust || order.getState() == FuturesOrderState.PartPosition
+				|| order.getState() == FuturesOrderState.SellingEntrust
+				|| order.getState() == FuturesOrderState.PartUnwind)) {
 			logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
 			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
 		}
 		// step 3 : 请求网关取消订单
-		if (order.getState() == FuturesOrderState.BuyingEntrust) {
-			TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(), domain, order.getOpenGatewayOrderId());
-		}
-		if (order.getState() == FuturesOrderState.SellingEntrust) {
-			throw new ServiceException(ExceptionConstant.UNWINDORDER_CANNOTCANCEL_EXCEPTION);
-			// TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(),
-			// domain, order.getCloseGatewayOrderId());
-		}
+		canceledOrder(id);
+//		if (order.getState() == FuturesOrderState.BuyingEntrust) {
+//			TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(), domain, order.getOpenGatewayOrderId());
+//		}
+//		if (order.getState() == FuturesOrderState.SellingEntrust) {
+//			throw new ServiceException(ExceptionConstant.UNWINDORDER_CANNOTCANCEL_EXCEPTION);
+//			// TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(),
+//			// domain, order.getCloseGatewayOrderId());
+//		}
 		return order;
 	}
 
@@ -1509,6 +1678,13 @@ public class FuturesOrderService {
 		return order.getReserveFund();
 	}
 
+	/**
+	 * 用户未结算订单的盈亏
+	 * 
+	 * @param publisherId
+	 *            发布人ID
+	 * @return 未结算订单的盈亏
+	 */
 	public BigDecimal getUnsettledProfitOrLoss(Long publisherId) {
 		// 获取订单
 		FuturesOrderState[] states = { FuturesOrderState.Position, FuturesOrderState.SellingEntrust,
@@ -1526,6 +1702,320 @@ public class FuturesOrderService {
 			totalProfitOrLoss = totalProfitOrLoss.add(this.getProfitOrLoss(order));
 		}
 		return totalProfitOrLoss;
+	}
+
+	/**
+	 * 计算市场均价
+	 * 
+	 * @param commodityNo
+	 *            品种编号
+	 * @param contractNo
+	 *            合约编号
+	 * @param actionType
+	 *            交易动作类型
+	 * @param totalQuantity
+	 *            交易总量
+	 * @return 市场均价
+	 */
+	public MarketAveragePrice computeMktAvgPrice(String commodityNo, String contractNo, FuturesActionType actionType,
+			BigDecimal totalQuantity) {
+		FuturesCommodity commodity = commodityDao.retrieveByCommodityNo(commodityNo);
+		FuturesContractMarket mkt = allQuote.getQuote(commodityNo, contractNo);
+		if (actionType == FuturesActionType.BUY) {
+			MarketAveragePrice result = new MarketAveragePrice();
+			// 买方向，取卖档数据
+			List<Long> askSizeList = askSizeList(mkt);
+			List<BigDecimal> askPriceList = askPriceList(mkt);
+			BigDecimal filled = BigDecimal.ZERO;
+			BigDecimal remaining = totalQuantity;
+			BigDecimal totalFillCost = BigDecimal.ZERO;
+			for (int i = 0; i < askSizeList.size(); i++) {
+				BigDecimal askSize = new BigDecimal(askSizeList.get(i));
+				if (askSize.compareTo(remaining) >= 0) {
+					filled = filled.add(remaining);
+					remaining = BigDecimal.ZERO;
+					totalFillCost = totalFillCost.add(askPriceList.get(i).multiply(remaining));
+					break;
+				} else {
+					filled = filled.add(askSize);
+					remaining = remaining.subtract(askSize);
+					totalFillCost = totalFillCost.add(askPriceList.get(i).multiply(askSize));
+				}
+			}
+			BigDecimal avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+			BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
+			if (divideArr[1].compareTo(BigDecimal.ZERO) > 0) {
+				avgFillPrice = divideArr[0].add(new BigDecimal(1)).multiply(commodity.getMinWave());
+			}
+			// 返回结果
+			result.setAvgFillPrice(avgFillPrice);
+			result.setCommodityNo(commodityNo);
+			result.setContractNo(contractNo);
+			result.setFilled(filled);
+			result.setRemaining(remaining);
+			result.setTotalFillCost(totalFillCost);
+			result.setTotalQuantity(totalQuantity);
+			return result;
+		} else {
+			MarketAveragePrice result = new MarketAveragePrice();
+			// 卖方向，取买档数据
+			List<Long> bidSizeList = bidSizeList(mkt);
+			List<BigDecimal> bidPriceList = bidPriceList(mkt);
+			BigDecimal filled = BigDecimal.ZERO;
+			BigDecimal remaining = totalQuantity;
+			BigDecimal totalFillCost = BigDecimal.ZERO;
+			for (int i = 0; i < bidSizeList.size(); i++) {
+				BigDecimal askSize = new BigDecimal(bidSizeList.get(i));
+				if (askSize.compareTo(remaining) >= 0) {
+					filled = filled.add(remaining);
+					remaining = BigDecimal.ZERO;
+					totalFillCost = totalFillCost.add(bidPriceList.get(i).multiply(remaining));
+					break;
+				} else {
+					filled = filled.add(askSize);
+					remaining = remaining.subtract(askSize);
+					totalFillCost = totalFillCost.add(bidPriceList.get(i).multiply(askSize));
+				}
+			}
+			BigDecimal avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+			BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
+			avgFillPrice = divideArr[0].multiply(commodity.getMinWave());
+			// 返回结果
+			result.setAvgFillPrice(avgFillPrice);
+			result.setCommodityNo(commodityNo);
+			result.setContractNo(contractNo);
+			result.setFilled(filled);
+			result.setRemaining(remaining);
+			result.setTotalFillCost(totalFillCost);
+			result.setTotalQuantity(totalQuantity);
+			return result;
+		}
+	}
+
+	/**
+	 * 计算限定价均价
+	 * 
+	 * @param commodityNo
+	 *            品种编号
+	 * @param contractNo
+	 *            合约编号
+	 * @param actionType
+	 *            交易动作类型
+	 * @param totalQuantity
+	 *            交易总量
+	 * @param entrustPrice
+	 *            委托价格
+	 * @return 市场均价
+	 */
+	public MarketAveragePrice computeLmtAvgPrice(String commodityNo, String contractNo, FuturesActionType actionType,
+			BigDecimal totalQuantity, BigDecimal entrustPrice) {
+		FuturesCommodity commodity = commodityDao.retrieveByCommodityNo(commodityNo);
+		FuturesContractMarket mkt = allQuote.getQuote(commodityNo, contractNo);
+		if (actionType == FuturesActionType.BUY) {
+			MarketAveragePrice result = new MarketAveragePrice();
+			// 买方向，取卖档数据
+			List<Long> askSizeList = askSizeList(mkt);
+			List<BigDecimal> askPriceList = askPriceList(mkt);
+			BigDecimal filled = BigDecimal.ZERO;
+			BigDecimal remaining = totalQuantity;
+			BigDecimal totalFillCost = BigDecimal.ZERO;
+			for (int i = 0; i < askPriceList.size(); i++) {
+				if (entrustPrice.compareTo(askPriceList.get(i)) >= 0) {
+					BigDecimal askSize = new BigDecimal(askSizeList.get(i));
+					if (askSize.compareTo(remaining) >= 0) {
+						filled = filled.add(remaining);
+						remaining = BigDecimal.ZERO;
+						totalFillCost = totalFillCost.add(askPriceList.get(i).multiply(remaining));
+						break;
+					} else {
+						filled = filled.add(askSize);
+						remaining = remaining.subtract(askSize);
+						totalFillCost = totalFillCost.add(askPriceList.get(i).multiply(askSize));
+					}
+				}
+			}
+			BigDecimal avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+			BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
+			if (divideArr[1].compareTo(BigDecimal.ZERO) > 0) {
+				avgFillPrice = divideArr[0].add(new BigDecimal(1)).multiply(commodity.getMinWave());
+			}
+			// 返回结果
+			result.setAvgFillPrice(avgFillPrice);
+			result.setCommodityNo(commodityNo);
+			result.setContractNo(contractNo);
+			result.setFilled(filled);
+			result.setRemaining(remaining);
+			result.setTotalFillCost(totalFillCost);
+			result.setTotalQuantity(totalQuantity);
+			return result;
+		} else {
+			MarketAveragePrice result = new MarketAveragePrice();
+			// 卖方向，取买档数据
+			List<Long> bidSizeList = bidSizeList(mkt);
+			List<BigDecimal> bidPriceList = bidPriceList(mkt);
+			BigDecimal filled = BigDecimal.ZERO;
+			BigDecimal remaining = totalQuantity;
+			BigDecimal totalFillCost = BigDecimal.ZERO;
+			for (int i = 0; i < bidPriceList.size(); i++) {
+				if (entrustPrice.compareTo(bidPriceList.get(i)) <= 0) {
+					BigDecimal bidSize = new BigDecimal(bidSizeList.get(i));
+					if (bidSize.compareTo(remaining) >= 0) {
+						filled = filled.add(remaining);
+						remaining = BigDecimal.ZERO;
+						totalFillCost = totalFillCost.add(bidPriceList.get(i).multiply(remaining));
+						break;
+					} else {
+						filled = filled.add(bidSize);
+						remaining = remaining.subtract(bidSize);
+						totalFillCost = totalFillCost.add(bidPriceList.get(i).multiply(bidSize));
+					}
+				}
+			}
+			BigDecimal avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+			BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
+			avgFillPrice = divideArr[0].multiply(commodity.getMinWave());
+			// 返回结果
+			result.setAvgFillPrice(avgFillPrice);
+			result.setCommodityNo(commodityNo);
+			result.setContractNo(contractNo);
+			result.setFilled(filled);
+			result.setRemaining(remaining);
+			result.setTotalFillCost(totalFillCost);
+			result.setTotalQuantity(totalQuantity);
+			return result;
+		}
+	}
+
+	private List<Long> askSizeList(FuturesContractMarket mkt) {
+		List<Long> result = new ArrayList<>();
+		if (mkt.getAskSize() != null && mkt.getAskSize() > 0) {
+			result.add(mkt.getAskSize());
+			if (mkt.getAskSize2() != null && mkt.getAskSize2() > 0) {
+				result.add(mkt.getAskSize2());
+				if (mkt.getAskSize3() != null && mkt.getAskSize3() > 0) {
+					result.add(mkt.getAskSize3());
+					if (mkt.getAskSize4() != null && mkt.getAskSize4() > 0) {
+						result.add(mkt.getAskSize4());
+						if (mkt.getAskSize5() != null && mkt.getAskSize5() > 0) {
+							result.add(mkt.getAskSize5());
+							if (mkt.getAskSize6() != null && mkt.getAskSize6() > 0) {
+								result.add(mkt.getAskSize6());
+								if (mkt.getAskSize7() != null && mkt.getAskSize7() > 0) {
+									result.add(mkt.getAskSize7());
+									if (mkt.getAskSize8() != null && mkt.getAskSize8() > 0) {
+										result.add(mkt.getAskSize8());
+										if (mkt.getAskSize9() != null && mkt.getAskSize9() > 0) {
+											result.add(mkt.getAskSize9());
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	private List<BigDecimal> askPriceList(FuturesContractMarket mkt) {
+		List<BigDecimal> result = new ArrayList<>();
+		if (mkt.getAskPrice() != null && mkt.getAskPrice().compareTo(BigDecimal.ZERO) > 0) {
+			result.add(mkt.getAskPrice());
+			if (mkt.getAskPrice2() != null && mkt.getAskPrice2().compareTo(BigDecimal.ZERO) > 0) {
+				result.add(mkt.getAskPrice2());
+				if (mkt.getAskPrice3() != null && mkt.getAskPrice3().compareTo(BigDecimal.ZERO) > 0) {
+					result.add(mkt.getAskPrice3());
+					if (mkt.getAskPrice4() != null && mkt.getAskPrice4().compareTo(BigDecimal.ZERO) > 0) {
+						result.add(mkt.getAskPrice4());
+						if (mkt.getAskPrice5() != null && mkt.getAskPrice5().compareTo(BigDecimal.ZERO) > 0) {
+							result.add(mkt.getAskPrice5());
+							if (mkt.getAskPrice6() != null && mkt.getAskPrice6().compareTo(BigDecimal.ZERO) > 0) {
+								result.add(mkt.getAskPrice6());
+								if (mkt.getAskPrice7() != null && mkt.getAskPrice7().compareTo(BigDecimal.ZERO) > 0) {
+									result.add(mkt.getAskPrice7());
+									if (mkt.getAskPrice8() != null
+											&& mkt.getAskPrice8().compareTo(BigDecimal.ZERO) > 0) {
+										result.add(mkt.getAskPrice8());
+										if (mkt.getAskPrice9() != null
+												&& mkt.getAskPrice9().compareTo(BigDecimal.ZERO) > 0) {
+											result.add(mkt.getAskPrice9());
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	private List<Long> bidSizeList(FuturesContractMarket mkt) {
+		List<Long> result = new ArrayList<>();
+		if (mkt.getBidSize() != null && mkt.getBidSize() > 0) {
+			result.add(mkt.getBidSize());
+			if (mkt.getBidSize2() != null && mkt.getBidSize2() > 0) {
+				result.add(mkt.getBidSize2());
+				if (mkt.getBidSize3() != null && mkt.getBidSize3() > 0) {
+					result.add(mkt.getBidSize3());
+					if (mkt.getBidSize4() != null && mkt.getBidSize4() > 0) {
+						result.add(mkt.getBidSize4());
+						if (mkt.getBidSize5() != null && mkt.getBidSize5() > 0) {
+							result.add(mkt.getBidSize5());
+							if (mkt.getBidSize6() != null && mkt.getBidSize6() > 0) {
+								result.add(mkt.getBidSize6());
+								if (mkt.getBidSize7() != null && mkt.getBidSize7() > 0) {
+									result.add(mkt.getBidSize7());
+									if (mkt.getBidSize8() != null && mkt.getBidSize8() > 0) {
+										result.add(mkt.getBidSize8());
+										if (mkt.getBidSize9() != null && mkt.getBidSize9() > 0) {
+											result.add(mkt.getBidSize9());
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	private List<BigDecimal> bidPriceList(FuturesContractMarket mkt) {
+		List<BigDecimal> result = new ArrayList<>();
+		if (mkt.getBidPrice() != null && mkt.getBidPrice().compareTo(BigDecimal.ZERO) > 0) {
+			result.add(mkt.getBidPrice());
+			if (mkt.getBidPrice2() != null && mkt.getBidPrice2().compareTo(BigDecimal.ZERO) > 0) {
+				result.add(mkt.getBidPrice2());
+				if (mkt.getBidPrice3() != null && mkt.getBidPrice3().compareTo(BigDecimal.ZERO) > 0) {
+					result.add(mkt.getBidPrice3());
+					if (mkt.getBidPrice4() != null && mkt.getBidPrice4().compareTo(BigDecimal.ZERO) > 0) {
+						result.add(mkt.getBidPrice4());
+						if (mkt.getBidPrice5() != null && mkt.getBidPrice5().compareTo(BigDecimal.ZERO) > 0) {
+							result.add(mkt.getBidPrice5());
+							if (mkt.getBidPrice6() != null && mkt.getBidPrice6().compareTo(BigDecimal.ZERO) > 0) {
+								result.add(mkt.getBidPrice6());
+								if (mkt.getBidPrice7() != null && mkt.getBidPrice7().compareTo(BigDecimal.ZERO) > 0) {
+									result.add(mkt.getBidPrice7());
+									if (mkt.getBidPrice8() != null
+											&& mkt.getBidPrice8().compareTo(BigDecimal.ZERO) > 0) {
+										result.add(mkt.getBidPrice8());
+										if (mkt.getBidPrice9() != null
+												&& mkt.getBidPrice9().compareTo(BigDecimal.ZERO) > 0) {
+											result.add(mkt.getBidPrice9());
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return result;
 	}
 
 }

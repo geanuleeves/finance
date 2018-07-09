@@ -16,85 +16,57 @@ public class FuturesQuoteData {
 	 */
 	private String contractNo;
 	/**
-	 * 最高价投标合同（买方开价）1
+	 * 最高价投标合同（买方开价）1~10
 	 */
 	private BigDecimal bidPrice;
-	/**
-	 * 最高价投标合同（买方开价）2
-	 */
 	private BigDecimal bidPrice2;
-	/**
-	 * 最高价投标合同（买方开价）3
-	 */
 	private BigDecimal bidPrice3;
-	/**
-	 * 最高价投标合同（买方开价）4
-	 */
 	private BigDecimal bidPrice4;
-	/**
-	 * 最高价投标合同（买方开价）5
-	 */
 	private BigDecimal bidPrice5;
+	private BigDecimal bidPrice6;
+	private BigDecimal bidPrice7;
+	private BigDecimal bidPrice8;
+	private BigDecimal bidPrice9;
+	private BigDecimal bidPrice10;
 	/**
-	 * 以投标价格提供的合同或批次数量（买方开价）1
+	 * 以投标价格提供的合同或批次数量（买方开价）1~10
 	 */
 	private Long bidSize;
-	/**
-	 * 以投标价格提供的合同或批次数量（买方开价）2
-	 */
 	private Long bidSize2;
-	/**
-	 * 以投标价格提供的合同或批次数量（买方开价）3
-	 */
 	private Long bidSize3;
-	/**
-	 * 以投标价格提供的合同或批次数量（买方开价）4
-	 */
 	private Long bidSize4;
-	/**
-	 * 以投标价格提供的合同或批次数量（买方开价）5
-	 */
 	private Long bidSize5;
+	private Long bidSize6;
+	private Long bidSize7;
+	private Long bidSize8;
+	private Long bidSize9;
+	private Long bidSize10;
 	/**
-	 * 最低价投标合同（卖方开价）1
+	 * 最低价投标合同（卖方开价）1~10
 	 */
 	private BigDecimal askPrice;
-	/**
-	 * 最低价投标合同（卖方开价）2
-	 */
 	private BigDecimal askPrice2;
-	/**
-	 * 最低价投标合同（卖方开价）3
-	 */
 	private BigDecimal askPrice3;
-	/**
-	 * 最低价投标合同（卖方开价）4
-	 */
 	private BigDecimal askPrice4;
-	/**
-	 * 最低价投标合同（卖方开价）5
-	 */
 	private BigDecimal askPrice5;
+	private BigDecimal askPrice6;
+	private BigDecimal askPrice7;
+	private BigDecimal askPrice8;
+	private BigDecimal askPrice9;
+	private BigDecimal askPrice10;
 	/**
 	 * 以投标价格提供的合同或批次数量（卖方开价）1
 	 */
 	private Long askSize;
-	/**
-	 * 以投标价格提供的合同或批次数量（卖方开价）2
-	 */
 	private Long askSize2;
-	/**
-	 * 以投标价格提供的合同或批次数量（卖方开价）3
-	 */
 	private Long askSize3;
-	/**
-	 * 以投标价格提供的合同或批次数量（卖方开价）4
-	 */
 	private Long askSize4;
-	/**
-	 * 以投标价格提供的合同或批次数量（卖方开价）5
-	 */
 	private Long askSize5;
+	private Long askSize6;
+	private Long askSize7;
+	private Long askSize8;
+	private Long askSize9;
+	private Long askSize10;
 	/**
 	 * 最新价
 	 */
@@ -386,6 +358,166 @@ public class FuturesQuoteData {
 
 	public void setNowClosePrice(BigDecimal nowClosePrice) {
 		this.nowClosePrice = nowClosePrice;
+	}
+
+	public BigDecimal getBidPrice6() {
+		return bidPrice6;
+	}
+
+	public void setBidPrice6(BigDecimal bidPrice6) {
+		this.bidPrice6 = bidPrice6;
+	}
+
+	public BigDecimal getBidPrice7() {
+		return bidPrice7;
+	}
+
+	public void setBidPrice7(BigDecimal bidPrice7) {
+		this.bidPrice7 = bidPrice7;
+	}
+
+	public BigDecimal getBidPrice8() {
+		return bidPrice8;
+	}
+
+	public void setBidPrice8(BigDecimal bidPrice8) {
+		this.bidPrice8 = bidPrice8;
+	}
+
+	public BigDecimal getBidPrice9() {
+		return bidPrice9;
+	}
+
+	public void setBidPrice9(BigDecimal bidPrice9) {
+		this.bidPrice9 = bidPrice9;
+	}
+
+	public BigDecimal getBidPrice10() {
+		return bidPrice10;
+	}
+
+	public void setBidPrice10(BigDecimal bidPrice10) {
+		this.bidPrice10 = bidPrice10;
+	}
+
+	public Long getBidSize6() {
+		return bidSize6;
+	}
+
+	public void setBidSize6(Long bidSize6) {
+		this.bidSize6 = bidSize6;
+	}
+
+	public Long getBidSize7() {
+		return bidSize7;
+	}
+
+	public void setBidSize7(Long bidSize7) {
+		this.bidSize7 = bidSize7;
+	}
+
+	public Long getBidSize8() {
+		return bidSize8;
+	}
+
+	public void setBidSize8(Long bidSize8) {
+		this.bidSize8 = bidSize8;
+	}
+
+	public Long getBidSize9() {
+		return bidSize9;
+	}
+
+	public void setBidSize9(Long bidSize9) {
+		this.bidSize9 = bidSize9;
+	}
+
+	public Long getBidSize10() {
+		return bidSize10;
+	}
+
+	public void setBidSize10(Long bidSize10) {
+		this.bidSize10 = bidSize10;
+	}
+
+	public BigDecimal getAskPrice6() {
+		return askPrice6;
+	}
+
+	public void setAskPrice6(BigDecimal askPrice6) {
+		this.askPrice6 = askPrice6;
+	}
+
+	public BigDecimal getAskPrice7() {
+		return askPrice7;
+	}
+
+	public void setAskPrice7(BigDecimal askPrice7) {
+		this.askPrice7 = askPrice7;
+	}
+
+	public BigDecimal getAskPrice8() {
+		return askPrice8;
+	}
+
+	public void setAskPrice8(BigDecimal askPrice8) {
+		this.askPrice8 = askPrice8;
+	}
+
+	public BigDecimal getAskPrice9() {
+		return askPrice9;
+	}
+
+	public void setAskPrice9(BigDecimal askPrice9) {
+		this.askPrice9 = askPrice9;
+	}
+
+	public BigDecimal getAskPrice10() {
+		return askPrice10;
+	}
+
+	public void setAskPrice10(BigDecimal askPrice10) {
+		this.askPrice10 = askPrice10;
+	}
+
+	public Long getAskSize6() {
+		return askSize6;
+	}
+
+	public void setAskSize6(Long askSize6) {
+		this.askSize6 = askSize6;
+	}
+
+	public Long getAskSize7() {
+		return askSize7;
+	}
+
+	public void setAskSize7(Long askSize7) {
+		this.askSize7 = askSize7;
+	}
+
+	public Long getAskSize8() {
+		return askSize8;
+	}
+
+	public void setAskSize8(Long askSize8) {
+		this.askSize8 = askSize8;
+	}
+
+	public Long getAskSize9() {
+		return askSize9;
+	}
+
+	public void setAskSize9(Long askSize9) {
+		this.askSize9 = askSize9;
+	}
+
+	public Long getAskSize10() {
+		return askSize10;
+	}
+
+	public void setAskSize10(Long askSize10) {
+		this.askSize10 = askSize10;
 	}
 
 }

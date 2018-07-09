@@ -26,7 +26,9 @@ import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesCommodityAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesPreQuantityDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeTimeDto;
+import com.waben.stock.interfaces.dto.admin.futures.SetSlipPointDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
+import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 import com.waben.stock.interfaces.enums.FuturesProductType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
@@ -169,12 +171,12 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 	@Override
 	public Response<String> deleteCommodity(@PathVariable("id") Long id) {
 		List<FuturesContract> result = contractService.findByCommodity(id);
-		if(result!=null && result.size()>0){
+		if (result != null && result.size() > 0) {
 			throw new ServiceException(ExceptionConstant.COMMODITY_HAVING_CONTRACT_EXCEPTION);
 		}
-//		for (int i = 0; i < result.size(); i++) {
-//			contractService.deleteContract(result.get(i).getId());
-//		}
+		// for (int i = 0; i < result.size(); i++) {
+		// contractService.deleteContract(result.get(i).getId());
+		// }
 		quantityService.deleteByCommodityId(id);
 		commodityService.delete(id);
 		Response<String> res = new Response<String>();
@@ -284,6 +286,23 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 	public Response<List<FuturesCommodityDto>> listByExchangeId(@PathVariable Long exchangeId) {
 		return new Response<>(CopyBeanUtils.copyListBeanPropertiesToList(commodityService.listByExchangeId(exchangeId),
 				FuturesCommodityDto.class));
+	}
+
+	@Override
+	public Response<FuturesCommodityAdminDto> setSlipPoint(@RequestBody SetSlipPointDto dto) {
+		FuturesCommodity commodity = commodityService.setSlipPoint(dto.getCommodityId(), dto.getBuyUpOpenSlipPoint(),
+				dto.getBuyUpCloseSlipPoint(), dto.getBuyFallOpenSlipPoint(), dto.getBuyFallCloseSlipPoint());
+		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesCommodityAdminDto.class, commodity, false));
+	}
+		
+	public Response<Integer> saveLossOrProfit(@RequestBody List<FuturesStopLossOrProfitDto> lossOrProfitDto) {
+		return new Response<>(commodityService.saveLossOrProfit(lossOrProfitDto));
+	}
+
+	@Override
+	public Response<List<FuturesStopLossOrProfitDto>> getLossOrProfits(@PathVariable Long commodityId) {
+		return new Response<>(CopyBeanUtils.copyListBeanPropertiesToList(commodityService.getLossOrProfits(commodityId),
+				FuturesStopLossOrProfitDto.class));
 	}
 
 }

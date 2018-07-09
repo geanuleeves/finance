@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 
 import com.waben.stock.interfaces.dto.admin.futures.FuturesCommodityAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeTimeDto;
+import com.waben.stock.interfaces.dto.admin.futures.SetSlipPointDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
+import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
@@ -50,6 +52,18 @@ public class FuturesCommodityBusiness {
 
 	public List<FuturesCommodityDto> listByExchangeId(Long exchangeId) {
 		Response<List<FuturesCommodityDto>> response = reference.listByExchangeId(exchangeId);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public Response<FuturesCommodityAdminDto> setSlipPoint(SetSlipPointDto dto) {
+		return reference.setSlipPoint(dto);
+	}
+
+	public Integer saveLossOrProfit(List<FuturesStopLossOrProfitDto> lossOrProfitDto) {
+		Response<Integer> response = reference.saveLossOrProfit(lossOrProfitDto);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}

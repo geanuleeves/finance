@@ -145,28 +145,48 @@ public class FuturesMarketService {
 				List<Long> bidSizeList = JacksonUtil.decode(quote.getBidQty(),
 						JacksonUtil.getGenericType(List.class, Long.class));
 				result.setTime(quote.getTime());
-				// 卖1~卖5
+				// 卖1~卖10
 				result.setAskPrice(askPriceList.get(0).setScale(scale, RoundingMode.HALF_UP));
-				result.setAskSize(askSizeList.get(0));
 				result.setAskPrice2(askPriceList.get(1).setScale(scale, RoundingMode.HALF_UP));
-				result.setAskSize2(askSizeList.get(1));
 				result.setAskPrice3(askPriceList.get(2).setScale(scale, RoundingMode.HALF_UP));
-				result.setAskSize3(askSizeList.get(2));
 				result.setAskPrice4(askPriceList.get(3).setScale(scale, RoundingMode.HALF_UP));
-				result.setAskSize4(askSizeList.get(3));
 				result.setAskPrice5(askPriceList.get(4).setScale(scale, RoundingMode.HALF_UP));
+				result.setAskPrice6(askPriceList.get(5).setScale(scale, RoundingMode.HALF_UP));
+				result.setAskPrice7(askPriceList.get(6).setScale(scale, RoundingMode.HALF_UP));
+				result.setAskPrice8(askPriceList.get(7).setScale(scale, RoundingMode.HALF_UP));
+				result.setAskPrice9(askPriceList.get(8).setScale(scale, RoundingMode.HALF_UP));
+				result.setAskPrice10(askPriceList.get(9).setScale(scale, RoundingMode.HALF_UP));
+				result.setAskSize(askSizeList.get(0));
+				result.setAskSize2(askSizeList.get(1));
+				result.setAskSize3(askSizeList.get(2));
+				result.setAskSize4(askSizeList.get(3));
 				result.setAskSize5(askSizeList.get(4));
-				// 买1~买5
+				result.setAskSize6(askSizeList.get(5));
+				result.setAskSize7(askSizeList.get(6));
+				result.setAskSize8(askSizeList.get(7));
+				result.setAskSize9(askSizeList.get(8));
+				result.setAskSize10(askSizeList.get(9));
+				// 买1~买10
 				result.setBidPrice(bidPriceList.get(0).setScale(scale, RoundingMode.HALF_UP));
-				result.setBidSize(bidSizeList.get(0));
 				result.setBidPrice2(bidPriceList.get(1).setScale(scale, RoundingMode.HALF_UP));
-				result.setBidSize2(bidSizeList.get(1));
 				result.setBidPrice3(bidPriceList.get(2).setScale(scale, RoundingMode.HALF_UP));
-				result.setBidSize3(bidSizeList.get(2));
 				result.setBidPrice4(bidPriceList.get(3).setScale(scale, RoundingMode.HALF_UP));
-				result.setBidSize4(bidSizeList.get(3));
 				result.setBidPrice5(bidPriceList.get(4).setScale(scale, RoundingMode.HALF_UP));
+				result.setBidPrice6(bidPriceList.get(5).setScale(scale, RoundingMode.HALF_UP));
+				result.setBidPrice7(bidPriceList.get(6).setScale(scale, RoundingMode.HALF_UP));
+				result.setBidPrice8(bidPriceList.get(7).setScale(scale, RoundingMode.HALF_UP));
+				result.setBidPrice9(bidPriceList.get(8).setScale(scale, RoundingMode.HALF_UP));
+				result.setBidPrice10(bidPriceList.get(9).setScale(scale, RoundingMode.HALF_UP));
+				result.setBidSize(bidSizeList.get(0));
+				result.setBidSize2(bidSizeList.get(1));
+				result.setBidSize3(bidSizeList.get(2));
+				result.setBidSize4(bidSizeList.get(3));
 				result.setBidSize5(bidSizeList.get(4));
+				result.setBidSize6(bidSizeList.get(5));
+				result.setBidSize7(bidSizeList.get(6));
+				result.setBidSize8(bidSizeList.get(7));
+				result.setBidSize9(bidSizeList.get(8));
+				result.setBidSize10(bidSizeList.get(9));
 				result.setClosePrice(new BigDecimal(quote.getPreClosingPrice()).setScale(scale, RoundingMode.HALF_UP));
 				result.setNowClosePrice(new BigDecimal(quote.getClosingPrice()).setScale(scale, RoundingMode.HALF_UP));
 				result.setHighPrice(new BigDecimal(quote.getHighPrice()).setScale(scale, RoundingMode.HALF_UP));
@@ -535,22 +555,44 @@ public class FuturesMarketService {
 					data.setBidPrice(new BigDecimal(info.getQBidPrice()[0]).setScale(scale, RoundingMode.HALF_UP));
 					data.setBidSize(info.getQBidQty()[0]);
 					if (info.getQAskPrice().length > 1) {
+						// 卖2~卖10
 						data.setAskPrice2(new BigDecimal(info.getQAskPrice()[1]).setScale(scale, RoundingMode.HALF_UP));
-						data.setAskSize2(info.getQAskQty()[1]);
-						data.setBidPrice2(new BigDecimal(info.getQBidPrice()[1]).setScale(scale, RoundingMode.HALF_UP));
-						data.setBidSize2(info.getQBidQty()[1]);
 						data.setAskPrice3(new BigDecimal(info.getQAskPrice()[2]).setScale(scale, RoundingMode.HALF_UP));
-						data.setAskSize3(info.getQAskQty()[2]);
-						data.setBidPrice3(new BigDecimal(info.getQBidPrice()[2]).setScale(scale, RoundingMode.HALF_UP));
-						data.setBidSize3(info.getQBidQty()[2]);
 						data.setAskPrice4(new BigDecimal(info.getQAskPrice()[3]).setScale(scale, RoundingMode.HALF_UP));
-						data.setAskSize4(info.getQAskQty()[3]);
-						data.setBidPrice4(new BigDecimal(info.getQBidPrice()[3]).setScale(scale, RoundingMode.HALF_UP));
-						data.setBidSize4(info.getQBidQty()[3]);
 						data.setAskPrice5(new BigDecimal(info.getQAskPrice()[4]).setScale(scale, RoundingMode.HALF_UP));
+						data.setAskPrice6(new BigDecimal(info.getQAskPrice()[5]).setScale(scale, RoundingMode.HALF_UP));
+						data.setAskPrice7(new BigDecimal(info.getQAskPrice()[6]).setScale(scale, RoundingMode.HALF_UP));
+						data.setAskPrice8(new BigDecimal(info.getQAskPrice()[7]).setScale(scale, RoundingMode.HALF_UP));
+						data.setAskPrice9(new BigDecimal(info.getQAskPrice()[8]).setScale(scale, RoundingMode.HALF_UP));
+						data.setAskPrice10(new BigDecimal(info.getQAskPrice()[9]).setScale(scale, RoundingMode.HALF_UP));
+						data.setAskSize2(info.getQAskQty()[1]);
+						data.setAskSize3(info.getQAskQty()[2]);
+						data.setAskSize4(info.getQAskQty()[3]);
 						data.setAskSize5(info.getQAskQty()[4]);
+						data.setAskSize6(info.getQAskQty()[5]);
+						data.setAskSize7(info.getQAskQty()[6]);
+						data.setAskSize8(info.getQAskQty()[7]);
+						data.setAskSize9(info.getQAskQty()[8]);
+						data.setAskSize10(info.getQAskQty()[9]);
+						// 买2~买10
+						data.setBidPrice2(new BigDecimal(info.getQBidPrice()[1]).setScale(scale, RoundingMode.HALF_UP));
+						data.setBidPrice3(new BigDecimal(info.getQBidPrice()[2]).setScale(scale, RoundingMode.HALF_UP));
+						data.setBidPrice4(new BigDecimal(info.getQBidPrice()[3]).setScale(scale, RoundingMode.HALF_UP));
 						data.setBidPrice5(new BigDecimal(info.getQBidPrice()[4]).setScale(scale, RoundingMode.HALF_UP));
+						data.setBidPrice6(new BigDecimal(info.getQBidPrice()[5]).setScale(scale, RoundingMode.HALF_UP));
+						data.setBidPrice7(new BigDecimal(info.getQBidPrice()[6]).setScale(scale, RoundingMode.HALF_UP));
+						data.setBidPrice8(new BigDecimal(info.getQBidPrice()[7]).setScale(scale, RoundingMode.HALF_UP));
+						data.setBidPrice9(new BigDecimal(info.getQBidPrice()[8]).setScale(scale, RoundingMode.HALF_UP));
+						data.setBidPrice10(new BigDecimal(info.getQBidPrice()[9]).setScale(scale, RoundingMode.HALF_UP));
+						data.setBidSize2(info.getQBidQty()[1]);
+						data.setBidSize3(info.getQBidQty()[2]);
+						data.setBidSize4(info.getQBidQty()[3]);
 						data.setBidSize5(info.getQBidQty()[4]);
+						data.setBidSize6(info.getQBidQty()[5]);
+						data.setBidSize7(info.getQBidQty()[6]);
+						data.setBidSize8(info.getQBidQty()[7]);
+						data.setBidSize9(info.getQBidQty()[8]);
+						data.setBidSize10(info.getQBidQty()[9]);
 					}
 					data.setNowClosePrice(
 							new BigDecimal(info.getQClosingPrice()).setScale(scale, RoundingMode.HALF_UP));
