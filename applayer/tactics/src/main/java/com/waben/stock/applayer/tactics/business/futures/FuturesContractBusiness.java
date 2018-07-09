@@ -17,6 +17,7 @@ import com.waben.stock.applayer.tactics.security.SecurityUtil;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
+import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
 import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
@@ -69,6 +70,9 @@ public class FuturesContractBusiness {
 
 	@Autowired
 	private ProfileBusiness profileBusiness;
+
+	// @Autowired
+	// private FuturesOrderBusiness futuresOrderBusiness;
 
 	public CapitalAccountDto findByPublisherId(Long publisherId) {
 		Response<CapitalAccountDto> response = service.fetchByPublisherId(publisherId);
@@ -290,9 +294,25 @@ public class FuturesContractBusiness {
 	public List<FuturesStopLossOrProfitDto> getLossOrProfits(Long commodityId) {
 		Response<List<FuturesStopLossOrProfitDto>> response = futuresCommodityInterface.getLossOrProfits(commodityId);
 		if ("200".equals(response.getCode())) {
+			// FuturesCommodityDto commodityDto = getCommodityId(commodityId);
+			// FuturesCurrencyRateDto currencyRateDto =
+			// futuresOrderBusiness.findByCurrency(commodityDto.getCurrency());
+			// for (FuturesStopLossOrProfitDto lossOrProfit :
+			// response.getResult()) {
+			// lossOrProfit.setCurrencySign(currencyRateDto.getCurrencySign());
+			// }
 			return response.getResult();
 		}
 		throw new ServiceException(response.getCode());
+	}
+
+	public FuturesCommodityDto getCommodityId(Long commodityId) {
+		Response<FuturesCommodityDto> response = futuresCommodityInterface.getFuturesByCommodityId(commodityId);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+
 	}
 
 }

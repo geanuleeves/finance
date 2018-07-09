@@ -240,6 +240,11 @@ public class FuturesOrder {
 
 	/***************** 分割线，以下字段为非数据库字段 ********************/
 	/**
+	 * 品种ID
+	 */
+	@Transient
+	private Long commodityId;
+	/**
 	 * 合约ID
 	 */
 	@Transient
@@ -630,6 +635,13 @@ public class FuturesOrder {
 
 	public void setSellingEntrustTime(Date sellingEntrustTime) {
 		this.sellingEntrustTime = sellingEntrustTime;
+	}
+
+	public Long getCommodityId() {
+		if (contract != null && contract.getCommodity() != null) {
+			return contract.getCommodity().getId();
+		}
+		return commodityId;
 	}
 
 }

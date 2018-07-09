@@ -627,8 +627,8 @@ public class OrganizationService {
 		}
 
 		String tradeType = "";
-		if (!StringUtil.isEmpty(query.getOrderType())) {
-			tradeType = " and t1.type = " + query.getOrderType() + "";
+		if (!StringUtil.isEmpty(query.getTradeType())) {
+			tradeType = " and t1.type = " + query.getTradeType() + "";
 		}
 
 		String sql = String.format(

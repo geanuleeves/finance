@@ -38,6 +38,12 @@ public class FuturesStopLossOrProfitDto {
 	@ApiModelProperty(value = "品种ID")
 	private Long commodityId;
 
+//	/**
+//	 * 货币符号，如“$”,表示美元
+//	 */
+//	@ApiModelProperty(value = "货币符号，如“$”,表示美元")
+//	private String currencySign;
+
 	public Long getId() {
 		return id;
 	}
@@ -85,5 +91,13 @@ public class FuturesStopLossOrProfitDto {
 	public void setCommodityId(Long commodityId) {
 		this.commodityId = commodityId;
 	}
+
+//	public String getCurrencySign() {
+//		return currencySign;
+//	}
+//
+//	public void setCurrencySign(String currencySign) {
+//		this.currencySign = currencySign;
+//	}
 
 }
