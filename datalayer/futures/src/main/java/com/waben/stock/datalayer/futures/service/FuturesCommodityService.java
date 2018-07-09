@@ -109,6 +109,16 @@ public class FuturesCommodityService {
 		}
 	}
 
+	public FuturesCommodity setSlipPoint(Long commodityId, Integer buyUpOpenSlipPoint, Integer buyUpCloseSlipPoint,
+			Integer buyFallOpenSlipPoint, Integer buyFallCloseSlipPoint) {
+		FuturesCommodity commodity = dao.retrieve(commodityId);
+		commodity.setBuyUpOpenSlipPoint(buyUpOpenSlipPoint);
+		commodity.setBuyUpCloseSlipPoint(buyUpCloseSlipPoint);
+		commodity.setBuyFallOpenSlipPoint(buyFallOpenSlipPoint);
+		commodity.setBuyFallCloseSlipPoint(buyFallCloseSlipPoint);
+		return dao.update(commodity);
+	}
+	
 	/**
 	 * 设置止损止盈
 	 * 

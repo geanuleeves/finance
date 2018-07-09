@@ -9,4 +9,5 @@ public interface FuturesCommodityRepository extends CustomJpaRepository<FuturesC
 
 	List<FuturesCommodity> findByExchange(FuturesExchange exchange);
 
+	FuturesCommodity findBySymbol(String symbol);
 }

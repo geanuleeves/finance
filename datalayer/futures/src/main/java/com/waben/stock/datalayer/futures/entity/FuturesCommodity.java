@@ -49,7 +49,6 @@ public class FuturesCommodity {
 	 * 交易单位
 	 */
 	private String tradeUnit;
-
 	/**
 	 * 报价单位
 	 */
@@ -62,6 +61,22 @@ public class FuturesCommodity {
 	 * 描述
 	 */
 	private String contractDesc;
+	/**
+	 * 买涨开仓滑点
+	 */
+	private Integer buyUpOpenSlipPoint;
+	/**
+	 * 买涨平仓滑点
+	 */
+	private Integer buyUpCloseSlipPoint;
+	/**
+	 * 买跌开仓滑点
+	 */
+	private Integer buyFallOpenSlipPoint;
+	/**
+	 * 买跌平仓滑点
+	 */
+	private Integer buyFallCloseSlipPoint;
 	/**
 	 * 品种分类
 	 */
@@ -580,6 +595,38 @@ public class FuturesCommodity {
 
 	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
+	}
+
+	public Integer getBuyUpOpenSlipPoint() {
+		return buyUpOpenSlipPoint;
+	}
+
+	public void setBuyUpOpenSlipPoint(Integer buyUpOpenSlipPoint) {
+		this.buyUpOpenSlipPoint = buyUpOpenSlipPoint;
+	}
+
+	public Integer getBuyUpCloseSlipPoint() {
+		return buyUpCloseSlipPoint;
+	}
+
+	public void setBuyUpCloseSlipPoint(Integer buyUpCloseSlipPoint) {
+		this.buyUpCloseSlipPoint = buyUpCloseSlipPoint;
+	}
+
+	public Integer getBuyFallOpenSlipPoint() {
+		return buyFallOpenSlipPoint;
+	}
+
+	public void setBuyFallOpenSlipPoint(Integer buyFallOpenSlipPoint) {
+		this.buyFallOpenSlipPoint = buyFallOpenSlipPoint;
+	}
+
+	public Integer getBuyFallCloseSlipPoint() {
+		return buyFallCloseSlipPoint;
+	}
+
+	public void setBuyFallCloseSlipPoint(Integer buyFallCloseSlipPoint) {
+		this.buyFallCloseSlipPoint = buyFallCloseSlipPoint;
 	}
 
 }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.waben.stock.interfaces.dto.admin.futures.FuturesCommodityAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeTimeDto;
+import com.waben.stock.interfaces.dto.admin.futures.SetSlipPointDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
 import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 import com.waben.stock.interfaces.pojo.Response;
@@ -53,6 +54,16 @@ public interface FuturesCommodityInterface {
 
 	@RequestMapping(value = "/lists/{exchangeId}", method = RequestMethod.GET)
 	Response<List<FuturesCommodityDto>> listByExchangeId(@PathVariable("exchangeId") Long exchangeId);
+
+	/**
+	 * 设置品种交易点差
+	 * 
+	 * @param dto
+	 *            品种交易点差
+	 * @return 品种
+	 */
+	@RequestMapping(value = "/setSlipPoint", method = RequestMethod.POST, consumes = "application/json")
+	Response<FuturesCommodityAdminDto> setSlipPoint(@RequestBody SetSlipPointDto dto);
 
 	/**
 	 * 设置止损止盈

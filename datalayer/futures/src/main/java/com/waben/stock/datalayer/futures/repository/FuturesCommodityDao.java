@@ -15,4 +15,6 @@ public interface FuturesCommodityDao extends BaseDao<FuturesCommodity, Long> {
 
 	List<FuturesCommodity> retrieveByExchange(FuturesExchange exchange);
 
+	FuturesCommodity retrieveByCommodityNo(String commodityNo);
+
 }
