@@ -601,23 +601,36 @@ public class FuturesContractController implements FuturesContractInterface {
 					// SimpleDateFormat("HH:mm:ss");
 					// String nextTime =
 					// getNextTradingHourTime(holiday.getNextTradeTime(),
-					// contractDto) == null
-					// ? "" :
-					// getNextTradingHourTime(holiday.getNextTradeTime(),
+					// contractDto) == null ? ""
+					// : getNextTradingHourTime(holiday.getNextTradeTime(),
 					// contractDto);
 					// String nextStartTime = nextTime.split("-")[0];
 					// String nextEndTime = nextTime.split("-")[1];
 					// String holidayNextTime =
 					// hourSdf.format(holiday.getNextTradeTime());
 					//
-					// if ((holidayNextTime.compareTo(nextStartTime) >= 0
-					// && holidayNextTime.compareTo(nextEndTime) < 0)
-					// || holidayNextTime.compareTo(nextStartTime) < 0) {
+					// if (holidayNextTime.compareTo(nextStartTime) <= 0) {
+					// contractDto.setNextTradingTime(nextStartTime);
 					// contractDto.setCurrentTradeTimeDesc(
 					// currentTradeTimeDesc(timeZoneGap, nextStartTime,
 					// nextEndTime));
-					// }else{
-					//
+					// } else if (holidayNextTime.compareTo(nextStartTime) >= 0
+					// && holidayNextTime.compareTo(nextEndTime) < 0) {
+					// contractDto.setNextTradingTime(holidayNextTime);
+					// contractDto.setCurrentTradeTimeDesc(
+					// currentTradeTimeDesc(timeZoneGap, holidayNextTime,
+					// nextEndTime));
+					// } else {
+					// String nextTomorrowHour =
+					// getNextTradingHourTime(holiday.getNextTradeTime(),
+					// contractDto);
+					// String nextTomorrowDay =
+					// getNextTradingDayTime(holiday.getNextTradeTime(),
+					// contractDto);
+					// contractDto.setNextTradingTime(nextTomorrowDay);
+					// contractDto.setCurrentTradeTimeDesc(currentTradeTimeDesc(timeZoneGap,
+					// nextTomorrowHour.split("-")[0],
+					// nextTomorrowHour.split("-")[1]));
 					// }
 					// }
 				}
