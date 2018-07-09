@@ -53,9 +53,41 @@ public class FuturesOrder {
 	@Convert(converter = FuturesOrderTypeConverter.class)
 	private FuturesOrderType orderType;
 	/**
-	 * 数量（手）
+	 * 总量（手）
 	 */
 	private BigDecimal totalQuantity;
+	/**
+	 * 已成交量（开仓）
+	 */
+	private BigDecimal openFilled;
+	/**
+	 * 剩余未成交量（开仓）
+	 */
+	private BigDecimal openRemaining;
+	/**
+	 * 已成交部分均价（开仓）
+	 */
+	private BigDecimal openAvgFillPrice;
+	/**
+	 * 已成交部分总费用（开仓）
+	 */
+	private BigDecimal openTotalFillCost;
+	/**
+	 * 已成交量（开仓）
+	 */
+	private BigDecimal closeFilled;
+	/**
+	 * 剩余未成交量（开仓）
+	 */
+	private BigDecimal closeRemaining;
+	/**
+	 * 已成交部分均价（开仓）
+	 */
+	private BigDecimal closeAvgFillPrice;
+	/**
+	 * 已成交部分总费用（开仓）
+	 */
+	private BigDecimal closeTotalFillCost;
 	/**
 	 * 保证金（人民币）
 	 */
@@ -630,6 +662,70 @@ public class FuturesOrder {
 
 	public void setSellingEntrustTime(Date sellingEntrustTime) {
 		this.sellingEntrustTime = sellingEntrustTime;
+	}
+
+	public BigDecimal getOpenFilled() {
+		return openFilled;
+	}
+
+	public void setOpenFilled(BigDecimal openFilled) {
+		this.openFilled = openFilled;
+	}
+
+	public BigDecimal getOpenRemaining() {
+		return openRemaining;
+	}
+
+	public void setOpenRemaining(BigDecimal openRemaining) {
+		this.openRemaining = openRemaining;
+	}
+
+	public BigDecimal getOpenAvgFillPrice() {
+		return openAvgFillPrice;
+	}
+
+	public void setOpenAvgFillPrice(BigDecimal openAvgFillPrice) {
+		this.openAvgFillPrice = openAvgFillPrice;
+	}
+
+	public BigDecimal getOpenTotalFillCost() {
+		return openTotalFillCost;
+	}
+
+	public void setOpenTotalFillCost(BigDecimal openTotalFillCost) {
+		this.openTotalFillCost = openTotalFillCost;
+	}
+
+	public BigDecimal getCloseFilled() {
+		return closeFilled;
+	}
+
+	public void setCloseFilled(BigDecimal closeFilled) {
+		this.closeFilled = closeFilled;
+	}
+
+	public BigDecimal getCloseRemaining() {
+		return closeRemaining;
+	}
+
+	public void setCloseRemaining(BigDecimal closeRemaining) {
+		this.closeRemaining = closeRemaining;
+	}
+
+	public BigDecimal getCloseAvgFillPrice() {
+		return closeAvgFillPrice;
+	}
+
+	public void setCloseAvgFillPrice(BigDecimal closeAvgFillPrice) {
+		this.closeAvgFillPrice = closeAvgFillPrice;
+	}
+
+	public BigDecimal getCloseTotalFillCost() {
+		return closeTotalFillCost;
+	}
+
+	public void setCloseTotalFillCost(BigDecimal closeTotalFillCost) {
+		this.closeTotalFillCost = closeTotalFillCost;
 	}
 
 }

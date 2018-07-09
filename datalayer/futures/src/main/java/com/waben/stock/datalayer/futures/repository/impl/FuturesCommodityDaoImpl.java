@@ -60,4 +60,9 @@ public class FuturesCommodityDaoImpl implements FuturesCommodityDao {
 		return repository.findByExchange(exchange);
 	}
 
+	@Override
+	public FuturesCommodity retrieveByCommodityNo(String commodityNo) {
+		return repository.findByCommodityNo(commodityNo);
+	}
+
 }

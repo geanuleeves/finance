@@ -81,7 +81,7 @@ public class FuturesCommodityService {
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
-				
+
 				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("createTime").as(Date.class)));
 
 				return criteriaQuery.getRestriction();
@@ -98,6 +98,16 @@ public class FuturesCommodityService {
 		} else {
 			return new ArrayList<>();
 		}
+	}
+
+	public FuturesCommodity setSlipPoint(Long commodityId, Integer buyUpOpenSlipPoint, Integer buyUpCloseSlipPoint,
+			Integer buyFallOpenSlipPoint, Integer buyFallCloseSlipPoint) {
+		FuturesCommodity commodity = dao.retrieve(commodityId);
+		commodity.setBuyUpOpenSlipPoint(buyUpOpenSlipPoint);
+		commodity.setBuyUpCloseSlipPoint(buyUpCloseSlipPoint);
+		commodity.setBuyFallOpenSlipPoint(buyFallOpenSlipPoint);
+		commodity.setBuyFallCloseSlipPoint(buyFallCloseSlipPoint);
+		return dao.update(commodity);
 	}
 
 }

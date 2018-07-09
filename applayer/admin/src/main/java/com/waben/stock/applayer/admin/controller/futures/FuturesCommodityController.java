@@ -24,6 +24,7 @@ import com.waben.stock.applayer.admin.util.PoiUtil;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesCommodityAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeTimeDto;
+import com.waben.stock.interfaces.dto.admin.futures.SetSlipPointDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
@@ -66,6 +67,13 @@ public class FuturesCommodityController {
 	@ApiOperation(value = "添加品种交易时间")
 	public Response<FuturesCommodityAdminDto> saveAndModify(FuturesTradeTimeDto dto) {
 		return business.saveAndModify(dto);
+	}
+	
+	
+	@RequestMapping(value = "/setSlipPoint", method = RequestMethod.POST)
+	@ApiOperation(value = "设置点差")
+	public Response<FuturesCommodityAdminDto> setSlipPoint(SetSlipPointDto dto) {
+		return business.setSlipPoint(dto);
 	}
 
 	@GetMapping("/tradeTime/queryTradeTime")

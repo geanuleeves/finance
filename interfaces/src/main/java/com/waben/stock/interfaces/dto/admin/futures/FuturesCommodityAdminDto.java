@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FuturesCommodityAdminDto {
 
 	/**
@@ -83,7 +86,22 @@ public class FuturesCommodityAdminDto {
 	 * 波动一次盈亏金额，单位为该合约的货币单位
 	 */
 	private BigDecimal perWaveMoney;
-
+	/**
+	 * 买涨开仓滑点
+	 */
+	private Integer buyUpOpenSlipPoint;
+	/**
+	 * 买涨平仓滑点
+	 */
+	private Integer buyUpCloseSlipPoint;
+	/**
+	 * 买跌开仓滑点
+	 */
+	private Integer buyFallOpenSlipPoint;
+	/**
+	 * 买跌平仓滑点
+	 */
+	private Integer buyFallCloseSlipPoint;
 	/**
 	 * 1手合约价值
 	 */
@@ -621,4 +639,37 @@ public class FuturesCommodityAdminDto {
 	public void setSunTradeTimeDesc(String sunTradeTimeDesc) {
 		this.sunTradeTimeDesc = sunTradeTimeDesc;
 	}
+
+	public Integer getBuyUpOpenSlipPoint() {
+		return buyUpOpenSlipPoint;
+	}
+
+	public void setBuyUpOpenSlipPoint(Integer buyUpOpenSlipPoint) {
+		this.buyUpOpenSlipPoint = buyUpOpenSlipPoint;
+	}
+
+	public Integer getBuyUpCloseSlipPoint() {
+		return buyUpCloseSlipPoint;
+	}
+
+	public void setBuyUpCloseSlipPoint(Integer buyUpCloseSlipPoint) {
+		this.buyUpCloseSlipPoint = buyUpCloseSlipPoint;
+	}
+
+	public Integer getBuyFallOpenSlipPoint() {
+		return buyFallOpenSlipPoint;
+	}
+
+	public void setBuyFallOpenSlipPoint(Integer buyFallOpenSlipPoint) {
+		this.buyFallOpenSlipPoint = buyFallOpenSlipPoint;
+	}
+
+	public Integer getBuyFallCloseSlipPoint() {
+		return buyFallCloseSlipPoint;
+	}
+
+	public void setBuyFallCloseSlipPoint(Integer buyFallCloseSlipPoint) {
+		this.buyFallCloseSlipPoint = buyFallCloseSlipPoint;
+	}
+
 }

@@ -69,6 +69,10 @@ public class RetriveAllQuoteSchedule {
 		return null;
 	}
 	
+	public FuturesContractMarket getQuote(String commodityNo, String contractNo) {
+		return quoteCache.get(getQuoteCacheKey(commodityNo, contractNo));
+	}
+	
 	public String getQuoteCacheKey(String commodityNo, String contractNo) {
 		return commodityNo + "-" + contractNo;
 	}
