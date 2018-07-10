@@ -984,7 +984,7 @@ public class FuturesOrderService {
 			publisherProfitOrLoss = profitOrLoss;
 		} else if (profitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
 			publisherProfitOrLoss = account.getRealProfitOrLoss();
-			if(publisherProfitOrLoss == null) {
+			if (publisherProfitOrLoss == null) {
 				publisherProfitOrLoss = profitOrLoss;
 			}
 			if (profitOrLoss.abs().compareTo(publisherProfitOrLoss.abs()) > 0) {
@@ -1419,6 +1419,7 @@ public class FuturesOrderService {
 		BigDecimal serviceFee = order.getTotalQuantity().multiply(
 				contract.getCommodity().getOpenwindServiceFee().add(contract.getCommodity().getUnwindServiceFee()));
 		// 获取运营后台设置的止损止盈
+		backhandOrder.setStopLossOrProfitId(order.getStopLossOrProfitId());
 		FuturesStopLossOrProfit lossOrProfit = stopLossOrProfitDao.retrieve(order.getStopLossOrProfitId());
 		BigDecimal reserveFund = order.getReserveFund();
 		if (lossOrProfit != null) {
@@ -1479,17 +1480,21 @@ public class FuturesOrderService {
 			// 判断该交易平仓时是否在后台设置的期货交易限制内
 			checkedLimitUnwind(limitList, retriveExchangeTime(new Date(), this.retriveTimeZoneGap(order)));
 		}
-		// 获取运营后台设置的止损止盈
-		FuturesStopLossOrProfit lossOrProfit = stopLossOrProfitDao.retrieve(order.getStopLossOrProfitId());
-		if (lossOrProfit == null) {
-			throw new ServiceException(ExceptionConstant.SETTING_STOP_LOSS_EXCEPTION);
-		}
 		// 判断账户余额是否足够支付反手买入的保证金和服务费
 		FuturesContract contract = order.getContract();
 		FuturesCommodity commodity = contract.getCommodity();
 		FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
-		BigDecimal totalFee = order.getTotalQuantity().multiply(lossOrProfit.getReserveFund().multiply(rate.getRate())
-				.add(commodity.getOpenwindServiceFee()).add(commodity.getUnwindServiceFee()));
+		// 获取运营后台设置的止损止盈
+		FuturesStopLossOrProfit lossOrProfit = stopLossOrProfitDao.retrieve(order.getStopLossOrProfitId());
+		BigDecimal totalFee = BigDecimal.ZERO;
+		if (lossOrProfit != null) {
+			totalFee = order.getTotalQuantity().multiply(lossOrProfit.getReserveFund().multiply(rate.getRate())
+					.add(commodity.getOpenwindServiceFee()).add(commodity.getUnwindServiceFee()));
+		} else {
+			totalFee = order.getTotalQuantity()
+					.multiply(commodity.getOpenwindServiceFee().add(commodity.getUnwindServiceFee()))
+					.add(order.getReserveFund());
+		}
 		CapitalAccountDto account = accountBusiness.fetchByPublisherId(order.getPublisherId());
 		if (account.getAvailableBalance().compareTo(totalFee) < 0) {
 			throw new ServiceException(ExceptionConstant.FUTURESORDER_BACKHAND_BALANCENOTENOUGH_EXCEPTION);
