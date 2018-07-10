@@ -27,8 +27,14 @@ public class MenuBusiness {
         Response<List<MenuDto>> response = menuReference.menusByRole(role);
         String code = response.getCode();
         if ("200".equals(code)) {
-//            return new ArrayList<>(childsMenu(response.getResult()));
-            return response.getResult();
+        	List<MenuDto> result = response.getResult();
+        	List<MenuDto> dto = new ArrayList<MenuDto>();
+        	for(MenuDto me : result){
+        		if( me.getVariety()!=null){
+        			dto.add(me);
+        		}
+        	}
+            return dto;
         }else if(ExceptionConstant.NETFLIX_CIRCUIT_EXCEPTION.equals(code)){
             throw new NetflixCircuitException(code);
         }
