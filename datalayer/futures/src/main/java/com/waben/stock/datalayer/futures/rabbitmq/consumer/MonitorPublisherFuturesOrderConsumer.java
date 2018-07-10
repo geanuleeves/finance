@@ -23,12 +23,14 @@ import org.springframework.stereotype.Component;
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
 import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
+import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqProducer;
 import com.waben.stock.datalayer.futures.rabbitmq.message.MonitorPublisherFuturesOrderMessage;
 import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
+import com.waben.stock.datalayer.futures.service.FuturesCurrencyRateService;
 import com.waben.stock.datalayer.futures.service.FuturesOrderService;
 import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
@@ -57,7 +59,7 @@ public class MonitorPublisherFuturesOrderConsumer {
 
 	@Autowired
 	private FuturesCommodityDao commodityDao;
-
+	
 	@Autowired
 	private FuturesOvernightRecordService overnightService;
 

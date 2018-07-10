@@ -1654,6 +1654,7 @@ public class FuturesOrderService {
 	}
 
 	public BigDecimal getStrongMoney(FuturesOrder order) {
+		FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
 		// 合约设置
 		Integer unwindPointType = order.getUnwindPointType();
 		BigDecimal perUnitUnwindPoint = order.getPerUnitUnwindPoint();
@@ -1666,7 +1667,13 @@ public class FuturesOrderService {
 		} else if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 2) {
 			if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(BigDecimal.ZERO) >= 0
 					&& perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
-				return order.getReserveFund().subtract(perUnitUnwindPoint.multiply(order.getTotalQuantity()));
+				BigDecimal strongMoney = order.getReserveFund().subtract(perUnitUnwindPoint
+						.multiply(order.getTotalQuantity()).multiply(rate.getRate()).setScale(2, RoundingMode.DOWN));
+				if (strongMoney.compareTo(BigDecimal.ZERO) <= 0) {
+					return order.getReserveFund();
+				} else {
+					return strongMoney;
+				}
 			}
 		}
 		return order.getReserveFund();
@@ -1855,7 +1862,7 @@ public class FuturesOrderService {
 				}
 			}
 			BigDecimal avgFillPrice = BigDecimal.ZERO;
-			if(filled.compareTo(BigDecimal.ZERO) > 0) {
+			if (filled.compareTo(BigDecimal.ZERO) > 0) {
 				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
 				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
 				if (divideArr[1].compareTo(BigDecimal.ZERO) > 0) {
@@ -1895,7 +1902,7 @@ public class FuturesOrderService {
 				}
 			}
 			BigDecimal avgFillPrice = BigDecimal.ZERO;
-			if(filled.compareTo(BigDecimal.ZERO) > 0) {
+			if (filled.compareTo(BigDecimal.ZERO) > 0) {
 				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
 				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
 				avgFillPrice = divideArr[0].multiply(commodity.getMinWave());
