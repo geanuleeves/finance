@@ -1746,10 +1746,13 @@ public class FuturesOrderService {
 					totalFillCost = totalFillCost.add(askPriceList.get(i).multiply(askSize));
 				}
 			}
-			BigDecimal avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
-			BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
-			if (divideArr[1].compareTo(BigDecimal.ZERO) > 0) {
-				avgFillPrice = divideArr[0].add(new BigDecimal(1)).multiply(commodity.getMinWave());
+			BigDecimal avgFillPrice = BigDecimal.ZERO;
+			if (filled.compareTo(BigDecimal.ZERO) > 0) {
+				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
+				if (divideArr[1].compareTo(BigDecimal.ZERO) > 0) {
+					avgFillPrice = divideArr[0].add(new BigDecimal(1)).multiply(commodity.getMinWave());
+				}
 			}
 			// 返回结果
 			result.setAvgFillPrice(avgFillPrice);
@@ -1781,9 +1784,12 @@ public class FuturesOrderService {
 					totalFillCost = totalFillCost.add(bidPriceList.get(i).multiply(askSize));
 				}
 			}
-			BigDecimal avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
-			BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
-			avgFillPrice = divideArr[0].multiply(commodity.getMinWave());
+			BigDecimal avgFillPrice = BigDecimal.ZERO;
+			if (filled.compareTo(BigDecimal.ZERO) > 0) {
+				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
+				avgFillPrice = divideArr[0].multiply(commodity.getMinWave());
+			}
 			// 返回结果
 			result.setAvgFillPrice(avgFillPrice);
 			result.setCommodityNo(commodityNo);
@@ -1848,10 +1854,13 @@ public class FuturesOrderService {
 					}
 				}
 			}
-			BigDecimal avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
-			BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
-			if (divideArr[1].compareTo(BigDecimal.ZERO) > 0) {
-				avgFillPrice = divideArr[0].add(new BigDecimal(1)).multiply(commodity.getMinWave());
+			BigDecimal avgFillPrice = BigDecimal.ZERO;
+			if(filled.compareTo(BigDecimal.ZERO) > 0) {
+				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
+				if (divideArr[1].compareTo(BigDecimal.ZERO) > 0) {
+					avgFillPrice = divideArr[0].add(new BigDecimal(1)).multiply(commodity.getMinWave());
+				}
 			}
 			// 返回结果
 			result.setAvgFillPrice(avgFillPrice);
@@ -1885,9 +1894,12 @@ public class FuturesOrderService {
 					}
 				}
 			}
-			BigDecimal avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
-			BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
-			avgFillPrice = divideArr[0].multiply(commodity.getMinWave());
+			BigDecimal avgFillPrice = BigDecimal.ZERO;
+			if(filled.compareTo(BigDecimal.ZERO) > 0) {
+				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
+				avgFillPrice = divideArr[0].multiply(commodity.getMinWave());
+			}
 			// 返回结果
 			result.setAvgFillPrice(avgFillPrice);
 			result.setCommodityNo(commodityNo);
