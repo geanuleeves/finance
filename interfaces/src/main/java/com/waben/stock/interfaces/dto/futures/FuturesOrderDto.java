@@ -271,6 +271,12 @@ public class FuturesOrderDto {
 	 */
 	@ApiModelProperty(value = "品种ID")
 	private Long commodityId;
+
+	/**
+	 * 止盈止损档位ID
+	 */
+	@ApiModelProperty(value = "止盈止损档位ID")
+	private Long stopLossOrProfitId;
 	/**
 	 * 期货隔夜记录
 	 */
@@ -681,6 +687,14 @@ public class FuturesOrderDto {
 
 	public void setCommodityId(Long commodityId) {
 		this.commodityId = commodityId;
+	}
+
+	public Long getStopLossOrProfitId() {
+		return stopLossOrProfitId;
+	}
+
+	public void setStopLossOrProfitId(Long stopLossOrProfitId) {
+		this.stopLossOrProfitId = stopLossOrProfitId;
 	}
 
 }

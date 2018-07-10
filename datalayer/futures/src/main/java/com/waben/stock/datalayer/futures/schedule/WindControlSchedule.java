@@ -255,7 +255,7 @@ public class WindControlSchedule {
 		BigDecimal minWave = order.getContract().getCommodity().getMinWave();
 		BigDecimal perWaveMoney = order.getContract().getCommodity().getPerWaveMoney();
 		// 货币汇率
-		FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
+		// FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
 		if (buyingPrice != null) {
 			// 获取用户设置的止损价格
 			BigDecimal userSetNeedWavePrice = null;
@@ -266,13 +266,10 @@ public class WindControlSchedule {
 				} else if (orderType == FuturesOrderType.BuyFall && perUnitLimitLossAmount.compareTo(buyingPrice) > 0) {
 					userSetNeedWavePrice = perUnitLimitLossAmount.subtract(buyingPrice);
 				}
-			} else if (limitLossType != null && limitLossType == 2 && rate != null && rate.getRate() != null
-					&& perUnitLimitLossAmount != null) {
+			} else if (limitLossType != null && limitLossType == 2 && perUnitLimitLossAmount != null) {
 				// type为每手亏损剩余到金额
-				userSetNeedWavePrice = (order.getReserveFund().divide(order.getTotalQuantity())
-						.subtract(perUnitLimitLossAmount).divide(rate.getRate(), 2, RoundingMode.DOWN)
-						.divide(perWaveMoney, 2, RoundingMode.DOWN).multiply(minWave)
-						.setScale(minWave.scale(), RoundingMode.DOWN));
+				userSetNeedWavePrice = perUnitLimitLossAmount.divide(perWaveMoney, 2, RoundingMode.DOWN)
+						.multiply(minWave).setScale(minWave.scale(), RoundingMode.DOWN);
 			}
 			// 获取最终需要波动的价格
 			BigDecimal lastNeedWavePrice = userSetNeedWavePrice;
@@ -369,9 +366,8 @@ public class WindControlSchedule {
 			} else if (limitProfitType != null && limitProfitType == 2 && rate != null && rate.getRate() != null
 					&& perUnitLimitProfitAmount != null) {
 				// type为每手盈利金额
-				BigDecimal needWavePrice = (perUnitLimitProfitAmount.divide(rate.getRate(), 2, RoundingMode.DOWN)
-						.divide(perWaveMoney, 2, RoundingMode.DOWN).multiply(minWave)
-						.setScale(minWave.scale(), RoundingMode.DOWN));
+				BigDecimal needWavePrice = perUnitLimitProfitAmount.divide(perWaveMoney, 2, RoundingMode.DOWN)
+						.multiply(minWave).setScale(minWave.scale(), RoundingMode.DOWN);
 				if (orderType == FuturesOrderType.BuyUp) {
 					return buyingPrice.add(needWavePrice);
 				} else if (orderType == FuturesOrderType.BuyFall) {

@@ -42,6 +42,7 @@ import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
+import com.waben.stock.datalayer.futures.entity.FuturesStopLossOrProfit;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesOrderStateConverter;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControlTypeConverter;
@@ -52,6 +53,7 @@ import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
 import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
 import com.waben.stock.datalayer.futures.repository.FuturesOvernightRecordDao;
+import com.waben.stock.datalayer.futures.repository.FuturesStopLossOrProfitDao;
 import com.waben.stock.datalayer.futures.repository.impl.MethodDesc;
 import com.waben.stock.datalayer.futures.schedule.RetriveAllQuoteSchedule;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
@@ -105,6 +107,9 @@ public class FuturesOrderService {
 
 	@Autowired
 	private FuturesCommodityDao commodityDao;
+
+	@Autowired
+	private FuturesStopLossOrProfitDao stopLossOrProfitDao;
 
 	@Autowired
 	private FuturesOvernightRecordService overnightService;
@@ -979,6 +984,9 @@ public class FuturesOrderService {
 			publisherProfitOrLoss = profitOrLoss;
 		} else if (profitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
 			publisherProfitOrLoss = account.getRealProfitOrLoss();
+			if(publisherProfitOrLoss == null) {
+				publisherProfitOrLoss = profitOrLoss;
+			}
 			if (profitOrLoss.abs().compareTo(publisherProfitOrLoss.abs()) > 0) {
 				platformProfitOrLoss = profitOrLoss.abs().subtract(publisherProfitOrLoss.abs())
 						.multiply(new BigDecimal(-1));
@@ -1410,7 +1418,17 @@ public class FuturesOrderService {
 		// 计算服务费和保证金
 		BigDecimal serviceFee = order.getTotalQuantity().multiply(
 				contract.getCommodity().getOpenwindServiceFee().add(contract.getCommodity().getUnwindServiceFee()));
-		BigDecimal reserveFund = order.getTotalQuantity().multiply(contract.getCommodity().getPerUnitReserveFund());
+		// 获取运营后台设置的止损止盈
+		FuturesStopLossOrProfit lossOrProfit = stopLossOrProfitDao.retrieve(order.getStopLossOrProfitId());
+		BigDecimal reserveFund = order.getReserveFund();
+		if (lossOrProfit != null) {
+			FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
+			reserveFund = order.getTotalQuantity().multiply(lossOrProfit.getReserveFund().multiply(rate.getRate()));
+		}
+		backhandOrder.setLimitLossType(order.getLimitLossType());
+		backhandOrder.setPerUnitLimitLossAmount(order.getPerUnitLimitLossAmount());
+		backhandOrder.setLimitProfitType(order.getLimitProfitType());
+		backhandOrder.setPerUnitLimitProfitAmount(order.getPerUnitLimitProfitAmount());
 		// 初始化部分订单信息
 		backhandOrder.setPublisherId(order.getPublisherId());
 		backhandOrder.setOrderType(
@@ -1461,11 +1479,16 @@ public class FuturesOrderService {
 			// 判断该交易平仓时是否在后台设置的期货交易限制内
 			checkedLimitUnwind(limitList, retriveExchangeTime(new Date(), this.retriveTimeZoneGap(order)));
 		}
-
+		// 获取运营后台设置的止损止盈
+		FuturesStopLossOrProfit lossOrProfit = stopLossOrProfitDao.retrieve(order.getStopLossOrProfitId());
+		if (lossOrProfit == null) {
+			throw new ServiceException(ExceptionConstant.SETTING_STOP_LOSS_EXCEPTION);
+		}
 		// 判断账户余额是否足够支付反手买入的保证金和服务费
 		FuturesContract contract = order.getContract();
 		FuturesCommodity commodity = contract.getCommodity();
-		BigDecimal totalFee = order.getTotalQuantity().multiply(commodity.getPerUnitReserveFund()
+		FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
+		BigDecimal totalFee = order.getTotalQuantity().multiply(lossOrProfit.getReserveFund().multiply(rate.getRate())
 				.add(commodity.getOpenwindServiceFee()).add(commodity.getUnwindServiceFee()));
 		CapitalAccountDto account = accountBusiness.fetchByPublisherId(order.getPublisherId());
 		if (account.getAvailableBalance().compareTo(totalFee) < 0) {
@@ -1654,6 +1677,7 @@ public class FuturesOrderService {
 	}
 
 	public BigDecimal getStrongMoney(FuturesOrder order) {
+		FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
 		// 合约设置
 		Integer unwindPointType = order.getUnwindPointType();
 		BigDecimal perUnitUnwindPoint = order.getPerUnitUnwindPoint();
@@ -1666,7 +1690,13 @@ public class FuturesOrderService {
 		} else if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 2) {
 			if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(BigDecimal.ZERO) >= 0
 					&& perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
-				return order.getReserveFund().subtract(perUnitUnwindPoint.multiply(order.getTotalQuantity()));
+				BigDecimal strongMoney = order.getReserveFund().subtract(perUnitUnwindPoint
+						.multiply(order.getTotalQuantity()).multiply(rate.getRate()).setScale(2, RoundingMode.DOWN));
+				if (strongMoney.compareTo(BigDecimal.ZERO) <= 0) {
+					return order.getReserveFund();
+				} else {
+					return strongMoney;
+				}
 			}
 		}
 		return order.getReserveFund();
@@ -1746,10 +1776,13 @@ public class FuturesOrderService {
 					totalFillCost = totalFillCost.add(askPriceList.get(i).multiply(askSize));
 				}
 			}
-			BigDecimal avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
-			BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
-			if (divideArr[1].compareTo(BigDecimal.ZERO) > 0) {
-				avgFillPrice = divideArr[0].add(new BigDecimal(1)).multiply(commodity.getMinWave());
+			BigDecimal avgFillPrice = BigDecimal.ZERO;
+			if (filled.compareTo(BigDecimal.ZERO) > 0) {
+				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
+				if (divideArr[1].compareTo(BigDecimal.ZERO) > 0) {
+					avgFillPrice = divideArr[0].add(new BigDecimal(1)).multiply(commodity.getMinWave());
+				}
 			}
 			// 返回结果
 			result.setAvgFillPrice(avgFillPrice);
@@ -1781,9 +1814,12 @@ public class FuturesOrderService {
 					totalFillCost = totalFillCost.add(bidPriceList.get(i).multiply(askSize));
 				}
 			}
-			BigDecimal avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
-			BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
-			avgFillPrice = divideArr[0].multiply(commodity.getMinWave());
+			BigDecimal avgFillPrice = BigDecimal.ZERO;
+			if (filled.compareTo(BigDecimal.ZERO) > 0) {
+				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
+				avgFillPrice = divideArr[0].multiply(commodity.getMinWave());
+			}
 			// 返回结果
 			result.setAvgFillPrice(avgFillPrice);
 			result.setCommodityNo(commodityNo);
@@ -1848,10 +1884,13 @@ public class FuturesOrderService {
 					}
 				}
 			}
-			BigDecimal avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
-			BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
-			if (divideArr[1].compareTo(BigDecimal.ZERO) > 0) {
-				avgFillPrice = divideArr[0].add(new BigDecimal(1)).multiply(commodity.getMinWave());
+			BigDecimal avgFillPrice = BigDecimal.ZERO;
+			if (filled.compareTo(BigDecimal.ZERO) > 0) {
+				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
+				if (divideArr[1].compareTo(BigDecimal.ZERO) > 0) {
+					avgFillPrice = divideArr[0].add(new BigDecimal(1)).multiply(commodity.getMinWave());
+				}
 			}
 			// 返回结果
 			result.setAvgFillPrice(avgFillPrice);
@@ -1885,9 +1924,12 @@ public class FuturesOrderService {
 					}
 				}
 			}
-			BigDecimal avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
-			BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
-			avgFillPrice = divideArr[0].multiply(commodity.getMinWave());
+			BigDecimal avgFillPrice = BigDecimal.ZERO;
+			if (filled.compareTo(BigDecimal.ZERO) > 0) {
+				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
+				avgFillPrice = divideArr[0].multiply(commodity.getMinWave());
+			}
 			// 返回结果
 			result.setAvgFillPrice(avgFillPrice);
 			result.setCommodityNo(commodityNo);

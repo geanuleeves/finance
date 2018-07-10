@@ -270,6 +270,11 @@ public class FuturesOrder {
 	 */
 	private Boolean isTest;
 
+	/**
+	 * 止盈止损档位ID
+	 */
+	private Long stopLossOrProfitId;
+
 	/***************** 分割线，以下字段为非数据库字段 ********************/
 	/**
 	 * 品种ID
@@ -738,6 +743,14 @@ public class FuturesOrder {
 
 	public void setCloseTotalFillCost(BigDecimal closeTotalFillCost) {
 		this.closeTotalFillCost = closeTotalFillCost;
+	}
+
+	public Long getStopLossOrProfitId() {
+		return stopLossOrProfitId;
+	}
+
+	public void setStopLossOrProfitId(Long stopLossOrProfitId) {
+		this.stopLossOrProfitId = stopLossOrProfitId;
 	}
 
 }
