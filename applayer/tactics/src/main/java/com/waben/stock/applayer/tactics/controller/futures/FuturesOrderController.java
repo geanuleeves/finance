@@ -160,6 +160,7 @@ public class FuturesOrderController {
 		orderDto.setOpenwindServiceFee(contractDto.getOpenwindServiceFee());
 		orderDto.setUnwindServiceFee(contractDto.getUnwindServiceFee());
 		orderDto.setPerUnitUnwindPoint(lossOrProfitDto.getStrongLevelingAmount());
+		orderDto.setDefaultStopLossFee(lossOrProfitDto.getStopLossFee());
 		orderDto.setUnwindPointType(2);
 		orderDto.setOvernightPerUnitReserveFund(contractDto.getOvernightPerUnitReserveFund());
 		orderDto.setOvernightPerUnitDeferredFee(contractDto.getOvernightPerUnitDeferredFee());
