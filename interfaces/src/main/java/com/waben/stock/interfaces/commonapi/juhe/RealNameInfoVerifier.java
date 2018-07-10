@@ -20,11 +20,10 @@ public class RealNameInfoVerifier {
 
 	public static final String key = "6aa6eeba13671225135a8be8a147709b";
 
-	public static RestTemplate restTemplate = new RestTemplate();
-
 	private static Logger logger = LoggerFactory.getLogger(RealNameInfoVerifier.class);
 
 	public static boolean verify(String name, String idCard) {
+		RestTemplate restTemplate = new RestTemplate();
 		String requestUrl = String.format("http://op.juhe.cn/idcard/query?key=%s&idcard=%s&realname=%s", key, idCard,
 				name);
 		// 请求验证四要素
