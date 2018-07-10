@@ -129,7 +129,7 @@ public class PaymentController {
         String sign = result.get("sign");
         String code = result.get("code");
         // 验证签名
-        String checkSign = Md5Util.md5(wbConfig.getMerchantNo() + orderNo + wbConfig.getKey()).toUpperCase();
+        String checkSign = Md5Util.md5(wbConfig.getUnionpayMerchantNo() + orderNo + wbConfig.getUnionpayKey()).toUpperCase();
         if(sign.equalsIgnoreCase(checkSign)) {
         	if("1".equals(code)) {
         		paymentBusiness.payCallback(paymentNo, PaymentState.Paid);
