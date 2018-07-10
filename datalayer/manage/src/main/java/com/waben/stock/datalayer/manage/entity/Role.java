@@ -42,6 +42,9 @@ public class Role {
     @Column
     private Long organization;
 
+    /**
+     * 1。运营平台，4.代理商平台
+     */
     @Column
     private Integer type;
     @Column(name = "create_time")

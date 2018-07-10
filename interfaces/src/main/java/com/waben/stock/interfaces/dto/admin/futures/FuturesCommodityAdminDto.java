@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FuturesCommodityAdminDto {
@@ -175,7 +176,7 @@ public class FuturesCommodityAdminDto {
 	 * 3 异常
 	 * </p>
 	 */
-	// private Integer state;
+	private Integer state;
 
 	/**
 	 * 每个合约的描述
@@ -263,6 +264,16 @@ public class FuturesCommodityAdminDto {
 	 * 周日交易时间描述
 	 */
 	private String sunTradeTimeDesc;
+
+	/**
+	 * 止损止盈
+	 */
+	private List<FuturesStopLossOrProfitDto> lossOrProfitDto;
+
+	/**
+	 * 合约数量
+	 */
+	private Integer contractNum;
 
 	public Long getId() {
 		return id;
@@ -670,6 +681,30 @@ public class FuturesCommodityAdminDto {
 
 	public void setBuyFallCloseSlipPoint(Integer buyFallCloseSlipPoint) {
 		this.buyFallCloseSlipPoint = buyFallCloseSlipPoint;
+	}
+
+	public List<FuturesStopLossOrProfitDto> getLossOrProfitDto() {
+		return lossOrProfitDto;
+	}
+
+	public void setLossOrProfitDto(List<FuturesStopLossOrProfitDto> lossOrProfitDto) {
+		this.lossOrProfitDto = lossOrProfitDto;
+	}
+
+	public Integer getContractNum() {
+		return contractNum;
+	}
+
+	public void setContractNum(Integer contractNum) {
+		this.contractNum = contractNum;
+	}
+
+	public Integer getState() {
+		return state;
+	}
+
+	public void setState(Integer state) {
+		this.state = state;
 	}
 
 }

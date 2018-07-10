@@ -20,6 +20,7 @@ import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractM
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCurrencyRateDto;
 import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
+import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
 import com.waben.stock.interfaces.dto.manage.AnalogDataDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
@@ -31,6 +32,7 @@ import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
+import com.waben.stock.interfaces.service.futures.FuturesCommodityInterface;
 import com.waben.stock.interfaces.service.futures.FuturesContractInterface;
 import com.waben.stock.interfaces.service.futures.FuturesCurrencyRateInterface;
 import com.waben.stock.interfaces.service.futures.FuturesOrderInterface;
@@ -58,6 +60,10 @@ public class FuturesOrderBusiness {
 	@Autowired
 	@Qualifier("publisherInterface")
 	private PublisherInterface publisherInterface;
+
+	@Autowired
+	@Qualifier("futuresCommodityInterface")
+	private FuturesCommodityInterface futuresCommodityInterface;
 
 	@Autowired
 	private AnalogDataBusiness analogDataBusiness;
@@ -393,6 +399,14 @@ public class FuturesOrderBusiness {
 		}
 
 		return totalIncome;
+	}
+
+	public FuturesStopLossOrProfitDto getLossOrProfitsById(Long id) {
+		Response<FuturesStopLossOrProfitDto> response = futuresCommodityInterface.getLossOrProfitsById(id);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
 	}
 
 }

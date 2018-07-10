@@ -39,6 +39,7 @@ import com.waben.stock.applayer.tactics.util.PoiUtil;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
 import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
+import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
@@ -116,8 +117,16 @@ public class FuturesOrderController {
 
 		// 总金额
 		BigDecimal totalFee = new BigDecimal(0);
+
+		// 获取运营后台设置的止损止盈
+		FuturesStopLossOrProfitDto lossOrProfitDto = futuresOrderBusiness
+				.getLossOrProfitsById(buysellDto.getStopLossOrProfitId());
+		if (lossOrProfitDto == null) {
+			throw new ServiceException(ExceptionConstant.SETTING_STOP_LOSS_EXCEPTION);
+		}
 		// 保证金金额
-		BigDecimal reserveAmount = contractDto.getPerUnitReserveFund().multiply(buysellDto.getTotalQuantity());
+		BigDecimal reserveAmount = lossOrProfitDto.getReserveFund().multiply(buysellDto.getTotalQuantity())
+				.multiply(contractDto.getRate());
 		// 开仓手续费 + 平仓手续费
 		BigDecimal openUnwin = contractDto.getOpenwindServiceFee().add(contractDto.getUnwindServiceFee());
 		// 交易综合费 = (开仓手续费 + 平仓手续费)* 交易持仓数
@@ -150,8 +159,8 @@ public class FuturesOrderController {
 		orderDto.setContractNo(contractDto.getContractNo());
 		orderDto.setOpenwindServiceFee(contractDto.getOpenwindServiceFee());
 		orderDto.setUnwindServiceFee(contractDto.getUnwindServiceFee());
-		orderDto.setPerUnitUnwindPoint(contractDto.getPerUnitUnwindPoint());
-		orderDto.setUnwindPointType(contractDto.getUnwindPointType());
+		orderDto.setPerUnitUnwindPoint(lossOrProfitDto.getStrongLevelingAmount());
+		orderDto.setUnwindPointType(2);
 		orderDto.setOvernightPerUnitReserveFund(contractDto.getOvernightPerUnitReserveFund());
 		orderDto.setOvernightPerUnitDeferredFee(contractDto.getOvernightPerUnitDeferredFee());
 		orderDto.setBuyingPriceType(buysellDto.getBuyingPriceType());

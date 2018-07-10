@@ -1,6 +1,7 @@
 package com.waben.stock.applayer.admin.business.manage;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -102,5 +103,13 @@ public class StaffBusiness {
 			}
 		}
 		throw new ServiceException(ExceptionConstant.ORIGINAL_PASSWORD_MISMATCH_EXCEPTION);
+	}
+	
+	public List<StaffDto> findAll(){
+		Response<List<StaffDto>> response = reference.findAll();
+		if("200".equals(response.getCode())){
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
 	}
 }

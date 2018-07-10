@@ -1715,6 +1715,16 @@ public class FuturesOrderService {
 			BigDecimal totalQuantity) {
 		FuturesCommodity commodity = commodityDao.retrieveByCommodityNo(commodityNo);
 		FuturesContractMarket mkt = allQuote.getQuote(commodityNo, contractNo);
+		if (mkt == null) {
+			MarketAveragePrice result = new MarketAveragePrice();
+			result.setAvgFillPrice(BigDecimal.ZERO);
+			result.setCommodityNo(commodityNo);
+			result.setContractNo(contractNo);
+			result.setFilled(BigDecimal.ZERO);
+			result.setRemaining(totalQuantity);
+			result.setTotalFillCost(BigDecimal.ZERO);
+			return result;
+		}
 		if (actionType == FuturesActionType.BUY) {
 			MarketAveragePrice result = new MarketAveragePrice();
 			// 买方向，取卖档数据
@@ -1805,6 +1815,16 @@ public class FuturesOrderService {
 			BigDecimal totalQuantity, BigDecimal entrustPrice) {
 		FuturesCommodity commodity = commodityDao.retrieveByCommodityNo(commodityNo);
 		FuturesContractMarket mkt = allQuote.getQuote(commodityNo, contractNo);
+		if (mkt == null) {
+			MarketAveragePrice result = new MarketAveragePrice();
+			result.setAvgFillPrice(BigDecimal.ZERO);
+			result.setCommodityNo(commodityNo);
+			result.setContractNo(contractNo);
+			result.setFilled(BigDecimal.ZERO);
+			result.setRemaining(totalQuantity);
+			result.setTotalFillCost(BigDecimal.ZERO);
+			return result;
+		}
 		if (actionType == FuturesActionType.BUY) {
 			MarketAveragePrice result = new MarketAveragePrice();
 			// 买方向，取卖档数据

@@ -63,6 +63,6 @@ public class StaffDaoImpl implements StaffDao {
 
     @Override
     public List<Staff> list() {
-        return null;
+        return repository.findAll();
     }
 }

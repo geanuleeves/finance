@@ -1,6 +1,8 @@
 package com.waben.stock.datalayer.futures.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -15,21 +17,28 @@ import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.entity.FuturesExchange;
+import com.waben.stock.datalayer.futures.entity.FuturesHoliday;
 import com.waben.stock.datalayer.futures.entity.FuturesPreQuantity;
+import com.waben.stock.datalayer.futures.entity.FuturesStopLossOrProfit;
+import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesProductTypeConverter;
 import com.waben.stock.datalayer.futures.service.FuturesCommodityService;
 import com.waben.stock.datalayer.futures.service.FuturesContractService;
 import com.waben.stock.datalayer.futures.service.FuturesCurrencyRateService;
 import com.waben.stock.datalayer.futures.service.FuturesExchangeService;
+import com.waben.stock.datalayer.futures.service.FuturesHolidayService;
 import com.waben.stock.datalayer.futures.service.FuturesPreQuantityService;
+import com.waben.stock.datalayer.futures.service.FuturesTradeLimitService;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesCommodityAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesPreQuantityDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeTimeDto;
 import com.waben.stock.interfaces.dto.admin.futures.SetSlipPointDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
+import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
 import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 import com.waben.stock.interfaces.enums.FuturesProductType;
+import com.waben.stock.interfaces.enums.FuturesTradeLimitType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
@@ -37,6 +46,7 @@ import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesCommodityAdmin
 import com.waben.stock.interfaces.service.futures.FuturesCommodityInterface;
 import com.waben.stock.interfaces.util.CopyBeanUtils;
 import com.waben.stock.interfaces.util.PageToPageInfo;
+import com.waben.stock.interfaces.util.StringUtil;
 
 import io.swagger.annotations.Api;
 
@@ -60,6 +70,16 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 	@Autowired
 	private FuturesPreQuantityService quantityService;
 
+	@Autowired
+	private FuturesTradeLimitService futuresTradeLimitService;
+
+	@Autowired
+	private FuturesHolidayService futuresHolidayService;
+
+	private SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+	private SimpleDateFormat daySdf = new SimpleDateFormat("yyyy-MM-dd");
+
 	@Override
 	public Response<PageInfo<FuturesCommodityAdminDto>> pagesAdmin(@RequestBody FuturesCommodityAdminQuery query) {
 		Page<FuturesCommodity> page = commodityService.pages(query);
@@ -77,12 +97,31 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 				if (rate != null) {
 					result.getContent().get(i).setRate(rate.getRate());
 				}
+				List<FuturesStopLossOrProfit> lossOrprofitList = commodityService.getLossOrProfits(commodity.getId());
+				result.getContent().get(i).setLossOrProfitDto(
+						CopyBeanUtils.copyListBeanPropertiesToList(lossOrprofitList, FuturesStopLossOrProfitDto.class));
 				List<FuturesPreQuantity> quantity = quantityService.findByCommodityId(commodity.getId());
 				List<FuturesPreQuantityDto> quDto = new ArrayList<FuturesPreQuantityDto>();
 				for (FuturesPreQuantity fq : quantity) {
 					quDto.add(CopyBeanUtils.copyBeanProperties(fq, new FuturesPreQuantityDto(), false));
 				}
 				result.getContent().get(i).setPreQuantityDto(quDto);
+
+				List<FuturesContract> comtractList = contractService.findByCommodity(commodity.getId());
+				result.getContent().get(i).setContractNum(comtractList.size());
+
+				// 获取交易所信息
+				FuturesExchange exchange = exchangeService.findById(commodity.getExchangeId());
+				if (exchange == null || !exchange.getEnable()) {
+					result.getContent().get(i).setState(3);
+				} else {
+					Date exchangeTime = retriveExchangeTime(new Date(), exchange.getTimeZoneGap());
+					String tradeTime = retriveExchangeTradeTimeStr(exchange.getTimeZoneGap(), commodity, new Date());
+					if (!StringUtil.isEmpty(tradeTime)) {
+						Integer state = checkedTradingTime(commodity, exchangeTime, tradeTime);
+						result.getContent().get(i).setState(state);
+					}
+				}
 			}
 		}
 		return new Response<>(result);
@@ -294,7 +333,7 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 				dto.getBuyUpCloseSlipPoint(), dto.getBuyFallOpenSlipPoint(), dto.getBuyFallCloseSlipPoint());
 		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesCommodityAdminDto.class, commodity, false));
 	}
-		
+
 	public Response<Integer> saveLossOrProfit(@RequestBody List<FuturesStopLossOrProfitDto> lossOrProfitDto) {
 		return new Response<>(commodityService.saveLossOrProfit(lossOrProfitDto));
 	}
@@ -305,4 +344,101 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 				FuturesStopLossOrProfitDto.class));
 	}
 
+	@Override
+	public Response<FuturesStopLossOrProfitDto> getLossOrProfitsById(@PathVariable Long id) {
+		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesStopLossOrProfitDto.class,
+				commodityService.getLossOrProfitsById(id), false));
+	}
+
+	private String retriveExchangeTradeTimeStr(Integer timeZoneGap, FuturesCommodity commodity, Date date) {
+		Date exchangeTime = retriveExchangeTime(date, timeZoneGap);
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(exchangeTime);
+		int week = cal.get(Calendar.DAY_OF_WEEK);
+		String tradeTime = null;
+		if (week == 1) {
+			tradeTime = commodity.getSunTradeTime();
+		} else if (week == 2) {
+			tradeTime = commodity.getMonTradeTime();
+		} else if (week == 3) {
+			tradeTime = commodity.getTueTradeTime();
+		} else if (week == 4) {
+			tradeTime = commodity.getWedTradeTime();
+		} else if (week == 5) {
+			tradeTime = commodity.getThuTradeTime();
+		} else if (week == 6) {
+			tradeTime = commodity.getFriTradeTime();
+		} else if (week == 7) {
+			tradeTime = commodity.getSatTradeTime();
+		}
+		return tradeTime;
+	}
+
+	/**
+	 * 获取交易所的对应时间
+	 * 
+	 * @param localTime
+	 *            日期
+	 * @param timeZoneGap
+	 *            和交易所的时差
+	 * @return 交易所的对应时间
+	 */
+	private Date retriveExchangeTime(Date localTime, Integer timeZoneGap) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(localTime);
+		cal.add(Calendar.HOUR_OF_DAY, timeZoneGap * -1);
+		return cal.getTime();
+	}
+
+	public Integer checkedTradingTime(FuturesCommodity commodity, Date exchangeTime, String tradeTime) {
+		Integer state = 2;
+		Boolean isTrade = false;
+		String[] tradeTimeArr = tradeTime.split(",");
+		String dayStr = daySdf.format(exchangeTime);
+		String fullStr = fullSdf.format(exchangeTime);
+		for (String tradeTimeDuration : tradeTimeArr) {
+			String[] tradeTimePointArr = tradeTimeDuration.trim().split("-");
+			if (fullStr.compareTo(dayStr + " " + tradeTimePointArr[0].trim()) >= 0
+					&& fullStr.compareTo(dayStr + " " + tradeTimePointArr[1].trim()) < 0) {
+				state = 1;
+				isTrade = true;
+				break;
+			}
+		}
+		if (isTrade) {
+			List<FuturesHoliday> holidayList = futuresHolidayService.findByCommodityId(commodity.getId());
+			FuturesHoliday holiday = null;
+			if (holidayList != null && holidayList.size() > 0) {
+				holiday = holidayList.get(0);
+			}
+			if (holiday != null) {
+				Integer holidayBan = checkedFuturesHoliday(holiday, exchangeTime);
+				if (holidayBan == 2) {
+					state = 2;
+				}
+			}
+		}
+		return state;
+	}
+
+	/**
+	 * 判断当前品种是否在节假日内
+	 * 
+	 * @param holiday
+	 *            假期实体
+	 * @param exchangeTime
+	 *            交易所当前时间
+	 * @return 2 休市；1 正常
+	 */
+	public Integer checkedFuturesHoliday(FuturesHoliday holiday, Date exchangeTime) {
+		String fullStr = fullSdf.format(exchangeTime);
+		String startTime = fullSdf.format(holiday.getStartTime());
+		String endTime = fullSdf.format(holiday.getEndTime());
+		if (holiday.getEnable()) {
+			if (fullStr.compareTo(startTime) >= 0 && fullStr.compareTo(endTime) < 0) {
+				return 2;
+			}
+		}
+		return 1;
+	}
 }

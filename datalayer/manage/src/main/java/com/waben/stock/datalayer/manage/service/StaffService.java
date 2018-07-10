@@ -91,4 +91,8 @@ public class StaffService {
     public void delete(Long id) {
         staffDao.delete(id);
     }
+    
+    public List<Staff> findAll(){
+    	return staffDao.list();
+    }
 }
