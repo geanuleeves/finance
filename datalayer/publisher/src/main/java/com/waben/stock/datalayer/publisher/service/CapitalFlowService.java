@@ -218,7 +218,7 @@ public class CapitalFlowService {
 						+ "LEFT JOIN bind_card t8 on t7.bank_card=t8.bank_card "
 						+ "LEFT JOIN f_futures_order t9 on t1.extend_type=6 and t1.extend_id=t9.id "
 						+ "LEFT JOIN f_futures_overnight_record t10 on t1.extend_type=7 and t1.extend_id=t10.id "
-						+ "where 1=1 %s %s %s %s %s %s %s %s %s %s %s group by t1.id order by t1.occurrence_time desc limit "
+						+ "where 1=1 %s %s %s %s %s %s %s %s %s %s %s group by t1.id order by t1.occurrence_time desc, t1.id desc limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(),
 				publisherIdCondition, pulisherPhoneCondition, publisherNameCondition, stockCodeCondition, typeCondition,
 				startTimeCondition, endTimeCondition, paymentTypeCondition, isTestCondition, commodityNameCondition, commoditySymbolCondition);

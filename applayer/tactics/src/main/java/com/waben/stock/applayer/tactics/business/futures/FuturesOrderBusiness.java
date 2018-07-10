@@ -393,8 +393,10 @@ public class FuturesOrderBusiness {
 			if (market.getUnwindPointType() == 2) {
 				FuturesCurrencyRateDto rate = findByCurrency(market.getCommodityCurrency());
 				if (rate != null) {
-					totalIncome = totalIncome.add(market.getReserveFund().subtract(market.getPerUnitUnwindPoint()
-							.multiply(market.getTotalQuantity()).multiply(rate.getRate())));
+					totalIncome = totalIncome.add(market.getReserveFund()
+							.subtract(market.getPerUnitUnwindPoint() == null ? BigDecimal.ZERO
+									: market.getPerUnitUnwindPoint().multiply(market.getTotalQuantity())
+											.multiply(rate.getRate())));
 				}
 			} else {
 				totalIncome = totalIncome.add(market.getReserveFund().multiply(

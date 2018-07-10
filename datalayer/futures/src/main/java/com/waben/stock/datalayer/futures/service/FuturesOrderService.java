@@ -209,6 +209,19 @@ public class FuturesOrderService {
 					predicateList.add(
 							criteriaBuilder.equal(root.get("buyingPriceType").as(FuturesTradePriceType.class), type));
 				}
+				
+				if(query.getStartTime()!=null && query.getEndTime()!=null){
+					if(query.getQueryType()!=null){
+						if(query.getQueryType()==1||query.getQueryType()==0){
+							predicateList.add(criteriaBuilder.between(root.get("buyingTime").as(Date.class), query.getStartTime(), query.getEndTime()));
+						}else if(query.getQueryType()==2){
+							predicateList.add(criteriaBuilder.between(root.get("sellingTime").as(Date.class), query.getStartTime(), query.getEndTime()));
+						}else if(query.getQueryType()==3 || query.getQueryType()==4){
+							predicateList.add(criteriaBuilder.between(root.get("postTime").as(Date.class), query.getStartTime(), query.getEndTime()));
+						}
+					}
+				}
+				
 
 				if (query.getOrderState() != null) {
 					FuturesOrderStateConverter convert = new FuturesOrderStateConverter();

@@ -77,6 +77,7 @@ public class RoleService {
                     predicatesList.add(codeQuery);
                 }
                 criteriaQuery.where(predicatesList.toArray(new Predicate[predicatesList.size()]));
+                criteriaQuery.orderBy(criteriaBuilder.desc(root.<Date>get("createTime").as(Date.class)));
                 return criteriaQuery.getRestriction();
             }
         }, pageable);

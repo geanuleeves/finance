@@ -1,6 +1,7 @@
 package com.waben.stock.datalayer.futures.service;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,6 +40,8 @@ public class FuturesTradeLimitService {
 
 	@Autowired
 	private DynamicQuerySqlDao sqlDao;
+	
+	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	public FuturesTradeLimit save(FuturesTradeLimit limit) {
 		limit.setUpdateTime(new Date());
@@ -124,6 +127,28 @@ public class FuturesTradeLimitService {
 			orderTypeCondition = " and t1.order_type = "+ query.getOrderType() +"";
 		}
 		
+		String startTimeCondition = "";
+		if (query.getStartTime() != null) {
+			if(query.getQueryType()==0 || query.getQueryType()==1){
+				startTimeCondition = " and t1.buying_time>='" + sdf.format(query.getStartTime()) + "' ";
+			}else if(query.getQueryType()==2){
+				startTimeCondition = " and t1.selling_time>='" + sdf.format(query.getStartTime()) + "' ";
+			}
+		}
+		String endTimeCondition = "";
+		if (query.getEndTime() != null) {
+			if(query.getQueryType()==0 || query.getQueryType()==1){
+				endTimeCondition = " and t1.buying_time<'" + sdf.format(query.getEndTime()) + "' ";
+			}else if(query.getQueryType()==2){
+				endTimeCondition = " and t1.selling_time<'" + sdf.format(query.getEndTime()) + "' ";
+			}
+		}
+		
+		String buyingPriceTypeCodition = "";
+		if(!StringUtil.isEmpty(query.getPriceType())){
+			buyingPriceTypeCodition = " and t1.buying_price_type = "+ query.getPriceType() +"";
+		}
+		
 		String windControlTypeCondition = "";
 		if(!StringUtil.isEmpty(query.getWindControlType())){
 			windControlTypeCondition = " and t1.wind_control_type in ("+ query.getWindControlType() +")";
@@ -131,7 +156,8 @@ public class FuturesTradeLimitService {
 		String sql =String.format(" SELECT SUM(t1.total_quantity) AS quantity, SUM(t1.reserve_fund) AS reserve_fund, SUM( (t1.openwind_service_fee + t1.unwind_service_fee ) * t1.total_quantity ) AS zhf, "
 						+ " SUM( t4.overnight_deferred_fee )AS deferred_record "
 						+ " FROM f_futures_order t1 LEFT JOIN f_futures_contract t2 ON t2.id = t1.contract_id LEFT JOIN f_futures_commodity t3 ON t3.id = t2.commodity_id LEFT JOIN f_futures_overnight_record t4 ON t4.order_id = t1.id"
-						+ " where 1=1 %s %s %s %s %s %s", orderStateCondition, publisherId, commodityNameCondition, commoditySymbolCondition, orderTypeCondition, windControlTypeCondition);
+						+ " where 1=1 %s %s %s %s %s %s %s %s %s", orderStateCondition, publisherId, commodityNameCondition, commoditySymbolCondition,
+						orderTypeCondition, windControlTypeCondition, buyingPriceTypeCodition, startTimeCondition, endTimeCondition);
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setQuantity", new Class<?>[] { BigDecimal.class }));
 		setMethodMap.put(new Integer(1), new MethodDesc("setFund", new Class<?>[] { BigDecimal.class }));

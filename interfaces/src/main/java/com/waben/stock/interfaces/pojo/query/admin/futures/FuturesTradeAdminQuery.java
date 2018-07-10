@@ -1,7 +1,9 @@
 package com.waben.stock.interfaces.pojo.query.admin.futures;
 
+import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.waben.stock.interfaces.pojo.query.PageAndSortQuery;
 
 public class FuturesTradeAdminQuery extends PageAndSortQuery {
@@ -54,6 +56,17 @@ public class FuturesTradeAdminQuery extends PageAndSortQuery {
 	private String priceType;
 
 	private List<Long> publisherIds;
+	
+	/**
+	 * 查询开始时间
+	 */
+	@JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+	private Date startTime;
+	/**
+	 * 查询结束时间
+	 */
+	@JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+	private Date endTime;
 
 	public String getPublisherName() {
 		return publisherName;
@@ -173,6 +186,22 @@ public class FuturesTradeAdminQuery extends PageAndSortQuery {
 
 	public void setPriceType(String priceType) {
 		this.priceType = priceType;
+	}
+
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
 	}
 
 }
