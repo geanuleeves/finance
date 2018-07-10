@@ -115,7 +115,14 @@ public class FuturesContractController {
 	@GetMapping("/lossOrProfit/{commodityId}")
 	@ApiOperation(value = "根据品种ID获取止损止盈列表")
 	public Response<List<FuturesStopLossOrProfitDto>> getLossOrProfits(@PathVariable Long commodityId) {
-		return new Response<>(futuresContractBusiness.getLossOrProfits(commodityId));
+		List<FuturesStopLossOrProfitDto> lossOrProfitList = futuresContractBusiness.getLossOrProfits(commodityId);
+		Collections.sort(lossOrProfitList, new Comparator<FuturesStopLossOrProfitDto>() {
+			@Override
+			public int compare(FuturesStopLossOrProfitDto o1, FuturesStopLossOrProfitDto o2) {
+				return o1.getStopLossFee().compareTo(o2.getStopLossFee());
+			}
+		});
+		return new Response<>(lossOrProfitList);
 	}
 
 }
