@@ -1443,6 +1443,7 @@ public class FuturesOrderService {
 		backhandOrder.setPerUnitLimitLossAmount(order.getPerUnitLimitLossAmount());
 		backhandOrder.setLimitProfitType(order.getLimitProfitType());
 		backhandOrder.setPerUnitLimitProfitAmount(order.getPerUnitLimitProfitAmount());
+		backhandOrder.setStopLossOrProfitId(order.getStopLossOrProfitId());
 		// 初始化部分订单信息
 		backhandOrder.setPublisherId(order.getPublisherId());
 		backhandOrder.setOrderType(
