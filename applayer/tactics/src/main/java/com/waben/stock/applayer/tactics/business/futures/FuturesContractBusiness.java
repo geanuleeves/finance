@@ -19,6 +19,7 @@ import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractM
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
+import com.waben.stock.interfaces.dto.futures.FuturesCurrencyRateDto;
 import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationPublisherDto;
@@ -71,8 +72,8 @@ public class FuturesContractBusiness {
 	@Autowired
 	private ProfileBusiness profileBusiness;
 
-	// @Autowired
-	// private FuturesOrderBusiness futuresOrderBusiness;
+	@Autowired
+	private FuturesOrderBusiness futuresOrderBusiness;
 
 	public CapitalAccountDto findByPublisherId(Long publisherId) {
 		Response<CapitalAccountDto> response = service.fetchByPublisherId(publisherId);
@@ -294,13 +295,11 @@ public class FuturesContractBusiness {
 	public List<FuturesStopLossOrProfitDto> getLossOrProfits(Long commodityId) {
 		Response<List<FuturesStopLossOrProfitDto>> response = futuresCommodityInterface.getLossOrProfits(commodityId);
 		if ("200".equals(response.getCode())) {
-			// FuturesCommodityDto commodityDto = getCommodityId(commodityId);
-			// FuturesCurrencyRateDto currencyRateDto =
-			// futuresOrderBusiness.findByCurrency(commodityDto.getCurrency());
-			// for (FuturesStopLossOrProfitDto lossOrProfit :
-			// response.getResult()) {
-			// lossOrProfit.setCurrencySign(currencyRateDto.getCurrencySign());
-			// }
+			FuturesCommodityDto commodityDto = getCommodityId(commodityId);
+			FuturesCurrencyRateDto currencyRateDto = futuresOrderBusiness.findByCurrency(commodityDto.getCurrency());
+			for (FuturesStopLossOrProfitDto lossOrProfit : response.getResult()) {
+				lossOrProfit.setCurrencySign(currencyRateDto.getCurrencySign());
+			}
 			return response.getResult();
 		}
 		throw new ServiceException(response.getCode());

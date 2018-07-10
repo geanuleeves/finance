@@ -112,11 +112,15 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 
 				// 获取交易所信息
 				FuturesExchange exchange = exchangeService.findById(commodity.getExchangeId());
-				Date exchangeTime = retriveExchangeTime(new Date(), exchange.getTimeZoneGap());
-				String tradeTime = retriveExchangeTradeTimeStr(exchange.getTimeZoneGap(), commodity, new Date());
-				if (!StringUtil.isEmpty(tradeTime)) {
-					Integer state = checkedTradingTime(exchangeTime, tradeTime);
-					result.getContent().get(i).setState(state);
+				if (exchange == null || !exchange.getEnable()) {
+					result.getContent().get(i).setState(3);
+				} else {
+					Date exchangeTime = retriveExchangeTime(new Date(), exchange.getTimeZoneGap());
+					String tradeTime = retriveExchangeTradeTimeStr(exchange.getTimeZoneGap(), commodity, new Date());
+					if (!StringUtil.isEmpty(tradeTime)) {
+						Integer state = checkedTradingTime(commodity, exchangeTime, tradeTime);
+						result.getContent().get(i).setState(state);
+					}
 				}
 			}
 		}
@@ -386,8 +390,9 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 		return cal.getTime();
 	}
 
-	public Integer checkedTradingTime(Date exchangeTime, String tradeTime) {
+	public Integer checkedTradingTime(FuturesCommodity commodity, Date exchangeTime, String tradeTime) {
 		Integer state = 2;
+		Boolean isTrade = false;
 		String[] tradeTimeArr = tradeTime.split(",");
 		String dayStr = daySdf.format(exchangeTime);
 		String fullStr = fullSdf.format(exchangeTime);
@@ -396,9 +401,44 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 			if (fullStr.compareTo(dayStr + " " + tradeTimePointArr[0].trim()) >= 0
 					&& fullStr.compareTo(dayStr + " " + tradeTimePointArr[1].trim()) < 0) {
 				state = 1;
+				isTrade = true;
 				break;
 			}
 		}
+		if (isTrade) {
+			List<FuturesHoliday> holidayList = futuresHolidayService.findByCommodityId(commodity.getId());
+			FuturesHoliday holiday = null;
+			if (holidayList != null && holidayList.size() > 0) {
+				holiday = holidayList.get(0);
+			}
+			if (holiday != null) {
+				Integer holidayBan = checkedFuturesHoliday(holiday, exchangeTime);
+				if (holidayBan == 2) {
+					state = 2;
+				}
+			}
+		}
 		return state;
+	}
+
+	/**
+	 * 判断当前品种是否在节假日内
+	 * 
+	 * @param holiday
+	 *            假期实体
+	 * @param exchangeTime
+	 *            交易所当前时间
+	 * @return 2 休市；1 正常
+	 */
+	public Integer checkedFuturesHoliday(FuturesHoliday holiday, Date exchangeTime) {
+		String fullStr = fullSdf.format(exchangeTime);
+		String startTime = fullSdf.format(holiday.getStartTime());
+		String endTime = fullSdf.format(holiday.getEndTime());
+		if (holiday.getEnable()) {
+			if (fullStr.compareTo(startTime) >= 0 && fullStr.compareTo(endTime) < 0) {
+				return 2;
+			}
+		}
+		return 1;
 	}
 }
