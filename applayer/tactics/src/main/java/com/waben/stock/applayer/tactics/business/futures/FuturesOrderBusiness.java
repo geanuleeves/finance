@@ -389,9 +389,13 @@ public class FuturesOrderBusiness {
 		BigDecimal totalIncome = new BigDecimal(0);
 		PageInfo<FuturesOrderDto> pageOrder = pageOrder(orderQuery);
 		for (FuturesOrderDto market : pageOrder.getContent()) {
+			// 获取汇率信息
 			if (market.getUnwindPointType() == 2) {
-				totalIncome = totalIncome.add(market.getReserveFund()
-						.subtract(market.getPerUnitUnwindPoint().multiply(market.getTotalQuantity())));
+				FuturesCurrencyRateDto rate = findByCurrency(market.getCommodityCurrency());
+				if (rate != null) {
+					totalIncome = totalIncome.add(market.getReserveFund().subtract(market.getPerUnitUnwindPoint()
+							.multiply(market.getTotalQuantity()).multiply(rate.getRate())));
+				}
 			} else {
 				totalIncome = totalIncome.add(market.getReserveFund().multiply(
 						new BigDecimal(100).subtract(market.getPerUnitUnwindPoint()).divide(new BigDecimal(100))));

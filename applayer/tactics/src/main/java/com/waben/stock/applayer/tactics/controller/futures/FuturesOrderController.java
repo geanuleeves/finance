@@ -179,6 +179,7 @@ public class FuturesOrderController {
 		// 获取是否为测试单
 		PublisherDto publisher = publisherBusiness.findById(SecurityUtil.getUserId());
 		orderDto.setIsTest(publisher.getIsTest());
+		orderDto.setStopLossOrProfitId(buysellDto.getStopLossOrProfitId());
 		return new Response<>(futuresOrderBusiness.buy(orderDto));
 	}
 

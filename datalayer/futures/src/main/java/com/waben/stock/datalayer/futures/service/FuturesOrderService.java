@@ -42,6 +42,7 @@ import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
+import com.waben.stock.datalayer.futures.entity.FuturesStopLossOrProfit;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesOrderStateConverter;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControlTypeConverter;
@@ -52,6 +53,7 @@ import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
 import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
 import com.waben.stock.datalayer.futures.repository.FuturesOvernightRecordDao;
+import com.waben.stock.datalayer.futures.repository.FuturesStopLossOrProfitDao;
 import com.waben.stock.datalayer.futures.repository.impl.MethodDesc;
 import com.waben.stock.datalayer.futures.schedule.RetriveAllQuoteSchedule;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
@@ -105,6 +107,9 @@ public class FuturesOrderService {
 
 	@Autowired
 	private FuturesCommodityDao commodityDao;
+
+	@Autowired
+	private FuturesStopLossOrProfitDao stopLossOrProfitDao;
 
 	@Autowired
 	private FuturesOvernightRecordService overnightService;
@@ -1461,11 +1466,16 @@ public class FuturesOrderService {
 			// 判断该交易平仓时是否在后台设置的期货交易限制内
 			checkedLimitUnwind(limitList, retriveExchangeTime(new Date(), this.retriveTimeZoneGap(order)));
 		}
-
+		// 获取运营后台设置的止损止盈
+		FuturesStopLossOrProfit lossOrProfit = stopLossOrProfitDao.retrieve(order.getStopLossOrProfitId());
+		if (lossOrProfit == null) {
+			throw new ServiceException(ExceptionConstant.SETTING_STOP_LOSS_EXCEPTION);
+		}
 		// 判断账户余额是否足够支付反手买入的保证金和服务费
 		FuturesContract contract = order.getContract();
 		FuturesCommodity commodity = contract.getCommodity();
-		BigDecimal totalFee = order.getTotalQuantity().multiply(commodity.getPerUnitReserveFund()
+		FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
+		BigDecimal totalFee = order.getTotalQuantity().multiply(lossOrProfit.getReserveFund().multiply(rate.getRate())
 				.add(commodity.getOpenwindServiceFee()).add(commodity.getUnwindServiceFee()));
 		CapitalAccountDto account = accountBusiness.fetchByPublisherId(order.getPublisherId());
 		if (account.getAvailableBalance().compareTo(totalFee) < 0) {
