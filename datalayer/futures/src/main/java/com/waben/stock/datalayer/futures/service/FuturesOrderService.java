@@ -984,6 +984,9 @@ public class FuturesOrderService {
 			publisherProfitOrLoss = profitOrLoss;
 		} else if (profitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
 			publisherProfitOrLoss = account.getRealProfitOrLoss();
+			if(publisherProfitOrLoss == null) {
+				publisherProfitOrLoss = profitOrLoss;
+			}
 			if (profitOrLoss.abs().compareTo(publisherProfitOrLoss.abs()) > 0) {
 				platformProfitOrLoss = profitOrLoss.abs().subtract(publisherProfitOrLoss.abs())
 						.multiply(new BigDecimal(-1));
