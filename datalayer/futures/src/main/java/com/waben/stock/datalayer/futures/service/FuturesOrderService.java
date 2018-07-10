@@ -1415,7 +1415,17 @@ public class FuturesOrderService {
 		// 计算服务费和保证金
 		BigDecimal serviceFee = order.getTotalQuantity().multiply(
 				contract.getCommodity().getOpenwindServiceFee().add(contract.getCommodity().getUnwindServiceFee()));
-		BigDecimal reserveFund = order.getTotalQuantity().multiply(contract.getCommodity().getPerUnitReserveFund());
+		// 获取运营后台设置的止损止盈
+		FuturesStopLossOrProfit lossOrProfit = stopLossOrProfitDao.retrieve(order.getStopLossOrProfitId());
+		BigDecimal reserveFund = order.getReserveFund();
+		if (lossOrProfit != null) {
+			FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
+			reserveFund = order.getTotalQuantity().multiply(lossOrProfit.getReserveFund().multiply(rate.getRate()));
+		}
+		backhandOrder.setLimitLossType(order.getLimitLossType());
+		backhandOrder.setPerUnitLimitLossAmount(order.getPerUnitLimitLossAmount());
+		backhandOrder.setLimitProfitType(order.getLimitProfitType());
+		backhandOrder.setPerUnitLimitProfitAmount(order.getPerUnitLimitProfitAmount());
 		// 初始化部分订单信息
 		backhandOrder.setPublisherId(order.getPublisherId());
 		backhandOrder.setOrderType(
