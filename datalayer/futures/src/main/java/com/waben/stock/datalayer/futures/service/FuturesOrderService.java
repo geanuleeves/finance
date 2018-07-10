@@ -45,10 +45,8 @@ import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesOrderStateConverter;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControlTypeConverter;
-import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqConfiguration;
-import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqProducer;
+import com.waben.stock.datalayer.futures.rabbitmq.consumer.EntrustQueryConsumer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorPublisherFuturesOrderConsumer;
-import com.waben.stock.datalayer.futures.rabbitmq.message.EntrustQueryMessage;
 import com.waben.stock.datalayer.futures.repository.DynamicQuerySqlDao;
 import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
@@ -142,12 +140,12 @@ public class FuturesOrderService {
 	private MonitorPublisherFuturesOrderConsumer monitorPublisher;
 
 	@Autowired
+	private EntrustQueryConsumer entrueQuery;
+
+	@Autowired
 	private ProfileBusiness profileBusiness;
 
 	private SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-	@Autowired
-	private RabbitmqProducer producer;
 
 	@Value("${order.domain:youguwang.com.cn}")
 	private String domain;
@@ -504,11 +502,7 @@ public class FuturesOrderService {
 		// step 8 : 站外消息推送
 		sendOutsideMessage(order);
 		// step 9 : 放入委托查询队列（开仓）
-		EntrustQueryMessage msg = new EntrustQueryMessage();
-		msg.setOrderId(order.getId());
-		msg.setGatewayOrderId(-1L);
-		msg.setEntrustType(1);
-		producer.sendMessage(RabbitmqConfiguration.entrustQueryQueueName, msg);
+		entrueQuery.entrustQuery(order.getId(), 1);
 		return order;
 	}
 
@@ -1182,15 +1176,11 @@ public class FuturesOrderService {
 		sendOutsideMessage(order);
 		order = orderDao.update(order);
 		// 放入委托查询队列（平仓）
-		EntrustQueryMessage msg = new EntrustQueryMessage();
 		if (windControlType == FuturesWindControlType.BackhandUnwind) {
-			msg.setEntrustType(3);
+			entrueQuery.entrustQuery(order.getId(), 3);
 		} else {
-			msg.setEntrustType(2);
+			entrueQuery.entrustQuery(order.getId(), 2);
 		}
-		msg.setOrderId(order.getId());
-		msg.setGatewayOrderId(-1L);
-		producer.sendMessage(RabbitmqConfiguration.entrustQueryQueueName, msg);
 		return order;
 	}
 
@@ -1295,9 +1285,11 @@ public class FuturesOrderService {
 		if (!isTradeTime) {
 			throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
 		}
-//		if (order.getState() == FuturesOrderState.PartPosition || order.getState() == FuturesOrderState.PartUnwind) {
-//			throw new ServiceException(ExceptionConstant.FUTURESORDER_PARTSUCCESS_CANNOTCANCEL_EXCEPTION);
-//		}
+		// if (order.getState() == FuturesOrderState.PartPosition ||
+		// order.getState() == FuturesOrderState.PartUnwind) {
+		// throw new
+		// ServiceException(ExceptionConstant.FUTURESORDER_PARTSUCCESS_CANNOTCANCEL_EXCEPTION);
+		// }
 		if (!(order.getState() == FuturesOrderState.BuyingEntrust || order.getState() == FuturesOrderState.PartPosition
 				|| order.getState() == FuturesOrderState.SellingEntrust
 				|| order.getState() == FuturesOrderState.PartUnwind)) {
@@ -1306,14 +1298,16 @@ public class FuturesOrderService {
 		}
 		// step 3 : 请求网关取消订单
 		canceledOrder(id);
-//		if (order.getState() == FuturesOrderState.BuyingEntrust) {
-//			TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(), domain, order.getOpenGatewayOrderId());
-//		}
-//		if (order.getState() == FuturesOrderState.SellingEntrust) {
-//			throw new ServiceException(ExceptionConstant.UNWINDORDER_CANNOTCANCEL_EXCEPTION);
-//			// TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(),
-//			// domain, order.getCloseGatewayOrderId());
-//		}
+		// if (order.getState() == FuturesOrderState.BuyingEntrust) {
+		// TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(), domain,
+		// order.getOpenGatewayOrderId());
+		// }
+		// if (order.getState() == FuturesOrderState.SellingEntrust) {
+		// throw new
+		// ServiceException(ExceptionConstant.UNWINDORDER_CANNOTCANCEL_EXCEPTION);
+		// // TradeFuturesOverHttp.cancelOrder(profileBusiness.isProd(),
+		// // domain, order.getCloseGatewayOrderId());
+		// }
 		return order;
 	}
 
@@ -1733,8 +1727,8 @@ public class FuturesOrderService {
 				BigDecimal askSize = new BigDecimal(askSizeList.get(i));
 				if (askSize.compareTo(remaining) >= 0) {
 					filled = filled.add(remaining);
-					remaining = BigDecimal.ZERO;
 					totalFillCost = totalFillCost.add(askPriceList.get(i).multiply(remaining));
+					remaining = BigDecimal.ZERO;
 					break;
 				} else {
 					filled = filled.add(askSize);
@@ -1768,8 +1762,8 @@ public class FuturesOrderService {
 				BigDecimal askSize = new BigDecimal(bidSizeList.get(i));
 				if (askSize.compareTo(remaining) >= 0) {
 					filled = filled.add(remaining);
-					remaining = BigDecimal.ZERO;
 					totalFillCost = totalFillCost.add(bidPriceList.get(i).multiply(remaining));
+					remaining = BigDecimal.ZERO;
 					break;
 				} else {
 					filled = filled.add(askSize);
@@ -1824,8 +1818,8 @@ public class FuturesOrderService {
 					BigDecimal askSize = new BigDecimal(askSizeList.get(i));
 					if (askSize.compareTo(remaining) >= 0) {
 						filled = filled.add(remaining);
-						remaining = BigDecimal.ZERO;
 						totalFillCost = totalFillCost.add(askPriceList.get(i).multiply(remaining));
+						remaining = BigDecimal.ZERO;
 						break;
 					} else {
 						filled = filled.add(askSize);
@@ -1861,8 +1855,8 @@ public class FuturesOrderService {
 					BigDecimal bidSize = new BigDecimal(bidSizeList.get(i));
 					if (bidSize.compareTo(remaining) >= 0) {
 						filled = filled.add(remaining);
-						remaining = BigDecimal.ZERO;
 						totalFillCost = totalFillCost.add(bidPriceList.get(i).multiply(remaining));
+						remaining = BigDecimal.ZERO;
 						break;
 					} else {
 						filled = filled.add(bidSize);
