@@ -377,5 +377,23 @@ public class EntrustQueryConsumer {
 			throw new RuntimeException(RabbitmqConfiguration.entrustQueryQueueName + " message retry exception!", ex);
 		}
 	}
+	
+	public void entrustQuery(final Long orderId, final Integer entrustType) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				EntrustQueryMessage msg = new EntrustQueryMessage();
+				msg.setOrderId(orderId);
+				msg.setGatewayOrderId(-1L);
+				msg.setEntrustType(entrustType);
+				producer.sendMessage(RabbitmqConfiguration.entrustQueryQueueName, msg);
+			}
+		}).start();
+	}
 
 }
