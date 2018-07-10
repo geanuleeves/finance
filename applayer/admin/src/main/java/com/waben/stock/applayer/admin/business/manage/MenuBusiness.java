@@ -30,7 +30,7 @@ public class MenuBusiness {
         	List<MenuDto> result = response.getResult();
         	List<MenuDto> dto = new ArrayList<MenuDto>();
         	for(MenuDto me : result){
-        		if(me.getVariety()==1){
+        		if( me.getVariety()!=null){
         			dto.add(me);
         		}
         	}
