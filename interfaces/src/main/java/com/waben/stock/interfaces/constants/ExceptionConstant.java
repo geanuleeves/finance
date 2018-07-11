@@ -141,6 +141,8 @@ public class ExceptionConstant {
 	public static final String STOCKOPTION_2UPLIMIT_CANNOTBY_EXCEPTION = "6030";
 	// 请求充值失败
 	public static final String REQUEST_RECHARGE_EXCEPTION = "6031";
+	// 单笔提现不能超过10万
+	public static final String SINGLE_WITHDRAWAL_LIMIT_EXCEPTION = "6032";
 
 	// 投资人服务异常
 	public static final String INVESTOR_NOT_FOUND_EXCEPTION = "7001";

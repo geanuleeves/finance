@@ -131,6 +131,9 @@ public class QuickPayController {
 	@ResponseBody
 	public Response<String> wbcsa(@RequestParam(required = true) BigDecimal amount,
 			@RequestParam(required = true) Long bindCardId, @RequestParam(required = true) String paymentPassword) {
+		if(amount.compareTo(new BigDecimal("100000")) > 0) {
+    		throw new ServiceException(ExceptionConstant.SINGLE_WITHDRAWAL_LIMIT_EXCEPTION);
+    	}
 		// 判断是否为测试用户，测试用户不能提现
 		PublisherDto publisher = publisherBusiness.findById(SecurityUtil.getUserId());
 		if (publisher.getIsTest() != null && publisher.getIsTest()) {

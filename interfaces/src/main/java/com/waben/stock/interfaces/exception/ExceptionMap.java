@@ -78,6 +78,7 @@ public class ExceptionMap {
 		exceptionMap.put(ExceptionConstant.BLACKLIST_STOCK_EXCEPTION, "不支持的股票，请更换股票");
 		exceptionMap.put(ExceptionConstant.STOCKOPTION_2UPLIMIT_CANNOTBY_EXCEPTION, "连续两个涨停的股票不能申购");
 		exceptionMap.put(ExceptionConstant.REQUEST_RECHARGE_EXCEPTION, "请求充值失败");
+		exceptionMap.put(ExceptionConstant.SINGLE_WITHDRAWAL_LIMIT_EXCEPTION, "单笔提现不能超过10万");
 
 		exceptionMap.put(ExceptionConstant.INVESTOR_NOT_FOUND_EXCEPTION, "投资人信息未找到");
 		exceptionMap.put(ExceptionConstant.INVESTOR_SECURITIES_LOGIN_EXCEPTION, "投资人券商账户登陆异常");
