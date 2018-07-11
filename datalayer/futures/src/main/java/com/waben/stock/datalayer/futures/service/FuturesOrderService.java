@@ -1127,7 +1127,7 @@ public class FuturesOrderService {
 	 */
 	public BigDecimal computeProfitOrLoss(FuturesOrderType orderType, BigDecimal totalQuantity, BigDecimal buyingPrice,
 			BigDecimal sellingPrice, BigDecimal minWave, BigDecimal perWaveMoney) {
-		BigDecimal waveMoney = sellingPrice.subtract(buyingPrice).divide(minWave).setScale(4, RoundingMode.DOWN)
+		BigDecimal waveMoney = sellingPrice.subtract(buyingPrice).divide(minWave, 4, RoundingMode.DOWN)
 				.multiply(perWaveMoney).multiply(totalQuantity);
 		if (orderType == FuturesOrderType.BuyUp) {
 			return waveMoney;
@@ -1805,7 +1805,7 @@ public class FuturesOrderService {
 			}
 			BigDecimal avgFillPrice = BigDecimal.ZERO;
 			if (filled.compareTo(BigDecimal.ZERO) > 0) {
-				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+				avgFillPrice = totalFillCost.divide(filled, 10, RoundingMode.DOWN);
 				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
 				if (divideArr[1].compareTo(BigDecimal.ZERO) > 0) {
 					avgFillPrice = divideArr[0].add(new BigDecimal(1)).multiply(commodity.getMinWave());
@@ -1843,7 +1843,7 @@ public class FuturesOrderService {
 			}
 			BigDecimal avgFillPrice = BigDecimal.ZERO;
 			if (filled.compareTo(BigDecimal.ZERO) > 0) {
-				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+				avgFillPrice = totalFillCost.divide(filled, 10, RoundingMode.DOWN);
 				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
 				avgFillPrice = divideArr[0].multiply(commodity.getMinWave());
 			}
@@ -1913,7 +1913,7 @@ public class FuturesOrderService {
 			}
 			BigDecimal avgFillPrice = BigDecimal.ZERO;
 			if (filled.compareTo(BigDecimal.ZERO) > 0) {
-				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+				avgFillPrice = totalFillCost.divide(filled, 10, RoundingMode.DOWN);
 				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
 				if (divideArr[1].compareTo(BigDecimal.ZERO) > 0) {
 					avgFillPrice = divideArr[0].add(new BigDecimal(1)).multiply(commodity.getMinWave());
@@ -1953,7 +1953,7 @@ public class FuturesOrderService {
 			}
 			BigDecimal avgFillPrice = BigDecimal.ZERO;
 			if (filled.compareTo(BigDecimal.ZERO) > 0) {
-				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+				avgFillPrice = totalFillCost.divide(filled, 10, RoundingMode.DOWN);
 				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
 				avgFillPrice = divideArr[0].multiply(commodity.getMinWave());
 			}

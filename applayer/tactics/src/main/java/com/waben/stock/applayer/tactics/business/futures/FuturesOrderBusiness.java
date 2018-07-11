@@ -2,7 +2,9 @@ package com.waben.stock.applayer.tactics.business.futures;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,6 +157,10 @@ public class FuturesOrderBusiness {
 		throw new ServiceException(response.getCode());
 	}
 
+	public String getQuoteCacheKey(String commodityNo, String contractNo) {
+		return commodityNo + "-" + contractNo;
+	}
+
 	/**
 	 * 计算订单止损止盈及用户盈亏
 	 * 
@@ -163,8 +169,36 @@ public class FuturesOrderBusiness {
 	 * @return 订单列表
 	 */
 	public List<FuturesOrderMarketDto> getListFuturesOrders(List<FuturesOrderMarketDto> orderList) {
+		// 封装合约
+		Map<Long, FuturesContractDto> contractMap = new HashMap<Long, FuturesContractDto>();
+		List<FuturesContractDto> contractList = getListContract();
+		for (FuturesContractDto futuresContractDto : contractList) {
+			contractMap.put(futuresContractDto.getId(), futuresContractDto);
+		}
+		// 封装汇率
+		Map<String, FuturesCurrencyRateDto> rateMap = new HashMap<String, FuturesCurrencyRateDto>();
+		List<FuturesCurrencyRateDto> rateList = getListCurrencyRate();
+		for (FuturesCurrencyRateDto futuresCurrencyRateDto : rateList) {
+			rateMap.put(futuresCurrencyRateDto.getCurrency(), futuresCurrencyRateDto);
+		}
+		// 封装行情
+		Map<String, FuturesContractMarket> marketMap = RetriveFuturesOverHttp.marketAll(profileBusiness.isProd());
+
 		if (orderList != null && orderList.size() > 0) {
 			for (FuturesOrderMarketDto orderMarket : orderList) {
+				FuturesCurrencyRateDto rate = rateMap.get(orderMarket.getCommodityCurrency());
+				if (rate == null) {
+					break;
+				}
+				FuturesContractDto contract = contractMap.get(orderMarket.getContractId());
+				if (contract == null) {
+					break;
+				}
+				FuturesContractMarket market = marketMap
+						.get(getQuoteCacheKey(orderMarket.getCommoditySymbol(), orderMarket.getContractNo()));
+				if (market == null) {
+					break;
+				}
 				if (orderMarket.getOrderType() == FuturesOrderType.BuyUp) {
 					orderMarket.setBuyOrderTypeDesc(
 							"买涨" + Integer.valueOf(orderMarket.getTotalQuantity().intValue()) + "手");
@@ -172,23 +206,12 @@ public class FuturesOrderBusiness {
 					orderMarket.setBuyOrderTypeDesc(
 							"买跌" + Integer.valueOf(orderMarket.getTotalQuantity().intValue()) + "手");
 				}
-				// 获取合约信息
-				FuturesContractDto contract = findByContractId(orderMarket.getContractId());
-				if (contract == null) {
-					break;
-				}
-				// 获取汇率信息
-				FuturesCurrencyRateDto rate = findByCurrency(orderMarket.getCommodityCurrency());
+
 				orderMarket.setRate(rate.getRate());
 				orderMarket.setCurrencySign(rate.getCurrencySign());
 				orderMarket.setPerWaveMoney(contract.getPerWaveMoney());
 				orderMarket.setMinWave(contract.getMinWave());
-				// 获取行情信息
-				FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(),
-						orderMarket.getCommoditySymbol(), orderMarket.getContractNo());
-				if (market == null) {
-					break;
-				}
+
 				orderMarket.setLastPrice(market.getLastPrice());
 				// 订单结算状态为 已取消或委托失败时 不计算用户盈亏
 				if (orderMarket.getState() != FuturesOrderState.BuyingCanceled
@@ -411,6 +434,22 @@ public class FuturesOrderBusiness {
 		Response<FuturesStopLossOrProfitDto> response = futuresCommodityInterface.getLossOrProfitsById(id);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public List<FuturesContractDto> getListContract() {
+		Response<List<FuturesContractDto>> response = futuresContractInterface.list();
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public List<FuturesCurrencyRateDto> getListCurrencyRate() {
+		Response<PageInfo<FuturesCurrencyRateDto>> response = futuresCurrencyRateInterface.list();
+		if ("200".equals(response.getCode())) {
+			return response.getResult().getContent();
 		}
 		throw new ServiceException(response.getCode());
 	}
