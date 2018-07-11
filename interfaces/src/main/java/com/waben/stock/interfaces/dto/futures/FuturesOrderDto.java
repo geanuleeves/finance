@@ -277,6 +277,9 @@ public class FuturesOrderDto {
 	 */
 	@ApiModelProperty(value = "止盈止损档位ID")
 	private Long stopLossOrProfitId;
+
+	@ApiModelProperty(value = "第一次默认止损金额")
+	private BigDecimal defaultStopLossFee;
 	/**
 	 * 期货隔夜记录
 	 */
@@ -695,6 +698,14 @@ public class FuturesOrderDto {
 
 	public void setStopLossOrProfitId(Long stopLossOrProfitId) {
 		this.stopLossOrProfitId = stopLossOrProfitId;
+	}
+
+	public BigDecimal getDefaultStopLossFee() {
+		return defaultStopLossFee;
+	}
+
+	public void setDefaultStopLossFee(BigDecimal defaultStopLossFee) {
+		this.defaultStopLossFee = defaultStopLossFee;
 	}
 
 }

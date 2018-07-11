@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.waben.stock.interfaces.dto.admin.futures.FuturesContractAdminDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
+import com.waben.stock.interfaces.dto.futures.FuturesCurrencyRateDto;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesContractAdminQuery;
@@ -74,5 +75,8 @@ public interface FuturesContractInterface {
 
 	@RequestMapping(value = "/lists/{commodityId}", method = RequestMethod.GET)
 	Response<List<FuturesContractDto>> listByCommodityId(@PathVariable("commodityId") Long commodityId);
+
+	@RequestMapping(value = "/listAll", method = RequestMethod.GET)
+	Response<List<FuturesContractDto>> list();
 
 }

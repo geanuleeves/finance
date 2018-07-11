@@ -238,4 +238,8 @@ public class FuturesContractService {
 		}
 	}
 
+	public List<FuturesContract> list() {
+		return futuresContractDao.list();
+	}
+
 }

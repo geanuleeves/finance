@@ -641,4 +641,10 @@ public class FuturesContractController implements FuturesContractInterface {
 		return contractDto;
 	}
 
+	@Override
+	public Response<List<FuturesContractDto>> list() {
+		return new Response<>(
+				CopyBeanUtils.copyListBeanPropertiesToList(futuresContractService.list(), FuturesContractDto.class));
+	}
+
 }
