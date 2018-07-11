@@ -1434,6 +1434,7 @@ public class FuturesOrderService {
 		}
 		// 反手下单
 		FuturesOrder backhandOrder = new FuturesOrder();
+		backhandOrder.setBackhandSourceOrderId(orderId);
 		FuturesContract contract = order.getContract();
 		FuturesCommodity commodity = contract.getCommodity();
 		Long commodityId = commodity.getId();
@@ -1671,6 +1672,7 @@ public class FuturesOrderService {
 		// if (limitLossType != null && perUnitLimitLossAmount != null) {
 		order.setLimitLossType(limitLossType);
 		order.setPerUnitLimitLossAmount(perUnitLimitLossAmount);
+		order.setStopLossOrProfitId(stopLossOrProfitId);
 		// }
 		orderDao.update(order);
 		return order;
