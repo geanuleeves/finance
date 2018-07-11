@@ -52,7 +52,7 @@ public class TradeDynamicDto {
 
 	public String getPhone() {
 		if (phone != null && phone.length() >= 8) {
-			return phone.substring(0, 3) + "****" + phone.substring(7);
+			return phone.substring(0, 3) + "********";
 		}
 		return phone;
 	}

@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
 
 import com.waben.stock.applayer.tactics.dto.buyrecord.BuyRecordWithMarketDto;
@@ -20,6 +20,7 @@ import com.waben.stock.applayer.tactics.reference.DeferredRecordReference;
 import com.waben.stock.applayer.tactics.reference.PublisherReference;
 import com.waben.stock.applayer.tactics.reference.SettlementReference;
 import com.waben.stock.applayer.tactics.reference.StockReference;
+import com.waben.stock.applayer.tactics.service.RedisCache;
 import com.waben.stock.interfaces.commonapi.retrivestock.RetriveStockOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivestock.bean.StockMarket;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
@@ -29,12 +30,14 @@ import com.waben.stock.interfaces.dto.buyrecord.SettlementDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
 import com.waben.stock.interfaces.dto.stockcontent.StockDto;
 import com.waben.stock.interfaces.enums.BuyRecordState;
+import com.waben.stock.interfaces.enums.RedisCacheKeyType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.BuyRecordQuery;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.SettlementQuery;
 import com.waben.stock.interfaces.util.CopyBeanUtils;
+import com.waben.stock.interfaces.util.JacksonUtil;
 
 @Service
 public class BuyRecordBusiness {
@@ -66,9 +69,12 @@ public class BuyRecordBusiness {
 
 	@Autowired
 	private StrategyTypeBusiness strategyTypeBusiness;
-	
+
 	@Autowired
 	private StockBusiness stockBusiness;
+
+	@Autowired
+	private RedisCache redisCache;
 
 	public BuyRecordDto findById(Long id) {
 		Response<BuyRecordDto> response = buyRecordReference.fetchBuyRecord(id);
@@ -108,9 +114,10 @@ public class BuyRecordBusiness {
 		}
 		throw new ServiceException(response.getCode());
 	}
-	
+
 	public List<DeferredRecordDto> deferredRecordList(Long publisherId, Long buyRecordId) {
-		Response<List<DeferredRecordDto>> response = deferredRecordReference.fetchByPublisherIdAndBuyRecordId(publisherId, buyRecordId);
+		Response<List<DeferredRecordDto>> response = deferredRecordReference
+				.fetchByPublisherIdAndBuyRecordId(publisherId, buyRecordId);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}
@@ -188,6 +195,27 @@ public class BuyRecordBusiness {
 		} else {
 			throw new ServiceException(ExceptionConstant.USERSELLAPPLY_NOTMATCH_EXCEPTION);
 		}
+	}
+
+	public PageInfo<TradeDynamicDto> buildTradeDynamic(int page, int size) {
+		Map<String, String> tradeDynamicMap = redisCache.hgetAll(RedisCacheKeyType.TradeDynamic.getKey());
+		List<TradeDynamicDto> content = new ArrayList<>();
+		PageInfo<TradeDynamicDto> result = new PageInfo<TradeDynamicDto>(content, 0, false, 0L, size, page, false);
+		if (tradeDynamicMap.size() > 0) {
+			TreeSet<String> sortKeySet = new TreeSet<>(tradeDynamicMap.keySet());
+			int index = 0;
+			int start = page * size;
+			int end = (page + 1) * size;
+			for (String key : sortKeySet) {
+				int reverseIndex = sortKeySet.size() - 1 - index;
+				if (reverseIndex >= start && reverseIndex < end) {
+					String json = tradeDynamicMap.get(key);
+					content.add(JacksonUtil.decode(json, TradeDynamicDto.class));
+				}
+				index++;
+			}
+		}
+		return result;
 	}
 
 	public PageInfo<TradeDynamicDto> tradeDynamic(int page, int size) {

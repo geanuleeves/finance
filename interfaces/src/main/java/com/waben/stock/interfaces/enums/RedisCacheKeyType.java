@@ -9,7 +9,9 @@ public enum RedisCacheKeyType implements CommonalityEnum {
 	
 	AppRegistrationId("2", "jiguang:registrationId:%s"), 
 	
-	StockMarket("3", "stock:market:%s");
+	StockMarket("3", "stock:market:%s"),
+	
+	TradeDynamic("4", "stock:tradedynamic");
 
 	private String index;
 

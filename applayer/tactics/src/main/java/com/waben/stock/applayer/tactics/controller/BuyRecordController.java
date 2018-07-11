@@ -195,7 +195,7 @@ public class BuyRecordController {
 	@GetMapping("/tradeDynamic")
 	@ApiOperation(value = "交易动态列表")
 	public Response<PageInfo<TradeDynamicDto>> tradeDynamic(int page, int size) {
-		return new Response<>(buyRecordBusiness.tradeDynamic(page, size));
+		return new Response<>(buyRecordBusiness.buildTradeDynamic(page, size));
 	}
 
 	@RequestMapping(value = "/sellapply/{id}", method = RequestMethod.POST)
