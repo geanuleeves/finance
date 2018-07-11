@@ -215,9 +215,9 @@ public class FuturesOrderBusiness {
 	}
 
 	public Integer settingStopLoss(Long orderId, Integer limitProfitType, BigDecimal perUnitLimitProfitAmount,
-			Integer limitLossType, BigDecimal perUnitLimitLossAmount, Long publisherId) {
+			Integer limitLossType, BigDecimal perUnitLimitLossAmount, Long publisherId, Long stopLossOrProfitId) {
 		Response<FuturesOrderDto> response = futuresOrderInterface.settingStopLoss(orderId, limitProfitType,
-				perUnitLimitProfitAmount, limitLossType, perUnitLimitLossAmount, publisherId);
+				perUnitLimitProfitAmount, limitLossType, perUnitLimitLossAmount, publisherId, stopLossOrProfitId);
 		if ("200".equals(response.getCode())) {
 			return 1;
 		}

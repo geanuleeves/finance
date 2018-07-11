@@ -209,19 +209,21 @@ public class FuturesOrderService {
 					predicateList.add(
 							criteriaBuilder.equal(root.get("buyingPriceType").as(FuturesTradePriceType.class), type));
 				}
-				
-				if(query.getStartTime()!=null && query.getEndTime()!=null){
-					if(query.getQueryType()!=null){
-						if(query.getQueryType()==1||query.getQueryType()==0){
-							predicateList.add(criteriaBuilder.between(root.get("buyingTime").as(Date.class), query.getStartTime(), query.getEndTime()));
-						}else if(query.getQueryType()==2){
-							predicateList.add(criteriaBuilder.between(root.get("sellingTime").as(Date.class), query.getStartTime(), query.getEndTime()));
-						}else if(query.getQueryType()==3 || query.getQueryType()==4){
-							predicateList.add(criteriaBuilder.between(root.get("postTime").as(Date.class), query.getStartTime(), query.getEndTime()));
+
+				if (query.getStartTime() != null && query.getEndTime() != null) {
+					if (query.getQueryType() != null) {
+						if (query.getQueryType() == 1 || query.getQueryType() == 0) {
+							predicateList.add(criteriaBuilder.between(root.get("buyingTime").as(Date.class),
+									query.getStartTime(), query.getEndTime()));
+						} else if (query.getQueryType() == 2) {
+							predicateList.add(criteriaBuilder.between(root.get("sellingTime").as(Date.class),
+									query.getStartTime(), query.getEndTime()));
+						} else if (query.getQueryType() == 3 || query.getQueryType() == 4) {
+							predicateList.add(criteriaBuilder.between(root.get("postTime").as(Date.class),
+									query.getStartTime(), query.getEndTime()));
 						}
 					}
 				}
-				
 
 				if (query.getOrderState() != null) {
 					FuturesOrderStateConverter convert = new FuturesOrderStateConverter();
@@ -1628,7 +1630,7 @@ public class FuturesOrderService {
 	/************************************* END获取交易所时间、判断是否在交易时间段 ******************************************/
 
 	public FuturesOrder settingStopLoss(Long orderId, Integer limitProfitType, BigDecimal perUnitLimitProfitAmount,
-			Integer limitLossType, BigDecimal perUnitLimitLossAmount, Long publisherId) {
+			Integer limitLossType, BigDecimal perUnitLimitLossAmount, Long publisherId, Long stopLossOrProfitId) {
 		FuturesOrder order = orderDao.retrieveByOrderIdAndPublisherId(orderId, publisherId);
 		if (order == null) {
 			throw new ServiceException(ExceptionConstant.USER_ORDER_DOESNOT_EXIST_EXCEPTION);
@@ -1641,6 +1643,13 @@ public class FuturesOrderService {
 		if (!isTradeTime) {
 			throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
 		}
+		// 获取运营后台设置的档位信息
+		FuturesStopLossOrProfit lossOrProfit = stopLossOrProfitDao.retrieve(stopLossOrProfitId);
+		if (lossOrProfit == null) {
+			throw new ServiceException(ExceptionConstant.SETTING_STOP_LOSS_EXCEPTION);
+		}
+		order.setPerUnitUnwindPoint(lossOrProfit.getStrongLevelingAmount());
+
 		// if (limitProfitType != null && perUnitLimitProfitAmount != null) {
 		order.setLimitProfitType(limitProfitType);
 		order.setPerUnitLimitProfitAmount(perUnitLimitProfitAmount);

@@ -458,11 +458,13 @@ public class FuturesOrderController {
 			@ApiImplicitParam(name = "limitProfitType", value = "止盈类型", dataType = "int", paramType = "query", required = false),
 			@ApiImplicitParam(name = "perUnitLimitProfitAmount", value = "止盈金额", dataType = "BigDecimal", paramType = "query", required = false),
 			@ApiImplicitParam(name = "limitLossType", value = "止损类型", dataType = "int", paramType = "query", required = false),
-			@ApiImplicitParam(name = "perUnitLimitLossAmount", value = "止损金额", dataType = "BigDecimal", paramType = "query", required = false) })
+			@ApiImplicitParam(name = "perUnitLimitLossAmount", value = "止损金额", dataType = "BigDecimal", paramType = "query", required = false),
+			@ApiImplicitParam(name = "stopLossOrProfitId", value = "档位ID", dataType = "Long", paramType = "query", required = true) })
 	public Response<Integer> editOrder(@PathVariable Long orderId, Integer limitProfitType,
-			BigDecimal perUnitLimitProfitAmount, Integer limitLossType, BigDecimal perUnitLimitLossAmount) {
+			BigDecimal perUnitLimitProfitAmount, Integer limitLossType, BigDecimal perUnitLimitLossAmount,
+			Long stopLossOrProfitId) {
 		return new Response<>(futuresOrderBusiness.settingStopLoss(orderId, limitProfitType, perUnitLimitProfitAmount,
-				limitLossType, perUnitLimitLossAmount, SecurityUtil.getUserId()));
+				limitLossType, perUnitLimitLossAmount, SecurityUtil.getUserId(), stopLossOrProfitId));
 	}
 
 	@GetMapping("/turnover/statisty/record")

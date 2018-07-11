@@ -96,13 +96,16 @@ public class FuturesOrderController implements FuturesOrderInterface {
 				CopyBeanUtils.copyBeanProperties(FuturesOrderDto.class, futuresOrderService.findById(id), false));
 	}
 
+	@Override
 	public Response<FuturesOrderDto> settingStopLoss(@PathVariable Long orderId, Integer limitProfitType,
 			BigDecimal perUnitLimitProfitAmount, Integer limitLossType, BigDecimal perUnitLimitLossAmount,
-			Long publisherId) {
-		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesOrderDto.class,
-				futuresOrderService.settingStopLoss(orderId, limitProfitType, perUnitLimitProfitAmount, limitLossType,
-						perUnitLimitLossAmount, publisherId),
-				false));
+			Long publisherId, Long stopLossOrProfitId) {
+		return new Response<>(
+				CopyBeanUtils
+						.copyBeanProperties(FuturesOrderDto.class,
+								futuresOrderService.settingStopLoss(orderId, limitProfitType, perUnitLimitProfitAmount,
+										limitLossType, perUnitLimitLossAmount, publisherId, stopLossOrProfitId),
+								false));
 	}
 
 	@Override
