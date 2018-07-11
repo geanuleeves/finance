@@ -1186,15 +1186,18 @@ public class FuturesOrderService {
 		order.setSellingEntrustPrice(entrustPrice);
 		order = orderDao.update(order);
 		// 委托卖出
-//		FuturesActionType action = order.getOrderType() == FuturesOrderType.BuyUp ? FuturesActionType.SELL
-//				: FuturesActionType.BUY;
-//		Integer orderType = priceType == FuturesTradePriceType.MKT ? 1 : 2;
-//		// 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
-//		BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
-//		if (("CN".equals(order.getCommoditySymbol()) || "HSI".equals(order.getCommoditySymbol())
-//				|| "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
-//			orderType = 2;
-//		}
+		// FuturesActionType action = order.getOrderType() ==
+		// FuturesOrderType.BuyUp ? FuturesActionType.SELL
+		// : FuturesActionType.BUY;
+		// Integer orderType = priceType == FuturesTradePriceType.MKT ? 1 : 2;
+		// //
+		// 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
+		// BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
+		// if (("CN".equals(order.getCommoditySymbol()) ||
+		// "HSI".equals(order.getCommoditySymbol())
+		// || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
+		// orderType = 2;
+		// }
 		// FuturesGatewayOrder gatewayOrder =
 		// TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain,
 		// order.getCommoditySymbol(), order.getContractNo(), order.getId(),
@@ -1470,7 +1473,6 @@ public class FuturesOrderService {
 		backhandOrder.setContractNo(contract.getContractNo());
 		backhandOrder.setOpenwindServiceFee(commodity.getOpenwindServiceFee());
 		backhandOrder.setUnwindServiceFee(commodity.getUnwindServiceFee());
-		backhandOrder.setPerUnitUnwindPoint(commodity.getPerUnitUnwindPoint());
 		backhandOrder.setUnwindPointType(commodity.getUnwindPointType());
 		backhandOrder.setOvernightPerUnitReserveFund(commodity.getOvernightPerUnitReserveFund());
 		backhandOrder.setOvernightPerUnitDeferredFee(commodity.getOvernightPerUnitDeferredFee());
