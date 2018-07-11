@@ -119,6 +119,9 @@ public class FuturesOrderController {
 		BigDecimal totalFee = new BigDecimal(0);
 
 		// 获取运营后台设置的止损止盈
+		if(buysellDto.getStopLossOrProfitId() == null) {
+			throw new ServiceException(ExceptionConstant.SETTING_STOP_LOSS_EXCEPTION);
+		}
 		FuturesStopLossOrProfitDto lossOrProfitDto = futuresOrderBusiness
 				.getLossOrProfitsById(buysellDto.getStopLossOrProfitId());
 		if (lossOrProfitDto == null) {
