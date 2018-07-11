@@ -1440,6 +1440,8 @@ public class FuturesOrderService {
 		if (lossOrProfit != null) {
 			FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
 			reserveFund = order.getTotalQuantity().multiply(lossOrProfit.getReserveFund().multiply(rate.getRate()));
+			backhandOrder.setPerUnitUnwindPoint(lossOrProfit.getStrongLevelingAmount());
+			backhandOrder.setUnwindPointType(2);
 		}
 		backhandOrder.setLimitLossType(order.getLimitLossType());
 		backhandOrder.setPerUnitLimitLossAmount(order.getPerUnitLimitLossAmount());

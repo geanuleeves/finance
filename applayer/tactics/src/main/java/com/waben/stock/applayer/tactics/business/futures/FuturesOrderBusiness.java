@@ -33,6 +33,7 @@ import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesContractQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
 import com.waben.stock.interfaces.service.futures.FuturesCommodityInterface;
 import com.waben.stock.interfaces.service.futures.FuturesContractInterface;
@@ -219,16 +220,18 @@ public class FuturesOrderBusiness {
 					if (orderMarket.getPublisherProfitOrLoss() == null && orderMarket.getBuyingPrice() != null) {
 						// 用户买涨盈亏 = （最新价 - 买入价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
 						if (orderMarket.getOrderType() == FuturesOrderType.BuyUp) {
-							orderMarket.setPublisherProfitOrLoss(
-									market.getLastPrice().subtract(orderMarket.getBuyingPrice())
-											.divide(contract.getMinWave()).multiply(contract.getPerWaveMoney())
-											.multiply(rate.getRate()).multiply(orderMarket.getTotalQuantity()));
+							orderMarket.setPublisherProfitOrLoss(market.getLastPrice()
+									.subtract(orderMarket.getBuyingPrice())
+									.divide(contract.getMinWave() == null ? BigDecimal.ZERO : contract.getMinWave())
+									.multiply(contract.getPerWaveMoney()).multiply(rate.getRate())
+									.multiply(orderMarket.getTotalQuantity()));
 						} else {
 							// 用户买跌盈亏 = （买入价 - 最新价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
-							orderMarket.setPublisherProfitOrLoss(
-									orderMarket.getBuyingPrice().subtract(market.getLastPrice())
-											.divide(contract.getMinWave()).multiply(contract.getPerWaveMoney())
-											.multiply(rate.getRate()).multiply(orderMarket.getTotalQuantity()));
+							orderMarket.setPublisherProfitOrLoss(orderMarket.getBuyingPrice()
+									.subtract(market.getLastPrice())
+									.divide(contract.getMinWave() == null ? BigDecimal.ZERO : contract.getMinWave())
+									.multiply(contract.getPerWaveMoney()).multiply(rate.getRate())
+									.multiply(orderMarket.getTotalQuantity()));
 						}
 					}
 				}
@@ -439,9 +442,12 @@ public class FuturesOrderBusiness {
 	}
 
 	public List<FuturesContractDto> getListContract() {
-		Response<List<FuturesContractDto>> response = futuresContractInterface.list();
+		FuturesContractQuery query = new FuturesContractQuery();
+		query.setPage(0);
+		query.setSize(Integer.MAX_VALUE);
+		Response<PageInfo<FuturesContractDto>> response = futuresContractInterface.pagesContract(query);
 		if ("200".equals(response.getCode())) {
-			return response.getResult();
+			return response.getResult().getContent();
 		}
 		throw new ServiceException(response.getCode());
 	}
