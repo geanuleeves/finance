@@ -192,17 +192,23 @@ public class FuturesContractController implements FuturesContractInterface {
 		int dayForweek = cal.get(Calendar.DAY_OF_WEEK);
 		if (dayForweek == 1) {
 			// str.substring(0, str.indexOf("#"));
-			nextTime = contract.getMonTradeTime().trim().split(",")[0];
+			nextTime = contract.getMonTradeTime().trim().split(",").length == 1
+					? contract.getMonTradeTime().trim().split(",")[0] : contract.getMonTradeTime().trim().split(",")[1];
 		} else if (dayForweek == 2) {
-			nextTime = contract.getTueTradeTime().trim().split(",")[0];
+			nextTime = contract.getTueTradeTime().trim().split(",").length == 1
+					? contract.getMonTradeTime().trim().split(",")[0] : contract.getMonTradeTime().trim().split(",")[1];
 		} else if (dayForweek == 3) {
-			nextTime = contract.getWedTradeTime().trim().split(",")[0];
+			nextTime = contract.getWedTradeTime().trim().split(",").length == 1
+					? contract.getMonTradeTime().trim().split(",")[0] : contract.getMonTradeTime().trim().split(",")[1];
 		} else if (dayForweek == 4) {
-			nextTime = contract.getThuTradeTime().trim().split(",")[0];
+			nextTime = contract.getThuTradeTime().trim().split(",").length == 1
+					? contract.getMonTradeTime().trim().split(",")[0] : contract.getMonTradeTime().trim().split(",")[1];
 		} else if (dayForweek == 5) {
-			nextTime = contract.getFriTradeTime().trim().split(",")[0];
+			nextTime = contract.getFriTradeTime().trim().split(",").length == 1
+					? contract.getMonTradeTime().trim().split(",")[0] : contract.getMonTradeTime().trim().split(",")[1];
 		} else if (dayForweek == 6) {
-			nextTime = contract.getSatTradeTime().trim().split(",")[0];
+			nextTime = contract.getSatTradeTime().trim().split(",").length == 1
+					? contract.getMonTradeTime().trim().split(",")[0] : contract.getMonTradeTime().trim().split(",")[1];
 			if (nextTime != null) {
 				String[] time = nextTime.split("-");
 				if ((time[0].trim()).equals(time[1].trim())) {
@@ -210,7 +216,8 @@ public class FuturesContractController implements FuturesContractInterface {
 				}
 			}
 		} else if (dayForweek == 7) {
-			nextTime = contract.getSunTradeTime().trim().split(",")[0];
+			nextTime = contract.getSunTradeTime().trim().split(",").length == 1
+					? contract.getMonTradeTime().trim().split(",")[0] : contract.getMonTradeTime().trim().split(",")[1];
 			if (nextTime != null) {
 				String[] time = nextTime.split("-");
 				if ((time[0]).equals(time[1])) {
@@ -234,33 +241,52 @@ public class FuturesContractController implements FuturesContractInterface {
 		}
 		if (dayForweek == 1) {
 			// str.substring(0, str.indexOf("#"));
-			nextTime = tomorrow + " " + contract.getMonTradeTime().trim().split(",")[0].split("-")[0];
+			String time = contract.getMonTradeTime().trim().split(",").length == 1
+					? contract.getMonTradeTime().trim().split(",")[0].split("-")[0]
+					: contract.getMonTradeTime().trim().split(",")[1].split("-")[0];
+			nextTime = tomorrow + " " + time;
 		} else if (dayForweek == 2) {
-			nextTime = tomorrow + " " + contract.getTueTradeTime().trim().split(",")[0].split("-")[0];
+			String time = contract.getTueTradeTime().trim().split(",").length == 1
+					? contract.getTueTradeTime().trim().split(",")[0].split("-")[0]
+					: contract.getTueTradeTime().trim().split(",")[1].split("-")[0];
+			nextTime = tomorrow + " " + time;
 		} else if (dayForweek == 3) {
-			nextTime = tomorrow + " " + contract.getWedTradeTime().trim().split(",")[0].split("-")[0];
+			String time = contract.getWedTradeTime().trim().split(",").length == 1
+					? contract.getWedTradeTime().trim().split(",")[0].split("-")[0]
+					: contract.getWedTradeTime().trim().split(",")[1].split("-")[0];
+			nextTime = tomorrow + " " + time;
 		} else if (dayForweek == 4) {
-			nextTime = tomorrow + " " + contract.getThuTradeTime().trim().split(",")[0].split("-")[0];
+			String time = contract.getThuTradeTime().trim().split(",").length == 1
+					? contract.getThuTradeTime().trim().split(",")[0].split("-")[0]
+					: contract.getThuTradeTime().trim().split(",")[1].split("-")[0];
+			nextTime = tomorrow + " " + time;
 		} else if (dayForweek == 5) {
-			nextTime = tomorrow + " " + contract.getFriTradeTime().trim().split(",")[0].split("-")[0];
+			String time = contract.getFriTradeTime().trim().split(",").length == 1
+					? contract.getFriTradeTime().trim().split(",")[0].split("-")[0]
+					: contract.getFriTradeTime().trim().split(",")[1].split("-")[0];
+			nextTime = tomorrow + " " + time;
 		} else if (dayForweek == 6) {
-			nextTime = contract.getSatTradeTime().trim().split(",")[0];
+			nextTime = contract.getSatTradeTime().trim().split(",").length == 1
+					? contract.getSatTradeTime().trim().split(",")[0].split("-")[0]
+					: contract.getSatTradeTime().trim().split(",")[1].split("-")[0];
 			if (nextTime != null) {
 				String[] time = nextTime.split("-");
 				if ((time[0]).equals(time[1])) {
 					return getNextTradingDayTime(nextTime(localTime), contract, false);
 				}
 			}
-			nextTime = tomorrow + " " + contract.getSatTradeTime().trim().split(",")[0].split("-")[0];
+			nextTime = tomorrow + " " + nextTime;
 		} else if (dayForweek == 7) {
-			nextTime = contract.getSunTradeTime().trim().split(",")[0];
+			nextTime = contract.getSunTradeTime().trim().split(",").length == 1
+					? contract.getSunTradeTime().trim().split(",")[0].split("-")[0]
+					: contract.getSunTradeTime().trim().split(",")[1].split("-")[0];
 			if (nextTime != null) {
 				String[] time = nextTime.split("-");
 				if ((time[0]).equals(time[1])) {
 					return getNextTradingDayTime(nextTime(localTime), contract, false);
 				}
 			}
-			nextTime = tomorrow + " " + contract.getSatTradeTime().trim().split(",")[0].split("-")[0];
+			nextTime = tomorrow + " " + nextTime;
 		}
 		return nextTime;
 	}
