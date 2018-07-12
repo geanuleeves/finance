@@ -6,7 +6,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -86,17 +88,30 @@ public class FuturesContractController implements FuturesContractInterface {
 			dto = CopyBeanUtils.copyBeanProperties(contract, dto);
 			content.add(dto);
 		}
+		// 封装交易所
+		Map<Long, FuturesExchange> exchangeMap = new HashMap<Long, FuturesExchange>();
+		List<FuturesExchange> exchangeList = exchangeService.list();
+		for (FuturesExchange exchange : exchangeList) {
+			exchangeMap.put(exchange.getId(), exchange);
+		}
+		// 封装汇率
+		Map<String, FuturesCurrencyRate> rateMap = new HashMap<String, FuturesCurrencyRate>();
+		List<FuturesCurrencyRate> rateList = futuresCurrencyRateService.list().getContent();
+		for (FuturesCurrencyRate rate : rateList) {
+			rateMap.put(rate.getCurrency(), rate);
+		}
+
 		// 设置部分额外的属性
 		for (FuturesContractDto contractDto : content) {
 			contractDto.setState(1);
-			FuturesExchange exchange = exchangeService.findById(contractDto.getExchangeId());
+			FuturesExchange exchange = exchangeMap.get(contractDto.getExchangeId());
 			if (exchange == null) {
 				contractDto.setState(3);
 				contractDto.setCurrentTradeTimeDesc("交易所为空异常");
 				// break;
 			}
 			// 获取汇率信息
-			FuturesCurrencyRate rate = futuresCurrencyRateService.findByCurrency(contractDto.getCurrency());
+			FuturesCurrencyRate rate = rateMap.get(contractDto.getCurrency());
 			contractDto.setExchangeEnable(exchange.getEnable());
 			contractDto.setTimeZoneGap(exchange.getTimeZoneGap());
 			contractDto.setRate(rate == null ? new BigDecimal(0) : rate.getRate());
