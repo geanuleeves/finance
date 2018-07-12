@@ -221,12 +221,17 @@ public class FuturesContractController implements FuturesContractInterface {
 		return nextTime;
 	}
 
-	private String getNextTradingDayTime(Date localTime, FuturesContractDto contract) {
+	private String getNextTradingDayTime(Date localTime, FuturesContractDto contract, boolean isFirst) {
 		String nextTime = null;
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(localTime);
 		int dayForweek = cal.get(Calendar.DAY_OF_WEEK);
-		String tomorrow = daySdf.format(cal.getTime());
+		String tomorrow = "";
+		if (isFirst) {
+			tomorrow = daySdf.format(nextTime(localTime));
+		} else {
+			tomorrow = daySdf.format(cal.getTime());
+		}
 		if (dayForweek == 1) {
 			// str.substring(0, str.indexOf("#"));
 			nextTime = tomorrow + " " + contract.getMonTradeTime().trim().split(",")[0].split("-")[0];
@@ -243,7 +248,7 @@ public class FuturesContractController implements FuturesContractInterface {
 			if (nextTime != null) {
 				String[] time = nextTime.split("-");
 				if ((time[0]).equals(time[1])) {
-					return getNextTradingDayTime(nextTime(localTime), contract);
+					return getNextTradingDayTime(nextTime(localTime), contract, false);
 				}
 			}
 			nextTime = tomorrow + " " + contract.getSatTradeTime().trim().split(",")[0].split("-")[0];
@@ -252,7 +257,7 @@ public class FuturesContractController implements FuturesContractInterface {
 			if (nextTime != null) {
 				String[] time = nextTime.split("-");
 				if ((time[0]).equals(time[1])) {
-					return getNextTradingDayTime(nextTime(localTime), contract);
+					return getNextTradingDayTime(nextTime(localTime), contract, false);
 				}
 			}
 			nextTime = tomorrow + " " + contract.getSatTradeTime().trim().split(",")[0].split("-")[0];
@@ -531,44 +536,64 @@ public class FuturesContractController implements FuturesContractInterface {
 	 */
 	public FuturesContractDto checkedTradingTime(FuturesContractDto contractDto, Integer timeZoneGap, Date exchangeTime,
 			String tradeTime, boolean isTradeTime) {
+		boolean isInto = false;
 		// 当天最后一个时间节点 tradeTime.substring(tradeTime.lastIndexOf("-") +
 		// 1))
 		contractDto.setAutomaticWarehouseTime(timeZoneConversion(timeZoneGap, contractDto.getOvernightTime()));
 		String[] tradeTimeArr = tradeTime.split(",");
 		String dayStr = daySdf.format(exchangeTime);
 		String fullStr = fullSdf.format(exchangeTime);
+		int i = 0;
 		for (String tradeTimeDuration : tradeTimeArr) {
+			i++;
 			String[] tradeTimePointArr = tradeTimeDuration.trim().split("-");
 			if (fullStr.compareTo(dayStr + " " + tradeTimePointArr[0].trim()) >= 0
 					&& fullStr.compareTo(dayStr + " " + tradeTimePointArr[1].trim()) < 0) {
-				contractDto.setCurrentHoldingTime(dayStr + " " + tradeTimePointArr[1].trim());
-				contractDto.setCurrentTradeTimeDesc(
-						currentTradeTimeDesc(timeZoneGap, tradeTimePointArr[0].trim(), tradeTimePointArr[1].trim()));
+				if (timeZoneGap == 12 || (timeZoneGap == 13 && tradeTimeArr.length == 2)) {
+					contractDto.setCurrentHoldingTime(dayStr + " " + tradeTime.split(",")[0].split("-")[1].trim());
+					contractDto.setCurrentTradeTimeDesc(
+							timeZoneConversion(timeZoneGap, tradeTime.split(",")[1].split("-")[0].trim()) + "-"
+									+ timeZoneConversion(timeZoneGap, tradeTime.split(",")[0].split("-")[1].trim())
+									+ "（次日）");
+				} else if ((i == 1 || i == 3) && timeZoneGap == 13 && tradeTimeArr.length == 3) {
+					contractDto.setCurrentHoldingTime(dayStr + " " + tradeTime.split(",")[0].split("-")[1].trim());
+					contractDto.setCurrentTradeTimeDesc(
+							timeZoneConversion(timeZoneGap, tradeTime.split(",")[2].split("-")[0].trim()) + "-"
+									+ timeZoneConversion(timeZoneGap, tradeTime.split(",")[0].split("-")[1].trim())
+									+ "（次日）");
+				} else {
+					contractDto.setCurrentHoldingTime(dayStr + " " + tradeTimePointArr[1].trim());
+					contractDto.setCurrentTradeTimeDesc(currentTradeTimeDesc(timeZoneGap, tradeTimePointArr[0].trim(),
+							tradeTimePointArr[1].trim()));
+				}
 				contractDto.setNextTradingTime("");
 				isTradeTime = true;
 				break;
 			} else {
 				if (fullStr.compareTo(dayStr + " " + tradeTimePointArr[0].trim()) < 0) {
 					contractDto.setNextTradingTime(dayStr + " " + tradeTimePointArr[0].trim());
-					contractDto.setCurrentTradeTimeDesc(currentTradeTimeDesc(timeZoneGap, tradeTimePointArr[0].trim(),
-							tradeTimePointArr[1].trim()));
+					if (timeZoneGap == 12 || (timeZoneGap == 13 && tradeTimeArr.length == 2)) {
+						contractDto.setCurrentTradeTimeDesc(
+								timeZoneConversion(timeZoneGap, tradeTime.split(",")[1].split("-")[0].trim()) + "-"
+										+ timeZoneConversion(timeZoneGap, tradeTime.split(",")[0].split("-")[1].trim())
+										+ "（次日）");
+					} else if (i == 3 && timeZoneGap == 13 && tradeTimeArr.length == 3) {
+						contractDto.setCurrentTradeTimeDesc(
+								timeZoneConversion(timeZoneGap, tradeTime.split(",")[2].split("-")[0].trim()) + "-"
+										+ timeZoneConversion(timeZoneGap, tradeTime.split(",")[0].split("-")[1].trim())
+										+ "（次日）");
+					} else {
+						contractDto.setCurrentTradeTimeDesc(currentTradeTimeDesc(timeZoneGap,
+								tradeTimePointArr[0].trim(), tradeTimePointArr[1].trim()));
+					}
+					isInto = true;
 					break;
-				} else {
-					// String tomorrow = daySdf.format(nextTime);
-					String tomorrowHour = getNextTradingHourTime(exchangeTime, contractDto) == null ? ""
-							: getNextTradingHourTime(exchangeTime, contractDto);
-					// 获取转换后的明天时间交易开始时间
-					// String tomorrowTime = tomorrow + " " +
-					// tomorrowHour.split("-")[0];
-					contractDto.setNextTradingTime(getNextTradingDayTime(exchangeTime, contractDto) == null ? ""
-							: getNextTradingDayTime(exchangeTime, contractDto));
-					contractDto.setCurrentTradeTimeDesc(currentTradeTimeDesc(timeZoneGap,
-							tomorrowHour.split("-")[0].trim(), tomorrowHour.split("-")[1].trim()));
 				}
 			}
 		}
 		if (isTradeTime) {
 			contractDto.setState(1);
+
 			List<FuturesTradeLimit> limitList = futuresTradeLimitService.findByContractId(contractDto.getId());
 			if (limitList != null && limitList.size() > 0) {
 				// 判断该交易在开仓时是否在后台设置的期货交易限制内
@@ -637,6 +662,18 @@ public class FuturesContractController implements FuturesContractInterface {
 			}
 		} else {
 			contractDto.setState(2);
+			if (!isInto) {
+				// String tomorrow = daySdf.format(nextTime);
+				String tomorrowHour = getNextTradingHourTime(exchangeTime, contractDto) == null ? ""
+						: getNextTradingHourTime(exchangeTime, contractDto);
+				// 获取转换后的明天时间交易开始时间
+				// String tomorrowTime = tomorrow + " " +
+				// tomorrowHour.split("-")[0];
+				contractDto.setNextTradingTime(getNextTradingDayTime(exchangeTime, contractDto, true) == null ? ""
+						: getNextTradingDayTime(exchangeTime, contractDto, true));
+				contractDto.setCurrentTradeTimeDesc(currentTradeTimeDesc(timeZoneGap, tomorrowHour.split("-")[0].trim(),
+						tomorrowHour.split("-")[1].trim()));
+			}
 		}
 		return contractDto;
 	}
