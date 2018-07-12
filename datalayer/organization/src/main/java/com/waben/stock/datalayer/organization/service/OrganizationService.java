@@ -1142,6 +1142,11 @@ public class OrganizationService {
 		if (!StringUtil.isEmpty(query.getOrderType())) {
 			orderTypeCondition = " and t1.order_type = " + query.getOrderType() + "";
 		}
+		
+		String buyingPriceTypeCodition = "";
+		if(!StringUtil.isEmpty(query.getPriceType())){
+			buyingPriceTypeCodition = " and t1.buying_price_type = "+ query.getPriceType() +"";
+		}
 
 		String windControlTypeCondition = "";
 		if (!StringUtil.isEmpty(query.getWindControlType())) {
@@ -1151,9 +1156,9 @@ public class OrganizationService {
 				" SELECT SUM(t1.total_quantity) AS quantity, SUM(t1.reserve_fund) AS reserve_fund, SUM( (t1.openwind_service_fee + t1.unwind_service_fee ) * t1.total_quantity ) AS zhf, "
 						+ " SUM( t4.overnight_deferred_fee )AS deferred_record "
 						+ " FROM f_futures_order t1 LEFT JOIN f_futures_contract t2 ON t2.id = t1.contract_id LEFT JOIN f_futures_commodity t3 ON t3.id = t2.commodity_id LEFT JOIN f_futures_overnight_record t4 ON t4.order_id = t1.id"
-						+ " where 1=1 %s %s %s %s %s %s",
+						+ " where 1=1 %s %s %s %s %s %s %s",
 				orderStateCondition, publisherId, commodityNameCondition, commoditySymbolCondition, orderTypeCondition,
-				windControlTypeCondition);
+				windControlTypeCondition, buyingPriceTypeCodition);
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setQuantity", new Class<?>[] { BigDecimal.class }));
 		setMethodMap.put(new Integer(1), new MethodDesc("setFund", new Class<?>[] { BigDecimal.class }));
