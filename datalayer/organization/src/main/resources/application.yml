@@ -1,5 +1,7 @@
 server:
   port: 8010
+  tomcat:
+    max-threads: 200
 management:
   port: 3010
   context-path: /turbine
@@ -21,6 +23,9 @@ spring:
             autocommit: true
   thymeleaf:
     prefix: classpath:/templates/
+feign:
+  hystrix:
+    enabled: false
 hystrix:
   command:
     default:
@@ -37,3 +42,4 @@ ribbon:
   OkToRetryOnAllOperations: false
   ReadTimeout: 30000
   ConnectTimeout: 30000
+  MaxAutoRetries: 0

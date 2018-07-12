@@ -1,5 +1,7 @@
 server:
   port: 8001
+  tomcat:
+    max-threads: 200
 management:
   port: 3001
   context-path: /turbine
@@ -19,6 +21,9 @@ spring:
           dialect: org.hibernate.dialect.MySQL5Dialect
           connection:
             autocommit: true
+feign:
+  hystrix:
+    enabled: false
 hystrix:
   command:
     default:
@@ -35,3 +40,4 @@ ribbon:
   OkToRetryOnAllOperations: false
   ReadTimeout: 30000
   ConnectTimeout: 30000
+  MaxAutoRetries: 0

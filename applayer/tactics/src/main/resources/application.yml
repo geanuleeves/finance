@@ -1,6 +1,8 @@
 server:
   port: 8083
   maxHttpPostSize: 10485760
+  tomcat:
+    max-threads: 500
 management:
   port: 3033
   context-path: /turbine
@@ -13,11 +15,17 @@ spring:
       max-request-size: 100MB
   thymeleaf:
     prefix: classpath:/templates/
+feign:
+  hystrix:
+    enabled: false
 hystrix:
   command:
     default:
      execution:
         isolation:
+          strategy: THREAD
+          semaphore:
+            maxConcurrentRequests: 1000
           thread:
             timeoutInMilliseconds: 30000
   threadpool:
@@ -29,3 +37,4 @@ ribbon:
   OkToRetryOnAllOperations: false
   ReadTimeout: 30000
   ConnectTimeout: 30000
+  MaxAutoRetries: 0

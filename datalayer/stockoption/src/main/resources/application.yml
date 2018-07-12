@@ -1,5 +1,7 @@
 server:
   port: 8009
+  tomcat:
+    max-threads: 500
 management:
   port: 3009
   context-path: /trubine
@@ -19,11 +21,17 @@ spring:
           dialect: org.hibernate.dialect.MySQL5Dialect
           connection:
             autocommit: true
+feign:
+  hystrix:
+    enabled: false
 hystrix:
   command:
     default:
      execution:
         isolation:
+          strategy: THREAD
+          semaphore:
+            maxConcurrentRequests: 1000
           thread:
             timeoutInMilliseconds: 10000
   threadpool:
@@ -35,4 +43,5 @@ ribbon:
   OkToRetryOnAllOperations: false
   ReadTimeout: 30000
   ConnectTimeout: 30000
+  MaxAutoRetries: 0
 needquotetask: true

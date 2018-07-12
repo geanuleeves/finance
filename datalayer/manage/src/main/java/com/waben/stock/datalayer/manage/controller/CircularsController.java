@@ -51,8 +51,11 @@ public class CircularsController implements CircularsInterface {
         Page<Circulars> page = circularsService.pagesByQuery(query);
         PageInfo<CircularsDto> result = PageToPageInfo.pageToPageInfo(page, CircularsDto.class);
         for(int i=0; i<page.getContent().size();i++) {
-            String userName = page.getContent().get(i).getStaff().getUserName();
-            result.getContent().get(i).setAuthor(userName);
+        	Circulars cir = page.getContent().get(i);
+        	if(cir.getStaff() != null) {
+        		String userName = page.getContent().get(i).getStaff().getUserName();
+                result.getContent().get(i).setAuthor(userName);
+        	}
         }
         return new Response<>(result);
     }

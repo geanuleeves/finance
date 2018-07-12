@@ -572,7 +572,7 @@ public class CapitalAccountService {
 		return findByPublisherId(publisherId);
 	}
 
-	public CapitalAccount optionProfit(Long publisherId, Long optionTradeId, BigDecimal profit) {
+	public synchronized CapitalAccount optionProfit(Long publisherId, Long optionTradeId, BigDecimal profit) {
 		CapitalAccount account = capitalAccountDao.retriveByPublisherId(publisherId);
 		Date date = new Date();
 		increaseAmount(account, profit, date);

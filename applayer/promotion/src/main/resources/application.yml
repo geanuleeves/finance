@@ -14,13 +14,16 @@ spring:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
+feign:
+  hystrix:
+    enabled: false
 hystrix:
   command:
     default:
      execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 10000
+            timeoutInMilliseconds: 30000
   threadpool:
     default:
       coreSize: 500
@@ -30,3 +33,4 @@ ribbon:
   OkToRetryOnAllOperations: false
   ReadTimeout: 30000
   ConnectTimeout: 30000
+  MaxAutoRetries: 0

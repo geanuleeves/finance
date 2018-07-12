@@ -834,7 +834,7 @@ public class StockOptionTradeService {
 	}
 
 	@Transactional
-	public StockOptionTrade dosettlement(Long id) {
+	public synchronized StockOptionTrade dosettlement(Long id) {
 		StockOptionTrade trade = stockOptionTradeDao.retrieve(id);
 		if (StockOptionTradeState.INSETTLEMENT != trade.getState()) {
 			throw new ServiceException(ExceptionConstant.STOCKOPTION_STATE_NOTMATCH_OPERATION_NOTSUPPORT_EXCEPTION);

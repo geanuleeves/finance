@@ -132,22 +132,25 @@ public class OrganizationAccountService {
 				account = initAccount(org, null);
 			}
 			increaseAmount(account, amount, date);
+			
+			// 产生流水
+			OrganizationAccountFlow flow = new OrganizationAccountFlow();
+			flow.setAmount(amount);
+			flow.setOriginAmount(originAmount);
+			flow.setFlowNo(UniqueCodeGenerator.generateFlowNo());
+			flow.setOccurrenceTime(date);
+			flow.setOrg(org);
+			flow.setResourceType(resourceType);
+			flow.setResourceId(resourceId);
+			flow.setType(flowType);
+			flow.setResourceTradeNo(resourceTradeNo);
+			flow.setRemark(flowType.getType());
+			flow.setAvailableBalance(account.getAvailableBalance());
+			flowDao.create(flow);
+			return account;
+		} else {
+			return null;
 		}
-		// 产生流水
-		OrganizationAccountFlow flow = new OrganizationAccountFlow();
-		flow.setAmount(amount);
-		flow.setOriginAmount(originAmount);
-		flow.setFlowNo(UniqueCodeGenerator.generateFlowNo());
-		flow.setOccurrenceTime(date);
-		flow.setOrg(org);
-		flow.setResourceType(resourceType);
-		flow.setResourceId(resourceId);
-		flow.setType(flowType);
-		flow.setResourceTradeNo(resourceTradeNo);
-		flow.setRemark(flowType.getType());
-		flow.setAvailableBalance(account.getAvailableBalance());
-		flowDao.create(flow);
-		return account;
 	}
 
 	private OrganizationAccount initAccount(Organization org, String paymentPassword) {
