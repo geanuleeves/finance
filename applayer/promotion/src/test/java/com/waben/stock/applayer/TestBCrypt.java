@@ -14,7 +14,7 @@ public class TestBCrypt {
 	public void test() {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		System.out.println(encoder.encode("wangbei"));
-		System.out.println(encoder.matches("aaa123", "$2a$10$CCBeqGvfjmlOgX5UFVzrw.qhn6QwPqv7sT.ZT.DghrwFxMMtocD1a"));
+		System.out.println(encoder.matches("aaa123", "$2a$10$47CYkYt2JsD9z6W7saiXV.luXVKzwZxIMeT6QEE4P9INur2Km3sQS"));
 	}
 	
 }

@@ -491,22 +491,28 @@ public class FuturesOrderService {
 			}
 		}
 		// step 6 : 调用期货网关委托下单
-		FuturesActionType action = order.getOrderType() == FuturesOrderType.BuyUp ? FuturesActionType.BUY
-				: FuturesActionType.SELL;
-		Integer orderType = order.getBuyingPriceType() == FuturesTradePriceType.MKT ? 1 : 2;
+		// FuturesActionType action = order.getOrderType() ==
+		// FuturesOrderType.BuyUp ? FuturesActionType.BUY
+		// : FuturesActionType.SELL;
+		// Integer orderType = order.getBuyingPriceType() ==
+		// FuturesTradePriceType.MKT ? 1 : 2;
+		// //
 		// 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
-		BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
-		if (("CN".equals(order.getCommoditySymbol()) || "HSI".equals(order.getCommoditySymbol())
-				|| "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
-			orderType = 2;
-			if (action == FuturesActionType.BUY) {
-				gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
-						.add(new BigDecimal("3").multiply(contract.getCommodity().getMinWave()));
-			} else {
-				gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
-						.subtract(new BigDecimal("3").multiply(contract.getCommodity().getMinWave()));
-			}
-		}
+		// BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
+		// if (("CN".equals(order.getCommoditySymbol()) ||
+		// "HSI".equals(order.getCommoditySymbol())
+		// || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
+		// orderType = 2;
+		// if (action == FuturesActionType.BUY) {
+		// gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
+		// .add(new
+		// BigDecimal("3").multiply(contract.getCommodity().getMinWave()));
+		// } else {
+		// gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
+		// .subtract(new
+		// BigDecimal("3").multiply(contract.getCommodity().getMinWave()));
+		// }
+		// }
 		// 修改成模拟下单，以下代码注释
 		// FuturesGatewayOrder gatewayOrder =
 		// TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain,
@@ -1178,16 +1184,20 @@ public class FuturesOrderService {
 			}
 		}
 		order.setSellingEntrustPrice(entrustPrice);
+		order = orderDao.update(order);
 		// 委托卖出
-		FuturesActionType action = order.getOrderType() == FuturesOrderType.BuyUp ? FuturesActionType.SELL
-				: FuturesActionType.BUY;
-		Integer orderType = priceType == FuturesTradePriceType.MKT ? 1 : 2;
+		// FuturesActionType action = order.getOrderType() ==
+		// FuturesOrderType.BuyUp ? FuturesActionType.SELL
+		// : FuturesActionType.BUY;
+		// Integer orderType = priceType == FuturesTradePriceType.MKT ? 1 : 2;
+		// //
 		// 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
-		BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
-		if (("CN".equals(order.getCommoditySymbol()) || "HSI".equals(order.getCommoditySymbol())
-				|| "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
-			orderType = 2;
-		}
+		// BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
+		// if (("CN".equals(order.getCommoditySymbol()) ||
+		// "HSI".equals(order.getCommoditySymbol())
+		// || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
+		// orderType = 2;
+		// }
 		// FuturesGatewayOrder gatewayOrder =
 		// TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain,
 		// order.getCommoditySymbol(), order.getContractNo(), order.getId(),
@@ -1197,7 +1207,6 @@ public class FuturesOrderService {
 		// TODO 委托下单异常情况处理，此处默认为所有的委托都能成功
 		// 消息推送
 		sendOutsideMessage(order);
-		order = orderDao.update(order);
 		// 放入委托查询队列（平仓）
 		if (windControlType == FuturesWindControlType.BackhandUnwind) {
 			entrueQuery.entrustQuery(order.getId(), 3);
@@ -1425,6 +1434,7 @@ public class FuturesOrderService {
 		}
 		// 反手下单
 		FuturesOrder backhandOrder = new FuturesOrder();
+		backhandOrder.setBackhandSourceOrderId(orderId);
 		FuturesContract contract = order.getContract();
 		FuturesCommodity commodity = contract.getCommodity();
 		Long commodityId = commodity.getId();
@@ -1442,11 +1452,15 @@ public class FuturesOrderService {
 			reserveFund = order.getTotalQuantity().multiply(lossOrProfit.getReserveFund().multiply(rate.getRate()));
 			backhandOrder.setPerUnitUnwindPoint(lossOrProfit.getStrongLevelingAmount());
 			backhandOrder.setUnwindPointType(2);
+		} else {
+			backhandOrder.setPerUnitUnwindPoint(order.getPerUnitUnwindPoint());
+			backhandOrder.setUnwindPointType(2);
 		}
 		backhandOrder.setLimitLossType(order.getLimitLossType());
 		backhandOrder.setPerUnitLimitLossAmount(order.getPerUnitLimitLossAmount());
 		backhandOrder.setLimitProfitType(order.getLimitProfitType());
 		backhandOrder.setPerUnitLimitProfitAmount(order.getPerUnitLimitProfitAmount());
+		backhandOrder.setStopLossOrProfitId(order.getStopLossOrProfitId());
 		// 初始化部分订单信息
 		backhandOrder.setPublisherId(order.getPublisherId());
 		backhandOrder.setOrderType(
@@ -1460,7 +1474,6 @@ public class FuturesOrderService {
 		backhandOrder.setContractNo(contract.getContractNo());
 		backhandOrder.setOpenwindServiceFee(commodity.getOpenwindServiceFee());
 		backhandOrder.setUnwindServiceFee(commodity.getUnwindServiceFee());
-		backhandOrder.setPerUnitUnwindPoint(commodity.getPerUnitUnwindPoint());
 		backhandOrder.setUnwindPointType(commodity.getUnwindPointType());
 		backhandOrder.setOvernightPerUnitReserveFund(commodity.getOvernightPerUnitReserveFund());
 		backhandOrder.setOvernightPerUnitDeferredFee(commodity.getOvernightPerUnitDeferredFee());
@@ -1659,6 +1672,7 @@ public class FuturesOrderService {
 		// if (limitLossType != null && perUnitLimitLossAmount != null) {
 		order.setLimitLossType(limitLossType);
 		order.setPerUnitLimitLossAmount(perUnitLimitLossAmount);
+		order.setStopLossOrProfitId(stopLossOrProfitId);
 		// }
 		orderDao.update(order);
 		return order;
