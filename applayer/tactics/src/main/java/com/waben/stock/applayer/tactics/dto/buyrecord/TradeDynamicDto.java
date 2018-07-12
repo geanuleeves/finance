@@ -77,15 +77,18 @@ public class TradeDynamicDto {
 	}
 
 	public BigDecimal getProfit() {
+		if(tradeType != null && tradeType == 1) {
+			return null;
+		}
 		return profit;
 	}
-
+	
 	public void setProfit(BigDecimal profit) {
 		this.profit = profit;
 	}
 
 	public Integer getNumberOfStrand() {
-		return numberOfStrand;
+		return numberOfStrand * 100;
 	}
 
 	public void setNumberOfStrand(Integer numberOfStrand) {
