@@ -14,15 +14,17 @@ spring:
   thymeleaf:
     prefix: classpath:/templates/
 hystrix:
-  threadpool:
-    default:
-      coreSize: 60
   command:
     default:
      execution:
         isolation:
           thread:
             timeoutInMilliseconds: 30000
+  threadpool:
+    default:
+      coreSize: 500
+      maxQueueSize: 500
+      queueSizeRejectionThreshold: 300
 ribbon:
   OkToRetryOnAllOperations: false
   ReadTimeout: 30000
