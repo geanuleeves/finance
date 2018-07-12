@@ -275,6 +275,11 @@ public class FuturesOrder {
 	 */
 	private Long stopLossOrProfitId;
 
+	/**
+	 * 第一次默认止损金额
+	 */
+	private BigDecimal defaultStopLossFee;
+
 	/***************** 分割线，以下字段为非数据库字段 ********************/
 	/**
 	 * 品种ID
@@ -751,6 +756,14 @@ public class FuturesOrder {
 
 	public void setStopLossOrProfitId(Long stopLossOrProfitId) {
 		this.stopLossOrProfitId = stopLossOrProfitId;
+	}
+
+	public BigDecimal getDefaultStopLossFee() {
+		return defaultStopLossFee;
+	}
+
+	public void setDefaultStopLossFee(BigDecimal defaultStopLossFee) {
+		this.defaultStopLossFee = defaultStopLossFee;
 	}
 
 }

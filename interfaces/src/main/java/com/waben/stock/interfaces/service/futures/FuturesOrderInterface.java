@@ -147,7 +147,7 @@ public interface FuturesOrderInterface {
 			@RequestParam("perUnitLimitProfitAmount") BigDecimal perUnitLimitProfitAmount,
 			@RequestParam("limitLossType") Integer limitLossType,
 			@RequestParam("perUnitLimitLossAmount") BigDecimal perUnitLimitLossAmount,
-			@RequestParam("publisherId") Long publisherId);
+			@RequestParam("publisherId") Long publisherId, @RequestParam("stopLossOrProfitId") Long stopLossOrProfitId);
 
 	/**
 	 * 获取成交统计记录

@@ -209,19 +209,21 @@ public class FuturesOrderService {
 					predicateList.add(
 							criteriaBuilder.equal(root.get("buyingPriceType").as(FuturesTradePriceType.class), type));
 				}
-				
-				if(query.getStartTime()!=null && query.getEndTime()!=null){
-					if(query.getQueryType()!=null){
-						if(query.getQueryType()==1||query.getQueryType()==0){
-							predicateList.add(criteriaBuilder.between(root.get("buyingTime").as(Date.class), query.getStartTime(), query.getEndTime()));
-						}else if(query.getQueryType()==2){
-							predicateList.add(criteriaBuilder.between(root.get("sellingTime").as(Date.class), query.getStartTime(), query.getEndTime()));
-						}else if(query.getQueryType()==3 || query.getQueryType()==4){
-							predicateList.add(criteriaBuilder.between(root.get("postTime").as(Date.class), query.getStartTime(), query.getEndTime()));
+
+				if (query.getStartTime() != null && query.getEndTime() != null) {
+					if (query.getQueryType() != null) {
+						if (query.getQueryType() == 1 || query.getQueryType() == 0) {
+							predicateList.add(criteriaBuilder.between(root.get("buyingTime").as(Date.class),
+									query.getStartTime(), query.getEndTime()));
+						} else if (query.getQueryType() == 2) {
+							predicateList.add(criteriaBuilder.between(root.get("sellingTime").as(Date.class),
+									query.getStartTime(), query.getEndTime()));
+						} else if (query.getQueryType() == 3 || query.getQueryType() == 4) {
+							predicateList.add(criteriaBuilder.between(root.get("postTime").as(Date.class),
+									query.getStartTime(), query.getEndTime()));
 						}
 					}
 				}
-				
 
 				if (query.getOrderState() != null) {
 					FuturesOrderStateConverter convert = new FuturesOrderStateConverter();
@@ -489,22 +491,28 @@ public class FuturesOrderService {
 			}
 		}
 		// step 6 : 调用期货网关委托下单
-		FuturesActionType action = order.getOrderType() == FuturesOrderType.BuyUp ? FuturesActionType.BUY
-				: FuturesActionType.SELL;
-		Integer orderType = order.getBuyingPriceType() == FuturesTradePriceType.MKT ? 1 : 2;
+		// FuturesActionType action = order.getOrderType() ==
+		// FuturesOrderType.BuyUp ? FuturesActionType.BUY
+		// : FuturesActionType.SELL;
+		// Integer orderType = order.getBuyingPriceType() ==
+		// FuturesTradePriceType.MKT ? 1 : 2;
+		// //
 		// 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
-		BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
-		if (("CN".equals(order.getCommoditySymbol()) || "HSI".equals(order.getCommoditySymbol())
-				|| "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
-			orderType = 2;
-			if (action == FuturesActionType.BUY) {
-				gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
-						.add(new BigDecimal("3").multiply(contract.getCommodity().getMinWave()));
-			} else {
-				gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
-						.subtract(new BigDecimal("3").multiply(contract.getCommodity().getMinWave()));
-			}
-		}
+		// BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
+		// if (("CN".equals(order.getCommoditySymbol()) ||
+		// "HSI".equals(order.getCommoditySymbol())
+		// || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
+		// orderType = 2;
+		// if (action == FuturesActionType.BUY) {
+		// gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
+		// .add(new
+		// BigDecimal("3").multiply(contract.getCommodity().getMinWave()));
+		// } else {
+		// gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
+		// .subtract(new
+		// BigDecimal("3").multiply(contract.getCommodity().getMinWave()));
+		// }
+		// }
 		// 修改成模拟下单，以下代码注释
 		// FuturesGatewayOrder gatewayOrder =
 		// TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain,
@@ -997,7 +1005,7 @@ public class FuturesOrderService {
 			publisherProfitOrLoss = profitOrLoss;
 		} else if (profitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
 			publisherProfitOrLoss = account.getRealProfitOrLoss();
-			if(publisherProfitOrLoss == null) {
+			if (publisherProfitOrLoss == null) {
 				publisherProfitOrLoss = profitOrLoss;
 			}
 			if (profitOrLoss.abs().compareTo(publisherProfitOrLoss.abs()) > 0) {
@@ -1125,7 +1133,7 @@ public class FuturesOrderService {
 	 */
 	public BigDecimal computeProfitOrLoss(FuturesOrderType orderType, BigDecimal totalQuantity, BigDecimal buyingPrice,
 			BigDecimal sellingPrice, BigDecimal minWave, BigDecimal perWaveMoney) {
-		BigDecimal waveMoney = sellingPrice.subtract(buyingPrice).divide(minWave).setScale(4, RoundingMode.DOWN)
+		BigDecimal waveMoney = sellingPrice.subtract(buyingPrice).divide(minWave, 4, RoundingMode.DOWN)
 				.multiply(perWaveMoney).multiply(totalQuantity);
 		if (orderType == FuturesOrderType.BuyUp) {
 			return waveMoney;
@@ -1176,16 +1184,20 @@ public class FuturesOrderService {
 			}
 		}
 		order.setSellingEntrustPrice(entrustPrice);
+		order = orderDao.update(order);
 		// 委托卖出
-		FuturesActionType action = order.getOrderType() == FuturesOrderType.BuyUp ? FuturesActionType.SELL
-				: FuturesActionType.BUY;
-		Integer orderType = priceType == FuturesTradePriceType.MKT ? 1 : 2;
+		// FuturesActionType action = order.getOrderType() ==
+		// FuturesOrderType.BuyUp ? FuturesActionType.SELL
+		// : FuturesActionType.BUY;
+		// Integer orderType = priceType == FuturesTradePriceType.MKT ? 1 : 2;
+		// //
 		// 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
-		BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
-		if (("CN".equals(order.getCommoditySymbol()) || "HSI".equals(order.getCommoditySymbol())
-				|| "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
-			orderType = 2;
-		}
+		// BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
+		// if (("CN".equals(order.getCommoditySymbol()) ||
+		// "HSI".equals(order.getCommoditySymbol())
+		// || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
+		// orderType = 2;
+		// }
 		// FuturesGatewayOrder gatewayOrder =
 		// TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain,
 		// order.getCommoditySymbol(), order.getContractNo(), order.getId(),
@@ -1195,7 +1207,6 @@ public class FuturesOrderService {
 		// TODO 委托下单异常情况处理，此处默认为所有的委托都能成功
 		// 消息推送
 		sendOutsideMessage(order);
-		order = orderDao.update(order);
 		// 放入委托查询队列（平仓）
 		if (windControlType == FuturesWindControlType.BackhandUnwind) {
 			entrueQuery.entrustQuery(order.getId(), 3);
@@ -1423,6 +1434,7 @@ public class FuturesOrderService {
 		}
 		// 反手下单
 		FuturesOrder backhandOrder = new FuturesOrder();
+		backhandOrder.setBackhandSourceOrderId(orderId);
 		FuturesContract contract = order.getContract();
 		FuturesCommodity commodity = contract.getCommodity();
 		Long commodityId = commodity.getId();
@@ -1432,16 +1444,23 @@ public class FuturesOrderService {
 		BigDecimal serviceFee = order.getTotalQuantity().multiply(
 				contract.getCommodity().getOpenwindServiceFee().add(contract.getCommodity().getUnwindServiceFee()));
 		// 获取运营后台设置的止损止盈
+		backhandOrder.setStopLossOrProfitId(order.getStopLossOrProfitId());
 		FuturesStopLossOrProfit lossOrProfit = stopLossOrProfitDao.retrieve(order.getStopLossOrProfitId());
 		BigDecimal reserveFund = order.getReserveFund();
 		if (lossOrProfit != null) {
 			FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
 			reserveFund = order.getTotalQuantity().multiply(lossOrProfit.getReserveFund().multiply(rate.getRate()));
+			backhandOrder.setPerUnitUnwindPoint(lossOrProfit.getStrongLevelingAmount());
+			backhandOrder.setUnwindPointType(2);
+		} else {
+			backhandOrder.setPerUnitUnwindPoint(order.getPerUnitUnwindPoint());
+			backhandOrder.setUnwindPointType(2);
 		}
 		backhandOrder.setLimitLossType(order.getLimitLossType());
 		backhandOrder.setPerUnitLimitLossAmount(order.getPerUnitLimitLossAmount());
 		backhandOrder.setLimitProfitType(order.getLimitProfitType());
 		backhandOrder.setPerUnitLimitProfitAmount(order.getPerUnitLimitProfitAmount());
+		backhandOrder.setStopLossOrProfitId(order.getStopLossOrProfitId());
 		// 初始化部分订单信息
 		backhandOrder.setPublisherId(order.getPublisherId());
 		backhandOrder.setOrderType(
@@ -1455,7 +1474,6 @@ public class FuturesOrderService {
 		backhandOrder.setContractNo(contract.getContractNo());
 		backhandOrder.setOpenwindServiceFee(commodity.getOpenwindServiceFee());
 		backhandOrder.setUnwindServiceFee(commodity.getUnwindServiceFee());
-		backhandOrder.setPerUnitUnwindPoint(commodity.getPerUnitUnwindPoint());
 		backhandOrder.setUnwindPointType(commodity.getUnwindPointType());
 		backhandOrder.setOvernightPerUnitReserveFund(commodity.getOvernightPerUnitReserveFund());
 		backhandOrder.setOvernightPerUnitDeferredFee(commodity.getOvernightPerUnitDeferredFee());
@@ -1492,17 +1510,21 @@ public class FuturesOrderService {
 			// 判断该交易平仓时是否在后台设置的期货交易限制内
 			checkedLimitUnwind(limitList, retriveExchangeTime(new Date(), this.retriveTimeZoneGap(order)));
 		}
-		// 获取运营后台设置的止损止盈
-		FuturesStopLossOrProfit lossOrProfit = stopLossOrProfitDao.retrieve(order.getStopLossOrProfitId());
-		if (lossOrProfit == null) {
-			throw new ServiceException(ExceptionConstant.SETTING_STOP_LOSS_EXCEPTION);
-		}
 		// 判断账户余额是否足够支付反手买入的保证金和服务费
 		FuturesContract contract = order.getContract();
 		FuturesCommodity commodity = contract.getCommodity();
 		FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
-		BigDecimal totalFee = order.getTotalQuantity().multiply(lossOrProfit.getReserveFund().multiply(rate.getRate())
-				.add(commodity.getOpenwindServiceFee()).add(commodity.getUnwindServiceFee()));
+		// 获取运营后台设置的止损止盈
+		FuturesStopLossOrProfit lossOrProfit = stopLossOrProfitDao.retrieve(order.getStopLossOrProfitId());
+		BigDecimal totalFee = BigDecimal.ZERO;
+		if (lossOrProfit != null) {
+			totalFee = order.getTotalQuantity().multiply(lossOrProfit.getReserveFund().multiply(rate.getRate())
+					.add(commodity.getOpenwindServiceFee()).add(commodity.getUnwindServiceFee()));
+		} else {
+			totalFee = order.getTotalQuantity()
+					.multiply(commodity.getOpenwindServiceFee().add(commodity.getUnwindServiceFee()))
+					.add(order.getReserveFund());
+		}
 		CapitalAccountDto account = accountBusiness.fetchByPublisherId(order.getPublisherId());
 		if (account.getAvailableBalance().compareTo(totalFee) < 0) {
 			throw new ServiceException(ExceptionConstant.FUTURESORDER_BACKHAND_BALANCENOTENOUGH_EXCEPTION);
@@ -1623,7 +1645,7 @@ public class FuturesOrderService {
 	/************************************* END获取交易所时间、判断是否在交易时间段 ******************************************/
 
 	public FuturesOrder settingStopLoss(Long orderId, Integer limitProfitType, BigDecimal perUnitLimitProfitAmount,
-			Integer limitLossType, BigDecimal perUnitLimitLossAmount, Long publisherId) {
+			Integer limitLossType, BigDecimal perUnitLimitLossAmount, Long publisherId, Long stopLossOrProfitId) {
 		FuturesOrder order = orderDao.retrieveByOrderIdAndPublisherId(orderId, publisherId);
 		if (order == null) {
 			throw new ServiceException(ExceptionConstant.USER_ORDER_DOESNOT_EXIST_EXCEPTION);
@@ -1636,6 +1658,13 @@ public class FuturesOrderService {
 		if (!isTradeTime) {
 			throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
 		}
+		// 获取运营后台设置的档位信息
+		FuturesStopLossOrProfit lossOrProfit = stopLossOrProfitDao.retrieve(stopLossOrProfitId);
+		if (lossOrProfit == null) {
+			throw new ServiceException(ExceptionConstant.SETTING_STOP_LOSS_EXCEPTION);
+		}
+		order.setPerUnitUnwindPoint(lossOrProfit.getStrongLevelingAmount());
+
 		// if (limitProfitType != null && perUnitLimitProfitAmount != null) {
 		order.setLimitProfitType(limitProfitType);
 		order.setPerUnitLimitProfitAmount(perUnitLimitProfitAmount);
@@ -1643,6 +1672,7 @@ public class FuturesOrderService {
 		// if (limitLossType != null && perUnitLimitLossAmount != null) {
 		order.setLimitLossType(limitLossType);
 		order.setPerUnitLimitLossAmount(perUnitLimitLossAmount);
+		order.setStopLossOrProfitId(stopLossOrProfitId);
 		// }
 		orderDao.update(order);
 		return order;
@@ -1791,7 +1821,7 @@ public class FuturesOrderService {
 			}
 			BigDecimal avgFillPrice = BigDecimal.ZERO;
 			if (filled.compareTo(BigDecimal.ZERO) > 0) {
-				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+				avgFillPrice = totalFillCost.divide(filled, 10, RoundingMode.DOWN);
 				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
 				if (divideArr[1].compareTo(BigDecimal.ZERO) > 0) {
 					avgFillPrice = divideArr[0].add(new BigDecimal(1)).multiply(commodity.getMinWave());
@@ -1829,7 +1859,7 @@ public class FuturesOrderService {
 			}
 			BigDecimal avgFillPrice = BigDecimal.ZERO;
 			if (filled.compareTo(BigDecimal.ZERO) > 0) {
-				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+				avgFillPrice = totalFillCost.divide(filled, 10, RoundingMode.DOWN);
 				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
 				avgFillPrice = divideArr[0].multiply(commodity.getMinWave());
 			}
@@ -1899,7 +1929,7 @@ public class FuturesOrderService {
 			}
 			BigDecimal avgFillPrice = BigDecimal.ZERO;
 			if (filled.compareTo(BigDecimal.ZERO) > 0) {
-				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+				avgFillPrice = totalFillCost.divide(filled, 10, RoundingMode.DOWN);
 				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
 				if (divideArr[1].compareTo(BigDecimal.ZERO) > 0) {
 					avgFillPrice = divideArr[0].add(new BigDecimal(1)).multiply(commodity.getMinWave());
@@ -1939,7 +1969,7 @@ public class FuturesOrderService {
 			}
 			BigDecimal avgFillPrice = BigDecimal.ZERO;
 			if (filled.compareTo(BigDecimal.ZERO) > 0) {
-				avgFillPrice = totalFillCost.divide(filled).setScale(10, RoundingMode.DOWN);
+				avgFillPrice = totalFillCost.divide(filled, 10, RoundingMode.DOWN);
 				BigDecimal[] divideArr = avgFillPrice.divideAndRemainder(commodity.getMinWave());
 				avgFillPrice = divideArr[0].multiply(commodity.getMinWave());
 			}
