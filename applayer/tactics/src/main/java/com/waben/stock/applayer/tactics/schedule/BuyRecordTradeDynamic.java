@@ -60,6 +60,14 @@ public class BuyRecordTradeDynamic {
 				initTradeDynamic();
 			}
 		}
+		
+		for(Map.Entry<String, String> entry : tradeDynamicMap.entrySet()) {
+			String value = entry.getValue();
+			TradeDynamicDto dynamic = JacksonUtil.decode(value, TradeDynamicDto.class);
+			if(dynamic.getNumberOfStrand() >= 15000) {
+				redisCache.hdel(RedisCacheKeyType.TradeDynamic.getKey(), entry.getKey());
+			}
+		}
 	}
 
 	public void firstTradeDynamic() {

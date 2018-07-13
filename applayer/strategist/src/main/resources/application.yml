@@ -13,6 +13,9 @@ spring:
       max-request-size: 100MB
   thymeleaf:
     prefix: classpath:/templates/
+feign:
+  hystrix:
+    enabled: false
 hystrix:
   command:
     default:

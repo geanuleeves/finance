@@ -47,6 +47,18 @@ public class RedisCache {
 			}
 		}
 	}
+
+	public void hdel(String key, String field) {
+		Jedis jedis = null;
+		try {
+			jedis = pool.getResource();
+			jedis.hdel(key, field);
+		} finally {
+			if (jedis != null) {
+				jedis.close();
+			}
+		}
+	}
 	
 	public Map<String, String> hgetAll(String key) {
 		Jedis jedis = null;

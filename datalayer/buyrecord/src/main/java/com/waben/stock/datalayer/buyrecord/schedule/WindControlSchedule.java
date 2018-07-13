@@ -42,10 +42,10 @@ public class WindControlSchedule {
 	/**
 	 * 监控间隔
 	 * <p>
-	 * 如果是工作日，每间隔500毫秒中获取持仓中的股票，判断持仓中的股票
+	 * 如果是工作日，每间隔300毫秒中获取持仓中的股票，判断持仓中的股票
 	 * </p>
 	 */
-	public static final long Execute_Interval = 500;
+	public static final long Execute_Interval = 300;
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -139,7 +139,7 @@ public class WindControlSchedule {
 		@Override
 		public void run() {
 			try {
-				logger.info("进入风控作业：" + fullSdf.format(new Date()));
+				// logger.info("进入风控作业：" + fullSdf.format(new Date()));
 				BuyRecordQuery query = new BuyRecordQuery();
 				query.setStates(new BuyRecordState[] { BuyRecordState.HOLDPOSITION });
 				query.setPage(0);
