@@ -414,10 +414,18 @@ public class FuturesOrderBusiness {
 		orderQuery.setPublisherId(SecurityUtil.getUserId());
 		BigDecimal totalIncome = new BigDecimal(0);
 		PageInfo<FuturesOrderDto> pageOrder = pageOrder(orderQuery);
+
+		// 封装汇率
+		Map<String, FuturesCurrencyRateDto> rateMap = new HashMap<String, FuturesCurrencyRateDto>();
+		List<FuturesCurrencyRateDto> rateList = getListCurrencyRate();
+		for (FuturesCurrencyRateDto futuresCurrencyRateDto : rateList) {
+			rateMap.put(futuresCurrencyRateDto.getCurrency(), futuresCurrencyRateDto);
+		}
+
 		for (FuturesOrderDto market : pageOrder.getContent()) {
 			// 获取汇率信息
 			if (market.getUnwindPointType() == 2) {
-				FuturesCurrencyRateDto rate = findByCurrency(market.getCommodityCurrency());
+				FuturesCurrencyRateDto rate = rateMap.get(market.getCommodityCurrency());
 				if (rate != null) {
 					BigDecimal perUnitUnwindPoint = market.getPerUnitUnwindPoint() == null ? BigDecimal.ZERO
 							: market.getPerUnitUnwindPoint();
@@ -442,12 +450,9 @@ public class FuturesOrderBusiness {
 	}
 
 	public List<FuturesContractDto> getListContract() {
-		FuturesContractQuery query = new FuturesContractQuery();
-		query.setPage(0);
-		query.setSize(Integer.MAX_VALUE);
-		Response<PageInfo<FuturesContractDto>> response = futuresContractInterface.pagesContract(query);
+		Response<List<FuturesContractDto>> response = futuresContractInterface.list();
 		if ("200".equals(response.getCode())) {
-			return response.getResult().getContent();
+			return response.getResult();
 		}
 		throw new ServiceException(response.getCode());
 	}

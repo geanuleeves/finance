@@ -119,7 +119,7 @@ public class FuturesOrderController {
 		BigDecimal totalFee = new BigDecimal(0);
 
 		// 获取运营后台设置的止损止盈
-		if(buysellDto.getStopLossOrProfitId() == null) {
+		if (buysellDto.getStopLossOrProfitId() == null) {
 			throw new ServiceException(ExceptionConstant.SETTING_STOP_LOSS_EXCEPTION);
 		}
 		FuturesStopLossOrProfitDto lossOrProfitDto = futuresOrderBusiness
@@ -559,10 +559,11 @@ public class FuturesOrderController {
 			if (unsettledProfitOrLoss.abs().compareTo(result.getAvailableBalance()) > 0) {
 				gainLoss.setFloatAvailableBalance(BigDecimal.ZERO);
 			} else {
-				gainLoss.setFloatAvailableBalance(result.getAvailableBalance().subtract(unsettledProfitOrLoss.abs()));
+				gainLoss.setFloatAvailableBalance(result.getAvailableBalance().stripTrailingZeros()
+						.subtract(unsettledProfitOrLoss.abs().stripTrailingZeros()));
 			}
 		} else {
-			gainLoss.setFloatAvailableBalance(result.getAvailableBalance());
+			gainLoss.setFloatAvailableBalance(result.getAvailableBalance().stripTrailingZeros());
 		}
 		result.setPaymentPassword(null);
 		gainLoss.setTotalBalance(result.getAvailableBalance()
