@@ -143,6 +143,8 @@ public class ExceptionConstant {
 	public static final String REQUEST_RECHARGE_EXCEPTION = "6031";
 	// 单笔提现不能超过10万
 	public static final String SINGLE_WITHDRAWAL_LIMIT_EXCEPTION = "6032";
+	// 订单已卖出，请勿重复操作
+	public static final String UNWINDORDER_REPEATOPERATION_EXCEPTION = "6033";
 
 	// 投资人服务异常
 	public static final String INVESTOR_NOT_FOUND_EXCEPTION = "7001";
@@ -205,8 +207,7 @@ public class ExceptionConstant {
 	// 奖品已空
 	public static final String PRIZE_IS_EMPTY = "11003";
 
-
-	//上传文件
-	//上传图片失败
+	// 上传文件
+	// 上传图片失败
 	public static final String FAILED_TO_UPLOAD_PICTURES = "12001";
 }

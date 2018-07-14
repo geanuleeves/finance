@@ -184,6 +184,9 @@ public class BuyRecordBusiness {
 		BuyRecordDto buyRecord = this.findById(id);
 		// 检查股票是否可以购买，停牌、涨停、跌停不能购买
 		stockBusiness.checkSellStock(buyRecord.getStockCode());
+		System.out.println("订单：" + id + "，状态：" + buyRecord.getState());
+		System.out.println("订单买入时间：" + sdf.format(new Date()));
+		System.out.println("订单当前时间：" + sdf.format(buyRecord.getBuyingTime()));
 		// 持仓中的才能申请卖出
 		if (buyRecord.getState() == BuyRecordState.HOLDPOSITION && buyRecord.getBuyingTime() != null
 				&& !sdf.format(new Date()).equals(sdf.format(buyRecord.getBuyingTime()))) {
@@ -192,6 +195,8 @@ public class BuyRecordBusiness {
 				return response.getResult();
 			}
 			throw new ServiceException(response.getCode());
+		} else if(buyRecord.getState() == BuyRecordState.UNWIND) {
+			throw new ServiceException(ExceptionConstant.UNWINDORDER_REPEATOPERATION_EXCEPTION);
 		} else {
 			throw new ServiceException(ExceptionConstant.USERSELLAPPLY_NOTMATCH_EXCEPTION);
 		}

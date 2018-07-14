@@ -97,7 +97,7 @@ public class BuyRecordService {
 
 	@Autowired
 	private OrganizationSettlementBusiness orgSettlementBusiness;
-
+	
 	@Autowired
 	private RestTemplate restTemplate;
 
@@ -451,7 +451,8 @@ public class BuyRecordService {
 	}
 
 	@Transactional
-	public BuyRecord sellApply(Long publisherId, Long id) {
+	public synchronized BuyRecord sellApply(Long publisherId, Long id) {
+		System.out.println("进入卖出申请：" + id);
 		// step 1 : 判断状态是否正常
 		BuyRecord buyRecord = findBuyRecord(id);
 		if (buyRecord.getState() != BuyRecordState.HOLDPOSITION) {
@@ -467,15 +468,23 @@ public class BuyRecordService {
 			throw new ServiceException(ExceptionConstant.UNKNOW_EXCEPTION,
 					String.format("获取股票{}的最新行情失败!", buyRecord.getStockCode()));
 		}
-		// step 3 : 买出，以当前行情卖出
+		// 再一次检查之前是否已经结算过
+		List<Settlement> settleList = settlementDao.retrieveByBuyRecord(buyRecord);
+		if(settleList != null && settleList.size() > 0) {
+			return buyRecord;
+		}
+		// step 3 : 买出，以当前行情卖出，修改点买记录状态
 		buyRecord.setWindControlType(WindControlType.PUBLISHERAPPLY);
 		buyRecord.setDelegateNumber(String.valueOf(System.currentTimeMillis()));
 		BigDecimal sellingPrice = market.getLastPrice();
 		buyRecord.setSellingPrice(sellingPrice);
 		buyRecord.setSellingTime(new Date());
+		buyRecord.setState(BuyRecordState.UNWIND);
+		buyRecord.setUpdateTime(buyRecord.getSellingTime());
+		buyRecordDao.update(buyRecord);
+		// 结算
 		BigDecimal profitOrLoss = sellingPrice.subtract(buyRecord.getBuyingPrice())
 				.multiply(new BigDecimal(buyRecord.getNumberOfStrand()));
-		// 结算
 		Settlement settlement = new Settlement();
 		settlement.setBuyRecord(buyRecord);
 		settlement.setProfitOrLoss(profitOrLoss);
@@ -539,11 +548,7 @@ public class BuyRecordService {
 		// 给机构结算
 //		orgSettlementBusiness.strategySettlement(buyRecord.getPublisherId(), buyRecord.getId(), buyRecord.getTradeNo(),
 //				buyRecord.getStrategyTypeId(), buyRecord.getServiceFee(), deferredFee);
-		// 修改点买记录状态
-		buyRecord.setState(BuyRecordState.UNWIND);
-		buyRecord.setUpdateTime(buyRecord.getSellingTime());
-		buyRecordDao.update(buyRecord);
-		// step 4 : 判断当天是否扣除了递延费，没有，则扣除递延费
+		// step 5 : 判断当天是否扣除了递延费，没有，则扣除递延费
 		try {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			if(sdf.format(new Date()).equals(sdf.format(buyRecord.getExpireTime()))) {

@@ -51,6 +51,14 @@ public class BuyRecordTradeDynamic {
 	@PostConstruct
 	public void init() {
 		Map<String, String> tradeDynamicMap = redisCache.hgetAll(RedisCacheKeyType.TradeDynamic.getKey());
+		for(Map.Entry<String, String> entry : tradeDynamicMap.entrySet()) {
+			String value = entry.getValue();
+			TradeDynamicDto dynamic = JacksonUtil.decode(value, TradeDynamicDto.class);
+			if(dynamic.getNumberOfStrand() <= 120) {
+				redisCache.hdel(RedisCacheKeyType.TradeDynamic.getKey(), entry.getKey());
+			}
+		}
+		tradeDynamicMap = redisCache.hgetAll(RedisCacheKeyType.TradeDynamic.getKey());
 		if (tradeDynamicMap.size() == 0) {
 			firstTradeDynamic();
 			tradeDynamicMap = redisCache.hgetAll(RedisCacheKeyType.TradeDynamic.getKey());
@@ -58,14 +66,6 @@ public class BuyRecordTradeDynamic {
 		if (tradeDynamicMap.size() < 20) {
 			for (int i = 0; i < 20 - tradeDynamicMap.size(); i++) {
 				initTradeDynamic();
-			}
-		}
-		
-		for(Map.Entry<String, String> entry : tradeDynamicMap.entrySet()) {
-			String value = entry.getValue();
-			TradeDynamicDto dynamic = JacksonUtil.decode(value, TradeDynamicDto.class);
-			if(dynamic.getNumberOfStrand() >= 15000) {
-				redisCache.hdel(RedisCacheKeyType.TradeDynamic.getKey(), entry.getKey());
 			}
 		}
 	}
@@ -154,7 +154,7 @@ public class BuyRecordTradeDynamic {
 		int numberOfStrand = RandomUtil.getRandomInt(110);
 		while ((numberOfStrand = RandomUtil.getRandomInt(110)) < 10) {
 		}
-		return numberOfStrand;
+		return numberOfStrand * 100;
 	}
 
 	private BigDecimal randomProfit() {

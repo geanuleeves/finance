@@ -88,7 +88,7 @@ public class TradeDynamicDto {
 	}
 
 	public Integer getNumberOfStrand() {
-		return numberOfStrand * 100;
+		return numberOfStrand;
 	}
 
 	public void setNumberOfStrand(Integer numberOfStrand) {

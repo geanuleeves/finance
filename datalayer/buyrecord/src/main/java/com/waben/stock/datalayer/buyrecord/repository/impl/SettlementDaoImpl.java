@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
+import com.waben.stock.datalayer.buyrecord.entity.BuyRecord;
 import com.waben.stock.datalayer.buyrecord.entity.Settlement;
 import com.waben.stock.datalayer.buyrecord.repository.SettlementDao;
 import com.waben.stock.datalayer.buyrecord.repository.impl.jpa.SettlementRepository;
@@ -66,4 +67,10 @@ public class SettlementDaoImpl implements SettlementDao {
 	public Settlement retrieveByBuyRecord(Long id) {
 		return repository.findByBuyRecordId(id);
 	}
+
+	@Override
+	public List<Settlement> retrieveByBuyRecord(BuyRecord buyRecord) {
+		return repository.findByBuyRecord(buyRecord);
+	}
+	
 }
