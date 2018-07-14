@@ -122,10 +122,14 @@ public class FuturesContractBusiness {
 				quotation.setBidPrice(market.getBidPrice());
 				quotation.setBidSize(market.getBidSize());
 				quotation.setVolume(market.getVolume());
-				quotation.setCurrentHoldingTime(
-						timeZoneConversion(quotation.getTimeZoneGap(), quotation.getCurrentHoldingTime()));
-				quotation.setNextTradingTime(
-						timeZoneConversion(quotation.getTimeZoneGap(), quotation.getNextTradingTime()));
+				if (quotation.getCurrentHoldingTime() != null) {
+					quotation.setCurrentHoldingTime(
+							timeZoneConversion(quotation.getTimeZoneGap(), quotation.getCurrentHoldingTime()));
+				}
+				if (quotation.getNextTradingTime() != null) {
+					quotation.setNextTradingTime(
+							timeZoneConversion(quotation.getTimeZoneGap(), quotation.getNextTradingTime()));
+				}
 			}
 		}
 		return quotationList;

@@ -275,6 +275,11 @@ public class FuturesCommodityAdminDto {
 	 */
 	private Integer contractNum;
 
+	/**
+	 * 当天交易时间描述
+	 */
+	private String currentTradeTimeDesc;
+
 	public Long getId() {
 		return id;
 	}
@@ -705,6 +710,14 @@ public class FuturesCommodityAdminDto {
 
 	public void setState(Integer state) {
 		this.state = state;
+	}
+
+	public String getCurrentTradeTimeDesc() {
+		return currentTradeTimeDesc;
+	}
+
+	public void setCurrentTradeTimeDesc(String currentTradeTimeDesc) {
+		this.currentTradeTimeDesc = currentTradeTimeDesc;
 	}
 
 }
