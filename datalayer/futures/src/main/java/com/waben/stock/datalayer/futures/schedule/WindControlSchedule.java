@@ -166,22 +166,17 @@ public class WindControlSchedule {
 							continue;
 						}
 						// step 9 : 是否触发隔夜时间
-						// if (orderService.isTradeTime(timeZoneGap, contract)
-						// && isTriggerOvernight(order, timeZoneGap)) {
-						// if (order.getState() ==
-						// FuturesOrderState.SellingEntrust && (order
-						// .getWindControlType() == null
-						// || order.getWindControlType() ==
-						// FuturesWindControlType.InitPosition
-						// || order.getWindControlType() ==
-						// FuturesWindControlType.OvernightPosition)) {
-						// orderService.cancelOrder(order.getId(),
-						// order.getPublisherId());
-						// continue;
-						// }
-						// orderService.overnight(order, timeZoneGap);
-						// continue;
-						// }
+						if (orderService.isTradeTime(timeZoneGap, contract) && isTriggerOvernight(order, timeZoneGap)) {
+							if (order.getState() == FuturesOrderState.SellingEntrust && (order
+									.getWindControlType() == null
+									|| order.getWindControlType() == FuturesWindControlType.InitPosition
+									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
+								orderService.cancelOrder(order.getId(), order.getPublisherId());
+								continue;
+							}
+							orderService.overnight(order, timeZoneGap);
+							continue;
+						}
 					}
 				}
 			} catch (Exception ex) {
@@ -255,7 +250,8 @@ public class WindControlSchedule {
 		BigDecimal minWave = order.getContract().getCommodity().getMinWave();
 		BigDecimal perWaveMoney = order.getContract().getCommodity().getPerWaveMoney();
 		// 货币汇率
-		// FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
+		// FuturesCurrencyRate rate =
+		// rateService.findByCurrency(order.getCommodityCurrency());
 		if (buyingPrice != null) {
 			// 获取用户设置的止损价格
 			BigDecimal userSetNeedWavePrice = null;

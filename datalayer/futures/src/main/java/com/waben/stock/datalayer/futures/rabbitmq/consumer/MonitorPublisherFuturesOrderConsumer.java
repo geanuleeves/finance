@@ -14,8 +14,6 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.RabbitHandler;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -23,14 +21,12 @@ import org.springframework.stereotype.Component;
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
 import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
-import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqProducer;
 import com.waben.stock.datalayer.futures.rabbitmq.message.MonitorPublisherFuturesOrderMessage;
 import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
-import com.waben.stock.datalayer.futures.service.FuturesCurrencyRateService;
 import com.waben.stock.datalayer.futures.service.FuturesOrderService;
 import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
@@ -43,7 +39,7 @@ import com.waben.stock.interfaces.util.RandomUtil;
 import com.waben.stock.interfaces.util.StringUtil;
 
 @Component
-@RabbitListener(queues = { RabbitmqConfiguration.monitorPublisherFuturesOrderQueueName })
+// @RabbitListener(queues = { RabbitmqConfiguration.monitorPublisherFuturesOrderQueueName })
 public class MonitorPublisherFuturesOrderConsumer {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
@@ -82,7 +78,7 @@ public class MonitorPublisherFuturesOrderConsumer {
 		}
 	}
 
-	@RabbitHandler
+	// @RabbitHandler
 	public void handlerMessage(String message) {
 		if (RandomUtil.getRandomInt(100) % 51 == 0 && RandomUtil.getRandomInt(100) % 51 == 0) {
 			logger.info("监控用户订单:{}", message);
@@ -345,8 +341,8 @@ public class MonitorPublisherFuturesOrderConsumer {
 				if (!monitorPublisherList.contains(publisherId)) {
 					MonitorPublisherFuturesOrderMessage messgeObj = new MonitorPublisherFuturesOrderMessage();
 					messgeObj.setPublisherId(publisherId);
-					producer.sendMessage(RabbitmqConfiguration.monitorPublisherFuturesOrderQueueName, messgeObj);
-					monitorPublisherList.add(publisherId);
+					// producer.sendMessage(RabbitmqConfiguration.monitorPublisherFuturesOrderQueueName, messgeObj);
+					// monitorPublisherList.add(publisherId);
 				}
 			}
 		}).start();
