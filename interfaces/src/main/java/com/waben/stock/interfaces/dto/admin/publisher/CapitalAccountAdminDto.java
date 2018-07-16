@@ -58,6 +58,10 @@ public class CapitalAccountAdminDto {
 	 * 累计提现金额
 	 */
 	private BigDecimal totalWithdraw;
+	
+    private BigDecimal dayHoldingProfit;
+	
+	private BigDecimal daySettledProfit;
 	/**
 	 * 是否为测试
 	 */
@@ -165,6 +169,22 @@ public class CapitalAccountAdminDto {
 
 	public void setIdCard(String idCard) {
 		this.idCard = idCard;
+	}
+
+	public BigDecimal getDayHoldingProfit() {
+		return dayHoldingProfit;
+	}
+
+	public void setDayHoldingProfit(BigDecimal dayHoldingProfit) {
+		this.dayHoldingProfit = dayHoldingProfit;
+	}
+
+	public BigDecimal getDaySettledProfit() {
+		return daySettledProfit;
+	}
+
+	public void setDaySettledProfit(BigDecimal daySettledProfit) {
+		this.daySettledProfit = daySettledProfit;
 	}
 
 	public Boolean getIsTest() {

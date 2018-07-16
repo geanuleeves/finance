@@ -32,4 +32,8 @@ public class FuturesOvernightRecordService {
 	public List<FuturesOvernightRecord> findAll(FuturesOrder order){
 		return recordDao.retrieveByOrder(order);
 	}
+	
+	public FuturesOvernightRecord retrieve(Long id){
+		return recordDao.retrieve(id);
+	}
 }

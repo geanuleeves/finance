@@ -81,6 +81,7 @@ public class CapitalAccount {
 	 */
 	@Transient
 	private BigDecimal realProfitOrLoss;
+	
 
 	public Long getId() {
 		return id;

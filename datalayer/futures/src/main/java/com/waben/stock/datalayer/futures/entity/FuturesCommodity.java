@@ -20,6 +20,8 @@ import javax.persistence.Transient;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesProductTypeConverter;
 import com.waben.stock.interfaces.enums.FuturesProductType;
 
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * 期货品种
  * 
@@ -127,6 +129,10 @@ public class FuturesCommodity {
 	 */
 	private BigDecimal unwindServiceFee;
 	/**
+	 * 交易综合费
+	 */
+	private BigDecimal tradeServiceFee;
+	/**
 	 * 隔夜时间（交易所时间）
 	 * <p>
 	 * 格式如04:50:00，该时间为收取隔夜手续费和递延费的时间
@@ -225,6 +231,11 @@ public class FuturesCommodity {
 	private Set<FuturesPreQuantity> preQuantitySet;
 
 	private Date createTime;
+
+	/**
+	 * 当天交易时间描述
+	 */
+	private String currentTradeTimeDesc;
 
 	/***************** 分割线，以下字段为非数据库字段 ********************/
 
@@ -627,6 +638,24 @@ public class FuturesCommodity {
 
 	public void setBuyFallCloseSlipPoint(Integer buyFallCloseSlipPoint) {
 		this.buyFallCloseSlipPoint = buyFallCloseSlipPoint;
+	}
+
+
+	public BigDecimal getTradeServiceFee() {
+		return tradeServiceFee;
+	}
+
+	public void setTradeServiceFee(BigDecimal tradeServiceFee) {
+		this.tradeServiceFee = tradeServiceFee;
+	}
+		
+	public String getCurrentTradeTimeDesc() {
+		return currentTradeTimeDesc;
+	}
+
+	public void setCurrentTradeTimeDesc(String currentTradeTimeDesc) {
+		this.currentTradeTimeDesc = currentTradeTimeDesc;
+
 	}
 
 }

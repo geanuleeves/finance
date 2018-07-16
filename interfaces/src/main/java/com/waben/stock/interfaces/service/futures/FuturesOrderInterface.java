@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
+import com.waben.stock.interfaces.dto.futures.FuturesOvernightRecordDto;
 import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.pojo.Response;
@@ -29,6 +30,9 @@ public interface FuturesOrderInterface {
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	Response<FuturesOrderDto> fetchById(@PathVariable("id") Long id);
+	
+	@RequestMapping(value = "/fetchByOvernightId/{id}", method = RequestMethod.GET)
+	Response<FuturesOvernightRecordDto> fetchByOvernightId(@PathVariable("id") Long id);
 
 	/**
 	 * 查询期货订单数据

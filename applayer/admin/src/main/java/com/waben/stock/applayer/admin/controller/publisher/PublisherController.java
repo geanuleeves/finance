@@ -13,6 +13,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -64,6 +65,24 @@ public class PublisherController {
 	private BindCardBusiness bindCardBusiness;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	
+	@RequestMapping(value = "/savePublisher", method = RequestMethod.POST)
+	@ApiOperation(value = "新增虚拟测试账号")
+	public Response<PublisherAdminDto> savePublisher(PublisherAdminDto dto){
+		return new Response<>(business.savePublisher(dto));
+	}
+	
+	@PutMapping("/modifyPublisher")
+	@ApiOperation(value = "修改虚拟测试账号")
+	public Response<PublisherAdminDto> modifyPublisher(PublisherAdminDto dto){
+		return new Response<>(business.savePublisher(dto));
+	}
+	
+	@DeleteMapping("/delete/{id}")
+	@ApiOperation(value = "删除虚拟测试账号")
+	public Response<Long> delete(@PathVariable Long id){
+		return new Response<>(business.delete(id));
+	}
 
 	@GetMapping("/pages")
 	@ApiOperation(value = "查询发布人")
