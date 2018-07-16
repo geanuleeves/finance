@@ -652,7 +652,7 @@ public class CapitalAccountService {
 			}
 		}
 		String sql = String.format(
-				"select t1.id, t2.id as publisher_id, t2.head_portrait, t3.name, t3.id_card, t2.phone, t1.frozen_capital, t1.available_balance, t1.update_time, t2.create_time, t1.state, IFNULL(t4.recharge, 0), IFNULL(t5.withdraw, 0), t2.is_test from capital_account t1 "
+				"select t1.id, t2.id as publisher_id, t2.head_portrait, t3.name, t3.id_card, t2.phone, t1.frozen_capital, t1.available_balance,t1.balance, t1.update_time, t2.create_time, t1.state, IFNULL(t4.recharge, 0), IFNULL(t5.withdraw, 0), t2.is_test from capital_account t1 "
 						+ "LEFT JOIN publisher t2 on t2.id =t1.publisher_id "
 						+ "LEFT JOIN real_name t3 on t3.resource_type=2 and t3.resource_id=t1.publisher_id "
 						+ "LEFT JOIN (select publisher_id, SUM(amount) as recharge from capital_flow where type=1 GROUP BY publisher_id) t4 on t4.publisher_id=t1.publisher_id "
@@ -670,12 +670,13 @@ public class CapitalAccountService {
 		setMethodMap.put(new Integer(5), new MethodDesc("setPhone", new Class<?>[] { String.class }));
 		setMethodMap.put(new Integer(6), new MethodDesc("setFrozenCapital", new Class<?>[] { BigDecimal.class }));
 		setMethodMap.put(new Integer(7), new MethodDesc("setAvailableBalance", new Class<?>[] { BigDecimal.class }));
-		setMethodMap.put(new Integer(8), new MethodDesc("setUpdateTime", new Class<?>[] { Date.class }));
-		setMethodMap.put(new Integer(9), new MethodDesc("setRegistTime", new Class<?>[] { Date.class }));
-		setMethodMap.put(new Integer(10), new MethodDesc("setState", new Class<?>[] { Integer.class }));
-		setMethodMap.put(new Integer(11), new MethodDesc("setTotalRecharge", new Class<?>[] { BigDecimal.class }));
-		setMethodMap.put(new Integer(12), new MethodDesc("setTotalWithdraw", new Class<?>[] { BigDecimal.class }));
-		setMethodMap.put(new Integer(13), new MethodDesc("setIsTest", new Class<?>[] { Boolean.class }));
+		setMethodMap.put(new Integer(8), new MethodDesc("setBalance", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(9), new MethodDesc("setUpdateTime", new Class<?>[] { Date.class }));
+		setMethodMap.put(new Integer(10), new MethodDesc("setRegistTime", new Class<?>[] { Date.class }));
+		setMethodMap.put(new Integer(11), new MethodDesc("setState", new Class<?>[] { Integer.class }));
+		setMethodMap.put(new Integer(12), new MethodDesc("setTotalRecharge", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(13), new MethodDesc("setTotalWithdraw", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(14), new MethodDesc("setIsTest", new Class<?>[] { Boolean.class }));
 		List<CapitalAccountAdminDto> content = sqlDao.execute(CapitalAccountAdminDto.class, sql, setMethodMap);
 		BigInteger totalElements = sqlDao.executeComputeSql(countSql);
 		return new PageImpl<>(content, new PageRequest(query.getPage(), query.getSize()),
@@ -727,6 +728,8 @@ public class CapitalAccountService {
 		flow.setFlowNo(UniqueCodeGenerator.generateFlowNo());
 		flow.setExtendType(CapitalFlowExtendType.PAYMENTORDER);
 		flow.setAvailableBalance(capitalAccount.getAvailableBalance());
+		flowDao.create(flow);
+		
 		return capitalAccountDao.update(capitalAccount);
 	}
 

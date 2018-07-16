@@ -80,41 +80,54 @@ public class PublisherService {
 	}	
 	
 	public PublisherAdminDto registerDum(PublisherAdminDto dto){
-		// 检查手机号
-		Publisher check = publisherDao.retriveByPhone(dto.getPhone());
-		if (check != null) {
-			throw new ServiceException(ExceptionConstant.PHONE_BEEN_REGISTERED_EXCEPTION);
-		}
-		
-		// 保存发布策略人信息
-		Publisher publisher = new Publisher();
-		publisher.setSerialCode(UniqueCodeGenerator.generateSerialCode());
-		publisher.setPhone(getTel());
-		publisher.setPassword(PasswordCrypt.crypt("123456"));
-		publisher.setCreateTime(new Date());
-		publisher.setPromoter("");
-		publisher.setEndType("D");
-		publisher.setIsTest(true);
-		Publisher pu = publisherDao.create(publisher);
+		if(dto.getId()==null){
+			// 检查手机号
+			Publisher check = publisherDao.retriveByPhone(dto.getPhone());
+			if (check != null) {
+				throw new ServiceException(ExceptionConstant.PHONE_BEEN_REGISTERED_EXCEPTION);
+			}
+			
+			// 保存发布策略人信息
+			Publisher publisher = new Publisher();
+			publisher.setSerialCode(UniqueCodeGenerator.generateSerialCode());
+			publisher.setPhone(getTel());
+			publisher.setPassword(PasswordCrypt.crypt("123456"));
+			publisher.setCreateTime(new Date());
+			publisher.setPromoter("");
+			publisher.setEndType("D");
+			publisher.setIsTest(true);
+			Publisher pu = publisherDao.create(publisher);
 //		publisher.setPromotionCode(ShareCodeUtil.encode(publisher.getId().intValue()));
 //		publisherDao.update(publisher);
-		
-		// 保存资金账号信息
-		CapitalAccount account = new CapitalAccount();
-		account.setBalance(dto.getAvailableBalance());
-		account.setAvailableBalance(dto.getAvailableBalance());
-		account.setFrozenCapital(new BigDecimal(0.00));
-		account.setPublisherSerialCode(publisher.getSerialCode());
-		account.setPublisherId(publisher.getId());
-		account.setPublisher(publisher);
-		account.setUpdateTime(new Date());
-		CapitalAccount result = capitalAccountDao.create(account);
-		PublisherAdminDto response = new PublisherAdminDto();
-		response.setAvailableBalance(result.getAvailableBalance());
-		response.setPhone(pu.getPhone());
-		response.setId(pu.getId());
-		response.setCreateTime(pu.getCreateTime());
-		return response;
+			
+			// 保存资金账号信息
+			CapitalAccount account = new CapitalAccount();
+			account.setBalance(dto.getAvailableBalance());
+			account.setAvailableBalance(dto.getAvailableBalance());
+			account.setFrozenCapital(new BigDecimal(0.00));
+			account.setPublisherSerialCode(publisher.getSerialCode());
+			account.setPublisherId(publisher.getId());
+			account.setPublisher(publisher);
+			account.setUpdateTime(new Date());
+			CapitalAccount result = capitalAccountDao.create(account);
+			PublisherAdminDto response = new PublisherAdminDto();
+			response.setAvailableBalance(result.getAvailableBalance());
+			response.setPhone(pu.getPhone());
+			response.setId(pu.getId());
+			response.setCreateTime(pu.getCreateTime());
+			return response;
+		}else{
+			Publisher pu = this.findById(dto.getId());
+			CapitalAccount account = capitalAccountDao.retriveByPublisherId(pu.getId());
+			account.setAvailableBalance(dto.getAvailableBalance());
+			CapitalAccount result = capitalAccountDao.update(account);
+			PublisherAdminDto response = new PublisherAdminDto();
+			response.setAvailableBalance(result.getAvailableBalance());
+			response.setPhone(pu.getPhone());
+			response.setId(pu.getId());
+			response.setCreateTime(pu.getCreateTime());
+			return response;
+		}
 	}
 
 	@Transactional
