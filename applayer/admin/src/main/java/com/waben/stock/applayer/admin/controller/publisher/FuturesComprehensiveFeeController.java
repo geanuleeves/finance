@@ -31,7 +31,7 @@ public class FuturesComprehensiveFeeController {
 	
 	@GetMapping("/wbWithdrawalsAdmin")
 	@ApiOperation(value = "审核")
-	public Response<WithdrawalsOrderDto> wbWithdrawalsAdmin(Long id, Integer type){
-		return new Response<>(business.wbWithdrawalsAdmin(id, type));
+	public Response<WithdrawalsOrderDto> wbWithdrawalsAdmin(FuturesComprehensiveFeeDto compre){
+		return new Response<>(business.wbWithdrawalsAdmin(compre));
 	}
 }

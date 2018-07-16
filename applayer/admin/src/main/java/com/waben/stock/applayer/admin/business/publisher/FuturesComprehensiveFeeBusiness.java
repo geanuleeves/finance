@@ -110,40 +110,53 @@ public class FuturesComprehensiveFeeBusiness {
 		return publisherIds;
 	}
 	
-	public WithdrawalsOrderDto wbWithdrawalsAdmin(Long id, Integer type){
+	public WithdrawalsOrderDto wbWithdrawalsAdmin(FuturesComprehensiveFeeDto compre){
 		WithdrawalsOrderDto response = new WithdrawalsOrderDto();
-		Response<FuturesComprehensiveFeeDto> result = reference.retrieve(id);
+		Response<FuturesComprehensiveFeeDto> result = reference.retrieve(compre.getId());
 		FuturesComprehensiveFeeDto dto = result.getResult();
-		Response<WithdrawalsOrderDto> withresult =  withdrawalsOrderReference.fetchByWithdrawalsNo(dto.getWithdrawalsNo());
-		if(!"200".equals(withresult.getCode())){
-			throw new ServiceException(withresult.getCode());
-		}
-		WithdrawalsOrderDto order = withresult.getResult();
-		if(type==1){
-			
-			WithdrawParam param = new WithdrawParam();
-			param.setAppId(dto.getMerchantNo());
-			param.setBankAcctName(order.getName());
-			param.setBankNo(order.getBankCard());
-			param.setBankCode(order.getBankCard());
-			param.setBankName(dto.getBankName());
-			param.setCardType("0");
-			param.setOutOrderNo(order.getWithdrawalsNo());
-			Date date = new Date();
-			param.setTimestamp(sdf.format(date));
-			param.setTotalAmt(isProd ? order.getAmount() : new BigDecimal("0.01"));
-			param.setVersion("1.0");
-			
-			WithdrawRet withdrawRet = WabenPayOverHttp.withdraw(param, dto.getWebConfigKey());
-			if(withdrawRet != null && !StringUtil.isEmpty(withdrawRet.getOrderNo())) {
-				// 更新支付系统第三方订单状态
-				order.setThirdWithdrawalsNo(withdrawRet.getOrderNo());
-				order.setComprehensiveState(1);
+		if(dto.getWithdrawalsNo()!=null){
+			Response<WithdrawalsOrderDto> withresult =  withdrawalsOrderReference.fetchByWithdrawalsNo(dto.getWithdrawalsNo());
+			if(!"200".equals(withresult.getCode())){
+				throw new ServiceException(withresult.getCode());
+			}
+			WithdrawalsOrderDto order = withresult.getResult();
+			if(compre.getState()==1){
+				
+				WithdrawParam param = new WithdrawParam();
+				param.setAppId(dto.getMerchantNo());
+				param.setBankAcctName(order.getName());
+				param.setBankNo(order.getBankCard());
+				param.setBankCode(order.getBankCard());
+				param.setBankName(dto.getBankName());
+				param.setCardType("0");
+				param.setOutOrderNo(order.getWithdrawalsNo());
+				Date date = new Date();
+				param.setTimestamp(sdf.format(date));
+				param.setTotalAmt(isProd ? order.getAmount() : new BigDecimal("0.01"));
+				param.setVersion("1.0");
+				
+				WithdrawRet withdrawRet = WabenPayOverHttp.withdraw(param, dto.getWebConfigKey());
+				if(withdrawRet != null && !StringUtil.isEmpty(withdrawRet.getOrderNo())) {
+					// 更新支付系统第三方订单状态
+					order.setThirdWithdrawalsNo(withdrawRet.getOrderNo());
+					order.setComprehensiveState(1);
+					response = this.revisionWithdrawalsOrder(order);
+					
+					dto.setState(1);
+					reference.modify(dto);
+				}
+			}else{
+				order.setComprehensiveState(2);
 				response = this.revisionWithdrawalsOrder(order);
+				
+				dto.setState(2);
+				dto.setRemarke(compre.getRemarke());
+				reference.modify(dto);
 			}
 		}else{
-			order.setComprehensiveState(2);
-			response = this.revisionWithdrawalsOrder(order);
+			dto.setState(2);
+			dto.setRemarke(compre.getRemarke());
+			reference.modify(dto);
 		}
 		return response;
 	}
