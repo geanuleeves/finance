@@ -280,6 +280,11 @@ public class FuturesCommodityAdminDto {
 	 */
 	private Integer contractNum;
 
+	/**
+	 * 当天交易时间描述
+	 */
+	private String currentTradeTimeDesc;
+
 	public Long getId() {
 		return id;
 	}
@@ -712,12 +717,22 @@ public class FuturesCommodityAdminDto {
 		this.state = state;
 	}
 
+
 	public BigDecimal getTradeServiceFee() {
 		return tradeServiceFee;
 	}
 
 	public void setTradeServiceFee(BigDecimal tradeServiceFee) {
 		this.tradeServiceFee = tradeServiceFee;
+	}
+
+	public String getCurrentTradeTimeDesc() {
+		return currentTradeTimeDesc;
+	}
+
+	public void setCurrentTradeTimeDesc(String currentTradeTimeDesc) {
+		this.currentTradeTimeDesc = currentTradeTimeDesc;
+
 	}
 
 }

@@ -76,8 +76,12 @@ public class FuturesExchangeService {
 	public List<FuturesCommodity> findByExchangId(Long exchangeId) {
 		return exchangeDao.findByExchangId(exchangeId);
 	}
-	
-	public FuturesExchange findById(Long id){
+
+	public FuturesExchange findById(Long id) {
 		return exchangeDao.retrieve(id);
+	}
+
+	public List<FuturesExchange> list() {
+		return exchangeDao.list();
 	}
 }

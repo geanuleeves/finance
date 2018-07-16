@@ -1232,7 +1232,8 @@ public class FuturesOrderService {
 		// step 1 : 检查余额是否充足
 		CapitalAccountDto account = accountBusiness.fetchByPublisherId(order.getPublisherId());
 		BigDecimal deferredFee = order.getOvernightPerUnitDeferredFee().multiply(order.getTotalQuantity());
-		BigDecimal reserveFund = order.getOvernightPerUnitReserveFund().multiply(order.getTotalQuantity());
+		// BigDecimal reserveFund = order.getOvernightPerUnitReserveFund().multiply(order.getTotalQuantity());
+		BigDecimal reserveFund = BigDecimal.ZERO;
 		// BigDecimal totalFee = deferredFee.add(reserveFund);
 		BigDecimal totalFee = deferredFee;
 		if (account.getAvailableBalance().compareTo(totalFee) < 0) {
@@ -1262,7 +1263,7 @@ public class FuturesOrderService {
 			if (deferredFee.compareTo(BigDecimal.ZERO) > 0 || reserveFund.compareTo(BigDecimal.ZERO) > 0) {
 				try {
 					accountBusiness.futuresOrderOvernight(order.getPublisherId(), overnightRecord.getId(), deferredFee,
-							BigDecimal.ZERO);
+							reserveFund);
 					// 给渠道推广机构结算
 					if (order.getIsTest() == null || order.getIsTest() == false) {
 						orgBusiness.futuresDeferredSettlement(order.getPublisherId(),

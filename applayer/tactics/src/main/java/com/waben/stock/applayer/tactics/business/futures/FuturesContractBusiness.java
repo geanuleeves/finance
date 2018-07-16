@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -91,13 +92,23 @@ public class FuturesContractBusiness {
 		throw new ServiceException(response.getCode());
 	}
 
+	public String getQuoteCacheKey(String commodityNo, String contractNo) {
+		return commodityNo + "-" + contractNo;
+	}
+
 	public List<FuturesContractQuotationDto> pagesQuotations(List<FuturesContractDto> list) {
 		List<FuturesContractQuotationDto> quotationList = CopyBeanUtils.copyListBeanPropertiesToList(list,
 				FuturesContractQuotationDto.class);
 		if (quotationList.size() > 0) {
+			// 封装行情
+			Map<String, FuturesContractMarket> marketMap = RetriveFuturesOverHttp.marketAll(profileBusiness.isProd());
+
 			for (FuturesContractQuotationDto quotation : quotationList) {
-				FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(),
-						quotation.getSymbol(), quotation.getContractNo());
+				FuturesContractMarket market = marketMap
+						.get(getQuoteCacheKey(quotation.getSymbol(), quotation.getContractNo()));
+				if (market == null) {
+					break;
+				}
 				// 设置行情信息
 				quotation.setLastPrice(market.getLastPrice());
 				quotation.setUpDropPrice(market.getUpDropPrice());
@@ -111,10 +122,14 @@ public class FuturesContractBusiness {
 				quotation.setBidPrice(market.getBidPrice());
 				quotation.setBidSize(market.getBidSize());
 				quotation.setVolume(market.getVolume());
-				quotation.setCurrentHoldingTime(
-						timeZoneConversion(quotation.getTimeZoneGap(), quotation.getCurrentHoldingTime()));
-				quotation.setNextTradingTime(
-						timeZoneConversion(quotation.getTimeZoneGap(), quotation.getNextTradingTime()));
+				if (quotation.getCurrentHoldingTime() != null) {
+					quotation.setCurrentHoldingTime(
+							timeZoneConversion(quotation.getTimeZoneGap(), quotation.getCurrentHoldingTime()));
+				}
+				if (quotation.getNextTradingTime() != null) {
+					quotation.setNextTradingTime(
+							timeZoneConversion(quotation.getTimeZoneGap(), quotation.getNextTradingTime()));
+				}
 			}
 		}
 		return quotationList;

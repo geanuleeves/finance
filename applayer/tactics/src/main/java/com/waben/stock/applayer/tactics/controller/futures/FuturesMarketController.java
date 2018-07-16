@@ -65,10 +65,14 @@ public class FuturesMarketController {
 			marketDto.setContractName(contractPage.getName());
 			marketDto.setCurrencySign(contractPage.getCurrencySign());
 			marketDto.setContractState(contractPage.getState());
-			marketDto.setCurrentHoldingTime(
-					timeZoneConversion(contractPage.getTimeZoneGap(), contractPage.getCurrentHoldingTime()));
-			marketDto.setNextTradingTime(
-					timeZoneConversion(contractPage.getTimeZoneGap(), contractPage.getNextTradingTime()));
+			if (contractPage.getCurrentHoldingTime() != null) {
+				contractPage.setCurrentHoldingTime(
+						timeZoneConversion(contractPage.getTimeZoneGap(), contractPage.getCurrentHoldingTime()));
+			}
+			if (contractPage.getNextTradingTime() != null) {
+				contractPage.setNextTradingTime(
+						timeZoneConversion(contractPage.getTimeZoneGap(), contractPage.getNextTradingTime()));
+			}
 		}
 
 		return new Response<>(marketDto);

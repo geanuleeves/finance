@@ -20,6 +20,8 @@ import javax.persistence.Transient;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesProductTypeConverter;
 import com.waben.stock.interfaces.enums.FuturesProductType;
 
+import io.swagger.annotations.ApiModelProperty;
+
 /**
  * 期货品种
  * 
@@ -229,6 +231,11 @@ public class FuturesCommodity {
 	private Set<FuturesPreQuantity> preQuantitySet;
 
 	private Date createTime;
+
+	/**
+	 * 当天交易时间描述
+	 */
+	private String currentTradeTimeDesc;
 
 	/***************** 分割线，以下字段为非数据库字段 ********************/
 
@@ -633,12 +640,22 @@ public class FuturesCommodity {
 		this.buyFallCloseSlipPoint = buyFallCloseSlipPoint;
 	}
 
+
 	public BigDecimal getTradeServiceFee() {
 		return tradeServiceFee;
 	}
 
 	public void setTradeServiceFee(BigDecimal tradeServiceFee) {
 		this.tradeServiceFee = tradeServiceFee;
+	}
+		
+	public String getCurrentTradeTimeDesc() {
+		return currentTradeTimeDesc;
+	}
+
+	public void setCurrentTradeTimeDesc(String currentTradeTimeDesc) {
+		this.currentTradeTimeDesc = currentTradeTimeDesc;
+
 	}
 
 }
