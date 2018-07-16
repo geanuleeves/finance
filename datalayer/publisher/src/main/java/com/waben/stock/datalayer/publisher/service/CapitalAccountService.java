@@ -707,8 +707,8 @@ public class CapitalAccountService {
 		record.setUpdateBeforeAvailableBalance(capitalAccount.getAvailableBalance());
 		record.setUpdateBeforeFrozenCapital(capitalAccount.getFrozenCapital());
 
-		capitalAccount.setAvailableBalance(availableBalance);
-		capitalAccount.setBalance(availableBalance.add(capitalAccount.getFrozenCapital()));
+		capitalAccount.setAvailableBalance(capitalAccount.getAvailableBalance().add(availableBalance));
+		capitalAccount.setBalance(capitalAccount.getAvailableBalance().add(capitalAccount.getFrozenCapital()));
 		capitalAccount.setUpdateTime(new Date());
 
 		// 修改之后的数据

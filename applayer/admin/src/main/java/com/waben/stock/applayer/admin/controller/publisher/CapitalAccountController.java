@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -68,8 +69,8 @@ public class CapitalAccountController {
 		return new Response<>(response);
 	}
 
-	@PutMapping("/account/{id}/{availableBalance}")
-	@ApiImplicitParams({@ApiImplicitParam(paramType = "path", dataType = "Long", name = "id", value = "账户id", required = true),@ApiImplicitParam(paramType = "path", dataType = "BigDecimal", name = "availableBalance", value = "帐号可用余额", required = true)})
+	@PostMapping("/account/{id}/{availableBalance}/{remarket}")
+	@ApiImplicitParams({@ApiImplicitParam(paramType = "path", dataType = "Long", name = "id", value = "账户id", required = true),@ApiImplicitParam(paramType = "path", dataType = "BigDecimal", name = "availableBalance", value = "帐号可用余额", required = true),@ApiImplicitParam(paramType = "path", dataType = "String", name = "remarket", value = "操作说明", required = true)})
 	@ApiOperation(value = "设置资金账户可用余额")
 	public Response<CapitalAccountDto> modifyAccount(@PathVariable Long id, @PathVariable BigDecimal availableBalance, @PathVariable String remarket) {
 		CapitalAccountDto response = business.revisionAccount(id, availableBalance,remarket);
