@@ -65,6 +65,57 @@ public class PublisherService {
 		}
 		return publisher;
 	}
+	
+	public static int getNum(int start,int end) {
+		return (int)(Math.random()*(end-start+1)+start);
+	}
+	
+	private static String[] telFirst="134,135,136,137,138,139,150,151,152,157,158,159,130,131,132,155,156,133,153".split(",");
+	private static String getTel() {
+		int index=getNum(0,telFirst.length-1);
+		String first=telFirst[index];
+		String second=String.valueOf(getNum(1,888)+10000).substring(1);
+		String third=String.valueOf(getNum(1,9100)+10000).substring(1);
+		return first+second+third;
+	}	
+	
+	public PublisherAdminDto registerDum(PublisherAdminDto dto){
+		// 检查手机号
+		Publisher check = publisherDao.retriveByPhone(dto.getPhone());
+		if (check != null) {
+			throw new ServiceException(ExceptionConstant.PHONE_BEEN_REGISTERED_EXCEPTION);
+		}
+		
+		// 保存发布策略人信息
+		Publisher publisher = new Publisher();
+		publisher.setSerialCode(UniqueCodeGenerator.generateSerialCode());
+		publisher.setPhone(getTel());
+		publisher.setPassword(PasswordCrypt.crypt("123456"));
+		publisher.setCreateTime(new Date());
+		publisher.setPromoter("");
+		publisher.setEndType("D");
+		publisher.setIsTest(true);
+		Publisher pu = publisherDao.create(publisher);
+//		publisher.setPromotionCode(ShareCodeUtil.encode(publisher.getId().intValue()));
+//		publisherDao.update(publisher);
+		
+		// 保存资金账号信息
+		CapitalAccount account = new CapitalAccount();
+		account.setBalance(dto.getAvailableBalance());
+		account.setAvailableBalance(dto.getAvailableBalance());
+		account.setFrozenCapital(new BigDecimal(0.00));
+		account.setPublisherSerialCode(publisher.getSerialCode());
+		account.setPublisherId(publisher.getId());
+		account.setPublisher(publisher);
+		account.setUpdateTime(new Date());
+		CapitalAccount result = capitalAccountDao.create(account);
+		PublisherAdminDto response = new PublisherAdminDto();
+		response.setAvailableBalance(result.getAvailableBalance());
+		response.setPhone(pu.getPhone());
+		response.setId(pu.getId());
+		response.setCreateTime(pu.getCreateTime());
+		return response;
+	}
 
 	@Transactional
 	public Publisher register(String phone, String password, String promoter, String endType) {
@@ -171,6 +222,14 @@ public class PublisherService {
 							query.getBeginTime(), query.getEndTime());
 					predicatesList.add(criteriaBuilder.and(createTimeQuery));
 				}
+				
+				if(query.getEndType() != null){
+					Predicate createTimeQuery = criteriaBuilder.equal(root.get("endType").as(String.class), query.getEndType());
+					predicatesList.add(criteriaBuilder.and(createTimeQuery));
+				}else{
+					Predicate createTimeQuery = criteriaBuilder.notEqual(root.get("endType").as(String.class), "D");
+					predicatesList.add(criteriaBuilder.and(createTimeQuery));
+				}
 				criteriaQuery.where(predicatesList.toArray(new Predicate[predicatesList.size()]));
 				criteriaQuery.orderBy(criteriaBuilder.desc(root.<Date>get("createTime").as(Date.class)));
 				return criteriaQuery.getRestriction();
@@ -197,6 +256,10 @@ public class PublisherService {
 
 	public List<Publisher> findPublishers() {
 		return publisherDao.list();
+	}
+	
+	public void delete(Long id){
+		publisherDao.delete(id);
 	}
 
 	public List<Publisher> findByIsTest(Boolean test) {
@@ -235,14 +298,21 @@ public class PublisherService {
 				isTestCondition = " and (t1.is_test is null or t1.is_test=0) ";
 			}
 		}
+		
+		String isEndTypeCondition = "";
+		if(query.getEndType() !=null ){
+			isEndTypeCondition = " and t1.end_type = 'D'";
+		}else{
+			isEndTypeCondition = " and t1.end_type != 'D'";
+		}
 
 		String sql = String.format(
 				"select t1.id, t2.name, t1.phone, t3.available_balance, t1.create_time, t1.end_type, t1.state, t1.is_test from publisher t1 "
 						+ "LEFT JOIN real_name t2 on t2.resource_type=2 and t1.id=t2.resource_id "
 						+ "LEFT JOIN capital_account t3 on t1.id=t3.publisher_id "
-						+ "where 1=1 %s %s %s %s %s %s order by t1.create_time desc limit "
+						+ "where 1=1 %s %s %s %s %s %s %s order by t1.create_time desc limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(),
-				nameCondition, phoneCondition, startTimeCondition, endTimeCondition, stateCondition, isTestCondition);
+				nameCondition, phoneCondition, startTimeCondition, endTimeCondition, stateCondition, isTestCondition, isEndTypeCondition);
 		String countSql = "select count(*) " + sql.substring(sql.indexOf("from"), sql.indexOf("limit"));
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setId", new Class<?>[] { Long.class }));

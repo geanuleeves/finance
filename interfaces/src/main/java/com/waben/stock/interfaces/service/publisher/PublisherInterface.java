@@ -24,7 +24,15 @@ import com.waben.stock.interfaces.pojo.query.admin.publisher.PublisherAdminQuery
  */
 @FeignClient(name = "publisher", path = "publisher", qualifier = "publisherInterface")
 public interface PublisherInterface {
-
+	
+	@RequestMapping(value = "/savePublisher", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	Response<PublisherAdminDto> savePublisher(@RequestBody PublisherAdminDto dto);
+	
+	@RequestMapping(value = "/modifyPublisher", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	Response<PublisherAdminDto> modifyPublisher(@RequestBody PublisherAdminDto dto);
+	
+	@RequestMapping(value = "/deletePublisher/{id}", method = RequestMethod.GET)
+	Response<Long> deletePublisher(@PathVariable("id") Long id);
 	/**
 	 * 分页查询发布人（管理后台）
 	 * 

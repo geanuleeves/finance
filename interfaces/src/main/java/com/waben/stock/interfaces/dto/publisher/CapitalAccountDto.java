@@ -71,6 +71,10 @@ public class CapitalAccountDto {
 	 * </p>
 	 */
 	private BigDecimal realProfitOrLoss;
+	
+	private BigDecimal dayHoldingProfit;
+	
+	private BigDecimal daySettledProfit;
 
 	public Long getId() {
 		return id;
@@ -166,6 +170,22 @@ public class CapitalAccountDto {
 
 	public void setFloatAvailableBalance(BigDecimal floatAvailableBalance) {
 		this.floatAvailableBalance = floatAvailableBalance;
+	}
+
+	public BigDecimal getDayHoldingProfit() {
+		return dayHoldingProfit;
+	}
+
+	public void setDayHoldingProfit(BigDecimal dayHoldingProfit) {
+		this.dayHoldingProfit = dayHoldingProfit;
+	}
+
+	public BigDecimal getDaySettledProfit() {
+		return daySettledProfit;
+	}
+
+	public void setDaySettledProfit(BigDecimal daySettledProfit) {
+		this.daySettledProfit = daySettledProfit;
 	}
 
 }

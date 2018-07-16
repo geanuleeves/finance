@@ -58,6 +58,12 @@ public class WithdrawalsOrder {
 	@Column(name = "state")
 	@Convert(converter = WithdrawalsStateConverter.class)
 	private WithdrawalsState state;
+	
+	/**
+	 * 审核状态
+	 */
+	@Column(name = "comprehensive_state")
+	private Integer comprehensiveState;
 	/**
 	 * 姓名
 	 */
@@ -127,6 +133,14 @@ public class WithdrawalsOrder {
 
 	public void setState(WithdrawalsState state) {
 		this.state = state;
+	}
+
+	public Integer getComprehensiveState() {
+		return comprehensiveState;
+	}
+
+	public void setComprehensiveState(Integer comprehensiveState) {
+		this.comprehensiveState = comprehensiveState;
 	}
 
 	public Long getPublisherId() {

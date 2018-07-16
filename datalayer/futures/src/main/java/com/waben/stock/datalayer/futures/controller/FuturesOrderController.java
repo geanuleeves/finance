@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
+import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
 import com.waben.stock.datalayer.futures.service.FuturesOrderService;
+import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
 import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
+import com.waben.stock.interfaces.dto.futures.FuturesOvernightRecordDto;
 import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
@@ -35,6 +38,9 @@ public class FuturesOrderController implements FuturesOrderInterface {
 
 	@Autowired
 	private FuturesOrderService futuresOrderService;
+	
+	@Autowired
+	private FuturesOvernightRecordService recordService;
 
 	@Override
 	public Response<PageInfo<FuturesOrderDto>> pagesOrder(@RequestBody FuturesOrderQuery orderQuery) {
@@ -116,6 +122,13 @@ public class FuturesOrderController implements FuturesOrderInterface {
 	@Override
 	public Response<BigDecimal> getUnsettledProfitOrLoss(@PathVariable Long publisherId) {
 		return new Response<>(futuresOrderService.getUnsettledProfitOrLoss(publisherId));
+	}
+
+	@Override
+	public Response<FuturesOvernightRecordDto> fetchByOvernightId(Long id) {
+		FuturesOvernightRecord result = recordService.retrieve(id);
+		FuturesOvernightRecordDto response = CopyBeanUtils.copyBeanProperties(result, new FuturesOvernightRecordDto(), false);
+		return new Response<>(response);
 	}
 
 }

@@ -63,7 +63,9 @@ public enum CapitalFlowType implements CommonalityEnum {
 
 	FuturesLoss("22", "期货亏损"),
 
-	FuturesProfit("23", "期货盈利");
+	FuturesProfit("23", "期货盈利"),
+	
+	AdminOperation("24", "管理员操作");
 
 	private String index;
 

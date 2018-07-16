@@ -38,6 +38,11 @@ public class WithdrawalsOrderDto {
 	 * 提现状态
 	 */
 	private WithdrawalsState state;
+	
+	/**
+	 * 审核状态
+	 */
+	private Integer comprehensiveState;
 	/**
 	 * 姓名
 	 */
@@ -101,6 +106,14 @@ public class WithdrawalsOrderDto {
 
 	public void setState(WithdrawalsState state) {
 		this.state = state;
+	}
+
+	public Integer getComprehensiveState() {
+		return comprehensiveState;
+	}
+
+	public void setComprehensiveState(Integer comprehensiveState) {
+		this.comprehensiveState = comprehensiveState;
 	}
 
 	public String getName() {

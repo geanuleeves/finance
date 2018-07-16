@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import com.waben.stock.datalayer.publisher.business.OutsideMessageBusiness;
 import com.waben.stock.datalayer.publisher.entity.CapitalAccount;
 import com.waben.stock.datalayer.publisher.entity.CapitalAccountRecord;
+import com.waben.stock.datalayer.publisher.entity.CapitalFlow;
 import com.waben.stock.datalayer.publisher.entity.FrozenCapital;
 import com.waben.stock.datalayer.publisher.entity.Publisher;
 import com.waben.stock.datalayer.publisher.entity.WithdrawalsOrder;
@@ -40,6 +41,7 @@ import com.waben.stock.datalayer.publisher.repository.WithdrawalsOrderDao;
 import com.waben.stock.datalayer.publisher.repository.impl.MethodDesc;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.publisher.CapitalAccountAdminDto;
+import com.waben.stock.interfaces.dto.admin.publisher.PublisherAdminDto;
 import com.waben.stock.interfaces.enums.CapitalFlowExtendType;
 import com.waben.stock.interfaces.enums.CapitalFlowType;
 import com.waben.stock.interfaces.enums.FrozenCapitalStatus;
@@ -54,6 +56,7 @@ import com.waben.stock.interfaces.pojo.query.CapitalAccountQuery;
 import com.waben.stock.interfaces.pojo.query.admin.publisher.CapitalAccountAdminQuery;
 import com.waben.stock.interfaces.util.PasswordCrypt;
 import com.waben.stock.interfaces.util.StringUtil;
+import com.waben.stock.interfaces.util.UniqueCodeGenerator;
 
 @Service
 public class CapitalAccountService {
@@ -83,6 +86,10 @@ public class CapitalAccountService {
 
 	@Autowired
 	private DynamicQuerySqlDao sqlDao;
+	
+	public void delete(Long accId){
+		capitalAccountDao.delete(accId);
+	}
 
 	/**
 	 * 根据发布人系列号获取资金账户
@@ -100,6 +107,30 @@ public class CapitalAccountService {
 	 */
 	public CapitalAccount findByPublisherId(Long publisherId) {
 		return capitalAccountDao.retriveByPublisherId(publisherId);
+	}
+	/**
+	 * 修改虚拟账号金额
+	 * @return
+	 */
+	public CapitalAccount midifyDum(PublisherAdminDto dto){
+		CapitalAccount acc = capitalAccountDao.retriveByPublisherId(dto.getId());
+		if(acc==null){
+			Publisher pu = publisherDao.retrieve(dto.getId());
+			acc.setBalance(dto.getAvailableBalance());
+			acc.setAvailableBalance(dto.getAvailableBalance());
+			acc.setFrozenCapital(new BigDecimal(0.00));
+			acc.setPublisherSerialCode(pu.getSerialCode());
+			acc.setPublisherId(pu.getId());
+			acc.setPublisher(pu);
+			acc.setUpdateTime(new Date());
+			CapitalAccount result = capitalAccountDao.create(acc);
+			return result;
+		}else{
+			acc.setAvailableBalance(dto.getAvailableBalance());
+			acc.setBalance(dto.getAvailableBalance().add(acc.getFrozenCapital()));
+			return capitalAccountDao.update(acc);
+		}
+		
 	}
 
 	/**
@@ -660,7 +691,7 @@ public class CapitalAccountService {
 	}
 
 	@Transactional
-	public CapitalAccount revisionAccount(Long staff, Long id, BigDecimal availableBalance) {
+	public CapitalAccount revisionAccount(Long staff, Long id, BigDecimal availableBalance, String remarket) {
 		CapitalAccount capitalAccount = capitalAccountDao.retrieve(id);
 		if (capitalAccount == null) {
 			throw new DataNotFoundException();
@@ -685,6 +716,17 @@ public class CapitalAccountService {
 		record.setUpdateAfterAvailableBalance(capitalAccount.getAvailableBalance());
 		record.setUpdateAfterFrozenCapital(capitalAccount.getFrozenCapital());
 		recordDao.create(record);
+		
+		// 产生资金流水
+		CapitalFlow flow = new CapitalFlow();
+		flow.setAmount(capitalAccount.getBalance());
+		flow.setOccurrenceTime(capitalAccount.getUpdateTime());
+		flow.setPublisher(capitalAccount.getPublisher());
+		flow.setType(CapitalFlowType.AdminOperation);
+		flow.setRemark(remarket);
+		flow.setFlowNo(UniqueCodeGenerator.generateFlowNo());
+		flow.setExtendType(CapitalFlowExtendType.PAYMENTORDER);
+		flow.setAvailableBalance(capitalAccount.getAvailableBalance());
 		return capitalAccountDao.update(capitalAccount);
 	}
 

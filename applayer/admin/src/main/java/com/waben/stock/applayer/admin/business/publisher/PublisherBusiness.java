@@ -75,4 +75,29 @@ public class PublisherBusiness {
 		}
 		throw new ServiceException(response.getCode());
 	}
+	//虚拟账号相关
+	
+	public PublisherAdminDto savePublisher(PublisherAdminDto dto){
+		Response<PublisherAdminDto> response = reference.savePublisher(dto);
+		if("200".equals(response.getCode())){
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+	
+	public PublisherAdminDto modifyPublisher(PublisherAdminDto dto){
+		Response<PublisherAdminDto> response = reference.modifyPublisher(dto);
+		if("200".equals(response.getCode())){
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+	
+	public Long delete(Long id){
+		Response<Long> response = reference.deletePublisher(id);
+		if("".equals(response.getCode())){
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
 }

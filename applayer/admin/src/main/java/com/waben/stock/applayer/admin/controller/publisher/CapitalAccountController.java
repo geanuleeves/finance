@@ -71,8 +71,8 @@ public class CapitalAccountController {
 	@PutMapping("/account/{id}/{availableBalance}")
 	@ApiImplicitParams({@ApiImplicitParam(paramType = "path", dataType = "Long", name = "id", value = "账户id", required = true),@ApiImplicitParam(paramType = "path", dataType = "BigDecimal", name = "availableBalance", value = "帐号可用余额", required = true)})
 	@ApiOperation(value = "设置资金账户可用余额")
-	public Response<CapitalAccountDto> modifyAccount(@PathVariable Long id, @PathVariable BigDecimal availableBalance) {
-		CapitalAccountDto response = business.revisionAccount(id, availableBalance);
+	public Response<CapitalAccountDto> modifyAccount(@PathVariable Long id, @PathVariable BigDecimal availableBalance, @PathVariable String remarket) {
+		CapitalAccountDto response = business.revisionAccount(id, availableBalance,remarket);
 		return new Response<>(response);
 	}
 	

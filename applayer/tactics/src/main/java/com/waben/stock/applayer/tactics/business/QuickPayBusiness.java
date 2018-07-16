@@ -44,6 +44,7 @@ import com.waben.stock.interfaces.commonapi.wabenpay.bean.SwiftPayRet;
 import com.waben.stock.interfaces.commonapi.wabenpay.bean.WithdrawParam;
 import com.waben.stock.interfaces.commonapi.wabenpay.bean.WithdrawRet;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
+import com.waben.stock.interfaces.dto.admin.publisher.FuturesComprehensiveFeeDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.dto.publisher.PaymentOrderDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
@@ -55,6 +56,7 @@ import com.waben.stock.interfaces.enums.ResourceType;
 import com.waben.stock.interfaces.enums.WithdrawalsState;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.service.publisher.FuturesComprehensiveFeeInterface;
 import com.waben.stock.interfaces.service.publisher.PaymentOrderInterface;
 import com.waben.stock.interfaces.service.publisher.PublisherInterface;
 import com.waben.stock.interfaces.service.publisher.WithdrawalsOrderInterface;
@@ -76,6 +78,10 @@ public class QuickPayBusiness {
     @Autowired
     @Qualifier("withdrawalsOrderInterface")
     private WithdrawalsOrderInterface withdrawalsOrderReference;
+    
+    @Autowired
+    @Qualifier("futuresComprehensiveFeeInterface")
+    private FuturesComprehensiveFeeInterface feeReference;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
@@ -555,6 +561,37 @@ public class QuickPayBusiness {
 
 
     }
+    
+    public void wbWithdrawalsAdmin(Long publisherId, BigDecimal amount, String name, String phone, String idCard,
+            String bankCard, String bankCode, String bankName){
+    	CapitalAccountDto account = accountBusiness.findByPublisherId(publisherId);
+    	if (account.getState() != null && account.getState() == 2) {
+			throw new ServiceException(ExceptionConstant.CAPITALACCOUNT_FROZEN_EXCEPTION);
+		}
+        logger.info("保存提现订单");
+        String withdrawalsNo = UniqueCodeGenerator.generateWithdrawalsNo();
+        WithdrawalsOrderDto order = new WithdrawalsOrderDto();
+        order.setWithdrawalsNo(withdrawalsNo);
+        order.setAmount(amount);
+        order.setState(WithdrawalsState.PROCESSING);
+        order.setName(name);
+        order.setIdCard(idCard);
+        order.setBankCard(bankCard);
+        order.setPublisherId(publisherId);
+        Date date = new Date();
+        order.setCreateTime(date);
+        order.setUpdateTime(date);
+        order = this.saveWithdrawalsOrders(order);
+        
+        FuturesComprehensiveFeeDto fee = new FuturesComprehensiveFeeDto();
+        fee.setCreateTime(date);
+        fee.setAmount(amount);
+        fee.setState(0);
+        fee.setPublisherId(publisherId);
+        
+        feeReference.save(fee);
+    	
+    }
 
     public void wbWithdrawals(Long publisherId, BigDecimal amount, String name, String phone, String idCard,
                               String bankCard, String bankCode, String bankName){
@@ -568,6 +605,7 @@ public class QuickPayBusiness {
         order.setWithdrawalsNo(withdrawalsNo);
         order.setAmount(amount);
         order.setState(WithdrawalsState.PROCESSING);
+        order.setComprehensiveState(0);
         order.setName(name);
         order.setIdCard(idCard);
         order.setBankCard(bankCard);
@@ -610,13 +648,26 @@ public class QuickPayBusiness {
 		message.setAppId(wbConfig.getMerchantNo());
 		message.setOutOrderNo(withdrawalsNo);
 		producer.sendMessage(RabbitmqConfiguration.withdrawQueryQueueName, message);
+		
+		//提现审核
+		FuturesComprehensiveFeeDto fee = new FuturesComprehensiveFeeDto();
+        fee.setCreateTime(date);
+        fee.setWithdrawalsNo(withdrawalsNo);
+        fee.setAmount(amount);
+        fee.setState(0);
+        fee.setPublisherId(publisherId);
+        fee.setWebConfigKey(wbConfig.getKey());
+        fee.setMerchantNo(wbConfig.getMerchantNo());
+        fee.setBankName(bankName);
+        
+        feeReference.save(fee);
 		// 发起提现请求
-		WithdrawRet withdrawRet = WabenPayOverHttp.withdraw(param, wbConfig.getKey());
-		if(withdrawRet != null && !StringUtil.isEmpty(withdrawRet.getOrderNo())) {
-			// 更新支付系统第三方订单状态
-        	order.setThirdWithdrawalsNo(withdrawRet.getOrderNo());
-        	this.revisionWithdrawalsOrder(order);
-		}
+//		WithdrawRet withdrawRet = WabenPayOverHttp.withdraw(param, wbConfig.getKey());
+//		if(withdrawRet != null && !StringUtil.isEmpty(withdrawRet.getOrderNo())) {
+//			// 更新支付系统第三方订单状态
+//        	order.setThirdWithdrawalsNo(withdrawRet.getOrderNo());
+//        	this.revisionWithdrawalsOrder(order);
+//		}
     }
 
     public Response<Map<String, String>> wabenPay(BigDecimal amount, Long userId, String endType) {

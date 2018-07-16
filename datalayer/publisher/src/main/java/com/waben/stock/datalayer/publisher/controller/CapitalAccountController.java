@@ -182,8 +182,8 @@ public class CapitalAccountController implements CapitalAccountInterface {
 
 	@Override
 	public Response<CapitalAccountDto> modifyAccount(@PathVariable Long staff, @PathVariable Long id,
-			@PathVariable BigDecimal availableBalance) {
-		CapitalAccount result = capitalAccountService.revisionAccount(staff, id, availableBalance);
+			@PathVariable BigDecimal availableBalance,@PathVariable String remarket) {
+		CapitalAccount result = capitalAccountService.revisionAccount(staff, id, availableBalance, remarket);
 		CapitalAccountDto response = CopyBeanUtils.copyBeanProperties(CapitalAccountDto.class, result, false);
 		return new Response<>(response);
 	}
