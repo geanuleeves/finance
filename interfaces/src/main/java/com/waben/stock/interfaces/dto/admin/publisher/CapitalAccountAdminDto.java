@@ -34,6 +34,8 @@ public class CapitalAccountAdminDto {
 	 * 账户可用余额
 	 */
 	private BigDecimal availableBalance;
+	
+	private BigDecimal balance;
 	/**
 	 * 更新时间
 	 */
@@ -105,6 +107,14 @@ public class CapitalAccountAdminDto {
 
 	public void setAvailableBalance(BigDecimal availableBalance) {
 		this.availableBalance = availableBalance;
+	}
+
+	public BigDecimal getBalance() {
+		return balance;
+	}
+
+	public void setBalance(BigDecimal balance) {
+		this.balance = balance;
 	}
 
 	public Date getUpdateTime() {

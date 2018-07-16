@@ -64,6 +64,8 @@ public class FuturesComprehensiveFeeService {
 					}else{
 						predicateList.add(criteriaBuilder.notEqual(root.get("state").as(Integer.class), 0));
 					}
+				}else{
+					predicateList.add(criteriaBuilder.notEqual(root.get("state").as(Integer.class), 0));
 				}
 				
 				if (predicateList.size() > 0) {

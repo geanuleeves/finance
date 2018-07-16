@@ -635,7 +635,9 @@ public class FuturesContractController implements FuturesContractInterface {
 				Integer holidayBan = checkedFuturesHoliday(holiday, exchangeTime);
 				if (holidayBan == 2) {
 					contractDto.setState(holidayBan);
-					contractDto.setNextTradingTime(fullSdf.format(holiday.getNextTradeTime()));
+					if(holiday.getNextTradeTime()!=null){
+						contractDto.setNextTradingTime(fullSdf.format(holiday.getNextTradeTime()));
+					}
 					contractDto.setCurrentTradeTimeDesc("当前时段为节假日时间");
 				}
 			}
