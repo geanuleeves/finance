@@ -93,6 +93,19 @@ public final class Message {
      */
     com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteSimpleData.FuturesQuoteSimpleDataBaseOrBuilder getFqListOrBuilder(
         int index);
+
+    /**
+     * <code>optional .FuturesQuoteFullDataBase fullFq = 8;</code>
+     */
+    boolean hasFullFq();
+    /**
+     * <code>optional .FuturesQuoteFullDataBase fullFq = 8;</code>
+     */
+    com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase getFullFq();
+    /**
+     * <code>optional .FuturesQuoteFullDataBase fullFq = 8;</code>
+     */
+    com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBaseOrBuilder getFullFqOrBuilder();
   }
   /**
    * Protobuf type {@code MessageBase}
@@ -187,6 +200,19 @@ public final class Message {
               }
               fqList_.add(
                   input.readMessage(com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteSimpleData.FuturesQuoteSimpleDataBase.parser(), extensionRegistry));
+              break;
+            }
+            case 66: {
+              com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase.Builder subBuilder = null;
+              if (fullFq_ != null) {
+                subBuilder = fullFq_.toBuilder();
+              }
+              fullFq_ = input.readMessage(com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase.parser(), extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(fullFq_);
+                fullFq_ = subBuilder.buildPartial();
+              }
+
               break;
             }
           }
@@ -374,6 +400,27 @@ public final class Message {
       return fqList_.get(index);
     }
 
+    public static final int FULLFQ_FIELD_NUMBER = 8;
+    private com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase fullFq_;
+    /**
+     * <code>optional .FuturesQuoteFullDataBase fullFq = 8;</code>
+     */
+    public boolean hasFullFq() {
+      return fullFq_ != null;
+    }
+    /**
+     * <code>optional .FuturesQuoteFullDataBase fullFq = 8;</code>
+     */
+    public com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase getFullFq() {
+      return fullFq_ == null ? com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase.getDefaultInstance() : fullFq_;
+    }
+    /**
+     * <code>optional .FuturesQuoteFullDataBase fullFq = 8;</code>
+     */
+    public com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBaseOrBuilder getFullFqOrBuilder() {
+      return getFullFq();
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -406,6 +453,9 @@ public final class Message {
       }
       for (int i = 0; i < fqList_.size(); i++) {
         output.writeMessage(7, fqList_.get(i));
+      }
+      if (fullFq_ != null) {
+        output.writeMessage(8, getFullFq());
       }
     }
 
@@ -440,6 +490,10 @@ public final class Message {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(7, fqList_.get(i));
       }
+      if (fullFq_ != null) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(8, getFullFq());
+      }
       memoizedSize = size;
       return size;
     }
@@ -472,6 +526,11 @@ public final class Message {
       }
       result = result && getFqListList()
           .equals(other.getFqListList());
+      result = result && (hasFullFq() == other.hasFullFq());
+      if (hasFullFq()) {
+        result = result && getFullFq()
+            .equals(other.getFullFq());
+      }
       return result;
     }
 
@@ -501,6 +560,10 @@ public final class Message {
       if (getFqListCount() > 0) {
         hash = (37 * hash) + FQLIST_FIELD_NUMBER;
         hash = (53 * hash) + getFqListList().hashCode();
+      }
+      if (hasFullFq()) {
+        hash = (37 * hash) + FULLFQ_FIELD_NUMBER;
+        hash = (53 * hash) + getFullFq().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -643,6 +706,12 @@ public final class Message {
         } else {
           fqListBuilder_.clear();
         }
+        if (fullFqBuilder_ == null) {
+          fullFq_ = null;
+        } else {
+          fullFq_ = null;
+          fullFqBuilder_ = null;
+        }
         return this;
       }
 
@@ -685,6 +754,11 @@ public final class Message {
           result.fqList_ = fqList_;
         } else {
           result.fqList_ = fqListBuilder_.build();
+        }
+        if (fullFqBuilder_ == null) {
+          result.fullFq_ = fullFq_;
+        } else {
+          result.fullFq_ = fullFqBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -773,6 +847,9 @@ public final class Message {
               fqListBuilder_.addAllMessages(other.fqList_);
             }
           }
+        }
+        if (other.hasFullFq()) {
+          mergeFullFq(other.getFullFq());
         }
         onChanged();
         return this;
@@ -1391,6 +1468,123 @@ public final class Message {
         }
         return fqListBuilder_;
       }
+
+      private com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase fullFq_ = null;
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase, com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase.Builder, com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBaseOrBuilder> fullFqBuilder_;
+      /**
+       * <code>optional .FuturesQuoteFullDataBase fullFq = 8;</code>
+       */
+      public boolean hasFullFq() {
+        return fullFqBuilder_ != null || fullFq_ != null;
+      }
+      /**
+       * <code>optional .FuturesQuoteFullDataBase fullFq = 8;</code>
+       */
+      public com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase getFullFq() {
+        if (fullFqBuilder_ == null) {
+          return fullFq_ == null ? com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase.getDefaultInstance() : fullFq_;
+        } else {
+          return fullFqBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .FuturesQuoteFullDataBase fullFq = 8;</code>
+       */
+      public Builder setFullFq(com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase value) {
+        if (fullFqBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          fullFq_ = value;
+          onChanged();
+        } else {
+          fullFqBuilder_.setMessage(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .FuturesQuoteFullDataBase fullFq = 8;</code>
+       */
+      public Builder setFullFq(
+          com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase.Builder builderForValue) {
+        if (fullFqBuilder_ == null) {
+          fullFq_ = builderForValue.build();
+          onChanged();
+        } else {
+          fullFqBuilder_.setMessage(builderForValue.build());
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .FuturesQuoteFullDataBase fullFq = 8;</code>
+       */
+      public Builder mergeFullFq(com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase value) {
+        if (fullFqBuilder_ == null) {
+          if (fullFq_ != null) {
+            fullFq_ =
+              com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase.newBuilder(fullFq_).mergeFrom(value).buildPartial();
+          } else {
+            fullFq_ = value;
+          }
+          onChanged();
+        } else {
+          fullFqBuilder_.mergeFrom(value);
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .FuturesQuoteFullDataBase fullFq = 8;</code>
+       */
+      public Builder clearFullFq() {
+        if (fullFqBuilder_ == null) {
+          fullFq_ = null;
+          onChanged();
+        } else {
+          fullFq_ = null;
+          fullFqBuilder_ = null;
+        }
+
+        return this;
+      }
+      /**
+       * <code>optional .FuturesQuoteFullDataBase fullFq = 8;</code>
+       */
+      public com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase.Builder getFullFqBuilder() {
+        
+        onChanged();
+        return getFullFqFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .FuturesQuoteFullDataBase fullFq = 8;</code>
+       */
+      public com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBaseOrBuilder getFullFqOrBuilder() {
+        if (fullFqBuilder_ != null) {
+          return fullFqBuilder_.getMessageOrBuilder();
+        } else {
+          return fullFq_ == null ?
+              com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase.getDefaultInstance() : fullFq_;
+        }
+      }
+      /**
+       * <code>optional .FuturesQuoteFullDataBase fullFq = 8;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilderV3<
+          com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase, com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase.Builder, com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBaseOrBuilder> 
+          getFullFqFieldBuilder() {
+        if (fullFqBuilder_ == null) {
+          fullFqBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+              com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase, com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase.Builder, com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBaseOrBuilder>(
+                  getFullFq(),
+                  getParentForChildren(),
+                  isClean());
+          fullFq_ = null;
+        }
+        return fullFqBuilder_;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -1456,13 +1650,15 @@ public final class Message {
     java.lang.String[] descriptorData = {
       "\n\rMessage.proto\032\rCommand.proto\032\026FuturesQ" +
       "uoteData.proto\032\034FuturesQuoteSimpleData.p" +
-      "roto\"\273\001\n\013MessageBase\022\020\n\010clientId\030\001 \001(\t\022\031" +
-      "\n\003cmd\030\002 \001(\0162\014.CommandType\022\014\n\004type\030\003 \001(\003\022" +
-      "\023\n\013requestType\030\004 \001(\003\022\014\n\004data\030\005 \001(\t\022!\n\002fq" +
-      "\030\006 \001(\0132\025.FuturesQuoteDataBase\022+\n\006fqList\030" +
-      "\007 \003(\0132\033.FuturesQuoteSimpleDataBaseBA\n6co" +
-      "m.waben.stock.futuresgateway.yisheng.com" +
-      "mon.protobufB\007Messageb\006proto3"
+      "roto\032\032FuturesQuoteFullData.proto\"\346\001\n\013Mes" +
+      "sageBase\022\020\n\010clientId\030\001 \001(\t\022\031\n\003cmd\030\002 \001(\0162" +
+      "\014.CommandType\022\014\n\004type\030\003 \001(\003\022\023\n\013requestTy" +
+      "pe\030\004 \001(\003\022\014\n\004data\030\005 \001(\t\022!\n\002fq\030\006 \001(\0132\025.Fut" +
+      "uresQuoteDataBase\022+\n\006fqList\030\007 \003(\0132\033.Futu" +
+      "resQuoteSimpleDataBase\022)\n\006fullFq\030\010 \001(\0132\031" +
+      ".FuturesQuoteFullDataBaseBA\n6com.waben.s" +
+      "tock.futuresgateway.yisheng.common.proto",
+      "bufB\007Messageb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1478,16 +1674,18 @@ public final class Message {
           com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.getDescriptor(),
           com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.getDescriptor(),
           com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteSimpleData.getDescriptor(),
+          com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.getDescriptor(),
         }, assigner);
     internal_static_MessageBase_descriptor =
       getDescriptor().getMessageTypes().get(0);
     internal_static_MessageBase_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_MessageBase_descriptor,
-        new java.lang.String[] { "ClientId", "Cmd", "Type", "RequestType", "Data", "Fq", "FqList", });
+        new java.lang.String[] { "ClientId", "Cmd", "Type", "RequestType", "Data", "Fq", "FqList", "FullFq", });
     com.waben.stock.futuresgateway.yisheng.common.protobuf.Command.getDescriptor();
     com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.getDescriptor();
     com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteSimpleData.getDescriptor();
+    com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

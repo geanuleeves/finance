@@ -29,9 +29,11 @@ import com.waben.stock.datalayer.futures.service.FuturesOrderService;
 import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
+import com.waben.stock.interfaces.dto.futures.MarketAveragePrice;
 import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
 import com.waben.stock.interfaces.enums.CapitalFlowExtendType;
 import com.waben.stock.interfaces.enums.CapitalFlowType;
+import com.waben.stock.interfaces.enums.FuturesActionType;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
@@ -129,8 +131,6 @@ public class WindControlSchedule {
 								orderService.cancelOrder(order.getId(), order.getPublisherId());
 								continue;
 							}
-							orderService.sellingEntrust(order, FuturesWindControlType.ReachProfitPoint,
-									FuturesTradePriceType.MKT, null);
 							continue;
 						}
 						// step 7 : 是否达到强平点
@@ -161,8 +161,6 @@ public class WindControlSchedule {
 								orderService.cancelOrder(order.getId(), order.getPublisherId());
 								continue;
 							}
-							orderService.sellingEntrust(order, FuturesWindControlType.ReachLossPoint,
-									FuturesTradePriceType.MKT, null);
 							continue;
 						}
 						// step 9 : 是否触发隔夜时间
@@ -220,13 +218,23 @@ public class WindControlSchedule {
 		FuturesOrderType orderType = order.getOrderType();
 		BigDecimal limitProfitPrice = computeLimitProfitPrice(order);
 		if (orderType == FuturesOrderType.BuyUp) {
-			BigDecimal lastPrice = market.getBidPrice();
-			if (lastPrice != null && limitProfitPrice != null && lastPrice.compareTo(limitProfitPrice) >= 0) {
+			BigDecimal lastPrice = orderService.computeMktAvgPrice(order.getCommoditySymbol(), order.getContractNo(),
+					FuturesActionType.SELL, order.getTotalQuantity()).getAvgFillPrice();
+			if (lastPrice != null && lastPrice.compareTo(BigDecimal.ZERO) > 0 && limitProfitPrice != null
+					&& lastPrice.compareTo(limitProfitPrice) >= 0) {
+				if (order.getState() == FuturesOrderState.Position) {
+					orderService.unwindOrder(order.getId(), lastPrice);
+				}
 				return true;
 			}
 		} else {
-			BigDecimal lastPrice = market.getAskPrice();
-			if (lastPrice != null && limitProfitPrice != null && lastPrice.compareTo(limitProfitPrice) <= 0) {
+			BigDecimal lastPrice = orderService.computeMktAvgPrice(order.getCommoditySymbol(), order.getContractNo(),
+					FuturesActionType.BUY, order.getTotalQuantity()).getAvgFillPrice();
+			if (lastPrice != null && lastPrice.compareTo(BigDecimal.ZERO) > 0 && limitProfitPrice != null
+					&& lastPrice.compareTo(limitProfitPrice) <= 0) {
+				if (order.getState() == FuturesOrderState.Position) {
+					orderService.unwindOrder(order.getId(), lastPrice);
+				}
 				return true;
 			}
 		}
@@ -387,13 +395,23 @@ public class WindControlSchedule {
 		FuturesOrderType orderType = order.getOrderType();
 		BigDecimal limitLossPrice = computeLimitLossPrice(order);
 		if (orderType == FuturesOrderType.BuyUp) {
-			BigDecimal lastPrice = market.getBidPrice();
-			if (lastPrice != null && limitLossPrice != null && lastPrice.compareTo(limitLossPrice) <= 0) {
+			BigDecimal lastPrice = orderService.computeMktAvgPrice(order.getCommoditySymbol(), order.getContractNo(),
+					FuturesActionType.SELL, order.getTotalQuantity()).getAvgFillPrice();
+			if (lastPrice != null && lastPrice.compareTo(BigDecimal.ZERO) > 0 && limitLossPrice != null
+					&& lastPrice.compareTo(limitLossPrice) <= 0) {
+				if (order.getState() == FuturesOrderState.Position) {
+					orderService.unwindOrder(order.getId(), lastPrice);
+				}
 				return true;
 			}
 		} else {
-			BigDecimal lastPrice = market.getAskPrice();
-			if (lastPrice != null && limitLossPrice != null && lastPrice.compareTo(limitLossPrice) >= 0) {
+			BigDecimal lastPrice = orderService.computeMktAvgPrice(order.getCommoditySymbol(), order.getContractNo(),
+					FuturesActionType.BUY, order.getTotalQuantity()).getAvgFillPrice();
+			if (lastPrice != null && lastPrice.compareTo(BigDecimal.ZERO) > 0 && limitLossPrice != null
+					&& lastPrice.compareTo(limitLossPrice) >= 0) {
+				if (order.getState() == FuturesOrderState.Position) {
+					orderService.unwindOrder(order.getId(), lastPrice);
+				}
 				return true;
 			}
 		}

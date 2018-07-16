@@ -46,6 +46,7 @@ import com.waben.stock.datalayer.futures.entity.FuturesStopLossOrProfit;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesOrderStateConverter;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControlTypeConverter;
+import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.EntrustQueryConsumer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorPublisherFuturesOrderConsumer;
 import com.waben.stock.datalayer.futures.repository.DynamicQuerySqlDao;
@@ -55,7 +56,6 @@ import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
 import com.waben.stock.datalayer.futures.repository.FuturesOvernightRecordDao;
 import com.waben.stock.datalayer.futures.repository.FuturesStopLossOrProfitDao;
 import com.waben.stock.datalayer.futures.repository.impl.MethodDesc;
-import com.waben.stock.datalayer.futures.schedule.RetriveAllQuoteSchedule;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.TradeFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
@@ -139,7 +139,7 @@ public class FuturesOrderService {
 	private FuturesTradeLimitService futuresTradeLimitService;
 
 	@Autowired
-	private RetriveAllQuoteSchedule allQuote;
+	private QuoteContainer allQuote;
 
 	@Autowired
 	private MonitorPublisherFuturesOrderConsumer monitorPublisher;
