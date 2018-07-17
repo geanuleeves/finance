@@ -28,11 +28,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.waben.stock.datalayer.organization.business.BindCardBusiness;
 import com.waben.stock.datalayer.organization.business.FuturesAgentPriceBusiness;
 import com.waben.stock.datalayer.organization.business.FuturesCommodityBusiness;
+import com.waben.stock.datalayer.organization.entity.BenefitConfig;
 import com.waben.stock.datalayer.organization.entity.FuturesAgentPrice;
 import com.waben.stock.datalayer.organization.entity.Organization;
 import com.waben.stock.datalayer.organization.entity.OrganizationAccount;
 import com.waben.stock.datalayer.organization.entity.OrganizationPublisher;
 import com.waben.stock.datalayer.organization.entity.SettlementMethod;
+import com.waben.stock.datalayer.organization.repository.BenefitConfigDao;
 import com.waben.stock.datalayer.organization.repository.DynamicQuerySqlDao;
 import com.waben.stock.datalayer.organization.repository.FuturesAgentPriceDao;
 import com.waben.stock.datalayer.organization.repository.OrganizationAccountDao;
@@ -51,6 +53,7 @@ import com.waben.stock.interfaces.dto.organization.OrganizationStaDto;
 import com.waben.stock.interfaces.dto.organization.TradingFowDto;
 import com.waben.stock.interfaces.dto.organization.TreeNode;
 import com.waben.stock.interfaces.dto.publisher.BindCardDto;
+import com.waben.stock.interfaces.enums.BenefitConfigType;
 import com.waben.stock.interfaces.enums.BindCardResourceType;
 import com.waben.stock.interfaces.enums.CapitalFlowType;
 import com.waben.stock.interfaces.enums.OrganizationState;
@@ -101,6 +104,9 @@ public class OrganizationService {
 
 	@Autowired
 	private FuturesCommodityBusiness commodityBusiness;
+
+	@Autowired
+	private BenefitConfigDao benefitConfigDao;
 
 	// @Autowired
 	// private StockOptionTradeBusiness tradeBusiness;
@@ -811,7 +817,7 @@ public class OrganizationService {
 	}
 
 	/**
-	 * 判断是否期货代理价格是否合法
+	 * 判断期货代理价格是否合法
 	 * 
 	 * @param currentPrice
 	 *            当前期货代理价格数据
@@ -829,18 +835,18 @@ public class OrganizationService {
 			throw new ServiceException(ExceptionConstant.CONTRACT_DOESNOT_EXIST_EXCEPTION);
 		}
 		if (organization.getLevel() <= 2) {
-			if (contractDto.getPerUnitReserveFund() == null || contractDto.getOpenwindServiceFee() == null
-					|| contractDto.getUnwindServiceFee() == null
+			if (contractDto.getOpenwindServiceFee() == null || contractDto.getUnwindServiceFee() == null
 					|| contractDto.getOvernightPerUnitDeferredFee() == null) {
 				// 没有设置全局成本价
 				throw new ServiceException(ExceptionConstant.NOT_GLOBAL_COST_PRICE_ISSET_EXCEPTION);
 			}
 
-			if (currentPrice.getCostReserveFund() == null) {
-				currentPrice.setCostReserveFund(contractDto.getPerUnitReserveFund());
-			} else if (currentPrice.getCostReserveFund() == BigDecimal.ZERO) {
-				currentPrice.setCostReserveFund(null);
-			} /*
+			/*
+			 * if (currentPrice.getCostReserveFund() == null) {
+			 * currentPrice.setCostReserveFund(contractDto.getPerUnitReserveFund
+			 * ()); } else if (currentPrice.getCostReserveFund() ==
+			 * BigDecimal.ZERO) { currentPrice.setCostReserveFund(null); }
+			 */ /*
 				 * else if
 				 * (currentPrice.getCostReserveFund().compareTo(contractDto.
 				 * getPerUnitReserveFund()) < 0) { // 成本保证金不能比全局设置的低 throw new
@@ -1106,8 +1112,8 @@ public class OrganizationService {
 	 * @return 货代理商数据
 	 */
 	public FuturesAgentPrice superiorAgentPrice(Long orgId, Long commodityId) {
-		OrganizationDto organization = agentPriceBusiness.fetchByOrgId(orgId);
-		return agentPriceDao.findByCommodityIdAndOrgId(commodityId, organization.getParentId());
+		Organization org = organizationDao.retrieve(orgId);
+		return agentPriceDao.findByCommodityIdAndOrgId(commodityId, org.getParentId());
 	}
 
 	public FuturesOrderCountDto getSUMOrder(FuturesTradeAdminQuery query) {
@@ -1142,10 +1148,10 @@ public class OrganizationService {
 		if (!StringUtil.isEmpty(query.getOrderType())) {
 			orderTypeCondition = " and t1.order_type = " + query.getOrderType() + "";
 		}
-		
+
 		String buyingPriceTypeCodition = "";
-		if(!StringUtil.isEmpty(query.getPriceType())){
-			buyingPriceTypeCodition = " and t1.buying_price_type = "+ query.getPriceType() +"";
+		if (!StringUtil.isEmpty(query.getPriceType())) {
+			buyingPriceTypeCodition = " and t1.buying_price_type = " + query.getPriceType() + "";
 		}
 
 		String windControlTypeCondition = "";
@@ -1167,6 +1173,61 @@ public class OrganizationService {
 		List<FuturesOrderCountDto> content = sqlDao.execute(FuturesOrderCountDto.class, sql, setMethodMap);
 		if (content != null && content.size() > 0) {
 			return content.get(0);
+		}
+		return null;
+	}
+
+	public Integer addAgentPartition(BigDecimal ratio, BigDecimal platformRatio, Long orgId, Long id) {
+		Organization org = organizationDao.retrieve(orgId);
+		Organization orgParent = org.getParent();
+		List<BenefitConfig> orgParentList = benefitConfigDao.retrieveByOrgAndResourceType(orgParent, 3);
+		if (orgParent.getLevel() != 1) {
+			if (orgParentList != null && orgParentList.size() > 0) {
+				BenefitConfig config = orgParentList.get(0);
+				if (config.getRatio() == null) {
+					// 上级未设置分成比例
+					throw new ServiceException(ExceptionConstant.PROPORTION_SUPERIOR_NOTSET_PROPORTION_EXCEPTION);
+				}
+				BigDecimal sumRatio = benefitConfigDao.surplusRatio(orgParent.getTreeCode());
+				if (sumRatio == null) {
+					sumRatio = BigDecimal.ZERO;
+				}
+				// 剩余可设置比例
+				BigDecimal surplusRatio = new BigDecimal(100).subtract(sumRatio.add(config.getPlatformRatio()));
+				if (ratio.compareTo(surplusRatio) > 0) {
+					// 分成比例已满额
+					throw new ServiceException(ExceptionConstant.THE_PROPORTION_ISFULL_EXCEPTION);
+				}
+
+			} else {
+				// 上级未设置分成比例
+				throw new ServiceException(ExceptionConstant.PROPORTION_SUPERIOR_NOTSET_PROPORTION_EXCEPTION);
+			}
+		}
+		if ((ratio.add(platformRatio)).compareTo(new BigDecimal(100)) > 0) {
+			// 分成比例已满额
+			throw new ServiceException(ExceptionConstant.THE_PROPORTION_ISFULL_EXCEPTION);
+		}
+		BenefitConfig config = new BenefitConfig();
+		config.setId(id);
+		config.setOrg(org);
+		config.setPlatformRatio(platformRatio);
+		config.setRatio(ratio);
+		config.setResourceType(3);
+		config.setType(BenefitConfigType.FuturesComprehensiveFee);
+		if (id != null) {
+			config = benefitConfigDao.update(config);
+		} else {
+			config = benefitConfigDao.create(config);
+		}
+		return config.getId() == null ? 1 : config.getId().intValue();
+	}
+
+	public BenefitConfig getSuperiorAgentPartition(Long orgId) {
+		Organization org = organizationDao.retrieve(orgId);
+		List<BenefitConfig> list = benefitConfigDao.retrieveByOrgAndResourceType(org, 3);
+		if (list != null && list.size() > 0) {
+			return list.get(0);
 		}
 		return null;
 	}

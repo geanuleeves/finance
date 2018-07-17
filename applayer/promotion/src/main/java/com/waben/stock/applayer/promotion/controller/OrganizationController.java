@@ -30,6 +30,7 @@ import com.waben.stock.applayer.promotion.util.PoiUtil;
 import com.waben.stock.applayer.promotion.util.QRCodeUtil;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
+import com.waben.stock.interfaces.dto.organization.BenefitConfigDto;
 import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationStaDto;
@@ -225,6 +226,25 @@ public class OrganizationController {
 		return new Response<>(business.getFuturesByContractId(commodityId));
 	}
 
+	@RequestMapping(value = "/save/agent/partition/{ratio}/{platformRatio}/{orgId}", method = RequestMethod.POST)
+	@ApiOperation(value = "设置代理分成")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "path", dataType = "BigDecimal", name = "ratio", value = "分成比例", required = true),
+			@ApiImplicitParam(paramType = "path", dataType = "BigDecimal", name = "platformRatio", value = "平台分成比例", required = true),
+			@ApiImplicitParam(paramType = "path", dataType = "Long", name = "orgId", value = "代理商ID", required = true),
+			@ApiImplicitParam(paramType = "query", dataType = "Long", name = "id", value = "分成ID", required = true) })
+	public Response<Integer> addAgentPartition(@PathVariable BigDecimal ratio, @PathVariable BigDecimal platformRatio,
+			@PathVariable Long orgId, Long id) {
+		return new Response<>(business.addAgentPartition(ratio, platformRatio, orgId, id));
+	}
+
+	@RequestMapping(value = "/agent/partition/{orgId}", method = RequestMethod.GET)
+	@ApiOperation(value = "获取分成比例信息")
+	@ApiImplicitParam(paramType = "path", dataType = "Long", name = "orgId", value = "代理商ID", required = true)
+	public Response<BenefitConfigDto> getSuperiorAgentPartition(@PathVariable Long orgId) {
+		return new Response<>(business.getSuperiorAgentPartition(orgId));
+	}
+
 	@RequestMapping(value = "/export", method = RequestMethod.GET)
 	@ApiOperation(value = "导出代理商数据")
 	public void export(OrganizationStaQuery query, HttpServletResponse svrResponse) {
@@ -379,6 +399,5 @@ public class OrganizationController {
 		result.add("所属代理商代码/名称");
 		return result;
 	}
-	
 
 }

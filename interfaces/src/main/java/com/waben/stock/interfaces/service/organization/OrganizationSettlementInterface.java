@@ -42,4 +42,12 @@ public interface OrganizationSettlementInterface {
 			@PathVariable("tradeNo") String tradeNo, @PathVariable("totalQuantity") BigDecimal totalQuantity,
 			@PathVariable("deferredFee") BigDecimal deferredFee);
 
+	@RequestMapping(value = "/futuresratiosettlement/{publisherId}/{benefitResourceId}/{futuresOrderId}/{tradeNo}/{totalQuantity}/{serviceFee}/{orderCloseFee}/{deferredFee}/", method = RequestMethod.POST)
+	public Response<String> futuresRatioSettlement(@PathVariable("publisherId") Long publisherId,
+			@PathVariable("benefitResourceId") Long benefitResourceId,
+			@PathVariable("futuresOrderId") Long futuresOrderId, @PathVariable("tradeNo") String tradeNo,
+			@PathVariable("totalQuantity") BigDecimal totalQuantity, @PathVariable("serviceFee") BigDecimal serviceFee,
+			@PathVariable("orderCloseFee") BigDecimal orderCloseFee,
+			@PathVariable("deferredFee") BigDecimal deferredFee);
+
 }

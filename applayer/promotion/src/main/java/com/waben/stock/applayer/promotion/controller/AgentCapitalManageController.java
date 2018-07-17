@@ -3,6 +3,7 @@ package com.waben.stock.applayer.promotion.controller;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,11 +22,13 @@ import com.waben.stock.applayer.promotion.security.SecurityUtil;
 import com.waben.stock.applayer.promotion.util.PoiUtil;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.organization.AgentCapitalManageDto;
+import com.waben.stock.interfaces.dto.organization.FuturesCommissionAuditDto;
 import com.waben.stock.interfaces.enums.OrganizationAccountFlowType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.organization.AgentCapitalManageQuery;
+import com.waben.stock.interfaces.pojo.query.organization.FuturesCommissionAuditQuery;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -64,6 +68,52 @@ public class AgentCapitalManageController {
 		// query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
 		query.setCurrentOrgId(SecurityUtil.getUserDetails().getOrgId());
 		return new Response<>(agentCapitalManageBusiness.pageAgentCapitalManage(query));
+	}
+
+	@RequestMapping(value = "/commission/audit", method = RequestMethod.GET)
+	@ApiOperation(value = "佣金审核列表")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "query", dataType = "String", name = "types", value = "流水类型", required = false),
+			@ApiImplicitParam(paramType = "query", dataType = "String", name = "commoditySymbol", value = "交易代码", required = false),
+			@ApiImplicitParam(paramType = "query", dataType = "String", name = "commodityName", value = "交易名称", required = false),
+			@ApiImplicitParam(paramType = "query", dataType = "Integer", name = "states", value = "佣金审核状态", required = false) })
+	public Response<PageInfo<FuturesCommissionAuditDto>> pagesCommissionAudit(int page, int size, String types,
+			String commoditySymbol, String commodityName, String states) {
+		FuturesCommissionAuditQuery query = new FuturesCommissionAuditQuery();
+		query.setPage(page);
+		query.setSize(size);
+		query.setCommoditySymbol(commoditySymbol);
+		query.setCommodityName(commodityName);
+		query.setTypes(types);
+		query.setStates(states);
+		query.setCurrentOrgId(SecurityUtil.getUserDetails().getOrgId());
+		return new Response<>(agentCapitalManageBusiness.pagesCommissionAudit(query));
+	}
+
+	@RequestMapping(value = "/count/commission/audit", method = RequestMethod.GET)
+	@ApiOperation(value = "待审核订单条数")
+	public Response<Integer> countCommissionAudit() {
+		return new Response<>(
+				agentCapitalManageBusiness.countCommissionAudit(SecurityUtil.getUserDetails().getOrgId()));
+	}
+
+	@RequestMapping(value = "/real/maid/fee", method = RequestMethod.GET)
+	@ApiOperation(value = "实际返佣金额")
+	public Response<BigDecimal> realMaidFee() {
+		return new Response<>(agentCapitalManageBusiness.realMaidFee(SecurityUtil.getUserDetails().getOrgId()));
+	}
+
+	@RequestMapping(value = "/edit/commission/{auditId}/{state}/{remarks}/{realMaidFee}", method = RequestMethod.GET)
+	@ApiOperation(value = "佣金审核修改")
+	@ApiImplicitParams({
+			@ApiImplicitParam(paramType = "path", dataType = "Long", name = "auditId", value = "佣金审核ID", required = true),
+			@ApiImplicitParam(paramType = "path", dataType = "Integer", name = "state", value = "状态", required = true),
+			@ApiImplicitParam(paramType = "path", dataType = "String", name = "remarks", value = "备注", required = false),
+			@ApiImplicitParam(paramType = "path", dataType = "BigDecimal", name = "realMaidFee", value = "实际返佣金额", required = true) })
+	public Response<Integer> editCommissionAudit(@PathVariable("auditId") Long auditId,
+			@PathVariable("state") Integer state, @PathVariable("remarks") String remarks,
+			@PathVariable("realMaidFee") BigDecimal realMaidFee) {
+		return new Response<>(agentCapitalManageBusiness.editCommissionAudit(auditId, state, remarks, realMaidFee));
 	}
 
 	@RequestMapping(value = "/commission/settlement", method = RequestMethod.GET)

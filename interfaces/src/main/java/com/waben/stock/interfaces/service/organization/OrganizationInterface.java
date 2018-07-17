@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
+import com.waben.stock.interfaces.dto.organization.BenefitConfigDto;
 import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.organization.FuturesFowDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationDetailDto;
@@ -44,7 +45,7 @@ public interface OrganizationInterface {
 	 */
 	@RequestMapping(value = "/code/{code}", method = RequestMethod.GET)
 	Response<OrganizationDto> fetchByCode(@PathVariable("code") String code);
-	
+
 	@RequestMapping(value = "/getSUMOrder", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	Response<FuturesOrderCountDto> getSUMOrder(@RequestBody FuturesTradeAdminQuery query);
 
@@ -233,5 +234,31 @@ public interface OrganizationInterface {
 	@RequestMapping(value = "/superior/{orgId}/{commodityId}", method = RequestMethod.GET)
 	Response<FuturesAgentPriceDto> getSuperiorAgentPrice(@PathVariable("orgId") Long orgId,
 			@PathVariable("commodityId") Long commodityId);
+
+	/**
+	 * 设置代理分成
+	 * 
+	 * @param ratio
+	 *            当前代理分成比例
+	 * @param platformRatio
+	 *            平台代理分成比例
+	 * @param orgId
+	 *            代理ID
+	 * @return
+	 */
+	@RequestMapping(value = "/add/agent/partition/{ratio}/{platformRatio}/{orgId}", method = RequestMethod.POST)
+	Response<Integer> addAgentPartition(@PathVariable("ratio") BigDecimal ratio,
+			@PathVariable("platformRatio") BigDecimal platformRatio, @PathVariable("orgId") Long orgId,
+			@RequestParam("id") Long id);
+
+	/**
+	 * 根据代理ID获取分成比例
+	 * 
+	 * @param orgId
+	 *            代理商ID
+	 * @return 分成比例
+	 */
+	@RequestMapping(value = "/superior/partition/{orgId}", method = RequestMethod.GET)
+	Response<BenefitConfigDto> getSuperiorAgentPartition(@PathVariable("orgId") Long orgId);
 
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
 import com.waben.stock.interfaces.dto.manage.RoleDto;
+import com.waben.stock.interfaces.dto.organization.BenefitConfigDto;
 import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationDetailDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationDto;
@@ -200,6 +201,22 @@ public class OrganizationBusiness {
 
 	public FuturesCommodityDto getFuturesByContractId(Long commodityId) {
 		Response<FuturesCommodityDto> response = futuresCommodityInterface.getFuturesByCommodityId(commodityId);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public Integer addAgentPartition(BigDecimal ratio, BigDecimal platformRatio, Long orgId, Long id) {
+		Response<Integer> response = reference.addAgentPartition(ratio, platformRatio, orgId, id);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public BenefitConfigDto getSuperiorAgentPartition(Long orgId) {
+		Response<BenefitConfigDto> response = reference.getSuperiorAgentPartition(orgId);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}

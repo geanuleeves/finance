@@ -1,5 +1,6 @@
 package com.waben.stock.datalayer.organization.repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.waben.stock.datalayer.organization.entity.BenefitConfig;
@@ -18,5 +19,10 @@ public interface BenefitConfigDao extends BaseDao<BenefitConfig, Long> {
 
 	List<BenefitConfig> retrieveByOrgAndTypeAndResourceTypeAndResourceId(Organization org, BenefitConfigType type,
 			Integer resourceType, Long resourceId);
+
+	List<BenefitConfig> retrieveByOrgAndTypeAndResourceType(Organization org, BenefitConfigType type,
+			Integer resourceType);
+
+	BigDecimal surplusRatio(String treeCode);
 
 }

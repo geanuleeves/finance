@@ -58,12 +58,21 @@ public class WithdrawalsOrder {
 	@Column(name = "state")
 	@Convert(converter = WithdrawalsStateConverter.class)
 	private WithdrawalsState state;
-	
 	/**
 	 * 审核状态
+	 * <ul>
+	 * <li>0待审核</li>
+	 * <li>1审核通过</li>
+	 * <li>2审核不通过</li>
+	 * </ul>
 	 */
 	@Column(name = "comprehensive_state")
 	private Integer comprehensiveState;
+	/**
+	 * 备注
+	 */
+	@Column(name = "remark")
+	private String remark;
 	/**
 	 * 姓名
 	 */
@@ -205,6 +214,14 @@ public class WithdrawalsOrder {
 
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 }

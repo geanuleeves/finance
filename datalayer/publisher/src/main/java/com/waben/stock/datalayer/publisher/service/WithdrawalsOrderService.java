@@ -1,8 +1,19 @@
 package com.waben.stock.datalayer.publisher.service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.waben.stock.datalayer.publisher.entity.CapitalAccount;
@@ -16,6 +27,7 @@ import com.waben.stock.interfaces.enums.FrozenCapitalStatus;
 import com.waben.stock.interfaces.enums.FrozenCapitalType;
 import com.waben.stock.interfaces.enums.WithdrawalsState;
 import com.waben.stock.interfaces.exception.ServiceException;
+import com.waben.stock.interfaces.pojo.query.WithdrawalsOrderQuery;
 
 /**
  * 提现订单 Service
@@ -77,6 +89,35 @@ public class WithdrawalsOrderService {
 	public WithdrawalsOrder revision(WithdrawalsOrder withdrawalsOrder) {
 		withdrawalsOrder.setUpdateTime(new Date());
 		return withdrawalsOrderDao.update(withdrawalsOrder);
+	}
+
+	public Page<WithdrawalsOrder> pagesByQuery(WithdrawalsOrderQuery query) {
+		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
+		Page<WithdrawalsOrder> pages = withdrawalsOrderDao.page(new Specification<WithdrawalsOrder>() {
+			@Override
+			public Predicate toPredicate(Root<WithdrawalsOrder> root, CriteriaQuery<?> criteriaQuery,
+					CriteriaBuilder criteriaBuilder) {
+				List<Predicate> predicateList = new ArrayList<>();
+				if (query.getPublisherId() != null && query.getPublisherId() > 0) {
+					predicateList
+							.add(criteriaBuilder.equal(root.get("publisherId").as(Long.class), query.getPublisherId()));
+				}
+				if (query.getStartTime() != null) {
+					predicateList.add(criteriaBuilder.greaterThanOrEqualTo(root.get("updateTime").as(Date.class),
+							query.getStartTime()));
+				}
+				if (query.getEndTime() != null) {
+					predicateList.add(
+							criteriaBuilder.lessThan(root.get("updateTime").as(Date.class), query.getEndTime()));
+				}
+				if (predicateList.size() > 0) {
+					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
+				}
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("updateTime").as(Long.class)));
+				return criteriaQuery.getRestriction();
+			}
+		}, pageable);
+		return pages;
 	}
 
 }

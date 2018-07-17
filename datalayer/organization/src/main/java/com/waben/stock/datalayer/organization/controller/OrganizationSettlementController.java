@@ -31,7 +31,7 @@ public class OrganizationSettlementController implements OrganizationSettlementI
 
 	@Autowired
 	public OrganizationSettlementService service;
-	
+
 	@Autowired
 	private ProfileBusiness profileBusiness;
 
@@ -45,7 +45,7 @@ public class OrganizationSettlementController implements OrganizationSettlementI
 		response.setResult("success");
 		return response;
 	}
-	
+
 	@Override
 	public Response<String> stockoptionSettlement(@PathVariable Long publisherId, @PathVariable Long stockOptionTradeId,
 			@PathVariable String tradeNo, @PathVariable Long cycleId, BigDecimal rightMoneyProfit,
@@ -76,6 +76,19 @@ public class OrganizationSettlementController implements OrganizationSettlementI
 		logger.info("期货代理商结算订单隔夜递延{}，递延费{}!", overnightRecordId, deferredFee);
 		service.futuresDeferredSettlement(publisherId, commodityId, overnightRecordId, tradeNo, totalQuantity,
 				deferredFee);
+		Response<String> response = new Response<String>();
+		response.setResult("success");
+		return response;
+	}
+
+	@Override
+	public Response<String> futuresRatioSettlement(@PathVariable Long publisherId, @PathVariable Long benefitResourceId,
+			@PathVariable Long futuresOrderId, @PathVariable String tradeNo, @PathVariable BigDecimal totalQuantity,
+			@PathVariable BigDecimal serviceFee, @PathVariable BigDecimal orderCloseFee,
+			@PathVariable BigDecimal deferredFee) {
+		logger.info("期货代理商结算订单{}，交易综合手续费{}，订单盈亏金额{}，递延费{}!", futuresOrderId, serviceFee, orderCloseFee, deferredFee);
+		service.futuresRatioSettlement(publisherId, benefitResourceId, futuresOrderId, tradeNo, totalQuantity,
+				serviceFee, orderCloseFee, deferredFee);
 		Response<String> response = new Response<String>();
 		response.setResult("success");
 		return response;

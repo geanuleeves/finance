@@ -21,9 +21,11 @@ import com.waben.stock.datalayer.organization.repository.DynamicQuerySqlDao;
 import com.waben.stock.datalayer.organization.repository.OrganizationAccountFlowDao;
 import com.waben.stock.datalayer.organization.repository.impl.MethodDesc;
 import com.waben.stock.interfaces.dto.organization.AgentCapitalManageDto;
+import com.waben.stock.interfaces.dto.organization.FuturesCommissionAuditDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationAccountFlowWithTradeInfoDto;
 import com.waben.stock.interfaces.enums.OrganizationAccountFlowType;
 import com.waben.stock.interfaces.pojo.query.organization.AgentCapitalManageQuery;
+import com.waben.stock.interfaces.pojo.query.organization.FuturesCommissionAuditQuery;
 import com.waben.stock.interfaces.pojo.query.organization.OrganizationAccountFlowQuery;
 import com.waben.stock.interfaces.util.StringUtil;
 
@@ -399,4 +401,98 @@ public class OrganizationAccountFlowService {
 				totalElements != null ? totalElements.longValue() : 0);
 	}
 
+	public Page<FuturesCommissionAuditDto> pageAgentCapitalCommissionAudit(FuturesCommissionAuditQuery query) {
+		String queryTypeCondition = " and (t7.level=1 or (t4.id=t7.id or t4.tree_code LIKE CONCAT(t7.tree_code,'%%') and t7.level>1)) ";
+
+		String types = "";
+		if (!StringUtil.isEmpty(query.getTypes())) {
+			types = " and t1.type in(" + query.getTypes() + ")";
+		}
+		String commoditySymbol = "";
+		if (!StringUtil.isEmpty(query.getCommoditySymbol())) {
+			commoditySymbol = " and t10.symbol like '" + query.getCommoditySymbol() + "'";
+		}
+		String commodityName = "";
+		if (!StringUtil.isEmpty(query.getCommodityName())) {
+			commodityName = " and t10.name like '" + query.getCommodityName() + "'";
+		}
+		String states = "";
+		if (query.getStates() != null) {
+			states = "and t16.state in(" + query.getStates() + ")";
+		}
+
+		String sql = String
+				.format("select t1.id, t1.amount, t1.flow_no, t1.occurrence_time, t1.origin_amount, t1.remark, t1.resource_id, t1.resource_trade_no, t1.resource_type, t1.type, t1.org_id, "
+						+ "t2.publisher_id as b_publisher_id, t2.publisher_phone as b_publisher_phone, t2.stock_code as b_stock_code, t2.stock_name as b_stock_name, "
+						+ "t3.publisher_id as s_publisher_id, t3.publisher_phone as s_publisher_phone, t3.stock_code as s_stock_code, t3.stock_name as s_stock_name, "
+						+ "t3.cycle_id, t3.cycle_name, t4.code as org_code, t4.name as org_name, "
+						+ "t5.name as b_publisher_name, t6.name as s_publisher_name, t1.available_balance, "
+						+ "t8.commodity_symbol, t8.commodity_name, t8.publisher_id AS o_publisher_id, t14.name AS o_publisher_name ,t15.phone AS o_publisher_phone, "
+
+						+ "t1.amount as maid_fee, t1.origin_amount AS commission, t8.trade_no, "
+						+ "t16.id AS audit_id, t16.real_maid_fee, t16.state, t16.audit_remark "
+						+ "from p_organization_account_flow t1 "
+						+ "LEFT JOIN buy_record t2 on t1.resource_type=1 and t1.resource_id=t2.id "
+						+ "LEFT JOIN stock_option_trade t3 on t1.resource_type=3 and t1.resource_id=t3.id "
+						+ "LEFT JOIN p_organization t4 on t1.org_id=t4.id "
+						+ "LEFT JOIN f_futures_order t8 ON t1.resource_type IN(6,7) AND t8.id = t1.resource_id "
+						+ "LEFT JOIN f_futures_contract t9 ON t9.id = t8.contract_id "
+						+ "LEFT JOIN f_futures_commodity t10 ON t10.id = t9.commodity_id "
+						+ "LEFT JOIN p_futures_agent_price t11 ON t11.commodity_id = t10.id AND t11.org_id = t4.id "
+						+ "LEFT JOIN p_futures_agent_price t12 ON t12.commodity_id=t10.id AND t12.org_id = t4.parent_id "
+						+ "LEFT JOIN real_name t5 on t5.resource_type=2 and t2.publisher_id=t5.resource_id "
+						+ "LEFT JOIN real_name t6 on t6.resource_type=2 and t3.publisher_id=t6.resource_id "
+						+ "LEFT JOIN real_name t14 ON t14.resource_type = 2 " + "AND t8.publisher_id = t14.resource_id "
+						+ "LEFT JOIN publisher t15 ON t15.id = t8.publisher_id "
+						+ "LEFT JOIN p_futures_commission_audit t16 ON t16.flow_id = t1.id "
+						+ "LEFT JOIN p_organization t7 on t7.id=" + query.getCurrentOrgId() + " "
+						+ "where 1=1 %s %s %s %s %s and t1.org_id is not null order by t1.occurrence_time DESC limit "
+						+ query.getPage() * query.getSize() + "," + query.getSize(), queryTypeCondition, types,
+						commoditySymbol, commodityName, states);
+		String countSql = "select count(*) " + sql.substring(sql.indexOf("from"), sql.indexOf("limit"));
+		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
+		setMethodMap.put(new Integer(0), new MethodDesc("setId", new Class<?>[] { Long.class }));
+		setMethodMap.put(new Integer(1), new MethodDesc("setAmount", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(2), new MethodDesc("setFlowNo", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(3), new MethodDesc("setOccurrenceTime", new Class<?>[] { Date.class }));
+		setMethodMap.put(new Integer(4), new MethodDesc("setOriginAmount", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(5), new MethodDesc("setRemark", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(6), new MethodDesc("setResourceId", new Class<?>[] { Long.class }));
+		setMethodMap.put(new Integer(7), new MethodDesc("setResourceTradeNo", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(8), new MethodDesc("setResourceType", new Class<?>[] { Integer.class }));
+		setMethodMap.put(new Integer(9), new MethodDesc("setType", new Class<?>[] { Integer.class }));
+		setMethodMap.put(new Integer(10), new MethodDesc("setOrgId", new Class<?>[] { Long.class }));
+		setMethodMap.put(new Integer(11), new MethodDesc("setbPublisherId", new Class<?>[] { Long.class }));
+		setMethodMap.put(new Integer(12), new MethodDesc("setbPublisherPhone", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(13), new MethodDesc("setbStockCode", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(14), new MethodDesc("setbStockName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(15), new MethodDesc("setsPublisherId", new Class<?>[] { Long.class }));
+		setMethodMap.put(new Integer(16), new MethodDesc("setsPublisherPhone", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(17), new MethodDesc("setsStockCode", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(18), new MethodDesc("setsStockName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(19), new MethodDesc("setCycleId", new Class<?>[] { Long.class }));
+		setMethodMap.put(new Integer(20), new MethodDesc("setCycleName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(21), new MethodDesc("setOrgCode", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(22), new MethodDesc("setOrgName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(23), new MethodDesc("setbPublisherName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(24), new MethodDesc("setsPublisherName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(25), new MethodDesc("setAvailableBalance", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(26), new MethodDesc("setCommoditySymbol", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(27), new MethodDesc("setCommodityName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(28), new MethodDesc("setoPublisherId", new Class<?>[] { Long.class }));
+		setMethodMap.put(new Integer(29), new MethodDesc("setoPublisherName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(30), new MethodDesc("setoPublisherPhone", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(31), new MethodDesc("setAmountRemaid", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(32), new MethodDesc("setCommission", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(33), new MethodDesc("setoTradeNo", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(34), new MethodDesc("setAuditId", new Class<?>[] { Long.class }));
+		setMethodMap.put(new Integer(35), new MethodDesc("setRealMaidFee", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(36), new MethodDesc("setState", new Class<?>[] { Integer.class }));
+		setMethodMap.put(new Integer(37), new MethodDesc("setAuditRemark", new Class<?>[] { String.class }));
+		List<FuturesCommissionAuditDto> content = dynamicQuerySqlDao.execute(FuturesCommissionAuditDto.class, sql,
+				setMethodMap);
+		BigInteger totalElements = dynamicQuerySqlDao.executeComputeSql(countSql);
+		return new PageImpl<>(content, new PageRequest(query.getPage(), query.getSize()),
+				totalElements != null ? totalElements.longValue() : 0);
+	}
 }

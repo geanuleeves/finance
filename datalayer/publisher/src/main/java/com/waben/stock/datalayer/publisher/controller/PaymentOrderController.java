@@ -50,13 +50,6 @@ public class PaymentOrderController implements PaymentOrderInterface {
 	}
 
 	@Override
-	public Response<PageInfo<PaymentOrderDto>> pages(PaymentOrderQuery query) {
-		Page<PaymentOrder> pages = service.pages(query);
-		PageInfo<PaymentOrderDto> result = new PageInfo<>(pages, PaymentOrderDto.class);
-		return new Response<>(result);
-	}
-
-	@Override
 	public Response<PageInfo<PaymentOrderDto>> pagesByQuery(@RequestBody PaymentOrderQuery query) {
 		Page<PaymentOrder> page = service.pagesByQuery(query);
 		PageInfo<PaymentOrderDto> result = PageToPageInfo.pageToPageInfo(page, PaymentOrderDto.class);

@@ -1,6 +1,7 @@
 package com.waben.stock.datalayer.publisher.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,8 +12,11 @@ import com.waben.stock.datalayer.publisher.service.WithdrawalsOrderService;
 import com.waben.stock.interfaces.dto.publisher.WithdrawalsOrderDto;
 import com.waben.stock.interfaces.enums.WithdrawalsState;
 import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.WithdrawalsOrderQuery;
 import com.waben.stock.interfaces.service.publisher.WithdrawalsOrderInterface;
 import com.waben.stock.interfaces.util.CopyBeanUtils;
+import com.waben.stock.interfaces.util.PageToPageInfo;
 
 /**
  * 提现订单 Controller
@@ -58,6 +62,13 @@ public class WithdrawalsOrderController implements WithdrawalsOrderInterface {
 	public Response<WithdrawalsOrderDto> fetchByWithdrawalsNo(@PathVariable String withdrawalsNo) {
 		return new Response<>(CopyBeanUtils.copyBeanProperties(WithdrawalsOrderDto.class,
 				service.findByWithdrawalsNo(withdrawalsNo), false));
+	}
+
+	@Override
+	public Response<PageInfo<WithdrawalsOrderDto>> pagesByQuery(@RequestBody WithdrawalsOrderQuery query) {
+		Page<WithdrawalsOrder> page = service.pagesByQuery(query);
+		PageInfo<WithdrawalsOrderDto> result = PageToPageInfo.pageToPageInfo(page, WithdrawalsOrderDto.class);
+		return new Response<>(result);
 	}
 
 }

@@ -1,5 +1,7 @@
 package com.waben.stock.interfaces.pojo.query;
 
+import java.util.Date;
+
 import com.waben.stock.interfaces.enums.PaymentState;
 import com.waben.stock.interfaces.enums.PaymentType;
 
@@ -14,6 +16,10 @@ public class PaymentOrderQuery extends PageAndSortQuery {
 	private SortQuery[] sorts;
 
 	private String keyword;
+
+	private Date startTime;
+
+	private Date endTime;
 
 	public PaymentOrderQuery() {
 		super();
@@ -32,7 +38,7 @@ public class PaymentOrderQuery extends PageAndSortQuery {
 	public void setPublisherId(Long publisherId) {
 		this.publisherId = publisherId;
 	}
-	
+
 	public PaymentState[] getStates() {
 		return states;
 	}
@@ -63,6 +69,22 @@ public class PaymentOrderQuery extends PageAndSortQuery {
 
 	public void setKeyword(String keyword) {
 		this.keyword = keyword;
+	}
+
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
 	}
 
 }

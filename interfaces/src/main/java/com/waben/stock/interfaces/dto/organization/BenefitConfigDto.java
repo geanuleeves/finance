@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 
 public class BenefitConfigDto {
 
+	private Long id;
+
 	/**
 	 * 对应的资源类型
 	 * <ul>
@@ -36,6 +38,15 @@ public class BenefitConfigDto {
 	 * 权利金分成比例
 	 */
 	private BigDecimal rightMoneyRatio;
+
+	/**
+	 * 平台（交易通）分成比例
+	 */
+	private BigDecimal platformRatio;
+	/**
+	 * 二级或二级一下分成比例
+	 */
+	private BigDecimal ratio;
 	/**
 	 * 对应的机构ID
 	 */
@@ -119,6 +130,30 @@ public class BenefitConfigDto {
 
 	public void setOrgName(String orgName) {
 		this.orgName = orgName;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public BigDecimal getPlatformRatio() {
+		return platformRatio;
+	}
+
+	public void setPlatformRatio(BigDecimal platformRatio) {
+		this.platformRatio = platformRatio;
+	}
+
+	public BigDecimal getRatio() {
+		return ratio;
+	}
+
+	public void setRatio(BigDecimal ratio) {
+		this.ratio = ratio;
 	}
 
 }

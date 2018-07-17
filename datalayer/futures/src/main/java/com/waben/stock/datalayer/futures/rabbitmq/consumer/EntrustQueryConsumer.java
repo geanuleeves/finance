@@ -12,10 +12,12 @@ import org.springframework.stereotype.Component;
 
 import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
+import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqProducer;
 import com.waben.stock.datalayer.futures.rabbitmq.message.EntrustQueryMessage;
 import com.waben.stock.datalayer.futures.service.FuturesOrderService;
+import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesGatewayOrder;
 import com.waben.stock.interfaces.dto.futures.MarketAveragePrice;
 import com.waben.stock.interfaces.enums.FuturesActionType;
@@ -36,6 +38,9 @@ public class EntrustQueryConsumer {
 
 	@Autowired
 	private FuturesOrderService orderService;
+	
+	@Autowired
+	private QuoteContainer quoteContainer;
 
 	// @Autowired
 	// private ProfileBusiness profileBusiness;
@@ -111,8 +116,17 @@ public class EntrustQueryConsumer {
 		if (order.getState() == FuturesOrderState.SellingEntrust) {
 			MarketAveragePrice avgPrice = null;
 			if (priceType == FuturesTradePriceType.MKT) {
+				FuturesContractMarket market = quoteContainer.getQuote(commodityNo, contractNo); 
 				// 市价
-				avgPrice = orderService.computeMktAvgPrice(commodityNo, contractNo, actionType, totalQuantity);
+				avgPrice = new MarketAveragePrice();
+				avgPrice.setAvgFillPrice(order.getOrderType() == FuturesOrderType.BuyUp ? market.getBidPrice() : market.getAskPrice());
+				avgPrice.setCommodityNo(commodityNo);
+				avgPrice.setContractNo(contractNo);
+				avgPrice.setFilled(totalQuantity);
+				avgPrice.setRemaining(BigDecimal.ZERO);
+				avgPrice.setTotalQuantity(totalQuantity);
+				avgPrice.setTotalFillCost(totalQuantity.multiply(avgPrice.getAvgFillPrice()));
+				// avgPrice = orderService.computeMktAvgPrice(commodityNo, contractNo, actionType, totalQuantity);
 			} else {
 				// 限价
 				avgPrice = orderService.computeLmtAvgPrice(commodityNo, contractNo, actionType, totalQuantity,
@@ -200,12 +214,46 @@ public class EntrustQueryConsumer {
 		if (order.getState() == FuturesOrderState.BuyingEntrust) {
 			MarketAveragePrice avgPrice = null;
 			if (priceType == FuturesTradePriceType.MKT) {
+				FuturesContractMarket market = quoteContainer.getQuote(commodityNo, contractNo); 
 				// 市价
-				avgPrice = orderService.computeMktAvgPrice(commodityNo, contractNo, actionType, totalQuantity);
+				avgPrice = new MarketAveragePrice();
+				avgPrice.setAvgFillPrice(order.getOrderType() == FuturesOrderType.BuyUp ? market.getAskPrice() : market.getBidPrice());
+				avgPrice.setCommodityNo(commodityNo);
+				avgPrice.setContractNo(contractNo);
+				avgPrice.setFilled(totalQuantity);
+				avgPrice.setRemaining(BigDecimal.ZERO);
+				avgPrice.setTotalQuantity(totalQuantity);
+				avgPrice.setTotalFillCost(totalQuantity.multiply(avgPrice.getAvgFillPrice()));
+				// avgPrice = orderService.computeMktAvgPrice(commodityNo, contractNo, actionType, totalQuantity);
 			} else {
+				avgPrice = new MarketAveragePrice();
+				avgPrice.setAvgFillPrice(BigDecimal.ZERO);
+				avgPrice.setCommodityNo(commodityNo);
+				avgPrice.setContractNo(contractNo);
+				avgPrice.setFilled(BigDecimal.ZERO);
+				avgPrice.setRemaining(totalQuantity);
+				avgPrice.setTotalQuantity(totalQuantity);
+				avgPrice.setTotalFillCost(BigDecimal.ZERO);
+				FuturesContractMarket market = quoteContainer.getQuote(commodityNo, contractNo); 
+				BigDecimal askPrice = market.getAskPrice();
+				BigDecimal bidPrice = market.getBidPrice();
+				BigDecimal buyingEntrustPrice = order.getBuyingEntrustPrice();
 				// 限价
-				avgPrice = orderService.computeLmtAvgPrice(commodityNo, contractNo, actionType, totalQuantity,
-						order.getBuyingEntrustPrice());
+				if(order.getOrderType() == FuturesOrderType.BuyUp && askPrice.compareTo(buyingEntrustPrice) <= 0) {
+					avgPrice.setAvgFillPrice(askPrice);
+					avgPrice.setFilled(totalQuantity);
+					avgPrice.setRemaining(BigDecimal.ZERO);
+					avgPrice.setTotalQuantity(totalQuantity);
+					avgPrice.setTotalFillCost(totalQuantity.multiply(avgPrice.getAvgFillPrice()));
+				} else if(order.getOrderType() == FuturesOrderType.BuyFall && bidPrice.compareTo(buyingEntrustPrice) >= 0) {
+					avgPrice.setAvgFillPrice(bidPrice);
+					avgPrice.setFilled(totalQuantity);
+					avgPrice.setRemaining(BigDecimal.ZERO);
+					avgPrice.setTotalQuantity(totalQuantity);
+					avgPrice.setTotalFillCost(totalQuantity.multiply(avgPrice.getAvgFillPrice()));
+				}
+				//avgPrice = orderService.computeLmtAvgPrice(commodityNo, contractNo, actionType, totalQuantity,
+				//		order.getBuyingEntrustPrice());
 			}
 			if (avgPrice.getFilled().compareTo(BigDecimal.ZERO) > 0) {
 				if (avgPrice.getRemaining().compareTo(BigDecimal.ZERO) <= 0) {
@@ -293,7 +341,7 @@ public class EntrustQueryConsumer {
 				orderService.partUnwindOrder(orderId);
 			} else if ("Filled".equals(status) && gatewayOrder.getRemaining().compareTo(BigDecimal.ZERO) == 0) {
 				// 已平仓
-				orderService.unwindOrder(orderId, gatewayOrder.getLastFillPrice());
+				orderService.unwindOrder(orderId, gatewayOrder.getLastFillPrice(), null);
 				isNeedRetry = false;
 			}
 		} else if (entrustType == 3) {
@@ -306,7 +354,7 @@ public class EntrustQueryConsumer {
 				orderService.partUnwindOrder(orderId);
 			} else if ("Filled".equals(status) && gatewayOrder.getRemaining().compareTo(BigDecimal.ZERO) == 0) {
 				// 已平仓
-				orderService.unwindOrder(orderId, gatewayOrder.getLastFillPrice());
+				orderService.unwindOrder(orderId, gatewayOrder.getLastFillPrice(), null);
 				// 反手以市价买入
 				orderService.backhandPlaceOrder(orderId);
 				isNeedRetry = false;
@@ -339,11 +387,11 @@ public class EntrustQueryConsumer {
 				isNeedRetry = false;
 			} else if (state != null && state == 6 && entrustType == 2) {
 				// 已平仓
-				orderService.unwindOrder(orderId, gatewayOrder.getLastFillPrice());
+				orderService.unwindOrder(orderId, gatewayOrder.getLastFillPrice(), null);
 				isNeedRetry = false;
 			} else if (state != null && state == 6 && entrustType == 3) {
 				// 已平仓
-				orderService.unwindOrder(orderId, gatewayOrder.getLastFillPrice());
+				orderService.unwindOrder(orderId, gatewayOrder.getLastFillPrice(), null);
 				// 反手以市价买入
 				orderService.backhandPlaceOrder(orderId);
 				isNeedRetry = false;

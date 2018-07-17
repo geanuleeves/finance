@@ -279,6 +279,10 @@ public class FuturesOrder {
 	 * 第一次默认止损金额
 	 */
 	private BigDecimal defaultStopLossFee;
+	/**
+	 * 监控的时候是否需要日志
+	 */
+	private Boolean isNeedLog;
 
 	/***************** 分割线，以下字段为非数据库字段 ********************/
 	/**
@@ -764,6 +768,14 @@ public class FuturesOrder {
 
 	public void setDefaultStopLossFee(BigDecimal defaultStopLossFee) {
 		this.defaultStopLossFee = defaultStopLossFee;
+	}
+
+	public Boolean getIsNeedLog() {
+		return isNeedLog;
+	}
+
+	public void setIsNeedLog(Boolean isNeedLog) {
+		this.isNeedLog = isNeedLog;
 	}
 
 }

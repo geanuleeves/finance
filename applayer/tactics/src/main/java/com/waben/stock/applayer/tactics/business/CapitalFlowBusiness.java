@@ -54,10 +54,10 @@ public class CapitalFlowBusiness {
 
 	@Autowired
 	private PaymentOrderBusiness paymentOrderBusiness;
-	
+
 	@Autowired
 	private FuturesOrderBusiness orderBusiness;
-	
+
 	@Autowired
 	@Qualifier("futuresOrderInterface")
 	private FuturesOrderInterface futuresOrderInterface;
@@ -111,15 +111,16 @@ public class CapitalFlowBusiness {
 					if (paymentOrder != null && paymentOrder.getType() != null) {
 						flowWithExtend.setPaymentType(paymentOrder.getType().getType());
 					}
-				} else if(flow.getExtendType() == CapitalFlowExtendType.FUTURESRECORD){
+				} else if (flow.getExtendType() == CapitalFlowExtendType.FUTURESRECORD) {
 					FuturesOrderDto orderDto = orderBusiness.fetchByOrderId(flow.getExtendId());
 					flowWithExtend.setCommodityName(orderDto.getCommodityName());
 					flowWithExtend.setCommoditySymbol(orderDto.getCommoditySymbol());
 					flowWithExtend.setContractNo(orderDto.getContractNo());
-				} else if(flow.getExtendType() == CapitalFlowExtendType.FUTURESOVERNIGHTRECORD){
-					Response<FuturesOvernightRecordDto> recordDto = futuresOrderInterface.fetchByOvernightId(flow.getExtendId());
-					if("200".equals(recordDto.getCode())){
-						if(recordDto.getResult()!=null){
+				} else if (flow.getExtendType() == CapitalFlowExtendType.FUTURESOVERNIGHTRECORD) {
+					Response<FuturesOvernightRecordDto> recordDto = futuresOrderInterface
+							.fetchByOvernightId(flow.getExtendId());
+					if ("200".equals(recordDto.getCode())) {
+						if (recordDto.getResult() != null) {
 							FuturesOvernightRecordDto record = recordDto.getResult();
 							flowWithExtend.setCommodityName(record.getOrder().getCommodityName());
 							flowWithExtend.setCommoditySymbol(record.getOrder().getCommoditySymbol());
@@ -132,5 +133,4 @@ public class CapitalFlowBusiness {
 		}
 		throw new ServiceException(response.getCode());
 	}
-
 }

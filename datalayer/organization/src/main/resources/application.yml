@@ -21,6 +21,9 @@ spring:
             autocommit: true
   thymeleaf:
     prefix: classpath:/templates/
+feign:
+  hystrix:
+    enabled: false
 hystrix:
   command:
     default:
@@ -28,6 +31,11 @@ hystrix:
         isolation:
           thread:
             timeoutInMilliseconds: 10000
+  threadpool:
+    default:
+      coreSize: 500
+      maxQueueSize: 500
+      queueSizeRejectionThreshold: 300
 ribbon:
   OkToRetryOnAllOperations: false
   ReadTimeout: 30000

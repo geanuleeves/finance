@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.waben.stock.interfaces.dto.publisher.WithdrawalsOrderDto;
 import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.WithdrawalsOrderQuery;
 
 /**
  * 支提现订单 reference服务接口
@@ -34,5 +36,8 @@ public interface WithdrawalsOrderInterface {
 	@RequestMapping(value = "/{withdrawalsNo}", method = RequestMethod.PUT)
 	public Response<WithdrawalsOrderDto> changeState(@PathVariable("withdrawalsNo") String withdrawalsNo,
 			@RequestParam("stateIndex") String stateIndex);
+	
+	@RequestMapping(value = "/pages", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public Response<PageInfo<WithdrawalsOrderDto>> pagesByQuery(@RequestBody WithdrawalsOrderQuery query);
 
 }

@@ -19,6 +19,9 @@ spring:
           dialect: org.hibernate.dialect.MySQL5Dialect
           connection:
             autocommit: true
+feign:
+  hystrix:
+    enabled: false
 hystrix:
   command:
     default:
