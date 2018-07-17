@@ -583,7 +583,7 @@ public class QuickPayBusiness {
         Date date = new Date();
         order.setCreateTime(date);
         order.setUpdateTime(date);
-        order = this.saveWithdrawalsOrders(order);
+        order = this.saveWithdrawalsOrdersAdmin(order);
     	
     }
 
@@ -913,6 +913,14 @@ public class QuickPayBusiness {
     
     public WithdrawalsOrderDto saveWithdrawalsOrders(WithdrawalsOrderDto withdrawalsOrderDto) {
         Response<WithdrawalsOrderDto> orderResp = withdrawalsOrderReference.addWithdrawalsOrder(withdrawalsOrderDto);
+        if ("200".equals(orderResp.getCode())) {
+            return orderResp.getResult();
+        }
+        throw new ServiceException(orderResp.getCode());
+    }
+    
+    public WithdrawalsOrderDto saveWithdrawalsOrdersAdmin(WithdrawalsOrderDto withdrawalsOrderDto) {
+        Response<WithdrawalsOrderDto> orderResp = withdrawalsOrderReference.addWithdrawalsOrderAdmin(withdrawalsOrderDto);
         if ("200".equals(orderResp.getCode())) {
             return orderResp.getResult();
         }

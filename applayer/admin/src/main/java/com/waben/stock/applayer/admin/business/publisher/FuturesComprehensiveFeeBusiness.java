@@ -138,56 +138,53 @@ public class FuturesComprehensiveFeeBusiness {
 		return publisherIds;
 	}
 	
+	public WithdrawalsOrderDto wbWithdrawalsAdminCancle(WithdrawalsOrderDto compre){
+		Response<WithdrawalsOrderDto> response = withdrawalsOrderReference.refuse(compre.getId(), compre.getRemark());
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+	
 	public WithdrawalsOrderDto wbWithdrawalsAdmin(WithdrawalsOrderDto compre){
 		WithdrawalsOrderDto order = withdrawalsOrderReference.fetchById(compre.getId()).getResult();
 		if(order!=null){
-			if(compre.getComprehensiveState()==1){
-				String withdrawalsNo = UniqueCodeGenerator.generateWithdrawalsNo();
-				order.setWithdrawalsNo(withdrawalsNo);
-				order.setState(WithdrawalsState.PROCESSING);
-				Date date = new Date();
-				order.setUpdateTime(date);
-				order = this.saveWithdrawalsOrders(order);
-				
-				WabenBankType bankType = WabenBankType.getByPlateformBankType(BankType.getByCode(order.getBankCode()));
-				
-				logger.info("发起提现申请:{}_{}_{}_{}", order.getName(), order.getIdCard(), order.getPublisherPhone(), order.getBankCard());
-				WithdrawParam param = new WithdrawParam();
-				param.setAppId(wbConfig.getMerchantNo());
-				param.setBankAcctName(order.getName());
-				param.setBankNo(order.getBankCard());
-				param.setBankCode(bankType.getCode());
-				param.setBankName(bankType.getBank());
-				param.setCardType("0");
-				param.setOutOrderNo(withdrawalsNo);
-				param.setTimestamp(sdf.format(date));
-				param.setTotalAmt(isProd ? order.getAmount() : new BigDecimal("0.01"));
-				param.setVersion("1.0");
-				
-				// 发起提现请求前，预使用队列查询
-				WithdrawQueryMessage message = new WithdrawQueryMessage();
-				message.setAppId(wbConfig.getMerchantNo());
-				message.setOutOrderNo(withdrawalsNo);
-				producer.sendMessage(RabbitmqConfiguration.withdrawQueryQueueName, message);
-				
-				// 发起提现请求
-				WithdrawRet withdrawRet = WabenPayOverHttp.withdraw(param, wbConfig.getKey());
-				if(withdrawRet != null && !StringUtil.isEmpty(withdrawRet.getOrderNo())) {
-					// 更新支付系统第三方订单状态
-					order.setThirdWithdrawalsNo(withdrawRet.getOrderNo());
-					order.setComprehensiveState(1);
-					order.setRemark(compre.getRemark());
-					order = this.revisionWithdrawalsOrder(order);
-				}
-			}else{
-				order.setState(WithdrawalsState.RETREAT);
-				order.setComprehensiveState(2);
-				order.setRemark(compre.getRemark());
-				Date date = new Date();
-				order.setUpdateTime(date);
-				order = this.saveWithdrawalsOrders(order);
-			}
+			String withdrawalsNo = UniqueCodeGenerator.generateWithdrawalsNo();
+			order.setWithdrawalsNo(withdrawalsNo);
+			order.setState(WithdrawalsState.PROCESSING);
+			Date date = new Date();
+			order.setUpdateTime(date);
+			order = revisionWithdrawalsOrder(order);
 			
+			WabenBankType bankType = WabenBankType.getByPlateformBankType(BankType.getByCode(order.getBankCode()));
+			logger.info("发起提现申请:{}_{}_{}_{}", order.getName(), order.getIdCard(), order.getPublisherPhone(), order.getBankCard());
+			WithdrawParam param = new WithdrawParam();
+			param.setAppId(wbConfig.getMerchantNo());
+			param.setBankAcctName(order.getName());
+			param.setBankNo(order.getBankCard());
+			param.setBankCode(bankType.getCode());
+			param.setBankName(bankType.getBank());
+			param.setCardType("0");
+			param.setOutOrderNo(withdrawalsNo);
+			param.setTimestamp(sdf.format(date));
+			param.setTotalAmt(isProd ? order.getAmount() : new BigDecimal("0.01"));
+			param.setVersion("1.0");
+			
+			// 发起提现请求前，预使用队列查询
+			WithdrawQueryMessage message = new WithdrawQueryMessage();
+			message.setAppId(wbConfig.getMerchantNo());
+			message.setOutOrderNo(withdrawalsNo);
+			producer.sendMessage(RabbitmqConfiguration.withdrawQueryQueueName, message);
+			
+			// 发起提现请求
+			WithdrawRet withdrawRet = WabenPayOverHttp.withdraw(param, wbConfig.getKey());
+			if(withdrawRet != null && !StringUtil.isEmpty(withdrawRet.getOrderNo())) {
+				// 更新支付系统第三方订单状态
+				order.setThirdWithdrawalsNo(withdrawRet.getOrderNo());
+				order.setComprehensiveState(1);
+				order.setRemark(compre.getRemark());
+				order = this.revisionWithdrawalsOrder(order);
+			}
 		}
 		return order;
 	}
