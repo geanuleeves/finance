@@ -64,4 +64,9 @@ public class MessagingDaoImpl implements MessagingDao {
 		return repository.findAllByRecipient(recipient);
 	}
 
+	@Override
+	public List<Messaging> retrieveOutsideMsgType(Integer outsideMsgType) {
+		return repository.retrieveOutsideMsgType(outsideMsgType);
+	}
+
 }

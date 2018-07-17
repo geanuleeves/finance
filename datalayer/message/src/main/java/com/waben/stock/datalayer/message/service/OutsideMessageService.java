@@ -1,6 +1,9 @@
 package com.waben.stock.datalayer.message.service;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +84,19 @@ public class OutsideMessageService {
 		receipt.setRecipient(String.valueOf(message.getPublisherId()));
 		receipt.setState(false);
 		messageReceiptDao.create(receipt);
+	}
+	
+	public void sendAll(OutsideMessage message){
+		OutsidePushConfig config = outsidePushConfigDao.getDefaultConfig();;
+		if (config != null) {
+			logger.info("推送消息:" + message.getContent());
+			Map<String,String> exert = new HashMap<String,String>();
+			jiguangService.pushAllMessage(message.getTitle(), message.getContent(), exert, config != null ? config.getAppKey() : null,
+					config != null ? config.getMasterSecret() : null);
+		} else {
+			logger.error("推送消息未找到推送配置:" + message.getContent());
+		}
+		
 	}
 
 }

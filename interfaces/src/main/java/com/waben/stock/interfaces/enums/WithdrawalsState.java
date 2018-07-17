@@ -19,7 +19,9 @@ public enum WithdrawalsState implements CommonalityEnum {
 
 	FAILURE("3", "处理失败"),
 	
-	RETREAT("4", "已退汇");
+	RETREAT("4", "已退汇"),
+	
+	INIT("5", "初始申请");
 
 	WithdrawalsState(String index, String status) {
 		this.index = index;

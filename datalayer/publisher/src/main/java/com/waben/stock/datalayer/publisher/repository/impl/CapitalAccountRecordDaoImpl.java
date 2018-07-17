@@ -1,5 +1,6 @@
 package com.waben.stock.datalayer.publisher.repository.impl;
 
+import com.waben.stock.datalayer.publisher.entity.CapitalAccount;
 import com.waben.stock.datalayer.publisher.entity.CapitalAccountRecord;
 import com.waben.stock.datalayer.publisher.repository.CapitalAccountRecordDao;
 import com.waben.stock.datalayer.publisher.repository.impl.jpa.CapitalAccountRecordRepository;
@@ -56,4 +57,9 @@ public class CapitalAccountRecordDaoImpl implements CapitalAccountRecordDao{
     public List<CapitalAccountRecord> list() {
         return null;
     }
+
+	@Override
+	public List<CapitalAccountRecord> findByCapitalAccount(CapitalAccount capitalAccount) {
+		return repository.findByCapitalAccount(capitalAccount);
+	}
 }

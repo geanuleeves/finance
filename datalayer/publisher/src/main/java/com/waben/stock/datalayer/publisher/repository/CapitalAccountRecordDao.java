@@ -1,5 +1,8 @@
 package com.waben.stock.datalayer.publisher.repository;
 
+import java.util.List;
+
+import com.waben.stock.datalayer.publisher.entity.CapitalAccount;
 import com.waben.stock.datalayer.publisher.entity.CapitalAccountRecord;
 
 /**
@@ -8,4 +11,5 @@ import com.waben.stock.datalayer.publisher.entity.CapitalAccountRecord;
  */
 public interface CapitalAccountRecordDao extends BaseDao<CapitalAccountRecord,Long>{
 
+	List<CapitalAccountRecord> findByCapitalAccount(CapitalAccount capitalAccount);
 }

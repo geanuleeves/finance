@@ -149,7 +149,7 @@ public class PublisherController implements PublisherInterface {
 
 	@Override
 	public Response<Long> deletePublisher(@PathVariable Long id) {
-		CapitalAccount ac = capitalAccountService.findByPublisherId(id);
+ 		CapitalAccount ac = capitalAccountService.findByPublisherId(id);
 		if(ac!=null){
 			capitalAccountService.delete(ac.getId());
 		}

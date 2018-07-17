@@ -58,6 +58,9 @@ public class Messaging {
 	@Column(name = "create_time")
 	private Date createTime;
 	
+	@Column(name = "send_time")
+	private Date sendTime;
+	
 	@Convert(converter = ResourceTypeConverter.class)
 	@Column(name = "resource_type")
 	private ResourceType resourceType;
@@ -67,7 +70,7 @@ public class Messaging {
 	/**
 	 * 是否已读
 	 */
-	@Transient
+	@Column(name = "has_read")
 	private Boolean hasRead;
 
 	public Long getId() {
@@ -116,6 +119,14 @@ public class Messaging {
 
 	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
+	}
+
+	public Date getSendTime() {
+		return sendTime;
+	}
+
+	public void setSendTime(Date sendTime) {
+		this.sendTime = sendTime;
 	}
 
 	public Boolean getIsOutside() {

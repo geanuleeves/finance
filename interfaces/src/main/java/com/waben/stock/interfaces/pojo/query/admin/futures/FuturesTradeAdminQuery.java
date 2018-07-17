@@ -57,6 +57,8 @@ public class FuturesTradeAdminQuery extends PageAndSortQuery {
 
 	private List<Long> publisherIds;
 	
+	private Boolean isTest;
+	
 	/**
 	 * 查询开始时间
 	 */
@@ -202,6 +204,14 @@ public class FuturesTradeAdminQuery extends PageAndSortQuery {
 
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
+	}
+
+	public Boolean getIsTest() {
+		return isTest;
+	}
+
+	public void setIsTest(Boolean isTest) {
+		this.isTest = isTest;
 	}
 
 }

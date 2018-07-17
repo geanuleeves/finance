@@ -119,19 +119,59 @@ public class FuturesOrderBusiness {
 				return null;
 			}
 			;
-		} else if (query.getPublisherName() != null && !"".equals(query.getPublisherName())) {
+		}
+		if (query.getPublisherName() != null && !"".equals(query.getPublisherName())) {
 			List<RealNameDto> real = realnameInterface.findByName(query.getPublisherName()).getResult();
 			if (real == null || real.size() == 0) {
 				return null;
 			} else {
-				for (RealNameDto realNameDto : real) {
-					publisherIds.add(Long.valueOf(realNameDto.getResourceId().toString()));
+				if(publisherIds.size()==0){
+					for (RealNameDto realNameDto : real) {
+						publisherIds.add(Long.valueOf(realNameDto.getResourceId().toString()));
+					}
+				}else{
+					List<Long> realName = new ArrayList<Long>();
+					for (RealNameDto realNameDto : real) {
+						realName.add(Long.valueOf(realNameDto.getResourceId().toString()));
+					}
+					publisherIds = getRepetition(realName, publisherIds);
 				}
 			}
 
 		}
+		if(query.getIsTest()!=null){
+			Response<List<PublisherDto>> result = publisherInterface.fetchByIsTest(query.getIsTest());
+			List<PublisherDto> pu = result.getResult();
+			if(pu ==null && pu.size() == 0){
+				return null;
+			}else{
+				if(publisherIds.size()==0){
+					for(PublisherDto dto : pu){
+						publisherIds.add(dto.getId());
+					}
+				}else{
+					List<Long> publisher = new ArrayList<Long>();
+					for(PublisherDto dto : pu){
+						publisher.add(dto.getId());
+					}
+					publisherIds = getRepetition(publisher, publisherIds);
+				}
+			}
+		}
+		
 		return publisherIds;
 	}
+	
+	public static List<Long> getRepetition(List<Long> list1,  
+            List<Long> list2) {  
+        List<Long> result = new ArrayList<Long>();  
+        for (Long l : list2) {//遍历list1  
+            if (list1.contains(l)) {//如果存在这个数  
+                result.add(l);//放进一个list里面，这个list就是交集  
+            }  
+        }  
+        return result;  
+    }  
 
 	public PageInfo<FutresOrderEntrustDto> pagesOrderEntrust(FuturesTradeAdminQuery query) {
 		List<Long> publisherIds = queryPublishIds(query);
@@ -149,6 +189,9 @@ public class FuturesOrderBusiness {
 						PublisherDto pu = publisherInterface.fetchById(dto.getPublisherId()).getResult();
 						if (pu != null) {
 							dto.setPublisherPhone(pu.getPhone());
+							if(pu.getIsTest()!=null){
+								dto.setTest(pu.getIsTest());
+							}
 						}
 						RealNameDto re = realnameInterface.fetchByResourceId(dto.getPublisherId()).getResult();
 						if (re != null) {
@@ -191,6 +234,9 @@ public class FuturesOrderBusiness {
 					PublisherDto pu = publisherInterface.fetchById(dto.getPublisherId()).getResult();
 					if (pu != null) {
 						dto.setPublisherPhone(pu.getPhone());
+						if(pu.getIsTest()!=null){
+							dto.setTest(pu.getIsTest());
+						}
 					}
 					RealNameDto re = realnameInterface.fetchByResourceId(dto.getPublisherId()).getResult();
 					if (re != null) {

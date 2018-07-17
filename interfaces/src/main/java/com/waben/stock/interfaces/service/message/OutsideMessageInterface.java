@@ -16,5 +16,8 @@ public interface OutsideMessageInterface {
 	 */
 	@RequestMapping(value = "/send", method = RequestMethod.POST)
 	public Response<String> send(@RequestBody OutsideMessage message);
+	
+	@RequestMapping(value = "/sendAll", method = RequestMethod.POST)
+	public Response<String> sendAll(@RequestBody OutsideMessage message);
 
 }

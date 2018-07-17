@@ -201,12 +201,63 @@ public class MessagingService {
 							messagingQuery.getIsOutside());
 					predicatesList.add(stateQuery);
 				}
+				if(!StringUtils.isEmpty(messagingQuery.getOutsideType())){
+					Predicate stateQuery = criteriaBuilder.equal(root.get("outsideMsgType").as(OutsideMessageType.class),
+							OutsideMessageType.getByType(messagingQuery.getOutsideType()));
+					predicatesList.add(criteriaBuilder.and(stateQuery));
+				}
+				if(messagingQuery.getHasRead()!=null){
+					Predicate hasReadQuery = criteriaBuilder.equal(root.get("hasRead").as(Boolean.class), false);
+					predicatesList.add(criteriaBuilder.and(hasReadQuery));
+				}
+				
+				if(messagingQuery.getOutsideType()!=null){
+					Predicate stateQuery = criteriaBuilder.equal(root.get("outsideMsgType").as(OutsideMessageType.class),
+							OutsideMessageType.getByType("37"));
+					predicatesList.add(criteriaBuilder.and(stateQuery));
+					if(messagingQuery.getOutsideType().equals("37")){
+						Predicate sendTimeQuery = criteriaBuilder.lessThan(root.get("sendTime").as(Date.class), new Date());
+						predicatesList.add(criteriaBuilder.and(sendTimeQuery));
+					}
+				}
+				
+				
+				
 				criteriaQuery.where(predicatesList.toArray(new Predicate[predicatesList.size()]));
 				criteriaQuery.orderBy(criteriaBuilder.desc(root.<Date>get("createTime").as(Date.class)));
 				return criteriaQuery.getRestriction();
 			}
 		}, pageable);
 		return pages;
+	}
+	
+	public List<Messaging> retrieveOutsideMsgType(){
+		
+		Pageable pageable = new PageRequest(0, Integer.MAX_VALUE);
+		Page<Messaging> pages = messagingDao.page(new Specification<Messaging>() {
+			@Override
+			public Predicate toPredicate(Root<Messaging> root, CriteriaQuery<?> criteriaQuery,
+					CriteriaBuilder criteriaBuilder) {
+				List<Predicate> predicatesList = new ArrayList<Predicate>();
+				
+				Predicate hasReadQuery = criteriaBuilder.equal(root.get("hasRead").as(Boolean.class), false);
+				predicatesList.add(criteriaBuilder.and(hasReadQuery));
+				
+				Predicate sendTimeQuery = criteriaBuilder.lessThan(root.get("sendTime").as(Date.class), new Date());
+				predicatesList.add(criteriaBuilder.and(sendTimeQuery));
+				
+				Predicate stateQuery = criteriaBuilder.equal(root.get("outsideMsgType").as(OutsideMessageType.class),
+						OutsideMessageType.getByType("37"));
+				predicatesList.add(criteriaBuilder.and(stateQuery));
+				
+				
+				criteriaQuery.where(predicatesList.toArray(new Predicate[predicatesList.size()]));
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.<Date>get("createTime").as(Date.class)));
+				return criteriaQuery.getRestriction();
+			}
+		}, pageable);
+		
+		return pages.getContent();
 	}
 
 	/**

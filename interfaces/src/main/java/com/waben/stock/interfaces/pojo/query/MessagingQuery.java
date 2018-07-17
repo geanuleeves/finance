@@ -12,6 +12,8 @@ public class MessagingQuery extends PageAndSortQuery {
 	private String title;
 
 	private String messageType;
+	
+	private String outsideType;
 
 	private Date beginTime;
 
@@ -37,6 +39,14 @@ public class MessagingQuery extends PageAndSortQuery {
 
 	public void setMessageType(String messageType) {
 		this.messageType = messageType;
+	}
+
+	public String getOutsideType() {
+		return outsideType;
+	}
+
+	public void setOutsideType(String outsideType) {
+		this.outsideType = outsideType;
 	}
 
 	public Date getBeginTime() {

@@ -18,4 +18,6 @@ public interface MessagingDao extends BaseDao<Messaging, Long>{
 	 */
 	List<Messaging> retrieveNotProduceReceiptAllByRecipient(String recipient);
 	
+	List<Messaging> retrieveOutsideMsgType(Integer outsideMsgType);
+	
 }
