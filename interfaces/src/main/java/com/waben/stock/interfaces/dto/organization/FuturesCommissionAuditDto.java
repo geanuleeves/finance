@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 
 public class FuturesCommissionAuditDto extends OrganizationAccountFlowWithTradeInfoDto {
 
+	/**
+	 * 佣金审核ID
+	 */
 	private Long auditId;
 	/**
 	 * 审核状态
@@ -21,7 +24,7 @@ public class FuturesCommissionAuditDto extends OrganizationAccountFlowWithTradeI
 	private BigDecimal realMaidFee;
 
 	/**
-	 * 备注
+	 * 佣金审核备注
 	 */
 	private String auditRemark;
 

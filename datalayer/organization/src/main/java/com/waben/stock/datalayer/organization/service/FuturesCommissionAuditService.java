@@ -49,11 +49,15 @@ public class FuturesCommissionAuditService {
 			// 该审核记录不存在
 			throw new ServiceException(ExceptionConstant.THE_AUDIT_RECORD_DOESNOT_EXIST_EXCEPTION);
 		}
+		if (audit.getState() == 2 || audit.getState() == 3) {
+			// 该记录已审核
+			throw new ServiceException(ExceptionConstant.THE_STATE_ISNOT_AUDITED_EXCEPTION);
+		}
 		if (audit.getAccountFlow() == null) {
 			// 该审核记录不存在
 			throw new ServiceException(ExceptionConstant.THE_AUDIT_RECORD_DOESNOT_EXIST_EXCEPTION);
 		}
-		if (realMaidFee.compareTo(audit.getAccountFlow().getAmount()) > 0) {
+		if (realMaidFee.abs().compareTo(audit.getAccountFlow().getAmount().abs()) > 0) {
 			// 实际返佣资金不能大于系统返佣金额
 			throw new ServiceException(ExceptionConstant.THAN_AMOUNT_SYSTEM_RETURNS_EXCEPTION);
 		}
@@ -61,26 +65,28 @@ public class FuturesCommissionAuditService {
 		Date date = new Date();
 		OrganizationAccount account = null;
 		Organization org = audit.getAccountFlow().getOrg();
-		if (org != null) {
-			if (org.getLevel() != 1) {
-				account = organizationAccountDao.retrieveByOrg(org);
-				if (account == null) {
-					account = initAccount(org, null);
-				}
-				remark += "系统返佣金额：" + audit.getAccountFlow().getAmount() + "元，实际返佣：" + realMaidFee + "元，";
-				increaseAmount(account, realMaidFee, date);
-				if (realMaidFee.compareTo(audit.getAccountFlow().getAmount()) < 0) {
-					Organization orgParent = null;
-					List<Organization> orgList = organizationDao.listByLevel(1);
-					if (orgList != null && orgList.size() > 0) {
-						orgParent = orgList.get(0);
-						account = organizationAccountDao.retrieveByOrg(orgParent);
-						BigDecimal surplusFee = audit.getAccountFlow().getAmount().subtract(realMaidFee);
-						if (account == null) {
-							account = initAccount(org, null);
+		if (state != 1) {
+			if (org != null) {
+				if (org.getLevel() != 1) {
+					account = organizationAccountDao.retrieveByOrg(org);
+					if (account == null) {
+						account = initAccount(org, null);
+					}
+					remark += "系统返佣金额：" + audit.getAccountFlow().getAmount() + "元，实际返佣：" + realMaidFee + "元，";
+					increaseAmount(account, realMaidFee, date);
+					if (realMaidFee.abs().compareTo(audit.getAccountFlow().getAmount().abs()) < 0) {
+						Organization orgParent = null;
+						List<Organization> orgList = organizationDao.listByLevel(1);
+						if (orgList != null && orgList.size() > 0) {
+							orgParent = orgList.get(0);
+							account = organizationAccountDao.retrieveByOrg(orgParent);
+							BigDecimal surplusFee = audit.getAccountFlow().getAmount().subtract(realMaidFee);
+							if (account == null) {
+								account = initAccount(org, null);
+							}
+							remark += "剩余" + surplusFee + "元返佣给平台。";
+							increaseAmount(account, surplusFee, date);
 						}
-						remark += "剩余" + surplusFee + "元返佣给平台。";
-						increaseAmount(account, surplusFee, date);
 					}
 				}
 			}
