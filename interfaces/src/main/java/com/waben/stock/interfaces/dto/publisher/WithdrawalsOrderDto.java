@@ -66,6 +66,8 @@ public class WithdrawalsOrderDto {
 	 * 更新时间
 	 */
 	private Date updateTime;
+	
+	private String remark;
 
 	public Long getId() {
 		return id;
@@ -177,6 +179,14 @@ public class WithdrawalsOrderDto {
 
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 }

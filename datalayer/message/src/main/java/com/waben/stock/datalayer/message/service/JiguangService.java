@@ -110,8 +110,6 @@ public class JiguangService {
 		builder.setAudience(Audience.newBuilder().setAll(true).build());
 		Message msg = Message.content(alert);
 		builder.setMessage(msg);
-		builder.setNotification(Notification.ios(alert, extras));
-		builder.setNotification(Notification.android(alert, title, extras));
 		// ture为生产环境，false为开发环境
 		builder.setOptions(Options.newBuilder().setApnsProduction(isProd).build());
 		return builder.build();

@@ -201,13 +201,8 @@ public class MessagingService {
 							messagingQuery.getIsOutside());
 					predicatesList.add(stateQuery);
 				}
-				if(!StringUtils.isEmpty(messagingQuery.getOutsideType())){
-					Predicate stateQuery = criteriaBuilder.equal(root.get("outsideMsgType").as(OutsideMessageType.class),
-							OutsideMessageType.getByType(messagingQuery.getOutsideType()));
-					predicatesList.add(criteriaBuilder.and(stateQuery));
-				}
 				if(messagingQuery.getHasRead()!=null){
-					Predicate hasReadQuery = criteriaBuilder.equal(root.get("hasRead").as(Boolean.class), false);
+					Predicate hasReadQuery = criteriaBuilder.equal(root.get("hasRead").as(Boolean.class), true);
 					predicatesList.add(criteriaBuilder.and(hasReadQuery));
 				}
 				

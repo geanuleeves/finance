@@ -25,6 +25,7 @@ public class MessagingBusiness {
 	private MessagingInterface service;
 
 	public PageInfo<MessagingDto> pages(MessagingQuery messagingQuery) {
+		messagingQuery.setIsOutside(false);
 		Response<PageInfo<MessagingDto>> response = service.pages(messagingQuery);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();

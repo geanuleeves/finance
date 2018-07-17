@@ -140,6 +140,7 @@ public class FuturesComprehensiveFeeBusiness {
 					// 更新支付系统第三方订单状态
 					order.setThirdWithdrawalsNo(withdrawRet.getOrderNo());
 					order.setComprehensiveState(1);
+					order.setRemark(compre.getRemarke());
 					response = this.revisionWithdrawalsOrder(order);
 					
 					dto.setState(1);
@@ -147,6 +148,7 @@ public class FuturesComprehensiveFeeBusiness {
 				}
 			}else{
 				order.setComprehensiveState(2);
+				order.setRemark(compre.getRemarke());
 				response = this.revisionWithdrawalsOrder(order);
 				
 				dto.setState(2);

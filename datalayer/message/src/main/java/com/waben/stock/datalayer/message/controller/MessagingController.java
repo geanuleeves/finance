@@ -47,6 +47,8 @@ public class MessagingController implements MessagingInterface{
 
 		Messaging messaging = CopyBeanUtils.copyBeanProperties(Messaging.class, messagingDto, false);
 		messaging.setCreateTime(new Date());
+		messaging.setHasRead(false);
+		
 		Messaging resultMessaging = messagingService.save(messaging);
 		if(messagingDto.getType().equals(MessageType.POIT)) {
 			MessageReceipt messageReceipt = new MessageReceipt();

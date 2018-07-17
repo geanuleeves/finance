@@ -36,7 +36,7 @@ public class MessagingController {
 	@GetMapping("/pagesAdmin")
 	@ApiOperation(value = "获取消息列表", notes = "type(1:站内消息,2:站外消息)")
 	public Response<PageInfo<MessagingDto>> pagesAdmin(MessagingQuery query) {
-		query.setIsOutside(true);
+		query.setIsOutside(false);
 		query.setOutsideType("37");
 		query.setMessageType("3");
 		query.setHasRead(true);
