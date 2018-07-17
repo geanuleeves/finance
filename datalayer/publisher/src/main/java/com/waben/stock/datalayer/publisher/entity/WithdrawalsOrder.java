@@ -88,6 +88,9 @@ public class WithdrawalsOrder {
 	 */
 	@Column(name = "bank_card")
 	private String bankCard;
+	
+	@Column(name = "bank_code")
+	private String bankCode;
 	/**
 	 * 发布人ID
 	 */
@@ -182,6 +185,14 @@ public class WithdrawalsOrder {
 
 	public void setBankCard(String bankCard) {
 		this.bankCard = bankCard;
+	}
+
+	public String getBankCode() {
+		return bankCode;
+	}
+
+	public void setBankCode(String bankCode) {
+		this.bankCode = bankCode;
 	}
 
 	public String getThirdRespCode() {

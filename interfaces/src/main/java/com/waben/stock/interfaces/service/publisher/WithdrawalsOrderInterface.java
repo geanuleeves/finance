@@ -23,6 +23,8 @@ public interface WithdrawalsOrderInterface {
 
 	@RequestMapping(value = "/{withdrawalsNo}", method = RequestMethod.GET)
 	Response<WithdrawalsOrderDto> fetchByWithdrawalsNo(@PathVariable("withdrawalsNo") String withdrawalsNo);
+	@RequestMapping(value = "fetchById/{id}", method = RequestMethod.GET)
+	Response<WithdrawalsOrderDto> fetchById(@PathVariable("id") Long id);
 
 	@RequestMapping(value = "/", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Response<WithdrawalsOrderDto> addWithdrawalsOrder(@RequestBody WithdrawalsOrderDto withdrawalsOrderDto);

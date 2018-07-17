@@ -9,6 +9,8 @@ public class WithdrawalsOrderQuery extends PageAndSortQuery {
 	private Date startTime;
 
 	private Date endTime;
+	
+	private Integer state;
 
 	public WithdrawalsOrderQuery() {
 		super();
@@ -42,6 +44,14 @@ public class WithdrawalsOrderQuery extends PageAndSortQuery {
 
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
+	}
+
+	public Integer getState() {
+		return state;
+	}
+
+	public void setState(Integer state) {
+		this.state = state;
 	}
 
 }

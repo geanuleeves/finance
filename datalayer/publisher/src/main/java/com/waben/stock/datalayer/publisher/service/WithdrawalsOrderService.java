@@ -69,6 +69,10 @@ public class WithdrawalsOrderService {
 		}
 		return withdrawalsOrderDao.create(withdrawalsOrder);
 	}
+	
+	public WithdrawalsOrder findByid(Long id){
+		return withdrawalsOrderDao.retrieve(id);
+	}
 
 	public WithdrawalsOrder add(WithdrawalsOrder withdrawalsOrder) {
 		withdrawalsOrder.setCreateTime(new Date());
@@ -110,6 +114,14 @@ public class WithdrawalsOrderService {
 					predicateList.add(
 							criteriaBuilder.lessThan(root.get("updateTime").as(Date.class), query.getEndTime()));
 				}
+				if(query.getState()!=null){
+					if(query.getState()==0){
+						predicateList.add(criteriaBuilder.equal(root.get("comprehensiveState").as(Integer.class), query.getState()));
+					}else{
+						predicateList.add(criteriaBuilder.notEqual(root.get("comprehensiveState").as(Integer.class), 0));
+					}
+				}
+				
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}

@@ -54,10 +54,16 @@ public class WithdrawalsOrderDto {
 	 * 银行卡号
 	 */
 	private String bankCard;
+	
+	private String bankCode;
 	/**
 	 * 发布人ID
 	 */
 	private Long publisherId;
+	
+	private String publisherName;
+	
+	private String publisherPhone;
 	/**
 	 * 创建时间
 	 */
@@ -141,6 +147,14 @@ public class WithdrawalsOrderDto {
 		this.bankCard = bankCard;
 	}
 
+	public String getBankCode() {
+		return bankCode;
+	}
+
+	public void setBankCode(String bankCode) {
+		this.bankCode = bankCode;
+	}
+
 	public Long getPublisherId() {
 		return publisherId;
 	}
@@ -163,6 +177,22 @@ public class WithdrawalsOrderDto {
 
 	public void setThirdRespMsg(String thirdRespMsg) {
 		this.thirdRespMsg = thirdRespMsg;
+	}
+
+	public String getPublisherName() {
+		return publisherName;
+	}
+
+	public void setPublisherName(String publisherName) {
+		this.publisherName = publisherName;
+	}
+
+	public String getPublisherPhone() {
+		return publisherPhone;
+	}
+
+	public void setPublisherPhone(String publisherPhone) {
+		this.publisherPhone = publisherPhone;
 	}
 
 	public Date getCreateTime() {

@@ -562,6 +562,7 @@ public class QuickPayBusiness {
 
     }
     
+    
     public void wbWithdrawalsAdmin(Long publisherId, BigDecimal amount, String name, String phone, String idCard,
             String bankCard, String bankCode, String bankName){
     	CapitalAccountDto account = accountBusiness.findByPublisherId(publisherId);
@@ -573,7 +574,8 @@ public class QuickPayBusiness {
         WithdrawalsOrderDto order = new WithdrawalsOrderDto();
         order.setWithdrawalsNo(withdrawalsNo);
         order.setAmount(amount);
-        order.setState(WithdrawalsState.PROCESSING);
+        order.setState(WithdrawalsState.INIT);
+        order.setComprehensiveState(0);
         order.setName(name);
         order.setIdCard(idCard);
         order.setBankCard(bankCard);
@@ -582,14 +584,6 @@ public class QuickPayBusiness {
         order.setCreateTime(date);
         order.setUpdateTime(date);
         order = this.saveWithdrawalsOrders(order);
-        
-        FuturesComprehensiveFeeDto fee = new FuturesComprehensiveFeeDto();
-        fee.setCreateTime(date);
-        fee.setAmount(amount);
-        fee.setState(0);
-        fee.setPublisherId(publisherId);
-        
-        feeReference.save(fee);
     	
     }
 
@@ -648,26 +642,13 @@ public class QuickPayBusiness {
 		message.setAppId(wbConfig.getMerchantNo());
 		message.setOutOrderNo(withdrawalsNo);
 		producer.sendMessage(RabbitmqConfiguration.withdrawQueryQueueName, message);
-		
-		//提现审核
-		FuturesComprehensiveFeeDto fee = new FuturesComprehensiveFeeDto();
-        fee.setCreateTime(date);
-        fee.setWithdrawalsNo(withdrawalsNo);
-        fee.setAmount(amount);
-        fee.setState(0);
-        fee.setPublisherId(publisherId);
-        fee.setWebConfigKey(wbConfig.getKey());
-        fee.setMerchantNo(wbConfig.getMerchantNo());
-        fee.setBankName(bankName);
-        
-        feeReference.save(fee);
 		// 发起提现请求
-//		WithdrawRet withdrawRet = WabenPayOverHttp.withdraw(param, wbConfig.getKey());
-//		if(withdrawRet != null && !StringUtil.isEmpty(withdrawRet.getOrderNo())) {
-//			// 更新支付系统第三方订单状态
-//        	order.setThirdWithdrawalsNo(withdrawRet.getOrderNo());
-//        	this.revisionWithdrawalsOrder(order);
-//		}
+		WithdrawRet withdrawRet = WabenPayOverHttp.withdraw(param, wbConfig.getKey());
+		if(withdrawRet != null && !StringUtil.isEmpty(withdrawRet.getOrderNo())) {
+			// 更新支付系统第三方订单状态
+        	order.setThirdWithdrawalsNo(withdrawRet.getOrderNo());
+        	this.revisionWithdrawalsOrder(order);
+		}
     }
 
     public Response<Map<String, String>> wabenPay(BigDecimal amount, Long userId, String endType) {
