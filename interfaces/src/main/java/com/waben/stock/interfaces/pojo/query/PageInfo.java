@@ -42,6 +42,16 @@ public class PageInfo<T> {
         this.number = page.getNumber();
         this.frist = page.isFirst();
     }
+    
+    public PageInfo(PageInfo<?> page, Class<T> tClass) {
+        this.content = CopyBeanUtils.copyListBeanPropertiesToList(page.getContent(), tClass);
+        this.totalPages = page.getTotalPages();
+        this.last = page.getLast();
+        this.totalElements = page.getTotalElements();
+        this.size = page.getSize();
+        this.number = page.getNumber();
+        this.frist = page.getFrist();
+    }
 
     public List<T> getContent() {
         return content;

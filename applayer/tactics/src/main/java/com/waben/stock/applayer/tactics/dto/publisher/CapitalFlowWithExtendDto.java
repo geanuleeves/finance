@@ -5,12 +5,15 @@ import java.util.Date;
 
 import com.waben.stock.interfaces.enums.CapitalFlowType;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class CapitalFlowWithExtendDto {
 
 	private Long id;
 	/**
-	 * 冻结资金
+	 * 金额
 	 */
+	@ApiModelProperty(value = "金额")
 	private BigDecimal amount;
 	/**
 	 * 当前可用余额
@@ -18,22 +21,27 @@ public class CapitalFlowWithExtendDto {
 	 * 产生该流水之后的可用余额
 	 * </p>
 	 */
+	@ApiModelProperty(value = "当前可用余额")
 	private BigDecimal availableBalance;
 	/**
 	 * 流水类型
 	 */
+	@ApiModelProperty(value = "流水类型")
 	private CapitalFlowType type;
 	/**
 	 * 流水号
 	 */
+	@ApiModelProperty(value = "流水号")
 	private String flowNo;
 	/**
 	 * 产生时间
 	 */
+	@ApiModelProperty(value = "产生时间")
 	private Date occurrenceTime;
 	/**
 	 * 发布人ID
 	 */
+	@ApiModelProperty(value = "发布人ID")
 	private Long publisherId;
 	/**
 	 * 发布人序列号
@@ -50,29 +58,32 @@ public class CapitalFlowWithExtendDto {
 	/**
 	 * 策略类型ID
 	 */
+	@ApiModelProperty(value = "")
 	private Long strategyTypeId;
 	/**
 	 * 策略类型名称
 	 */
+	@ApiModelProperty(value = "")
 	private String strategyTypeName;
 	/**
 	 * 充值方式
 	 */
+	@ApiModelProperty(value = "充值方式")
 	private String paymentType;
-	
 	/**
 	 * 交易代码（期货交易）
 	 */
+	@ApiModelProperty(value = "交易代码（期货交易）")
 	private String commoditySymbol;
-	
 	/**
 	 * 交易品种（期货交易）
 	 */
+	@ApiModelProperty(value = "交易品种（期货交易）")
 	private String commodityName;
-	
 	/**
 	 * 合约代码
 	 */
+	@ApiModelProperty(value = "合约代码")
 	private String contractNo;
 
 	public Long getId() {

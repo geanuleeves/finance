@@ -39,7 +39,7 @@ public class PaymentOrderService {
 		paymentOrder.setCreateTime(new Date());
 		return paymentOrderDao.create(paymentOrder);
 	}
-	
+
 	public PaymentOrder revision(PaymentOrder paymentOrder) {
 		return paymentOrderDao.update(paymentOrder);
 	}
@@ -54,18 +54,19 @@ public class PaymentOrderService {
 	public PaymentOrder findByPaymentNo(String paymentNo) {
 		return paymentOrderDao.retrieveByPaymentNo(paymentNo);
 	}
-	
+
 	public PaymentOrder findById(Long paymentId) {
 		return paymentOrderDao.retrieve(paymentId);
 	}
 
-	public Page<PaymentOrder> pages(final PaymentOrderQuery query){
+	public Page<PaymentOrder> pages(final PaymentOrderQuery query) {
 		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
 		Page<PaymentOrder> pages = paymentOrderDao.page(new Specification<PaymentOrder>() {
 			@Override
 			public Predicate toPredicate(Root<PaymentOrder> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder cb) {
-				if(query.getPublisherId() != null){
-					Predicate publisherIdQuery = cb.equal(root.get("publisherId").as(Long.class), query.getPublisherId());
+				if (query.getPublisherId() != null) {
+					Predicate publisherIdQuery = cb.equal(root.get("publisherId").as(Long.class),
+							query.getPublisherId());
 					criteriaQuery.where(publisherIdQuery);
 				}
 				return criteriaQuery.getRestriction();
@@ -73,7 +74,7 @@ public class PaymentOrderService {
 		}, pageable);
 		return pages;
 	}
-	
+
 	public Page<PaymentOrder> pagesByQuery(final PaymentOrderQuery query) {
 		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
 		Page<PaymentOrder> pages = paymentOrderDao.page(new Specification<PaymentOrder>() {
@@ -97,6 +98,14 @@ public class PaymentOrderService {
 							"%" + keyword + "%");
 					predicateList.add(keywordQuery);
 				}
+				if (query.getStartTime() != null) {
+					predicateList.add(criteriaBuilder.greaterThanOrEqualTo(root.get("updateTime").as(Date.class),
+							query.getStartTime()));
+				}
+				if (query.getEndTime() != null) {
+					predicateList.add(
+							criteriaBuilder.lessThan(root.get("updateTime").as(Date.class), query.getEndTime()));
+				}
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
@@ -112,8 +121,7 @@ public class PaymentOrderService {
 					}
 					criteriaQuery.orderBy(orders);
 				} else {
-					criteriaQuery.orderBy(criteriaBuilder.desc(root.get("createTime").as(Long.class)),
-							criteriaBuilder.desc(root.get("updateTime").as(Long.class)));
+					criteriaQuery.orderBy(criteriaBuilder.desc(root.get("updateTime").as(Long.class)));
 				}
 				return criteriaQuery.getRestriction();
 			}
