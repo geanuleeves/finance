@@ -57,7 +57,6 @@ import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
 import com.waben.stock.datalayer.futures.repository.FuturesOvernightRecordDao;
 import com.waben.stock.datalayer.futures.repository.FuturesStopLossOrProfitDao;
 import com.waben.stock.datalayer.futures.repository.impl.MethodDesc;
-import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.TradeFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
@@ -418,6 +417,7 @@ public class FuturesOrderService {
 						FuturesOrderState.BuyingFailure, FuturesOrderState.PartPosition, FuturesOrderState.Position,
 						FuturesOrderState.SellingEntrust, FuturesOrderState.PartUnwind, FuturesOrderState.Unwind };
 				FuturesOrderState[] positionStates = { FuturesOrderState.Position };
+				FuturesOrderState[] monitorPositionStates = { FuturesOrderState.Position, FuturesOrderState.SellingEntrust };
 				if (query.getStates() != null) {
 					if (orderStateArrToString(query.getStates()).equals(orderStateArrToString(unwindStates))) {
 						List<Order> orderList = new ArrayList<Order>();
@@ -426,6 +426,8 @@ public class FuturesOrderService {
 					} else if (orderStateArrToString(query.getStates()).equals(orderStateArrToString(wtStates))) {
 						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingEntrustTime").as(Date.class)));
 					} else if (orderStateArrToString(query.getStates()).equals(orderStateArrToString(positionStates))) {
+						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingTime").as(Date.class)));
+					} else if(orderStateArrToString(query.getStates()).equals(orderStateArrToString(monitorPositionStates))) {
 						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingTime").as(Date.class)));
 					}
 				}
@@ -570,6 +572,30 @@ public class FuturesOrderService {
 		 * ServiceException(ExceptionConstant.
 		 * NOT_OPEN_GRANARY_PROVIDE_RELIEF_EXCEPTION); } } } } }
 		 */
+	}
+	
+	/**
+	 * 禁止平仓（当前时间是否禁止平仓）
+	 * 
+	 * @param limitList
+	 *            期货交易限制列表
+	 * @param exchangeTime
+	 *            当前时间
+	 */
+	public boolean isLimitUnwind(List<FuturesTradeLimit> limitList, Date exchangeTime) {
+		boolean result = false;
+		String fullStr = fullSdf.format(exchangeTime);
+		for (FuturesTradeLimit limit : limitList) {
+			if (limit.getEnable()) {
+				if (limit.getLimitType() == FuturesTradeLimitType.LimitUnwind) {
+					if (fullStr.compareTo(limit.getStartLimitTime()) >= 0
+							&& fullStr.compareTo(limit.getEndLimitTime()) < 0) {
+						result = true;
+					}
+				}
+			}
+		}
+		return result;
 	}
 
 	/**
@@ -1209,11 +1235,9 @@ public class FuturesOrderService {
 		order.setSellingEntrustTime(date);
 		order.setSellingPriceType(priceType);
 		if (entrustPrice == null && priceType == FuturesTradePriceType.MKT) {
-			FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(),
-					order.getCommoditySymbol(), order.getContractNo());
-			if (market != null && market.getLastPrice() != null
-					&& market.getLastPrice().compareTo(BigDecimal.ZERO) > 0) {
-				entrustPrice = market.getLastPrice();
+			BigDecimal lastPrice = allQuote.getLastPrice(order.getCommoditySymbol(), order.getContractNo());
+			if (lastPrice != null && lastPrice.compareTo(BigDecimal.ZERO) > 0) {
+				entrustPrice = lastPrice;
 			}
 		}
 		order.setSellingEntrustPrice(entrustPrice);
@@ -1407,16 +1431,17 @@ public class FuturesOrderService {
 			Integer timeZoneGap = this.retriveTimeZoneGap(order);
 			boolean isTradeTime = isTradeTime(timeZoneGap, order.getContract(), new Date());
 			if (!isTradeTime) {
-				throw new ServiceException(ExceptionConstant.PARTCONTRACT_NOTINTRADETIME_EXCEPTION);
+				continue;
 			}
 			List<FuturesTradeLimit> limitList = futuresTradeLimitService.findByContractId(order.getContractId());
 			if (limitList != null && limitList.size() > 0) {
 				// 判断该交易平仓时是否在后台设置的期货交易限制内
-				checkedLimitUnwind(limitList, retriveExchangeTime(new Date(), this.retriveTimeZoneGap(order)));
+				boolean isLimit = isLimitUnwind(limitList, retriveExchangeTime(new Date(), this.retriveTimeZoneGap(order)));
+				if(isLimit) {
+					continue;
+				}
 			}
-		}
-		// 委托卖出
-		for (FuturesOrder order : orderList) {
+			// 委托卖出
 			sellingEntrust(order, FuturesWindControlType.UserApplyUnwind, FuturesTradePriceType.MKT, null);
 		}
 	}

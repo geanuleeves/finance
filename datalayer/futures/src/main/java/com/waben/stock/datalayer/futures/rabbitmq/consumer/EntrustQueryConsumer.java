@@ -117,15 +117,27 @@ public class EntrustQueryConsumer {
 			MarketAveragePrice avgPrice = null;
 			if (priceType == FuturesTradePriceType.MKT) {
 				FuturesContractMarket market = quoteContainer.getQuote(commodityNo, contractNo); 
+				BigDecimal lastPrice = market.getLastPrice();
 				// 市价
-				avgPrice = new MarketAveragePrice();
-				avgPrice.setAvgFillPrice(order.getOrderType() == FuturesOrderType.BuyUp ? market.getBidPrice() : market.getAskPrice());
-				avgPrice.setCommodityNo(commodityNo);
-				avgPrice.setContractNo(contractNo);
-				avgPrice.setFilled(totalQuantity);
-				avgPrice.setRemaining(BigDecimal.ZERO);
-				avgPrice.setTotalQuantity(totalQuantity);
-				avgPrice.setTotalFillCost(totalQuantity.multiply(avgPrice.getAvgFillPrice()));
+				if(lastPrice != null && lastPrice.compareTo(BigDecimal.ZERO) > 0) {
+					avgPrice = new MarketAveragePrice();
+					avgPrice.setAvgFillPrice(lastPrice);
+					avgPrice.setCommodityNo(commodityNo);
+					avgPrice.setContractNo(contractNo);
+					avgPrice.setFilled(totalQuantity);
+					avgPrice.setRemaining(BigDecimal.ZERO);
+					avgPrice.setTotalQuantity(totalQuantity);
+					avgPrice.setTotalFillCost(totalQuantity.multiply(avgPrice.getAvgFillPrice()));
+				} else {
+					avgPrice = new MarketAveragePrice();
+					avgPrice.setAvgFillPrice(BigDecimal.ZERO);
+					avgPrice.setCommodityNo(commodityNo);
+					avgPrice.setContractNo(contractNo);
+					avgPrice.setFilled(BigDecimal.ZERO);
+					avgPrice.setRemaining(totalQuantity);
+					avgPrice.setTotalQuantity(totalQuantity);
+					avgPrice.setTotalFillCost(BigDecimal.ZERO);
+				}
 				// avgPrice = orderService.computeMktAvgPrice(commodityNo, contractNo, actionType, totalQuantity);
 			} else {
 				// 限价
