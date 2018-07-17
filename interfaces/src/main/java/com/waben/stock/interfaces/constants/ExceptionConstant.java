@@ -358,5 +358,7 @@ public class ExceptionConstant {
 	public static final String THE_AUDIT_RECORD_DOESNOT_EXIST_EXCEPTION = "13047";
 	// 实际返佣资金不能大于系统返佣金额
 	public static final String THAN_AMOUNT_SYSTEM_RETURNS_EXCEPTION = "13048";
+	// 该记录已审核
+	public static final String THE_STATE_ISNOT_AUDITED_EXCEPTION = "13049";
 
 }

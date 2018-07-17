@@ -201,6 +201,7 @@ public class ExceptionMap {
 		exceptionMap.put(ExceptionConstant.THE_PROPORTION_ISFULL_EXCEPTION, "分成比例已满额");
 		exceptionMap.put(ExceptionConstant.THE_AUDIT_RECORD_DOESNOT_EXIST_EXCEPTION, "该审核记录不存在");
 		exceptionMap.put(ExceptionConstant.THAN_AMOUNT_SYSTEM_RETURNS_EXCEPTION, "实际返佣资金不能大于系统返佣金额");
+		exceptionMap.put(ExceptionConstant.THE_STATE_ISNOT_AUDITED_EXCEPTION, "该记录已审核");
 
 	}
 }

@@ -103,7 +103,7 @@ public class AgentCapitalManageController {
 		return new Response<>(agentCapitalManageBusiness.realMaidFee(SecurityUtil.getUserDetails().getOrgId()));
 	}
 
-	@RequestMapping(value = "/edit/commission/{auditId}/{state}/{remarks}/{realMaidFee}", method = RequestMethod.GET)
+	@RequestMapping(value = "/edit/commission/{auditId}/{state}/{remarks}/{realMaidFee}", method = RequestMethod.POST)
 	@ApiOperation(value = "佣金审核修改")
 	@ApiImplicitParams({
 			@ApiImplicitParam(paramType = "path", dataType = "Long", name = "auditId", value = "佣金审核ID", required = true),
@@ -247,6 +247,158 @@ public class AgentCapitalManageController {
 		result.add("返佣金额");
 		result.add("流水时间");
 		result.add("所属代理商代码/名称");
+		return result;
+	}
+
+	@RequestMapping(value = "/audit/export", method = RequestMethod.GET)
+	@ApiOperation(value = "佣金审核及审核记录导出")
+	public void auditExport(FuturesCommissionAuditQuery query, HttpServletResponse svrResponse) {
+		query.setPage(0);
+		query.setSize(Integer.MAX_VALUE);
+		query.setCurrentOrgId(SecurityUtil.getUserDetails().getOrgId());
+		PageInfo<FuturesCommissionAuditDto> result = agentCapitalManageBusiness.pagesCommissionAudit(query);
+		File file = null;
+		FileInputStream is = null;
+		String fileName = "";
+		try {
+			if (query.getStates().equals("1")) {
+				fileName = "commissionreview__" + String.valueOf(System.currentTimeMillis());
+				file = File.createTempFile(fileName, ".xls");
+				List<String> columnDescList = columnAuditDescList();
+				List<List<String>> dataList = dataAuditList(result.getContent());
+				PoiUtil.writeDataToExcel("佣金审核", file, columnDescList, dataList);
+			} else {
+				fileName = "auditrecord__" + String.valueOf(System.currentTimeMillis());
+				file = File.createTempFile(fileName, ".xls");
+				List<String> columnDescList = columnAuditCommList();
+				List<List<String>> dataList = dataAuditCommList(result.getContent());
+				PoiUtil.writeDataToExcel("审核记录", file, columnDescList, dataList);
+			}
+
+			is = new FileInputStream(file);
+			svrResponse.setContentType("application/vnd.ms-excel");
+			svrResponse.setHeader("Content-Disposition", "attachment;filename=" + fileName + ".xls");
+			IOUtils.copy(is, svrResponse.getOutputStream());
+			svrResponse.getOutputStream().flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new ServiceException(ExceptionConstant.UNKNOW_EXCEPTION, "导出佣金审核数据到excel异常：" + e.getMessage());
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+				}
+			}
+			if (file != null) {
+				file.delete();
+			}
+		}
+	}
+
+	// 佣金审核
+	private List<List<String>> dataAuditList(List<FuturesCommissionAuditDto> content) {
+		List<List<String>> result = new ArrayList<>();
+		for (FuturesCommissionAuditDto trade : content) {
+			List<String> data = new ArrayList<>();
+			String type = "";
+			if (trade.getType() != null) {
+				type = OrganizationAccountFlowType.getByIndex(trade.getType().toString()).getType();
+			}
+			String state = "";
+			if (trade.getState() == 1) {
+				state = "审核中";
+			} else if (trade.getState() == 2) {
+				state = "审核通过";
+			} else if (trade.getState() == 3) {
+				state = "审核不通过";
+			}
+			data.add(trade.getoTradeNo() == null ? "" : trade.getoTradeNo());
+			data.add(trade.getFlowNo() == null ? "" : trade.getFlowNo());
+			data.add(trade.getoPublisherName() == null ? "" : trade.getoPublisherName());
+			data.add(trade.getoPublisherPhone() == null ? "" : trade.getoPublisherPhone());
+			data.add(trade.getCommoditySymbol() == null ? "" : trade.getCommoditySymbol());
+			data.add(trade.getCommodityName() == null ? "" : trade.getCommodityName());
+			data.add(type);
+			data.add(String.valueOf(trade.getCommission() == null ? "" : trade.getCommission()));
+			data.add(String.valueOf(trade.getAmountRemaid() == null ? "" : trade.getAmountRemaid()));
+			data.add(trade.getOccurrenceTime() != null ? sdf.format(trade.getOccurrenceTime()) : "");
+			data.add(trade.getOrgCode() + "/" + trade.getOrgName());
+			data.add(state);
+			result.add(data);
+		}
+		return result;
+	}
+
+	private List<String> columnAuditDescList() {
+		List<String> result = new ArrayList<>();
+		result.add("订单编号");
+		result.add("流水号");
+		result.add("客户姓名");
+		result.add("交易账号");
+		result.add("交易代码");
+		result.add("交易品种");
+		result.add("佣金类型");
+		result.add("交易金额");
+		result.add("系统返佣金额");
+		result.add("实际返佣金额");
+		result.add("流水时间");
+		result.add("所属代理商代码/名称");
+		result.add("佣金状态");
+		return result;
+	}
+
+	// 审核记录
+	private List<List<String>> dataAuditCommList(List<FuturesCommissionAuditDto> content) {
+		List<List<String>> result = new ArrayList<>();
+		for (FuturesCommissionAuditDto trade : content) {
+			List<String> data = new ArrayList<>();
+			String type = "";
+			if (trade.getType() != null) {
+				type = OrganizationAccountFlowType.getByIndex(trade.getType().toString()).getType();
+			}
+			String state = "";
+			if (trade.getState() == 1) {
+				state = "审核中";
+			} else if (trade.getState() == 2) {
+				state = "审核通过";
+			} else if (trade.getState() == 3) {
+				state = "审核不通过";
+			}
+			data.add(trade.getoTradeNo() == null ? "" : trade.getoTradeNo());
+			data.add(trade.getFlowNo() == null ? "" : trade.getFlowNo());
+			data.add(trade.getoPublisherName() == null ? "" : trade.getoPublisherName());
+			data.add(trade.getoPublisherPhone() == null ? "" : trade.getoPublisherPhone());
+			data.add(trade.getCommoditySymbol() == null ? "" : trade.getCommoditySymbol());
+			data.add(trade.getCommodityName() == null ? "" : trade.getCommodityName());
+			data.add(type);
+			data.add(String.valueOf(trade.getCommission() == null ? "" : trade.getCommission()));
+			data.add(String.valueOf(trade.getAmountRemaid() == null ? "" : trade.getAmountRemaid()));
+			data.add(trade.getOccurrenceTime() != null ? sdf.format(trade.getOccurrenceTime()) : "");
+			data.add(trade.getOrgCode() + "/" + trade.getOrgName());
+			data.add(state);
+			data.add(trade.getAuditRemark() == null ? "" : trade.getAuditRemark());
+			result.add(data);
+		}
+		return result;
+	}
+
+	private List<String> columnAuditCommList() {
+		List<String> result = new ArrayList<>();
+		result.add("订单编号");
+		result.add("流水号");
+		result.add("客户姓名");
+		result.add("交易账号");
+		result.add("交易代码");
+		result.add("交易品种");
+		result.add("佣金类型");
+		result.add("交易金额");
+		result.add("系统返佣金额");
+		result.add("实际返佣金额");
+		result.add("流水时间");
+		result.add("所属代理商代码/名称");
+		result.add("佣金状态");
+		result.add("备注");
 		return result;
 	}
 }
