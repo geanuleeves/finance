@@ -28,4 +28,10 @@ public class OutsideMessageController implements OutsideMessageInterface {
 		return new Response<String>();
 	}
 
+	@Override
+	public Response<String> sendAll(@RequestBody OutsideMessage message) {
+		servcie.sendAll(message);
+		return new Response<String>();
+	}
+
 }

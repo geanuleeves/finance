@@ -38,7 +38,6 @@ public class WithdrawalsOrderDto {
 	 * 提现状态
 	 */
 	private WithdrawalsState state;
-	
 	/**
 	 * 审核状态
 	 */

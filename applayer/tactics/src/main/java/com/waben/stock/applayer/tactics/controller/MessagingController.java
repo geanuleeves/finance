@@ -32,6 +32,17 @@ public class MessagingController {
 
 	@Autowired
 	private MessagingBusiness business;
+	
+	@GetMapping("/pagesAdmin")
+	@ApiOperation(value = "获取消息列表", notes = "type(1:站内消息,2:站外消息)")
+	public Response<PageInfo<MessagingDto>> pagesAdmin(MessagingQuery query) {
+		query.setIsOutside(true);
+		query.setOutsideType("37");
+		query.setMessageType("3");
+		query.setHasRead(true);
+		
+		return new Response<>(business.pages(query));
+	}
 
 	@GetMapping("/pages")
 	@ApiOperation(value = "获取消息列表", notes = "type(1:站内消息,2:站外消息)")

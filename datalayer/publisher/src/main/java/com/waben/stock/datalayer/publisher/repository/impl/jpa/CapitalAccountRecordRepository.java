@@ -1,5 +1,8 @@
 package com.waben.stock.datalayer.publisher.repository.impl.jpa;
 
+import java.util.List;
+
+import com.waben.stock.datalayer.publisher.entity.CapitalAccount;
 import com.waben.stock.datalayer.publisher.entity.CapitalAccountRecord;
 
 /**
@@ -7,4 +10,6 @@ import com.waben.stock.datalayer.publisher.entity.CapitalAccountRecord;
  * @desc
  */
 public interface CapitalAccountRecordRepository extends CustomJpaRepository<CapitalAccountRecord,Long> {
+	
+	List<CapitalAccountRecord> findByCapitalAccount(CapitalAccount capitalAccount);
 }

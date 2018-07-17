@@ -153,6 +153,8 @@ public class FutresOrderEntrustDto {
 	 * 平仓手续费
 	 */
 	private BigDecimal unwindServiceFee;
+	
+	private boolean isTest;
 
 	public Long getId() {
 		return id;
@@ -384,6 +386,14 @@ public class FutresOrderEntrustDto {
 
 	public void setUnwindServiceFee(BigDecimal unwindServiceFee) {
 		this.unwindServiceFee = unwindServiceFee;
+	}
+
+	public boolean isTest() {
+		return isTest;
+	}
+
+	public void setTest(boolean isTest) {
+		this.isTest = isTest;
 	}
 
 }

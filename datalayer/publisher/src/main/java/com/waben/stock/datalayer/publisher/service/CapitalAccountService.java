@@ -88,6 +88,11 @@ public class CapitalAccountService {
 	private DynamicQuerySqlDao sqlDao;
 	
 	public void delete(Long accId){
+		CapitalAccount account = capitalAccountDao.retrieve(accId);
+		List<CapitalAccountRecord> list =  recordDao.findByCapitalAccount(account);
+		for(CapitalAccountRecord record : list){
+			recordDao.delete(record.getId());
+		}
 		capitalAccountDao.delete(accId);
 	}
 

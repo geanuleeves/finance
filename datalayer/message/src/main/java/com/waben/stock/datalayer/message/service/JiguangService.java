@@ -17,6 +17,7 @@ import cn.jiguang.common.resp.APIConnectionException;
 import cn.jiguang.common.resp.APIRequestException;
 import cn.jpush.api.JPushClient;
 import cn.jpush.api.push.PushResult;
+import cn.jpush.api.push.model.Message;
 import cn.jpush.api.push.model.Options;
 import cn.jpush.api.push.model.Platform;
 import cn.jpush.api.push.model.PushPayload;
@@ -101,6 +102,20 @@ public class JiguangService {
 		builder.setOptions(Options.newBuilder().setApnsProduction(isProd).build());
 		return builder.build();
 	}
+	
+	private PushPayload buildPushObjectForAllMessage(String title, String alert, Map<String, String> extras) {
+		extras.put("sound", "default");
+		Builder builder = PushPayload.newBuilder();
+		builder.setPlatform(Platform.all());
+		builder.setAudience(Audience.newBuilder().setAll(true).build());
+		Message msg = Message.content(alert);
+		builder.setMessage(msg);
+		builder.setNotification(Notification.ios(alert, extras));
+		builder.setNotification(Notification.android(alert, title, extras));
+		// ture为生产环境，false为开发环境
+		builder.setOptions(Options.newBuilder().setApnsProduction(isProd).build());
+		return builder.build();
+	}
 
 	/**
 	 * 推送通知
@@ -122,6 +137,10 @@ public class JiguangService {
 			throw new ServiceException(ExceptionConstant.UNKNOW_EXCEPTION,
 					"Jiguang push should review the error, and fix the request");
 		}
+	}
+	
+	public void pushAllMessage(String title, String alert, Map<String, String> extras, String appKey, String masterSecret){
+		pushNotification(buildPushObjectForAllMessage(title, alert, extras),appKey,masterSecret);
 	}
 
 	public void pushAllDevice(String title, String alert, Map<String, String> extras, String appKey, String masterSecret) {

@@ -99,7 +99,9 @@ public enum OutsideMessageType implements CommonalityEnum {
 	
 	Account_FuturesLoss("35", "期货亏损"),
 	
-	Account_FuturesProfit("36", "期货盈利");
+	Account_FuturesProfit("36", "期货盈利"),
+	
+	Admin_Back("37", "后台消息推送");
 	
 	/****************** END 期货相关推送 *****************/
 

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.waben.stock.interfaces.dto.message.MessagingDto;
 import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.message.OutsideMessage;
 import com.waben.stock.interfaces.pojo.query.MessagingQuery;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 
@@ -29,6 +30,12 @@ public interface MessagingInterface {
 	 */
 	@RequestMapping(value="/add", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Response<MessagingDto> addMessaging(@RequestBody MessagingDto messagingDto);
+	
+	@RequestMapping(value="/retrieveOutsideMsgType", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public Response<List<MessagingDto>> retrieveOutsideMsgType();
+	
+	@RequestMapping(value = "/sendAll", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public Response<String> sendAll(@RequestBody MessagingDto message);
 	
 	/**
 	 * 根据id删除消息

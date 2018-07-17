@@ -60,6 +60,11 @@ public class MessagingDto {
 	 * 创建时间
 	 */
 	private Date createTime;
+	
+	/**
+	 * 发送时间
+	 */
+	private Date sendTime;
 	/**
 	 * 资源类型
 	 * <ul>
@@ -131,6 +136,14 @@ public class MessagingDto {
 
 	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
+	}
+
+	public Date getSendTime() {
+		return sendTime;
+	}
+
+	public void setSendTime(Date sendTime) {
+		this.sendTime = sendTime;
 	}
 
 	public ResourceType getResourceType() {

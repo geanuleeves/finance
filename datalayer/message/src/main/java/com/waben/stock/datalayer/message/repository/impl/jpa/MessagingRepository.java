@@ -16,5 +16,7 @@ public interface MessagingRepository extends CustomJpaRepository<Messaging, Long
 
 	@Query("from Messaging m where not exists (select mr.message from MessageReceipt mr where m.id = mr.message and mr.recipient = :recipient)")
 	List<Messaging> findAllByRecipient(@Param("recipient") String recipient);
+	@Query("from Messaging m where m.outsideMsgType= :outsideMsgType and hasRead=true")
+	List<Messaging> retrieveOutsideMsgType(@Param("outsideMsgType") Integer outsideMsgType);
 	
 }

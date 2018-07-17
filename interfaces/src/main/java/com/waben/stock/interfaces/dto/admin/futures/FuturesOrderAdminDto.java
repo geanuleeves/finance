@@ -244,6 +244,8 @@ public class FuturesOrderAdminDto {
 	 * 发布人盈亏（人民币）
 	 */
 	private BigDecimal publisherProfitOrLoss;
+	
+	private boolean isTest;
 
 	public Long getId() {
 		return id;
@@ -611,6 +613,14 @@ public class FuturesOrderAdminDto {
 
 	public void setPublisherProfitOrLoss(BigDecimal publisherProfitOrLoss) {
 		this.publisherProfitOrLoss = publisherProfitOrLoss;
+	}
+
+	public boolean isTest() {
+		return isTest;
+	}
+
+	public void setTest(boolean isTest) {
+		this.isTest = isTest;
 	}
 
 }

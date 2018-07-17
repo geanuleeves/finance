@@ -1,14 +1,11 @@
 package com.waben.stock.datalayer.message.controller;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.waben.stock.datalayer.message.entity.MessageReceipt;
-import com.waben.stock.datalayer.message.service.MessageReceiptService;
-import com.waben.stock.datalayer.message.service.OutsideMessageService;
-import com.waben.stock.interfaces.enums.MessageType;
-import com.waben.stock.interfaces.pojo.message.OutsideMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,10 +13,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.waben.stock.datalayer.message.entity.MessageReceipt;
 import com.waben.stock.datalayer.message.entity.Messaging;
+import com.waben.stock.datalayer.message.service.MessageReceiptService;
 import com.waben.stock.datalayer.message.service.MessagingService;
+import com.waben.stock.datalayer.message.service.OutsideMessageService;
 import com.waben.stock.interfaces.dto.message.MessagingDto;
+import com.waben.stock.interfaces.enums.MessageType;
 import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.message.OutsideMessage;
 import com.waben.stock.interfaces.pojo.query.MessagingQuery;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.service.message.MessagingInterface;
@@ -44,6 +46,7 @@ public class MessagingController implements MessagingInterface{
 	public Response<MessagingDto> addMessaging(@RequestBody MessagingDto messagingDto) {
 
 		Messaging messaging = CopyBeanUtils.copyBeanProperties(Messaging.class, messagingDto, false);
+		messaging.setCreateTime(new Date());
 		Messaging resultMessaging = messagingService.save(messaging);
 		if(messagingDto.getType().equals(MessageType.POIT)) {
 			MessageReceipt messageReceipt = new MessageReceipt();
@@ -53,7 +56,7 @@ public class MessagingController implements MessagingInterface{
 			MessageReceipt save = messageReceiptService.save(messageReceipt);
 			System.out.println(save.getId());
 		}
-		if(messaging.getIsOutside()) {
+		if(messaging.getIsOutside() && messagingDto.getPublisherId()!=null) {
 			OutsideMessage outsideMessage = new OutsideMessage();
 			outsideMessage.setPublisherId(messagingDto.getPublisherId());
 			outsideMessage.setTitle(messaging.getTitle());
@@ -105,6 +108,27 @@ public class MessagingController implements MessagingInterface{
 	public Response<MessagingDto> readMessage(@PathVariable Long recipient, @PathVariable Long id) {
 		Messaging resultMessaging = messagingService.readMessage(String.valueOf(recipient), id);
 		return new Response<>(CopyBeanUtils.copyBeanProperties(MessagingDto.class,resultMessaging, false));
+	}
+
+	@Override
+	public Response<List<MessagingDto>> retrieveOutsideMsgType() {
+		List<Messaging> result = messagingService.retrieveOutsideMsgType();
+		List<MessagingDto> response = new ArrayList<MessagingDto>();
+		for (Messaging mess : result) {
+			MessagingDto dto = CopyBeanUtils.copyBeanProperties(mess, new MessagingDto(), false);
+			response.add(dto);
+		}
+		return new Response<>(response);
+	}
+
+	@Override
+	public Response<String> sendAll(@RequestBody MessagingDto message) {
+		OutsideMessage msg = new OutsideMessage();
+		msg.setContent(message.getContent());
+		msg.setTitle(message.getTitle());
+		msg.setPublisherId(message.getPublisherId());
+		servcie.sendAll(msg);
+		return new Response<String>();
 	}
 	
 }

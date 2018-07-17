@@ -240,13 +240,13 @@ public class EntrustQueryConsumer {
 				BigDecimal buyingEntrustPrice = order.getBuyingEntrustPrice();
 				// 限价
 				if(order.getOrderType() == FuturesOrderType.BuyUp && askPrice.compareTo(buyingEntrustPrice) <= 0) {
-					avgPrice.setAvgFillPrice(buyingEntrustPrice);
+					avgPrice.setAvgFillPrice(askPrice);
 					avgPrice.setFilled(totalQuantity);
 					avgPrice.setRemaining(BigDecimal.ZERO);
 					avgPrice.setTotalQuantity(totalQuantity);
 					avgPrice.setTotalFillCost(totalQuantity.multiply(avgPrice.getAvgFillPrice()));
 				} else if(order.getOrderType() == FuturesOrderType.BuyFall && bidPrice.compareTo(buyingEntrustPrice) >= 0) {
-					avgPrice.setAvgFillPrice(buyingEntrustPrice);
+					avgPrice.setAvgFillPrice(bidPrice);
 					avgPrice.setFilled(totalQuantity);
 					avgPrice.setRemaining(BigDecimal.ZERO);
 					avgPrice.setTotalQuantity(totalQuantity);
