@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.waben.stock.applayer.tactics.dto.publisher.CapitalFlowWithExtendDto;
 import com.waben.stock.interfaces.dto.buyrecord.BuyRecordDto;
+import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
 import com.waben.stock.interfaces.dto.publisher.PaymentOrderDto;
 import com.waben.stock.interfaces.dto.stockcontent.StockDto;
@@ -18,6 +19,7 @@ import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.CapitalFlowQuery;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.service.futures.FuturesOrderInterface;
 import com.waben.stock.interfaces.service.publisher.CapitalFlowInterface;
 import com.waben.stock.interfaces.service.stockcontent.StrategyTypeInterface;
 import com.waben.stock.interfaces.util.CopyBeanUtils;
@@ -34,6 +36,10 @@ public class CapitalFlowBusiness {
 	@Autowired
 	@Qualifier("capitalFlowInterface")
 	private CapitalFlowInterface service;
+
+	@Autowired
+	@Qualifier("futuresOrderInterface")
+	private FuturesOrderInterface futuresOrderInterface;
 
 	@Autowired
 	private BuyRecordBusiness buyRecordBusiness;
@@ -100,9 +106,23 @@ public class CapitalFlowBusiness {
 					if (paymentOrder != null && paymentOrder.getType() != null) {
 						flowWithExtend.setPaymentType(paymentOrder.getType().getType());
 					}
+				} else if (flow.getExtendType() == CapitalFlowExtendType.FUTURESRECORD) {
+					FuturesOrderDto orderDto = fetchById(flow.getExtendId());
+					if (orderDto != null) {
+						flowWithExtend.setContractNo(orderDto.getContractNo());
+						flowWithExtend.setCommodityName(orderDto.getCommodityName());
+					}
 				}
 			}
 			return result;
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	private FuturesOrderDto fetchById(Long id) {
+		Response<FuturesOrderDto> response = futuresOrderInterface.fetchById(id);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
 		}
 		throw new ServiceException(response.getCode());
 	}

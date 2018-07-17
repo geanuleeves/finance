@@ -23,6 +23,7 @@ import com.waben.stock.datalayer.organization.entity.Organization;
 import com.waben.stock.datalayer.organization.repository.OrganizationDao;
 import com.waben.stock.datalayer.organization.service.OrganizationService;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
+import com.waben.stock.interfaces.dto.organization.BenefitConfigDto;
 import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.organization.FuturesFowDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationAccountDto;
@@ -273,6 +274,18 @@ public class OrganizationController implements OrganizationInterface {
 	@Override
 	public Response<FuturesOrderCountDto> getSUMOrder(@RequestBody FuturesTradeAdminQuery query) {
 		return new Response<>(organizationService.getSUMOrder(query));
+	}
+
+	@Override
+	public Response<Integer> addAgentPartition(@PathVariable BigDecimal ratio, @PathVariable BigDecimal platformRatio,
+			@PathVariable Long orgId, Long id) {
+		return new Response<>(organizationService.addAgentPartition(ratio, platformRatio, orgId, id));
+	}
+
+	@Override
+	public Response<BenefitConfigDto> getSuperiorAgentPartition(@PathVariable Long orgId) {
+		return new Response<>(CopyBeanUtils.copyBeanProperties(BenefitConfigDto.class,
+				organizationService.getSuperiorAgentPartition(orgId), false));
 	}
 
 }

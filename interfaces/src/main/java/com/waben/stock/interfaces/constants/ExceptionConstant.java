@@ -350,4 +350,13 @@ public class ExceptionConstant {
 	// 未设置止损止盈
 	public static final String SETTING_STOP_LOSS_EXCEPTION = "13044";
 
+	// 上级未设置分成比例
+	public static final String PROPORTION_SUPERIOR_NOTSET_PROPORTION_EXCEPTION = "13045";
+	// 分成比例已满额
+	public static final String THE_PROPORTION_ISFULL_EXCEPTION = "13046";
+	// 该审核记录不存在
+	public static final String THE_AUDIT_RECORD_DOESNOT_EXIST_EXCEPTION = "13047";
+	// 实际返佣资金不能大于系统返佣金额
+	public static final String THAN_AMOUNT_SYSTEM_RETURNS_EXCEPTION = "13048";
+
 }

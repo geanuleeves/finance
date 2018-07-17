@@ -20,9 +20,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.waben.stock.datalayer.organization.entity.FuturesCommissionAudit;
 import com.waben.stock.datalayer.organization.entity.Organization;
 import com.waben.stock.datalayer.organization.entity.OrganizationAccount;
 import com.waben.stock.datalayer.organization.entity.OrganizationAccountFlow;
+import com.waben.stock.datalayer.organization.repository.FuturesCommissionAuditDao;
 import com.waben.stock.datalayer.organization.repository.OrganizationAccountDao;
 import com.waben.stock.datalayer.organization.repository.OrganizationAccountFlowDao;
 import com.waben.stock.datalayer.organization.repository.OrganizationDao;
@@ -51,6 +53,9 @@ public class OrganizationAccountService {
 
 	@Autowired
 	private OrganizationDao organizationDao;
+
+	@Autowired
+	private FuturesCommissionAuditDao commissionAuditDao;
 
 	public OrganizationAccount getOrganizationAccountInfo(Long id) {
 		return organizationAccountDao.retrieve(id);
@@ -331,5 +336,44 @@ public class OrganizationAccountService {
 		organizationAccount.setState(2);
 		organizationAccountDao.update(organizationAccount);
 		return organizationAccount;
+	}
+
+	public synchronized OrganizationAccountFlow futureBenefit(Organization org, BigDecimal originAmount,
+			BigDecimal amount, OrganizationAccountFlowType flowType, ResourceType resourceType, Long resourceId,
+			String resourceTradeNo) {
+		Date date = new Date();
+		OrganizationAccount account = null;
+		if (org != null) {
+			if (org.getLevel() == 1) {
+				account = organizationAccountDao.retrieveByOrg(org);
+				if (account == null) {
+					account = initAccount(org, null);
+				}
+				increaseAmount(account, amount, date);
+			}
+		}
+		// 产生流水
+		OrganizationAccountFlow flow = new OrganizationAccountFlow();
+		flow.setAmount(amount);
+		flow.setOriginAmount(originAmount);
+		flow.setFlowNo(UniqueCodeGenerator.generateFlowNo());
+		flow.setOccurrenceTime(date);
+		flow.setOrg(org);
+		flow.setResourceType(resourceType);
+		flow.setResourceId(resourceId);
+		flow.setType(flowType);
+		flow.setResourceTradeNo(resourceTradeNo);
+		flow.setRemark(flowType.getType());
+		flow.setAvailableBalance(account == null ? new BigDecimal(0) : account.getAvailableBalance());
+		flowDao.create(flow);
+
+		if (org != null && org.getLevel() != 1 && amount.compareTo(BigDecimal.ZERO) > 0) {
+			FuturesCommissionAudit audit = new FuturesCommissionAudit();
+			audit.setAccountFlow(flow);
+			audit.setState(1);
+			commissionAuditDao.create(audit);
+		}
+
+		return flow;
 	}
 }
