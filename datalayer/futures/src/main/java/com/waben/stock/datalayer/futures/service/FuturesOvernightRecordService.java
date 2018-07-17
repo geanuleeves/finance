@@ -1,5 +1,6 @@
 package com.waben.stock.datalayer.futures.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +30,15 @@ public class FuturesOvernightRecordService {
 		return null;
 	}
 
-	public List<FuturesOvernightRecord> findAll(FuturesOrder order){
+	public List<FuturesOvernightRecord> findAll(FuturesOrder order) {
 		return recordDao.retrieveByOrder(order);
 	}
-	
-	public FuturesOvernightRecord retrieve(Long id){
+
+	public BigDecimal getSUMOvernightRecord(Long orderId) {
+		return recordDao.getSUMOvernightRecord(orderId);
+	}
+
+	public FuturesOvernightRecord retrieve(Long id) {
 		return recordDao.retrieve(id);
 	}
 }

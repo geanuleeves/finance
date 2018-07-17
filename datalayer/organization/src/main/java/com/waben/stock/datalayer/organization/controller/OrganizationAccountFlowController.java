@@ -1,5 +1,6 @@
 package com.waben.stock.datalayer.organization.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -13,13 +14,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.waben.stock.datalayer.organization.entity.OrganizationAccountFlow;
+import com.waben.stock.datalayer.organization.service.FuturesCommissionAuditService;
 import com.waben.stock.datalayer.organization.service.OrganizationAccountFlowService;
 import com.waben.stock.interfaces.dto.organization.AgentCapitalManageDto;
+import com.waben.stock.interfaces.dto.organization.FuturesCommissionAuditDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationAccountFlowDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationAccountFlowWithTradeInfoDto;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.organization.AgentCapitalManageQuery;
+import com.waben.stock.interfaces.pojo.query.organization.FuturesCommissionAuditQuery;
 import com.waben.stock.interfaces.pojo.query.organization.OrganizationAccountFlowQuery;
 import com.waben.stock.interfaces.service.organization.OrganizationAccountFlowInterface;
 import com.waben.stock.interfaces.util.CopyBeanUtils;
@@ -42,6 +46,9 @@ public class OrganizationAccountFlowController implements OrganizationAccountFlo
 
 	@Autowired
 	public OrganizationAccountFlowService organizationAccountFlowService;
+
+	@Autowired
+	public FuturesCommissionAuditService futuresCommissionAuditService;
 
 	@GetMapping("/{id}")
 	@ApiOperation(value = "根据id获取机构账户流水")
@@ -78,6 +85,30 @@ public class OrganizationAccountFlowController implements OrganizationAccountFlo
 			@RequestBody AgentCapitalManageQuery query) {
 		return new Response<>(PageToPageInfo.pageToPageInfo(
 				organizationAccountFlowService.pageAgentCapitalManageNew(query), AgentCapitalManageDto.class));
+	}
+
+	@Override
+	public Response<PageInfo<FuturesCommissionAuditDto>> pagesCommissionAudit(
+			@RequestBody FuturesCommissionAuditQuery query) {
+		return new Response<>(
+				PageToPageInfo.pageToPageInfo(organizationAccountFlowService.pageAgentCapitalCommissionAudit(query),
+						FuturesCommissionAuditDto.class));
+	}
+
+	@Override
+	public Response<Integer> countCommissionAudit(@PathVariable Long orgId) {
+		return new Response<>(futuresCommissionAuditService.countCommissionAudit(orgId));
+	}
+
+	@Override
+	public Response<BigDecimal> realMaidFee(@PathVariable Long orgId) {
+		return new Response<>(futuresCommissionAuditService.realMaidFee(orgId));
+	}
+
+	@Override
+	public Response<Integer> editCommissionAudit(@PathVariable Long auditId, @PathVariable Integer state,
+			@PathVariable String remarks, @PathVariable BigDecimal realMaidFee) {
+		return new Response<>(futuresCommissionAuditService.editCommissionAudit(auditId, state, remarks, realMaidFee));
 	}
 
 }

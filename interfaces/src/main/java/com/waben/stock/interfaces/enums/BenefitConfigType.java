@@ -21,7 +21,9 @@ public enum BenefitConfigType implements CommonalityEnum {
 
 	FuturesCloseFee("5", "期货平仓分成配置"),
 
-	FuturesDeferredFee("6", "期货递延分成配置");
+	FuturesDeferredFee("6", "期货递延分成配置"),
+
+	FuturesComprehensiveFee("7", "期货交易综合费分成");
 
 	private String index;
 	private String type;

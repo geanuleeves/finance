@@ -1,5 +1,6 @@
 package com.waben.stock.datalayer.futures.repository.impl;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +68,11 @@ public class FuturesOvernightRecordDaoImpl implements FuturesOvernightRecordDao 
 	public List<FuturesOvernightRecord> retrieveByOrder(FuturesOrder order) {
 		Sort sort = new Sort(new Sort.Order(Direction.DESC, "deferredTime"));
 		return repository.findByOrder(order, sort);
+	}
+
+	@Override
+	public BigDecimal getSUMOvernightRecord(Long orderId) {
+		return repository.getSUMOvernightRecord(orderId);
 	}
 
 }

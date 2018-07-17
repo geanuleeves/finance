@@ -1,5 +1,6 @@
 package com.waben.stock.datalayer.organization.repository.impl;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,17 @@ public class BenefitConfigDaoImpl implements BenefitConfigDao {
 	public List<BenefitConfig> retrieveByOrgAndTypeAndResourceTypeAndResourceId(Organization org,
 			BenefitConfigType type, Integer resourceType, Long resourceId) {
 		return repository.findByOrgAndTypeAndResourceTypeAndResourceId(org, type, resourceType, resourceId);
+	}
+
+	@Override
+	public List<BenefitConfig> retrieveByOrgAndTypeAndResourceType(Organization org, BenefitConfigType type,
+			Integer resourceType) {
+		return repository.findByOrgAndTypeAndResourceType(org, type, resourceType);
+	}
+
+	@Override
+	public BigDecimal surplusRatio(String treeCode) {
+		return repository.surplusRatio(treeCode);
 	}
 
 }
