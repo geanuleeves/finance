@@ -37,4 +37,8 @@ public class FuturesOvernightRecordService {
 	public BigDecimal getSUMOvernightRecord(Long orderId) {
 		return recordDao.getSUMOvernightRecord(orderId);
 	}
+
+	public FuturesOvernightRecord retrieve(Long id) {
+		return recordDao.retrieve(id);
+	}
 }

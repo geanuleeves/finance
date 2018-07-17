@@ -26,8 +26,10 @@ import com.future.api.es.external.quote.listener.QuoteApiListener;
 import com.waben.stock.futuresgateway.yisheng.common.protobuf.Command;
 import com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData;
 import com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteData.FuturesQuoteDataBase;
+import com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase;
 import com.waben.stock.futuresgateway.yisheng.common.protobuf.FuturesQuoteSimpleData.FuturesQuoteSimpleDataBase;
 import com.waben.stock.futuresgateway.yisheng.common.protobuf.Message;
+import com.waben.stock.futuresgateway.yisheng.common.protobuf.Message.MessageBase;
 import com.waben.stock.futuresgateway.yisheng.esapi.schedule.QuoteDayKSchedule;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqProducer;
@@ -281,6 +283,7 @@ public class EsQuoteWrapper implements QuoteApiListener {
 		String contractNo = info.getContract().getContractNo1();
 		Message.MessageBase singleQuote = buildSingleQuote(info);
 		Message.MessageBase allQuote = buildAllQuote(info);
+		Message.MessageBase allFullQuote = buildAllFullQuote(info);
 		// 将行情推送到特定的通道中
 		for (Map.Entry<String, Channel> entry : ChannelRepository.channelCache.entrySet()) {
 			String clientId = entry.getKey();
@@ -297,10 +300,101 @@ public class EsQuoteWrapper implements QuoteApiListener {
 					channel.writeAndFlush(singleQuote);
 				}
 			} else if (rtinfo.get() != null && rtinfo.get() == 2) {
-				// 推送全部行情
+				// 推送全部行情（部分信息）
 				allQuote = Message.MessageBase.newBuilder(allQuote).setClientId(clientId).build();
 				channel.writeAndFlush(allQuote);
+			} else if(rtinfo.get() != null && rtinfo.get() == 3) {
+				// 推送全部行情（全信息）
+				allFullQuote = Message.MessageBase.newBuilder(allFullQuote).setClientId(clientId).build();
+				channel.writeAndFlush(allFullQuote);
 			}
+		}
+	}
+
+	private MessageBase buildAllFullQuote(TapAPIQuoteWhole info) {
+		String commodityNo = info.getContract().getCommodity().getCommodityNo();
+		String contractNo = info.getContract().getContractNo1();
+		if (EsEngine.commodityScaleMap.containsKey(commodityNo)) {
+			Integer scale = EsEngine.commodityScaleMap.get(commodityNo);
+			// 构建行情推送对象
+			FuturesQuoteFullDataBase data = FuturesQuoteFullDataBase.newBuilder().setCommodityNo(commodityNo)
+					.setContractNo(contractNo)
+					.setTime(info.getDateTimeStamp().substring(0, info.getDateTimeStamp().length() - 4))
+					.setAskPrice(
+							new BigDecimal(info.getQAskPrice()[0]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setAskSize(info.getQAskQty()[0])
+					.setBidPrice(
+							new BigDecimal(info.getQBidPrice()[0]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setBidSize(info.getQBidQty()[0])
+					.setAskPrice2(
+							new BigDecimal(info.getQAskPrice()[1]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setAskSize2(info.getQAskQty()[1])
+					.setBidPrice2(
+							new BigDecimal(info.getQBidPrice()[1]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setBidSize2(info.getQBidQty()[1])
+					.setAskPrice3(
+							new BigDecimal(info.getQAskPrice()[2]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setAskSize3(info.getQAskQty()[2])
+					.setBidPrice3(
+							new BigDecimal(info.getQBidPrice()[2]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setBidSize3(info.getQBidQty()[2])
+					.setAskPrice4(
+							new BigDecimal(info.getQAskPrice()[3]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setAskSize4(info.getQAskQty()[3])
+					.setBidPrice4(
+							new BigDecimal(info.getQBidPrice()[3]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setBidSize4(info.getQBidQty()[3])
+					.setAskPrice5(
+							new BigDecimal(info.getQAskPrice()[4]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setAskSize5(info.getQAskQty()[4])
+					.setBidPrice5(
+							new BigDecimal(info.getQBidPrice()[4]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setBidSize5(info.getQBidQty()[4])
+					.setAskPrice6(
+							new BigDecimal(info.getQAskPrice()[5]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setAskSize6(info.getQAskQty()[5])
+					.setBidPrice6(
+							new BigDecimal(info.getQBidPrice()[5]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setBidSize6(info.getQBidQty()[5])
+					.setAskPrice7(
+							new BigDecimal(info.getQAskPrice()[6]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setAskSize7(info.getQAskQty()[6])
+					.setBidPrice7(
+							new BigDecimal(info.getQBidPrice()[6]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setBidSize7(info.getQBidQty()[6])
+					.setAskPrice8(
+							new BigDecimal(info.getQAskPrice()[7]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setAskSize8(info.getQAskQty()[7])
+					.setBidPrice8(
+							new BigDecimal(info.getQBidPrice()[7]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setBidSize8(info.getQBidQty()[7])
+					.setAskPrice9(
+							new BigDecimal(info.getQAskPrice()[8]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setAskSize9(info.getQAskQty()[8])
+					.setBidPrice9(
+							new BigDecimal(info.getQBidPrice()[8]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setBidSize9(info.getQBidQty()[8])
+					.setAskPrice10(
+							new BigDecimal(info.getQAskPrice()[9]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setAskSize10(info.getQAskQty()[9])
+					.setBidPrice10(
+							new BigDecimal(info.getQBidPrice()[9]).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setBidSize10(info.getQBidQty()[9])
+					.setClosePrice(
+							new BigDecimal(info.getQPreClosingPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setNowClosePrice(new BigDecimal(info.getQClosingPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setHighPrice(new BigDecimal(info.getQHighPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setLastPrice(new BigDecimal(info.getQLastPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setLastSize(info.getQLastQty())
+					.setLowPrice(new BigDecimal(info.getQLowPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setOpenPrice(
+							new BigDecimal(info.getQOpeningPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setVolume(info.getQLastQty()).setTotalVolume(info.getQTotalQty()).build();
+			Message.MessageBase msg = Message.MessageBase.newBuilder().setCmd(Command.CommandType.PUSH_DATA)
+					.setClientId("0").setType(1).setRequestType(3).setFullFq(data).build();
+			return msg;
+		} else {
+			return null;
 		}
 	}
 

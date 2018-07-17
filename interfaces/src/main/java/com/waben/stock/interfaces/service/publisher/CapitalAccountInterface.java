@@ -113,9 +113,9 @@ public interface CapitalAccountInterface {
 	@RequestMapping(value = "/state/{id}/{state}", method = RequestMethod.PUT)
 	Response<CapitalAccountDto> modifyState(@PathVariable("id") Long id, @PathVariable("state") Integer state);
 
-	@RequestMapping(value = "/account/{staff}/{id}/{availableBalance}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/account/{staff}/{id}/{availableBalance}/{remarket}", method = RequestMethod.POST)
 	Response<CapitalAccountDto> modifyAccount(@PathVariable("staff") Long staff, @PathVariable("id") Long id,
-			@PathVariable("availableBalance") BigDecimal availableBalance);
+			@PathVariable("availableBalance") BigDecimal availableBalance, @PathVariable("remarket") String remarket);
 
 	/**************************************** 期货相关 ***************************************/
 

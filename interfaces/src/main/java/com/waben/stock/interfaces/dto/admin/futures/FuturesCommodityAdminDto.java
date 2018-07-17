@@ -145,6 +145,11 @@ public class FuturesCommodityAdminDto {
 	 * 平仓手续费（人民币）
 	 */
 	private BigDecimal unwindServiceFee;
+	
+	/**
+	 * 交易综合费
+	 */
+	private BigDecimal tradeServiceFee;
 	/**
 	 * 隔夜时间
 	 */
@@ -712,12 +717,22 @@ public class FuturesCommodityAdminDto {
 		this.state = state;
 	}
 
+
+	public BigDecimal getTradeServiceFee() {
+		return tradeServiceFee;
+	}
+
+	public void setTradeServiceFee(BigDecimal tradeServiceFee) {
+		this.tradeServiceFee = tradeServiceFee;
+	}
+
 	public String getCurrentTradeTimeDesc() {
 		return currentTradeTimeDesc;
 	}
 
 	public void setCurrentTradeTimeDesc(String currentTradeTimeDesc) {
 		this.currentTradeTimeDesc = currentTradeTimeDesc;
+
 	}
 
 }

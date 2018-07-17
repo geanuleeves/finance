@@ -129,6 +129,10 @@ public class FuturesCommodity {
 	 */
 	private BigDecimal unwindServiceFee;
 	/**
+	 * 交易综合费
+	 */
+	private BigDecimal tradeServiceFee;
+	/**
 	 * 隔夜时间（交易所时间）
 	 * <p>
 	 * 格式如04:50:00，该时间为收取隔夜手续费和递延费的时间
@@ -636,12 +640,22 @@ public class FuturesCommodity {
 		this.buyFallCloseSlipPoint = buyFallCloseSlipPoint;
 	}
 
+
+	public BigDecimal getTradeServiceFee() {
+		return tradeServiceFee;
+	}
+
+	public void setTradeServiceFee(BigDecimal tradeServiceFee) {
+		this.tradeServiceFee = tradeServiceFee;
+	}
+		
 	public String getCurrentTradeTimeDesc() {
 		return currentTradeTimeDesc;
 	}
 
 	public void setCurrentTradeTimeDesc(String currentTradeTimeDesc) {
 		this.currentTradeTimeDesc = currentTradeTimeDesc;
+
 	}
 
 }

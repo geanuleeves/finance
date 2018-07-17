@@ -46,7 +46,6 @@ public class LogicServerHandler extends ChannelInboundHandlerAdapter{
 	public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
 		final Message.MessageBase msgBase = (Message.MessageBase)msg;
 		// log.info("服务器端收到消息:" + msgBase.getClientId());
-
 		String clientId = msgBase.getClientId();
 		if(StringUtils.isEmpty(clientId)){
 			return;

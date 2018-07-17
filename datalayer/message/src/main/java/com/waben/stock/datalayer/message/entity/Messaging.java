@@ -31,27 +31,37 @@ public class Messaging {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	
 	@Column(length = 30, nullable = false)
 	private String title;
+	
 	@Column(nullable = false)
 	private String content;
+	
 	@Column(length = 512)
 	private String link;
+	
 	@Column(name = "type")
 	@Convert(converter = MessageTypeConverter.class)
 	private MessageType type;
+	
 	@Column(name = "is_outside")
 	private Boolean isOutside;
+	
 	@Convert(converter = OutsideMessageTypeConverter.class)
 	@Column(name = "outside_msg_type")
 	private OutsideMessageType outsideMsgType;
+	
 	@OneToMany(mappedBy = "message")
 	private Set<MessageReceipt> receipts;
+	
 	@Column(name = "create_time")
 	private Date createTime;
+	
 	@Convert(converter = ResourceTypeConverter.class)
 	@Column(name = "resource_type")
 	private ResourceType resourceType;
+	
 	@Column(name = "resource_id")
 	private Long resourceId;
 	/**

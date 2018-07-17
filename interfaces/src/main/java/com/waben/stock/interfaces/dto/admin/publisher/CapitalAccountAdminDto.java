@@ -34,6 +34,8 @@ public class CapitalAccountAdminDto {
 	 * 账户可用余额
 	 */
 	private BigDecimal availableBalance;
+	
+	private BigDecimal balance;
 	/**
 	 * 更新时间
 	 */
@@ -58,6 +60,10 @@ public class CapitalAccountAdminDto {
 	 * 累计提现金额
 	 */
 	private BigDecimal totalWithdraw;
+	
+    private BigDecimal dayHoldingProfit;
+	
+	private BigDecimal daySettledProfit;
 	/**
 	 * 是否为测试
 	 */
@@ -101,6 +107,14 @@ public class CapitalAccountAdminDto {
 
 	public void setAvailableBalance(BigDecimal availableBalance) {
 		this.availableBalance = availableBalance;
+	}
+
+	public BigDecimal getBalance() {
+		return balance;
+	}
+
+	public void setBalance(BigDecimal balance) {
+		this.balance = balance;
 	}
 
 	public Date getUpdateTime() {
@@ -165,6 +179,22 @@ public class CapitalAccountAdminDto {
 
 	public void setIdCard(String idCard) {
 		this.idCard = idCard;
+	}
+
+	public BigDecimal getDayHoldingProfit() {
+		return dayHoldingProfit;
+	}
+
+	public void setDayHoldingProfit(BigDecimal dayHoldingProfit) {
+		this.dayHoldingProfit = dayHoldingProfit;
+	}
+
+	public BigDecimal getDaySettledProfit() {
+		return daySettledProfit;
+	}
+
+	public void setDaySettledProfit(BigDecimal daySettledProfit) {
+		this.daySettledProfit = daySettledProfit;
 	}
 
 	public Boolean getIsTest() {

@@ -12,6 +12,8 @@ public class PublisherQuery extends PageAndSortQuery {
     private Date beginTime;
 	
 	private Date endTime;
+	
+	private String endType;
 
 
     public String getPhone() {
@@ -44,5 +46,13 @@ public class PublisherQuery extends PageAndSortQuery {
 
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
+	}
+
+	public String getEndType() {
+		return endType;
+	}
+
+	public void setEndType(String endType) {
+		this.endType = endType;
 	}
 }

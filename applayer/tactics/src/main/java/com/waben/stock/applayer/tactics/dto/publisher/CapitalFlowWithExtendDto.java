@@ -60,13 +60,19 @@ public class CapitalFlowWithExtendDto {
 	 */
 	private String paymentType;
 	/**
-	 * 合约编号
+	 * 交易代码（期货交易）
 	 */
-	private String contractNo;
+	private String commoditySymbol;
+
 	/**
-	 * 合约名称
+	 * 交易品种（期货交易）
 	 */
 	private String commodityName;
+
+	/**
+	 * 合约代码
+	 */
+	private String contractNo;
 
 	public Long getId() {
 		return id;
@@ -176,12 +182,12 @@ public class CapitalFlowWithExtendDto {
 		this.availableBalance = availableBalance;
 	}
 
-	public String getContractNo() {
-		return contractNo;
+	public String getCommoditySymbol() {
+		return commoditySymbol;
 	}
 
-	public void setContractNo(String contractNo) {
-		this.contractNo = contractNo;
+	public void setCommoditySymbol(String commoditySymbol) {
+		this.commoditySymbol = commoditySymbol;
 	}
 
 	public String getCommodityName() {
@@ -190,6 +196,14 @@ public class CapitalFlowWithExtendDto {
 
 	public void setCommodityName(String commodityName) {
 		this.commodityName = commodityName;
+	}
+
+	public String getContractNo() {
+		return contractNo;
+	}
+
+	public void setContractNo(String contractNo) {
+		this.contractNo = contractNo;
 	}
 
 }
