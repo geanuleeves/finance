@@ -32,6 +32,6 @@ hystrix:
       queueSizeRejectionThreshold: 300
 ribbon:
   OkToRetryOnAllOperations: false
-  ReadTimeout: 30000
-  ConnectTimeout: 30000
+  ReadTimeout: 60000
+  ConnectTimeout: 60000
   MaxAutoRetries: 0

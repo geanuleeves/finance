@@ -22,8 +22,8 @@ hystrix:
      execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 10000
+            timeoutInMilliseconds: 30000
 ribbon:
   OkToRetryOnAllOperations: false
-  ReadTimeout: 30000
-  ConnectTimeout: 30000
+  ReadTimeout: 60000
+  ConnectTimeout: 60000
