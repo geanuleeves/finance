@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+option java_package="com.waben.stock.futuresgateway.yisheng.common.protobuf";
+option java_outer_classname = "FuturesQuoteData";
+
+message FuturesQuoteDataBase {
+  	string time = 1;
+	string commodityNo = 2;
+	string contractNo = 3;
+	string bidPrice = 4;
+	string bidPrice2 = 5;
+	string bidPrice3 = 6;
+	string bidPrice4 = 7;
+	string bidPrice5 = 8;
+	int64 bidSize = 9;
+	int64 bidSize2 = 10;
+	int64 bidSize3 = 11;
+	int64 bidSize4 = 12;
+	int64 bidSize5 = 13;
+	string askPrice = 14;
+	string askPrice2 = 15;
+	string askPrice3 = 16;
+	string askPrice4 = 17;
+	string askPrice5 = 18;
+	int64 askSize = 19;
+	int64 askSize2 = 20;
+	int64 askSize3 = 21;
+	int64 askSize4 = 22;
+	int64 askSize5 = 23;
+	string lastPrice = 24;
+	int64 lastSize = 25;
+	string openPrice = 26;
+	string highPrice = 27;
+	string lowPrice = 28;
+	string closePrice = 29;
+	int64 volume = 30;
+	int64 totalVolume = 31;
+}
