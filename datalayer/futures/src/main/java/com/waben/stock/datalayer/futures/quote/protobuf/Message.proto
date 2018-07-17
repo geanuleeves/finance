@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option java_package="com.waben.stock.futuresgateway.yisheng.common.protobuf";
+option java_outer_classname = "Message";
+import "Command.proto";
+import "FuturesQuoteData.proto";
+import "FuturesQuoteSimpleData.proto";
+import "FuturesQuoteFullData.proto";
+
+message MessageBase {
+	string clientId = 1;
+  	CommandType cmd = 2;
+  	int64 type = 3;
+  	int64 requestType = 4;
+  	string data = 5;
+  	FuturesQuoteDataBase fq = 6;
+  	repeated FuturesQuoteSimpleDataBase fqList = 7;
+  	FuturesQuoteFullDataBase fullFq = 8;
+ }
