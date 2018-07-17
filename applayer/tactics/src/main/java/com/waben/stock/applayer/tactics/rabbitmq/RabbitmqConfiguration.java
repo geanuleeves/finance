@@ -55,7 +55,7 @@ public class RabbitmqConfiguration {
 	 */
 	@Bean
 	public FanoutExchange pcPushExchange() {
-		return new FanoutExchange(pcPushExchangeName);
+		return new FanoutExchange(pcPushExchangeName, true, false);
 	}
 
 }

@@ -120,19 +120,25 @@ public class WindControlSchedule {
 							continue;
 						}
 						// step 5 : 获取合约行情
-						FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(),
-								order.getCommoditySymbol(), order.getContractNo());
+						// FuturesContractMarket market =
+						// RetriveFuturesOverHttp.market(profileBusiness.isProd(),
+						// order.getCommoditySymbol(), order.getContractNo());
 						// step 6 : 是否达到止盈点
-						if (orderService.isTradeTime(timeZoneGap, contract) && isReachProfitPoint(order, market)) {
-							if (order.getState() == FuturesOrderState.SellingEntrust && (order
-									.getWindControlType() == null
-									|| order.getWindControlType() == FuturesWindControlType.InitPosition
-									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
-								orderService.cancelOrder(order.getId(), order.getPublisherId());
-								continue;
-							}
-							continue;
-						}
+						// if (orderService.isTradeTime(timeZoneGap, contract)
+						// && isReachProfitPoint(order, market)) {
+						// if (order.getState() ==
+						// FuturesOrderState.SellingEntrust && (order
+						// .getWindControlType() == null
+						// || order.getWindControlType() ==
+						// FuturesWindControlType.InitPosition
+						// || order.getWindControlType() ==
+						// FuturesWindControlType.OvernightPosition)) {
+						// orderService.cancelOrder(order.getId(),
+						// order.getPublisherId());
+						// continue;
+						// }
+						// continue;
+						// }
 						// step 7 : 是否达到强平点
 						// if (orderService.isTradeTime(timeZoneGap, contract)
 						// && isReachStongPoint(order, market)) {
@@ -153,16 +159,21 @@ public class WindControlSchedule {
 						// continue;
 						// }
 						// step 8 : 是否达到止损点
-						if (orderService.isTradeTime(timeZoneGap, contract) && isReachLossPoint(order, market)) {
-							if (order.getState() == FuturesOrderState.SellingEntrust && (order
-									.getWindControlType() == null
-									|| order.getWindControlType() == FuturesWindControlType.InitPosition
-									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
-								orderService.cancelOrder(order.getId(), order.getPublisherId());
-								continue;
-							}
-							continue;
-						}
+						// if (orderService.isTradeTime(timeZoneGap, contract)
+						// && isReachLossPoint(order, market)) {
+						// if (order.getState() ==
+						// FuturesOrderState.SellingEntrust && (order
+						// .getWindControlType() == null
+						// || order.getWindControlType() ==
+						// FuturesWindControlType.InitPosition
+						// || order.getWindControlType() ==
+						// FuturesWindControlType.OvernightPosition)) {
+						// orderService.cancelOrder(order.getId(),
+						// order.getPublisherId());
+						// continue;
+						// }
+						// continue;
+						// }
 						// step 9 : 是否触发隔夜时间
 						if (orderService.isTradeTime(timeZoneGap, contract) && isTriggerOvernight(order, timeZoneGap)) {
 							if (order.getState() == FuturesOrderState.SellingEntrust && (order
@@ -223,7 +234,7 @@ public class WindControlSchedule {
 			if (lastPrice != null && lastPrice.compareTo(BigDecimal.ZERO) > 0 && limitProfitPrice != null
 					&& lastPrice.compareTo(limitProfitPrice) >= 0) {
 				if (order.getState() == FuturesOrderState.Position) {
-					orderService.unwindOrder(order.getId(), lastPrice);
+					orderService.unwindOrder(order.getId(), lastPrice, FuturesWindControlType.ReachProfitPoint);
 				}
 				return true;
 			}
@@ -233,7 +244,7 @@ public class WindControlSchedule {
 			if (lastPrice != null && lastPrice.compareTo(BigDecimal.ZERO) > 0 && limitProfitPrice != null
 					&& lastPrice.compareTo(limitProfitPrice) <= 0) {
 				if (order.getState() == FuturesOrderState.Position) {
-					orderService.unwindOrder(order.getId(), lastPrice);
+					orderService.unwindOrder(order.getId(), lastPrice, FuturesWindControlType.ReachProfitPoint);
 				}
 				return true;
 			}
@@ -400,7 +411,7 @@ public class WindControlSchedule {
 			if (lastPrice != null && lastPrice.compareTo(BigDecimal.ZERO) > 0 && limitLossPrice != null
 					&& lastPrice.compareTo(limitLossPrice) <= 0) {
 				if (order.getState() == FuturesOrderState.Position) {
-					orderService.unwindOrder(order.getId(), lastPrice);
+					orderService.unwindOrder(order.getId(), lastPrice, FuturesWindControlType.ReachLossPoint);
 				}
 				return true;
 			}
@@ -410,7 +421,7 @@ public class WindControlSchedule {
 			if (lastPrice != null && lastPrice.compareTo(BigDecimal.ZERO) > 0 && limitLossPrice != null
 					&& lastPrice.compareTo(limitLossPrice) >= 0) {
 				if (order.getState() == FuturesOrderState.Position) {
-					orderService.unwindOrder(order.getId(), lastPrice);
+					orderService.unwindOrder(order.getId(), lastPrice, FuturesWindControlType.ReachLossPoint);
 				}
 				return true;
 			}

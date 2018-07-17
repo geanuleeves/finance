@@ -23,6 +23,7 @@ import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
+import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqProducer;
 import com.waben.stock.datalayer.futures.rabbitmq.message.MonitorPublisherFuturesOrderMessage;
@@ -39,7 +40,8 @@ import com.waben.stock.interfaces.util.RandomUtil;
 import com.waben.stock.interfaces.util.StringUtil;
 
 @Component
-// @RabbitListener(queues = { RabbitmqConfiguration.monitorPublisherFuturesOrderQueueName })
+// @RabbitListener(queues = {
+// RabbitmqConfiguration.monitorPublisherFuturesOrderQueueName })
 public class MonitorPublisherFuturesOrderConsumer {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
@@ -55,9 +57,12 @@ public class MonitorPublisherFuturesOrderConsumer {
 
 	@Autowired
 	private FuturesCommodityDao commodityDao;
-	
+
 	@Autowired
 	private FuturesOvernightRecordService overnightService;
+
+	@Autowired
+	private QuoteContainer quoteContainer;
 
 	private List<Long> monitorPublisherList = Collections.synchronizedList(new ArrayList<Long>());
 
@@ -158,7 +163,8 @@ public class MonitorPublisherFuturesOrderConsumer {
 			// 计算强平金额
 			totalStrong = totalStrong.add(orderService.getStrongMoney(order));
 			// 计算浮动盈亏
-			totalProfitOrLoss = totalProfitOrLoss.add(orderService.getProfitOrLoss(order));
+			totalProfitOrLoss = totalProfitOrLoss.add(orderService.getProfitOrLoss(order,
+					quoteContainer.getLastPrice(order.getCommoditySymbol(), order.getContractNo())));
 		}
 		if (totalProfitOrLoss.compareTo(BigDecimal.ZERO) < 0
 				&& account.getAvailableBalance().add(totalStrong).compareTo(totalProfitOrLoss.abs()) <= 0) {
@@ -188,7 +194,8 @@ public class MonitorPublisherFuturesOrderConsumer {
 		BigDecimal totalOvernightReserveFund = BigDecimal.ZERO;
 		for (FuturesOrder order : orderList) {
 			// 计算浮动盈亏
-			totalProfitOrLoss = totalProfitOrLoss.add(orderService.getProfitOrLoss(order));
+			totalProfitOrLoss = totalProfitOrLoss.add(orderService.getProfitOrLoss(order,
+					quoteContainer.getLastPrice(order.getCommoditySymbol(), order.getContractNo())));
 			// 计算交易保证金
 			totalTradeReserveFund = totalTradeReserveFund.add(order.getReserveFund());
 			// 计算隔夜手续费
@@ -341,7 +348,8 @@ public class MonitorPublisherFuturesOrderConsumer {
 				if (!monitorPublisherList.contains(publisherId)) {
 					MonitorPublisherFuturesOrderMessage messgeObj = new MonitorPublisherFuturesOrderMessage();
 					messgeObj.setPublisherId(publisherId);
-					// producer.sendMessage(RabbitmqConfiguration.monitorPublisherFuturesOrderQueueName, messgeObj);
+					// producer.sendMessage(RabbitmqConfiguration.monitorPublisherFuturesOrderQueueName,
+					// messgeObj);
 					// monitorPublisherList.add(publisherId);
 				}
 			}
