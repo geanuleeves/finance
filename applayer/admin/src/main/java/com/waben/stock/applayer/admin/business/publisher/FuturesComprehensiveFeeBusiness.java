@@ -79,7 +79,9 @@ public class FuturesComprehensiveFeeBusiness {
 			query.setPublisherId(publisherIds);
 		}
 		WithdrawalsOrderQuery withquery = new WithdrawalsOrderQuery();
-		withquery.setPublisherId(publisherIds.get(0));
+		if(publisherIds.size()>0){
+			withquery.setPublisherId(publisherIds.get(0));
+		}
 		withquery.setState(query.getState());
 		Response<PageInfo<WithdrawalsOrderDto>> response = withdrawalsOrderReference.pagesByQuery(withquery);
 		if ("200".equals(response.getCode())) {
