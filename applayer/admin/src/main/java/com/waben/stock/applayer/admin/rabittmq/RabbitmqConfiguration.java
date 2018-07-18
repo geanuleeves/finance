@@ -3,6 +3,7 @@ package com.waben.stock.applayer.admin.rabittmq;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.FanoutExchange;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ public class RabbitmqConfiguration {
 	Logger logger = LoggerFactory.getLogger(getClass());
 
 	public static final String pcPushExchangeName = "futures-pcpush";
+	
+	public static final String withdrawQueryQueueName = "tactics-withdrawQuery";
 
 	@Autowired
 	private ConnectionFactory connectionFactory;
@@ -35,6 +38,14 @@ public class RabbitmqConfiguration {
 	@Bean
 	public FanoutExchange pcPushExchange() {
 		return new FanoutExchange(pcPushExchangeName, true, false);
+	}
+	
+	/**
+	 * 创建 查询代扣 队列
+	 */
+	@Bean
+	public Queue withdrawQueryQueue() {
+		return new Queue(withdrawQueryQueueName);
 	}
 
 }

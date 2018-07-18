@@ -346,13 +346,15 @@ public class QuickPayController {
         
         BindCardDto bindCard = bindCardBusiness.findById(bindCardId);
         // CzBankType bankType = CzBankType.getByPlateformBankType(BankType.getByBank(bindCard.getBankName()));
-        WabenBankType bankType = WabenBankType.getByPlateformBankType(BankType.getByBank(bindCard.getBankName()));
+        WabenBankType bankType = WabenBankType.getByPlateformBankType(BankType.getByCode(bindCard.getBankCode()));
         if (bankType == null) {
             throw new ServiceException(ExceptionConstant.BANKCARD_NOTSUPPORT_EXCEPTION);
         }
         logger.info("验证通过,提现开始");
-        quickPayBusiness.wbWithdrawals(SecurityUtil.getUserId(), amount, bindCard.getName(), bindCard.getPhone(),
+        quickPayBusiness.wbWithdrawalsAdmin(SecurityUtil.getUserId(), amount, bindCard.getName(), bindCard.getPhone(),
                 bindCard.getIdCard(), bindCard.getBankCard(), bankType.getCode(), bankType.getBank());
+//        quickPayBusiness.wbWithdrawals(SecurityUtil.getUserId(), amount, bindCard.getName(), bindCard.getPhone(),
+//                bindCard.getIdCard(), bindCard.getBankCard(), bankType.getCode(), bankType.getBank());
         resp.setResult("success");
         return resp;
     }

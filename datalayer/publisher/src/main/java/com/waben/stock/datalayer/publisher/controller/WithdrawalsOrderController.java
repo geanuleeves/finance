@@ -71,4 +71,23 @@ public class WithdrawalsOrderController implements WithdrawalsOrderInterface {
 		return new Response<>(result);
 	}
 
+	@Override
+	public Response<WithdrawalsOrderDto> fetchById(@PathVariable Long id) {
+		WithdrawalsOrder order = service.findByid(id);
+		WithdrawalsOrderDto result = CopyBeanUtils.copyBeanProperties(order, new WithdrawalsOrderDto(),false);
+		return new Response<>(result);
+	}
+
+	@Override
+	public Response<WithdrawalsOrderDto> addWithdrawalsOrderAdmin(@RequestBody WithdrawalsOrderDto withdrawalsOrderDto) {
+		return new Response<>(CopyBeanUtils.copyBeanProperties(WithdrawalsOrderDto.class,
+				service.saveAdmin(CopyBeanUtils.copyBeanProperties(WithdrawalsOrder.class, withdrawalsOrderDto, false)),
+				false));
+	}
+
+	@Override
+	public Response<WithdrawalsOrderDto> refuse(@PathVariable Long id, String remark) {
+		return new Response<>(CopyBeanUtils.copyBeanProperties(WithdrawalsOrderDto.class, service.refuse(id, remark), false));
+	}
+
 }

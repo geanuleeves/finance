@@ -25,13 +25,19 @@ public class FuturesComprehensiveFeeController {
 	
 	@GetMapping("/pages")
 	@ApiOperation(value = "查询提现审核记录")
-	public Response<PageInfo<FuturesComprehensiveFeeDto>> page(FuturesComprehensiveFeeQuery query){
+	public Response<PageInfo<WithdrawalsOrderDto>> page(FuturesComprehensiveFeeQuery query){
 		return new Response<>(business.page(query));
 	}
 	
 	@GetMapping("/wbWithdrawalsAdmin")
 	@ApiOperation(value = "审核")
-	public Response<WithdrawalsOrderDto> wbWithdrawalsAdmin(FuturesComprehensiveFeeDto compre){
+	public Response<WithdrawalsOrderDto> wbWithdrawalsAdmin(WithdrawalsOrderDto compre){
 		return new Response<>(business.wbWithdrawalsAdmin(compre));
+	}
+	
+	@GetMapping("/wbWithdrawalsAdminCancle")
+	@ApiOperation(value = "审核拒绝")
+	public Response<WithdrawalsOrderDto> wbWithdrawalsAdminCancle(WithdrawalsOrderDto compre){
+		return new Response<>(business.wbWithdrawalsAdminCancle(compre));
 	}
 }

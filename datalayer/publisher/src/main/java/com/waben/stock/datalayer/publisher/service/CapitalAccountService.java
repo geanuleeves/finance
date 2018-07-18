@@ -167,7 +167,7 @@ public class CapitalAccountService {
 		}
 	}
 
-	private void sendWithdrawalsOutsideMessage(Long publisherId, BigDecimal amount, boolean isSuccessful) {
+	public void sendWithdrawalsOutsideMessage(Long publisherId, BigDecimal amount, boolean isSuccessful) {
 		try {
 			OutsideMessage message = new OutsideMessage();
 			message.setPublisherId(publisherId);

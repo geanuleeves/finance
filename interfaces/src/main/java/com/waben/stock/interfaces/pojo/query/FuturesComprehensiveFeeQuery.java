@@ -11,6 +11,8 @@ public class FuturesComprehensiveFeeQuery extends PageAndSortQuery {
 	private String name;
 	
 	private Integer state;
+	
+	private Integer comprehensiveState;
 
 	public List<Long> getPublisherId() {
 		return publisherId;
@@ -42,6 +44,14 @@ public class FuturesComprehensiveFeeQuery extends PageAndSortQuery {
 
 	public void setState(Integer state) {
 		this.state = state;
+	}
+
+	public Integer getComprehensiveState() {
+		return comprehensiveState;
+	}
+
+	public void setComprehensiveState(Integer comprehensiveState) {
+		this.comprehensiveState = comprehensiveState;
 	}
 	
 	

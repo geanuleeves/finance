@@ -25,6 +25,7 @@ import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
+import com.waben.stock.interfaces.enums.WithdrawalsState;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
@@ -98,6 +99,14 @@ public class CapitalAccountBusiness {
 	public CapitalAccountDto revisionAccount(Long id, BigDecimal availableBalance, String remarket) {
 		CustomUserDetails userDetails = SecurityUtil.getUserDetails();
 		Response<CapitalAccountDto> response = reference.modifyAccount(userDetails.getUserId(),id, availableBalance,remarket);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+	
+	public CapitalAccountDto withdrawals(Long publisherId, Long withdrawalsId, WithdrawalsState state) {
+		Response<CapitalAccountDto> response = reference.withdrawals(publisherId, withdrawalsId, state.getIndex());
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}
