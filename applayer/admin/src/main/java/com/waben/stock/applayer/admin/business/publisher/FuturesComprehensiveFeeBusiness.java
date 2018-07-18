@@ -200,7 +200,6 @@ public class FuturesComprehensiveFeeBusiness {
 			if(bankType==null){
 				throw new ServiceException(ExceptionConstant.DATANOTFOUND_EXCEPTION);
 			}
-			String withdrawalsNo = UniqueCodeGenerator.generateWithdrawalsNo();
 			order.setState(WithdrawalsState.PROCESSING);
 			Date date = new Date();
 			order.setUpdateTime(date);
@@ -215,7 +214,7 @@ public class FuturesComprehensiveFeeBusiness {
 			param.setBankCode(bankType.getCode());
 			param.setBankName(bankType.getBank());
 			param.setCardType("0");
-			param.setOutOrderNo(withdrawalsNo);
+			param.setOutOrderNo(order.getWithdrawalsNo());
 			param.setTimestamp(sdf.format(date));
 			param.setTotalAmt(isProd ? order.getAmount() : new BigDecimal("0.01"));
 			param.setVersion("1.0");
@@ -223,7 +222,7 @@ public class FuturesComprehensiveFeeBusiness {
 			// 发起提现请求前，预使用队列查询
 			WithdrawQueryMessage message = new WithdrawQueryMessage();
 			message.setAppId(wbConfig.getMerchantNo());
-			message.setOutOrderNo(withdrawalsNo);
+			message.setOutOrderNo(order.getWithdrawalsNo());
 			producer.sendMessage(RabbitmqConfiguration.withdrawQueryQueueName, message);
 			
 			// 发起提现请求
