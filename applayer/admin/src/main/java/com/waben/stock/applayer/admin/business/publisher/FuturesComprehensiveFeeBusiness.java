@@ -153,18 +153,18 @@ public class FuturesComprehensiveFeeBusiness {
 			if(order.getComprehensiveState()!=null && order.getComprehensiveState()==1){
 				throw new ServiceException(ExceptionConstant.THE_STATE_ISNOT_AUDITED_EXCEPTION);
 			}
+			
+			WabenBankType bankType = WabenBankType.getByPlateformBankType(BankType.getByCode(order.getBankCode()));
+			if(bankType==null){
+				throw new ServiceException(ExceptionConstant.DATANOTFOUND_EXCEPTION);
+			}
 			String withdrawalsNo = UniqueCodeGenerator.generateWithdrawalsNo();
-			order.setWithdrawalsNo(withdrawalsNo);
 			order.setState(WithdrawalsState.PROCESSING);
 			Date date = new Date();
 			order.setUpdateTime(date);
 			order.setComprehensiveState(1);
 			order = revisionWithdrawalsOrder(order);
 			
-			WabenBankType bankType = WabenBankType.getByPlateformBankType(BankType.getByCode(order.getBankCode()));
-			if(bankType==null){
-				throw new ServiceException(ExceptionConstant.DATANOTFOUND_EXCEPTION);
-			}
 			logger.info("发起提现申请:{}_{}_{}_{}", order.getName(), order.getIdCard(), order.getPublisherPhone(), order.getBankCard());
 			WithdrawParam param = new WithdrawParam();
 			param.setAppId(wbConfig.getMerchantNo());

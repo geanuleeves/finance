@@ -22,11 +22,10 @@ import com.waben.stock.datalayer.publisher.entity.CapitalAccount;
 import com.waben.stock.datalayer.publisher.entity.FrozenCapital;
 import com.waben.stock.datalayer.publisher.entity.WithdrawalsOrder;
 import com.waben.stock.datalayer.publisher.repository.CapitalAccountDao;
+import com.waben.stock.datalayer.publisher.repository.DynamicQuerySqlDao;
 import com.waben.stock.datalayer.publisher.repository.FrozenCapitalDao;
 import com.waben.stock.datalayer.publisher.repository.WithdrawalsOrderDao;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
-import com.waben.stock.interfaces.enums.CapitalFlowExtendType;
-import com.waben.stock.interfaces.enums.CapitalFlowType;
 import com.waben.stock.interfaces.enums.FrozenCapitalStatus;
 import com.waben.stock.interfaces.enums.FrozenCapitalType;
 import com.waben.stock.interfaces.enums.WithdrawalsState;
@@ -53,6 +52,9 @@ public class WithdrawalsOrderService {
 	
 	@Autowired
 	private CapitalAccountService accountService;
+	
+	@Autowired
+	private DynamicQuerySqlDao sqlDao;
 
 	public WithdrawalsOrder save(WithdrawalsOrder withdrawalsOrder) {
 		withdrawalsOrder.setCreateTime(new Date());
@@ -160,6 +162,16 @@ public class WithdrawalsOrderService {
 			}
 		}, pageable);
 		return pages;
+	}
+	
+	public String getSumOrder(WithdrawalsOrderQuery query){
+		String pulisherIdConditon = "";
+		if(query.getPublisherId()!=null){
+			pulisherIdConditon = " and t1.publisher_id = '"+ query.getPublisherId() +"'";
+		}
+		
+		String sql = String.format("select sum(t1.amount) as amount from withdrawals_order t1 where (t1.comprehensive_state=1 or t1.comprehensive_state=2) %s", pulisherIdConditon);
+		return null ;
 	}
 
 	@Transactional
