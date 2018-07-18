@@ -1,5 +1,7 @@
 package com.waben.stock.applayer.admin.controller.publisher;
 
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,5 +41,16 @@ public class FuturesComprehensiveFeeController {
 	@ApiOperation(value = "审核拒绝")
 	public Response<WithdrawalsOrderDto> wbWithdrawalsAdminCancle(WithdrawalsOrderDto compre){
 		return new Response<>(business.wbWithdrawalsAdminCancle(compre));
+	}
+	
+	@GetMapping("/getSumOrder")
+	@ApiOperation(value = "金额")
+	public Response<String> getSumOrder(FuturesComprehensiveFeeQuery query){
+		String count  = business.getSumOrder(query);
+		Response<String> response = new Response<>();
+		response.setCode("200");
+		response.setMessage("响应成功");
+		response.setResult(count);
+		return response;
 	}
 }

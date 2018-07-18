@@ -90,4 +90,13 @@ public class WithdrawalsOrderController implements WithdrawalsOrderInterface {
 		return new Response<>(CopyBeanUtils.copyBeanProperties(WithdrawalsOrderDto.class, service.refuse(id, remark), false));
 	}
 
+	@Override
+	public Response<String> getSumOrder(WithdrawalsOrderQuery query) {
+		Response<String> response = new Response<String>();
+		response.setCode("200");
+		response.setMessage("响应成功");
+		response.setResult(service.getSumOrder(query));
+		return response;
+	}
+
 }
