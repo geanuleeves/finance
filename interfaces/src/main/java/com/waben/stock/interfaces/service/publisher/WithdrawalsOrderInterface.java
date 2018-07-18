@@ -28,6 +28,9 @@ public interface WithdrawalsOrderInterface {
 
 	@RequestMapping(value = "/", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Response<WithdrawalsOrderDto> addWithdrawalsOrder(@RequestBody WithdrawalsOrderDto withdrawalsOrderDto);
+	
+	@RequestMapping(value = "/addWithdrawalsOrderAdmin", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public Response<WithdrawalsOrderDto> addWithdrawalsOrderAdmin(@RequestBody WithdrawalsOrderDto withdrawalsOrderDto);
 
 	@RequestMapping(value = "/{withdrawalsNo}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Response<WithdrawalsOrderDto> saveWithdrawalsOrders(@RequestBody WithdrawalsOrderDto withdrawalsOrderDto,@PathVariable("withdrawalsNo") String withdrawalsNo);
@@ -41,5 +44,8 @@ public interface WithdrawalsOrderInterface {
 	
 	@RequestMapping(value = "/pages", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Response<PageInfo<WithdrawalsOrderDto>> pagesByQuery(@RequestBody WithdrawalsOrderQuery query);
+	
+	@RequestMapping(value = "/refuse/{id}", method = RequestMethod.PUT)
+	public Response<WithdrawalsOrderDto> refuse(@PathVariable("id") Long id, @RequestParam("remark") String remark);
 
 }

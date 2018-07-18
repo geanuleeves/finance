@@ -351,10 +351,11 @@ public class OrganizationAccountFlowService {
 						+ "LEFT JOIN p_futures_agent_price t12 ON t12.commodity_id=t10.id AND t12.org_id = t4.parent_id "
 						+ "LEFT JOIN real_name t5 on t5.resource_type=2 and t2.publisher_id=t5.resource_id "
 						+ "LEFT JOIN real_name t6 on t6.resource_type=2 and t3.publisher_id=t6.resource_id "
-						+ "LEFT JOIN real_name t14 ON t14.resource_type = 2 " + "AND t8.publisher_id = t14.resource_id "
+						+ "LEFT JOIN real_name t14 ON t14.resource_type = 2 AND t8.publisher_id = t14.resource_id "
+						+ "LEFT JOIN p_futures_commission_audit t16 ON t16.flow_id = t1.id "
 						+ "LEFT JOIN publisher t15 ON t15.id = t8.publisher_id "
 						+ "LEFT JOIN p_organization t7 on t7.id=" + query.getCurrentOrgId() + " "
-						+ "where 1=1 %s %s %s %s %s %s %s %s %s and t1.org_id is not null order by t1.occurrence_time DESC, t1.available_balance DESC, t1.amount DESC, t1.org_id ASC limit "
+						+ "where 1=1 %s %s %s %s %s %s %s %s %s and t1.org_id is not null AND (t16.state IS NULL OR t16.state IN(2,3)) order by t1.occurrence_time DESC, t1.available_balance DESC, t1.amount DESC, t1.org_id ASC limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(), queryTypeCondition, types,
 						contractCodeOrName, orgCodeOrName, flowNo, customerName, customerPhone, startTimeCondition,
 						endTimeCondition);

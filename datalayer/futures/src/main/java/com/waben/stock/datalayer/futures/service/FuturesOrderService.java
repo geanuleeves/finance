@@ -1078,16 +1078,16 @@ public class FuturesOrderService {
 		// unwindReturnOvernightReserveFund(order);
 
 		// 给代理商分成结算
-		// if (order.getIsTest() == null || order.getIsTest() == false) {
-		// 递延费
-		BigDecimal deferredFee = overnightService.getSUMOvernightRecord(order.getId());
-		if (deferredFee == null) {
-			deferredFee = BigDecimal.ZERO;
+		if (order.getIsTest() == null || order.getIsTest() == false) {
+			// 递延费
+			BigDecimal deferredFee = overnightService.getSUMOvernightRecord(order.getId());
+			if (deferredFee == null) {
+				deferredFee = BigDecimal.ZERO;
+			}
+			orgBusiness.futuresRatioSettlement(order.getPublisherId(), order.getContract().getCommodityId(),
+					order.getId(), order.getTradeNo(), order.getTotalQuantity(), order.getServiceFee(),
+					publisherProfitOrLoss, deferredFee);
 		}
-		orgBusiness.futuresRatioSettlement(order.getPublisherId(), order.getContract().getCommodityId(), order.getId(),
-				order.getTradeNo(), order.getTotalQuantity(), order.getServiceFee(), publisherProfitOrLoss,
-				deferredFee);
-		// }
 
 		// 站外消息推送
 		sendOutsideMessage(order);
