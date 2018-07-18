@@ -23,8 +23,8 @@ import com.waben.stock.interfaces.dto.publisher.WithdrawalsOrderDto;
 import com.waben.stock.interfaces.enums.WithdrawalsState;
 import com.waben.stock.interfaces.util.JacksonUtil;
 
-@Component
-@RabbitListener(queues = { RabbitmqConfiguration.withdrawQueryQueueName })
+// @Component
+// @RabbitListener(queues = { RabbitmqConfiguration.withdrawQueryQueueName })
 public class WithdrawQueryConsumer {
 
 	Logger logger = LoggerFactory.getLogger(getClass());

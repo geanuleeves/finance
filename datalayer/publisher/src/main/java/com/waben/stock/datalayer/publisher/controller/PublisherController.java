@@ -50,7 +50,6 @@ public class PublisherController implements PublisherInterface {
 
 	@Override
 	public Response<PublisherDto> fetchById(@PathVariable Long id) {
-		logger.info("获取发布策略人信息:{}", id);
 		return new Response<>(
 				CopyBeanUtils.copyBeanProperties(PublisherDto.class, publisherService.findById(id), false));
 	}

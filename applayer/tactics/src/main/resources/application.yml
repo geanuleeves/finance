@@ -22,7 +22,7 @@ hystrix:
      execution:
         isolation:
           thread:
-            timeoutInMilliseconds: 10000
+            timeoutInMilliseconds: 20000
   threadpool:
     default:
       coreSize: 500
@@ -30,5 +30,5 @@ hystrix:
       queueSizeRejectionThreshold: 300
 ribbon:
   OkToRetryOnAllOperations: false
-  ReadTimeout: 30000
-  ConnectTimeout: 30000
+  ReadTimeout: 40000
+  ConnectTimeout: 40000
