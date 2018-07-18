@@ -18,7 +18,7 @@ import com.waben.stock.interfaces.util.JacksonUtil;
  */
 public class BankCardInfoVerifier {
 
-	public static final String key = "924c8c28247d09a2744aa7138a52192d";
+	public static final String key = "8dc07108fd6c57d2a0e646a5aa90aeb0";
 
 	public static RestTemplate restTemplate = new RestTemplate();
 
