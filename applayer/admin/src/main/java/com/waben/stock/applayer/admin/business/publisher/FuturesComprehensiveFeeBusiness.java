@@ -96,9 +96,9 @@ public class FuturesComprehensiveFeeBusiness {
 				}
 				RealNameDto real = realnameInterface.fetchByResourceId(list.get(i).getPublisherId()).getResult();
 				if(real != null){
-					response.getResult().getContent().get(i).setName(real.getName());
+					response.getResult().getContent().get(i).setPublisherName(real.getName());
 				}else{
-					response.getResult().getContent().get(i).setName(list.get(i).getName());
+					response.getResult().getContent().get(i).setPublisherName(list.get(i).getName());
 				}
 			}
 			return response.getResult();
