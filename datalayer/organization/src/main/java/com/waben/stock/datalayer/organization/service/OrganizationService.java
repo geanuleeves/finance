@@ -924,19 +924,18 @@ public class OrganizationService {
 						new Object[] { contractDto.getName() });
 			}
 		} else {
-			if (agentPrice == null || (agentPrice.getCostReserveFund() == null
-					|| agentPrice.getCostOpenwindServiceFee() == null || agentPrice.getCostUnwindServiceFee() == null
+			if (agentPrice == null || (agentPrice.getCostOpenwindServiceFee() == null || agentPrice.getCostUnwindServiceFee() == null
 					|| agentPrice.getCostDeferredFee() == null)) {
 				// 上级成本价格不能为空
 				throw new ServiceException(ExceptionConstant.COST_MARGIN_CANNOT_LOWER_GLOBAL_SETTING_EXCEPTION,
 						new Object[] { contractDto.getName() });
 			}
 
-			if (currentPrice.getCostReserveFund() == null) {
+			/*if (currentPrice.getCostReserveFund() == null) {
 				currentPrice.setCostReserveFund(agentPrice.getCostReserveFund());
 			} else if (currentPrice.getCostReserveFund() == BigDecimal.ZERO) {
 				currentPrice.setCostReserveFund(null);
-			} /*
+			}*/ /*
 				 * else if
 				 * (currentPrice.getCostReserveFund().compareTo(agentPrice.
 				 * getCostReserveFund()) < 0) { // 成本保证金不能比上级设置的低 throw new
@@ -1194,6 +1193,13 @@ public class OrganizationService {
 				}
 				// 剩余可设置比例
 				BigDecimal surplusRatio = new BigDecimal(100).subtract(sumRatio.add(config.getPlatformRatio()));
+				if (id != null) {
+					BenefitConfig benfit = benefitConfigDao.retrieve(id);
+					if (benfit != null) {
+						surplusRatio = surplusRatio
+								.add(benfit.getRatio() == null ? BigDecimal.ZERO : benfit.getRatio());
+					}
+				}
 				if (ratio.compareTo(surplusRatio) > 0) {
 					// 分成比例已满额
 					throw new ServiceException(ExceptionConstant.THE_PROPORTION_ISFULL_EXCEPTION);

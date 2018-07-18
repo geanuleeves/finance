@@ -9,8 +9,8 @@ import com.waben.stock.datalayer.organization.entity.FuturesCommissionAudit;
 public interface FuturesCommissionAuditRepository extends CustomJpaRepository<FuturesCommissionAudit, Long> {
 
 	@Query("select count(f) from FuturesCommissionAudit f where f.state=1")
-	Integer countCommissionAudit(Long orgId);
+	Integer countCommissionAudit();
 
-	@Query("select SUM(f.realMaidFee) from FuturesCommissionAudit f where f.state = 2")
-	BigDecimal realMaidFee(Long orgId);
+	@Query(value = "select IF(SUM(f.real_maid_fee) IS NULL,0,SUM(f.real_maid_fee)) from p_futures_commission_audit f where f.state = 2", nativeQuery = true)
+	BigDecimal realMaidFee();
 }

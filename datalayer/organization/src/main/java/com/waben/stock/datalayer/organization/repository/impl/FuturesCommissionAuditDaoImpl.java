@@ -56,12 +56,12 @@ public class FuturesCommissionAuditDaoImpl implements FuturesCommissionAuditDao 
 	}
 
 	@Override
-	public Integer countCommissionAudit(Long orgId) {
-		return repository.countCommissionAudit(orgId);
+	public Integer countCommissionAudit() {
+		return repository.countCommissionAudit();
 	}
 
 	@Override
-	public BigDecimal realMaidFee(Long orgId) {
-		return repository.realMaidFee(orgId);
+	public BigDecimal realMaidFee() {
+		return repository.realMaidFee();
 	}
 }
