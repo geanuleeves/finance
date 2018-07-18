@@ -3,7 +3,9 @@ package com.waben.stock.datalayer.publisher.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -25,7 +27,9 @@ import com.waben.stock.datalayer.publisher.repository.CapitalAccountDao;
 import com.waben.stock.datalayer.publisher.repository.DynamicQuerySqlDao;
 import com.waben.stock.datalayer.publisher.repository.FrozenCapitalDao;
 import com.waben.stock.datalayer.publisher.repository.WithdrawalsOrderDao;
+import com.waben.stock.datalayer.publisher.repository.impl.MethodDesc;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
+import com.waben.stock.interfaces.dto.admin.publisher.CapitalAdminDto;
 import com.waben.stock.interfaces.enums.FrozenCapitalStatus;
 import com.waben.stock.interfaces.enums.FrozenCapitalType;
 import com.waben.stock.interfaces.enums.WithdrawalsState;
@@ -157,7 +161,7 @@ public class WithdrawalsOrderService {
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
-				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("updateTime").as(Long.class)));
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("createTime").as(Long.class)));
 				return criteriaQuery.getRestriction();
 			}
 		}, pageable);
@@ -171,7 +175,10 @@ public class WithdrawalsOrderService {
 		}
 		
 		String sql = String.format("select sum(t1.amount) as amount from withdrawals_order t1 where (t1.comprehensive_state=1 or t1.comprehensive_state=2) %s", pulisherIdConditon);
-		return null ;
+		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
+		setMethodMap.put(new Integer(0), new MethodDesc("setAmount", new Class<?>[] { BigDecimal.class }));
+		BigDecimal count = sqlDao.executeComputeSql(sql);
+		return count.toString() ;
 	}
 
 	@Transactional

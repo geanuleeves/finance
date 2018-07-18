@@ -147,6 +147,24 @@ public class FuturesComprehensiveFeeBusiness {
 		throw new ServiceException(response.getCode());
 	}
 	
+	public String getSumOrder(FuturesComprehensiveFeeQuery query){
+		List<Long> publisherIds = queryPublishIds(query);
+		if(publisherIds==null){
+			return null;
+		}else{
+			query.setPublisherId(publisherIds);
+		}
+		WithdrawalsOrderQuery withquery = new WithdrawalsOrderQuery();
+		if(publisherIds.size()>0){
+			withquery.setPublisherId(publisherIds.get(0));
+		}
+		Response<String> response = withdrawalsOrderReference.getSumOrder(withquery);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+	
 	public WithdrawalsOrderDto wbWithdrawalsAdmin(WithdrawalsOrderDto compre){
 		WithdrawalsOrderDto order = withdrawalsOrderReference.fetchById(compre.getId()).getResult();
 		if(order!=null){

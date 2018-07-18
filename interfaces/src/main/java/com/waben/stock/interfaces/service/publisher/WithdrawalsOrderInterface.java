@@ -45,6 +45,9 @@ public interface WithdrawalsOrderInterface {
 	@RequestMapping(value = "/pages", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public Response<PageInfo<WithdrawalsOrderDto>> pagesByQuery(@RequestBody WithdrawalsOrderQuery query);
 	
+	@RequestMapping(value = "/getSumOrder", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public Response<String> getSumOrder(@RequestBody WithdrawalsOrderQuery query);
+	
 	@RequestMapping(value = "/refuse/{id}", method = RequestMethod.PUT)
 	public Response<WithdrawalsOrderDto> refuse(@PathVariable("id") Long id, @RequestParam("remark") String remark);
 
