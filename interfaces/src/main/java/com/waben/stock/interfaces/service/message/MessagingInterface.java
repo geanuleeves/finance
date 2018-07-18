@@ -70,6 +70,14 @@ public interface MessagingInterface {
 	Response<PageInfo<MessagingDto>> pages(@RequestBody MessagingQuery messagingQuery);
 	
 	/**
+	 * 运营管理系统获取消息列表
+	 * @param messagingQuery
+	 * @return
+	 */
+	@RequestMapping(value = "/pagesAdmin", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	Response<PageInfo<MessagingDto>> pagesAdmin(@RequestBody MessagingQuery messagingQuery);
+	
+	/**
 	 * 读消息
 	 */
 	@RequestMapping(value = "/{recipient}/read/{id}", method = RequestMethod.PUT)

@@ -74,6 +74,8 @@ public class WithdrawalsOrderDto {
 	private Date updateTime;
 	
 	private String remark;
+	
+	private String msg;
 
 	public Long getId() {
 		return id;
@@ -217,6 +219,14 @@ public class WithdrawalsOrderDto {
 
 	public void setRemark(String remark) {
 		this.remark = remark;
+	}
+
+	public String getMsg() {
+		return msg;
+	}
+
+	public void setMsg(String msg) {
+		this.msg = msg;
 	}
 
 }

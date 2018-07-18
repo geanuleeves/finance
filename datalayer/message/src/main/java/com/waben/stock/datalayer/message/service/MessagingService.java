@@ -169,6 +169,62 @@ public class MessagingService {
 		}
 		return new PageImpl<>(content, pageable, pages.getTotalElements());
 	}
+	
+	public Page<Messaging> pagesAdmin(final MessagingQuery messagingQuery) {
+		Pageable pageable = new PageRequest(messagingQuery.getPage(), messagingQuery.getSize());
+		if (messagingQuery.getPublisherId() != null) {
+			// return pagesByReceipt(messagingQuery);
+			return pagesBySql(messagingQuery);
+		}
+		Page<Messaging> pages = messagingDao.page(new Specification<Messaging>() {
+			@Override
+			public Predicate toPredicate(Root<Messaging> root, CriteriaQuery<?> criteriaQuery,
+					CriteriaBuilder criteriaBuilder) {
+				List<Predicate> predicatesList = new ArrayList<Predicate>();
+				if (!StringUtils.isEmpty(messagingQuery.getTitle())) {
+					Predicate titleQuery = criteriaBuilder.like(root.get("title").as(String.class),
+							"%" + messagingQuery.getTitle() + "%");
+					predicatesList.add(criteriaBuilder.and(titleQuery));
+				}
+				if (!StringUtils.isEmpty(messagingQuery.getMessageType())) {
+					Predicate stateQuery = criteriaBuilder.equal(root.get("type").as(MessageType.class),
+							MessageType.getByType(messagingQuery.getMessageType()));
+					predicatesList.add(criteriaBuilder.and(stateQuery));
+				}
+				if (messagingQuery.getBeginTime() != null && messagingQuery.getEndTime() != null) {
+					Predicate createTimeQuery = criteriaBuilder.between(root.<Date>get("createTime").as(Date.class),
+							messagingQuery.getBeginTime(), messagingQuery.getEndTime());
+					predicatesList.add(criteriaBuilder.and(createTimeQuery));
+				}
+				if (messagingQuery.getIsOutside() != null) {
+					Predicate stateQuery = criteriaBuilder.equal(root.get("isOutside").as(Boolean.class),
+							messagingQuery.getIsOutside());
+					predicatesList.add(stateQuery);
+				}
+				if(messagingQuery.getHasRead()!=null){
+					Predicate hasReadQuery = criteriaBuilder.equal(root.get("hasRead").as(Boolean.class), messagingQuery.getHasRead());
+					predicatesList.add(criteriaBuilder.and(hasReadQuery));
+				}
+				
+				if(messagingQuery.getOutsideType()!=null){
+					Predicate stateQuery = criteriaBuilder.equal(root.get("outsideMsgType").as(OutsideMessageType.class),
+							OutsideMessageType.getByType("37"));
+					predicatesList.add(criteriaBuilder.and(stateQuery));
+					if(messagingQuery.getOutsideType().equals("37")){
+						Predicate sendTimeQuery = criteriaBuilder.lessThan(root.get("sendTime").as(Date.class), new Date());
+						predicatesList.add(criteriaBuilder.and(sendTimeQuery));
+					}
+				}
+				
+				
+				
+				criteriaQuery.where(predicatesList.toArray(new Predicate[predicatesList.size()]));
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.<Date>get("createTime").as(Date.class)));
+				return criteriaQuery.getRestriction();
+			}
+		}, pageable);
+		return pages;
+	}
 
 	public Page<Messaging> pages(final MessagingQuery messagingQuery) {
 		Pageable pageable = new PageRequest(messagingQuery.getPage(), messagingQuery.getSize());

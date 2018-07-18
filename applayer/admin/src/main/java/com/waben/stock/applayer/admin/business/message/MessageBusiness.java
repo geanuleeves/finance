@@ -23,7 +23,7 @@ public class MessageBusiness {
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	public PageInfo<MessagingDto> page(MessagingQuery messagingQuery){
-		Response<PageInfo<MessagingDto>> response = reference.pages(messagingQuery);
+		Response<PageInfo<MessagingDto>> response = reference.pagesAdmin(messagingQuery);
 		if("200".equals(response.getCode())){
 			return response.getResult();
 		}
@@ -31,6 +31,7 @@ public class MessageBusiness {
 	}
 	
 	public MessagingDto addMessaging(MessagingDto dto){
+		dto.setIsOutside(false);
 		Response<MessagingDto> response = reference.addMessaging(dto);
 		if("200".equals(response.getCode())){
 			return response.getResult();

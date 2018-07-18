@@ -132,5 +132,12 @@ public class MessagingController implements MessagingInterface{
 		servcie.sendAll(msg);
 		return new Response<String>();
 	}
+
+	@Override
+	public Response<PageInfo<MessagingDto>> pagesAdmin(MessagingQuery messagingQuery) {
+		Page<Messaging> pages = messagingService.pagesAdmin(messagingQuery);
+		PageInfo<MessagingDto> result = new PageInfo<>(pages, MessagingDto.class);
+		return new Response<>(result);
+	}
 	
 }
