@@ -119,15 +119,15 @@ public class TimeZoneUtil {
 		}
 		// 芝加哥
 		else if ("NQ".endsWith(commodityNo)) {
-			return isNYSummerZone() ? "07:00:00" : "08:00:00";
+			return isNYSummerZone() ? "06:00:00" : "07:00:00";
 		} else if ("BP".endsWith(commodityNo)) {
-			return isNYSummerZone() ? "07:00:00" : "08:00:00";
+			return isNYSummerZone() ? "06:00:00" : "07:00:00";
 		} else if ("CD".endsWith(commodityNo)) {
-			return isNYSummerZone() ? "07:00:00" : "08:00:00";
+			return isNYSummerZone() ? "06:00:00" : "07:00:00";
 		} else if ("EC".endsWith(commodityNo)) {
-			return isNYSummerZone() ? "07:00:00" : "08:00:00";
+			return isNYSummerZone() ? "06:00:00" : "07:00:00";
 		} else if ("AD".endsWith(commodityNo)) {
-			return isNYSummerZone() ? "07:00:00" : "08:00:00";
+			return isNYSummerZone() ? "06:00:00" : "07:00:00";
 		}
 		// 瑞士
 		else if ("DAX".endsWith(commodityNo)) {
@@ -162,15 +162,15 @@ public class TimeZoneUtil {
 		}
 		// 芝加哥
 		else if ("NQ".endsWith(commodityNo)) {
-			return isNYSummerZone() ? "06:00:00" : "07:00:00";
+			return isNYSummerZone() ? "05:00:00" : "06:00:00";
 		} else if ("BP".endsWith(commodityNo)) {
-			return isNYSummerZone() ? "06:00:00" : "07:00:00";
+			return isNYSummerZone() ? "05:00:00" : "06:00:00";
 		} else if ("CD".endsWith(commodityNo)) {
-			return isNYSummerZone() ? "06:00:00" : "07:00:00";
+			return isNYSummerZone() ? "05:00:00" : "06:00:00";
 		} else if ("EC".endsWith(commodityNo)) {
-			return isNYSummerZone() ? "06:00:00" : "07:00:00";
+			return isNYSummerZone() ? "05:00:00" : "06:00:00";
 		} else if ("AD".endsWith(commodityNo)) {
-			return isNYSummerZone() ? "06:00:00" : "07:00:00";
+			return isNYSummerZone() ? "05:00:00" : "06:00:00";
 		}
 		// 瑞士
 		else if ("DAX".endsWith(commodityNo)) {

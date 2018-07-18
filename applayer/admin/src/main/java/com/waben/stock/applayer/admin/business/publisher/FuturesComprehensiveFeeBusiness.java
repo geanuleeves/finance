@@ -84,6 +84,8 @@ public class FuturesComprehensiveFeeBusiness {
 			withquery.setPublisherId(publisherIds.get(0));
 		}
 		withquery.setState(query.getState());
+		withquery.setPage(query.getPage());
+		withquery.setSize(query.getSize());
 		Response<PageInfo<WithdrawalsOrderDto>> response = withdrawalsOrderReference.pagesByQuery(withquery);
 		if ("200".equals(response.getCode())) {
 			List<WithdrawalsOrderDto> list = response.getResult().getContent();
@@ -94,7 +96,9 @@ public class FuturesComprehensiveFeeBusiness {
 				}
 				RealNameDto real = realnameInterface.fetchByResourceId(list.get(i).getPublisherId()).getResult();
 				if(real != null){
-					response.getResult().getContent().get(i).setName(real.getName());
+					response.getResult().getContent().get(i).setPublisherName(real.getName());
+				}else{
+					response.getResult().getContent().get(i).setPublisherName(list.get(i).getName());
 				}
 			}
 			return response.getResult();
@@ -125,13 +129,22 @@ public class FuturesComprehensiveFeeBusiness {
 				return null;
 			}
 			;
-		} else if (query.getName() != null && !"".equals(query.getName())) {
+		}
+		if (query.getName() != null && !"".equals(query.getName())) {
 			List<RealNameDto> real = realnameInterface.findByName(query.getName()).getResult();
 			if (real == null || real.size() == 0) {
 				return null;
 			} else {
-				for (RealNameDto realNameDto : real) {
-					publisherIds.add(Long.valueOf(realNameDto.getResourceId().toString()));
+				if(publisherIds.size()==0){
+					for (RealNameDto realNameDto : real) {
+						publisherIds.add(Long.valueOf(realNameDto.getResourceId().toString()));
+					}
+				}else{
+					List<Long> realName = new ArrayList<Long>();
+					for (RealNameDto realNameDto : real) {
+						realName.add(Long.valueOf(realNameDto.getResourceId().toString()));
+					}
+					publisherIds = getRepetition(realName, publisherIds);
 				}
 			}
 
@@ -139,8 +152,37 @@ public class FuturesComprehensiveFeeBusiness {
 		return publisherIds;
 	}
 	
+	public static List<Long> getRepetition(List<Long> list1,  
+            List<Long> list2) {  
+        List<Long> result = new ArrayList<Long>();  
+        for (Long l : list2) {//遍历list1  
+            if (list1.contains(l)) {//如果存在这个数  
+                result.add(l);//放进一个list里面，这个list就是交集  
+            }  
+        }  
+        return result;  
+    }  
+	
 	public WithdrawalsOrderDto wbWithdrawalsAdminCancle(WithdrawalsOrderDto compre){
 		Response<WithdrawalsOrderDto> response = withdrawalsOrderReference.refuse(compre.getId(), compre.getRemark());
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+	
+	public String getSumOrder(FuturesComprehensiveFeeQuery query){
+		List<Long> publisherIds = queryPublishIds(query);
+		if(publisherIds==null){
+			return null;
+		}else{
+			query.setPublisherId(publisherIds);
+		}
+		WithdrawalsOrderQuery withquery = new WithdrawalsOrderQuery();
+		if(publisherIds.size()>0){
+			withquery.setPublisherId(publisherIds.get(0));
+		}
+		Response<String> response = withdrawalsOrderReference.getSumOrder(withquery);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}
@@ -189,7 +231,11 @@ public class FuturesComprehensiveFeeBusiness {
 			if(withdrawRet != null && !StringUtil.isEmpty(withdrawRet.getOrderNo())) {
 				// 更新支付系统第三方订单状态
 				order.setThirdWithdrawalsNo(withdrawRet.getOrderNo());
+				order.setRemark(withdrawRet.getMsg());
 				order = this.revisionWithdrawalsOrder(order);
+				if(withdrawRet.getStatus()!=1&&withdrawRet.getStatus()!=2){
+					throw new ServiceException(ExceptionConstant.WITHDRAWALS_ADMIN_EXCEPTION);
+				}
 			}
 			return order;
 		}else{

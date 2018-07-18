@@ -51,6 +51,7 @@ public class FuturesOrderController implements FuturesOrderInterface {
 
 	@Override
 	public Response<FuturesOrderDto> addOrder(@RequestBody FuturesOrderDto futuresOrderDto) {
+		logger.info("发布人{}期货下单{}，手数{}!", futuresOrderDto.getPublisherId(), futuresOrderDto.getContractId(), futuresOrderDto.getTotalQuantity());
 		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesOrderDto.class,
 				futuresOrderService.save(CopyBeanUtils.copyBeanProperties(FuturesOrder.class, futuresOrderDto, false),
 						futuresOrderDto.getContractId()),

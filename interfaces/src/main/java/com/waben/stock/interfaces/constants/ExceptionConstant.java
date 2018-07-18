@@ -360,5 +360,7 @@ public class ExceptionConstant {
 	public static final String THAN_AMOUNT_SYSTEM_RETURNS_EXCEPTION = "13048";
 	// 该记录已审核
 	public static final String THE_STATE_ISNOT_AUDITED_EXCEPTION = "13049";
+	// 提现失败
+	public static final String WITHDRAWALS_ADMIN_EXCEPTION = "13050";
 
 }

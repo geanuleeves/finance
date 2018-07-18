@@ -92,6 +92,7 @@ public class FuturesOrderController {
 	@PostMapping("/buy")
 	@ApiOperation(value = "买涨买跌下单")
 	public Response<FuturesOrderDto> placeOrder(FuturesOrderBuysellDto buysellDto) {
+		logger.info("调用接口发布人{}期货下单{}，手数{}!", SecurityUtil.getUserId(), buysellDto.getContractId(), buysellDto.getTotalQuantity());
 		FuturesContractQuery query = new FuturesContractQuery();
 		query.setPage(0);
 		query.setSize(1);

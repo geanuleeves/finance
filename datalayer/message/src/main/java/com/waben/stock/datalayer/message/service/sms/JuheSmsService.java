@@ -28,7 +28,7 @@ public class JuheSmsService implements SmsService {
 
 	private static final String DataType = "json";
 
-	private static final String Key = "b54e74f38026953caa0ffa3f6480108d";
+	private static final String Key = "9801550f3bd28479b970655eb30d14b9";
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 

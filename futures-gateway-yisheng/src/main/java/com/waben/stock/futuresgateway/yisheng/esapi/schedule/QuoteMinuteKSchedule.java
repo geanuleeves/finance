@@ -60,6 +60,7 @@ public class QuoteMinuteKSchedule {
 	public void computeMinuteK() {
 		SimpleDateFormat minSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:");
 		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat timeSdf = new SimpleDateFormat("HH:mm:ss");
 		// step 1 : 获取可用的合约
 		List<FuturesContract> contractList = contractService.getByEnable(true);
 		// step 2 : 获取上一分钟
@@ -74,6 +75,11 @@ public class QuoteMinuteKSchedule {
 		for (FuturesContract contract : contractList) {
 			String commodityNo = contract.getCommodityNo();
 			String contractNo = contract.getContractNo();
+			String currentMinStr = timeSdf.format(currentMin);
+			if (("MHI".equals(commodityNo) || "HSI".equals(commodityNo)) && currentMinStr.compareTo("12:01:00") >= 0
+					&& currentMinStr.compareTo("13:00:00") <= 0) {
+				continue;
+			}
 			// step 3.1 : 判断之前是否有计算过
 			FuturesQuoteMinuteK beforeMinuteK = minuteKServcie.getByCommodityNoAndContractNoAndTime(commodityNo,
 					contractNo, currentMin);

@@ -352,7 +352,7 @@ public class QuickPayController {
         }
         logger.info("验证通过,提现开始");
         quickPayBusiness.wbWithdrawalsAdmin(SecurityUtil.getUserId(), amount, bindCard.getName(), bindCard.getPhone(),
-                bindCard.getIdCard(), bindCard.getBankCard(), bankType.getCode(), bankType.getBank());
+                bindCard.getIdCard(), bindCard.getBankCard(), bindCard.getBankCode(), bankType.getBank());
 //        quickPayBusiness.wbWithdrawals(SecurityUtil.getUserId(), amount, bindCard.getName(), bindCard.getPhone(),
 //                bindCard.getIdCard(), bindCard.getBankCard(), bankType.getCode(), bankType.getBank());
         resp.setResult("success");

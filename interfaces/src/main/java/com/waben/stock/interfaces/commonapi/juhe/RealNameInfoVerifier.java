@@ -18,7 +18,7 @@ import com.waben.stock.interfaces.util.JacksonUtil;
  */
 public class RealNameInfoVerifier {
 
-	public static final String key = "6aa6eeba13671225135a8be8a147709b";
+	public static final String key = "32de9123744a60978fdb3f8e4d85af45";
 
 	public static RestTemplate restTemplate = new RestTemplate();
 
