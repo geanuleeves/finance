@@ -179,18 +179,18 @@ public class FuturesComprehensiveFeeBusiness {
 			param.setVersion("1.0");
 			
 			// 发起提现请求前，预使用队列查询
-//			WithdrawQueryMessage message = new WithdrawQueryMessage();
-//			message.setAppId(wbConfig.getMerchantNo());
-//			message.setOutOrderNo(withdrawalsNo);
-//			producer.sendMessage(RabbitmqConfiguration.withdrawQueryQueueName, message);
-//			
-//			// 发起提现请求
-//			WithdrawRet withdrawRet = WabenPayOverHttp.withdraw(param, wbConfig.getKey());
-//			if(withdrawRet != null && !StringUtil.isEmpty(withdrawRet.getOrderNo())) {
-//				// 更新支付系统第三方订单状态
-//				order.setThirdWithdrawalsNo(withdrawRet.getOrderNo());
-//				order = this.revisionWithdrawalsOrder(order);
-//			}
+			WithdrawQueryMessage message = new WithdrawQueryMessage();
+			message.setAppId(wbConfig.getMerchantNo());
+			message.setOutOrderNo(withdrawalsNo);
+			producer.sendMessage(RabbitmqConfiguration.withdrawQueryQueueName, message);
+			
+			// 发起提现请求
+			WithdrawRet withdrawRet = WabenPayOverHttp.withdraw(param, wbConfig.getKey());
+			if(withdrawRet != null && !StringUtil.isEmpty(withdrawRet.getOrderNo())) {
+				// 更新支付系统第三方订单状态
+				order.setThirdWithdrawalsNo(withdrawRet.getOrderNo());
+				order = this.revisionWithdrawalsOrder(order);
+			}
 			return order;
 		}else{
 			throw new ServiceException(ExceptionConstant.DATANOTFOUND_EXCEPTION);
