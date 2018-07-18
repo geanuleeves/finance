@@ -580,6 +580,7 @@ public class QuickPayBusiness {
         order.setIdCard(idCard);
         order.setBankCard(bankCard);
         order.setPublisherId(publisherId);
+        order.setBankCode(bankCode);
         Date date = new Date();
         order.setCreateTime(date);
         order.setUpdateTime(date);

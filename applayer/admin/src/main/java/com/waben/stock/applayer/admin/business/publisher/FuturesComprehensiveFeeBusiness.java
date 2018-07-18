@@ -20,6 +20,7 @@ import com.waben.stock.interfaces.commonapi.wabenpay.WabenPayOverHttp;
 import com.waben.stock.interfaces.commonapi.wabenpay.bean.WithdrawParam;
 import com.waben.stock.interfaces.commonapi.wabenpay.bean.WithdrawRet;
 import com.waben.stock.interfaces.commonapi.wabenpay.common.WabenBankType;
+import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
 import com.waben.stock.interfaces.dto.publisher.RealNameDto;
@@ -149,14 +150,21 @@ public class FuturesComprehensiveFeeBusiness {
 	public WithdrawalsOrderDto wbWithdrawalsAdmin(WithdrawalsOrderDto compre){
 		WithdrawalsOrderDto order = withdrawalsOrderReference.fetchById(compre.getId()).getResult();
 		if(order!=null){
+			if(order.getComprehensiveState()!=null && order.getComprehensiveState()==1){
+				throw new ServiceException(ExceptionConstant.THE_STATE_ISNOT_AUDITED_EXCEPTION);
+			}
 			String withdrawalsNo = UniqueCodeGenerator.generateWithdrawalsNo();
 			order.setWithdrawalsNo(withdrawalsNo);
 			order.setState(WithdrawalsState.PROCESSING);
 			Date date = new Date();
 			order.setUpdateTime(date);
+			order.setComprehensiveState(1);
 			order = revisionWithdrawalsOrder(order);
 			
 			WabenBankType bankType = WabenBankType.getByPlateformBankType(BankType.getByCode(order.getBankCode()));
+			if(bankType==null){
+				throw new ServiceException(ExceptionConstant.DATANOTFOUND_EXCEPTION);
+			}
 			logger.info("发起提现申请:{}_{}_{}_{}", order.getName(), order.getIdCard(), order.getPublisherPhone(), order.getBankCard());
 			WithdrawParam param = new WithdrawParam();
 			param.setAppId(wbConfig.getMerchantNo());
@@ -171,22 +179,22 @@ public class FuturesComprehensiveFeeBusiness {
 			param.setVersion("1.0");
 			
 			// 发起提现请求前，预使用队列查询
-			WithdrawQueryMessage message = new WithdrawQueryMessage();
-			message.setAppId(wbConfig.getMerchantNo());
-			message.setOutOrderNo(withdrawalsNo);
-			producer.sendMessage(RabbitmqConfiguration.withdrawQueryQueueName, message);
-			
-			// 发起提现请求
-			WithdrawRet withdrawRet = WabenPayOverHttp.withdraw(param, wbConfig.getKey());
-			if(withdrawRet != null && !StringUtil.isEmpty(withdrawRet.getOrderNo())) {
-				// 更新支付系统第三方订单状态
-				order.setThirdWithdrawalsNo(withdrawRet.getOrderNo());
-				order.setComprehensiveState(1);
-				order.setRemark(compre.getRemark());
-				order = this.revisionWithdrawalsOrder(order);
-			}
+//			WithdrawQueryMessage message = new WithdrawQueryMessage();
+//			message.setAppId(wbConfig.getMerchantNo());
+//			message.setOutOrderNo(withdrawalsNo);
+//			producer.sendMessage(RabbitmqConfiguration.withdrawQueryQueueName, message);
+//			
+//			// 发起提现请求
+//			WithdrawRet withdrawRet = WabenPayOverHttp.withdraw(param, wbConfig.getKey());
+//			if(withdrawRet != null && !StringUtil.isEmpty(withdrawRet.getOrderNo())) {
+//				// 更新支付系统第三方订单状态
+//				order.setThirdWithdrawalsNo(withdrawRet.getOrderNo());
+//				order = this.revisionWithdrawalsOrder(order);
+//			}
+			return order;
+		}else{
+			throw new ServiceException(ExceptionConstant.DATANOTFOUND_EXCEPTION);
 		}
-		return order;
 	}
 
 	

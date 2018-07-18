@@ -72,7 +72,7 @@ public class WithdrawalsOrderController implements WithdrawalsOrderInterface {
 	}
 
 	@Override
-	public Response<WithdrawalsOrderDto> fetchById(Long id) {
+	public Response<WithdrawalsOrderDto> fetchById(@PathVariable Long id) {
 		WithdrawalsOrder order = service.findByid(id);
 		WithdrawalsOrderDto result = CopyBeanUtils.copyBeanProperties(order, new WithdrawalsOrderDto(),false);
 		return new Response<>(result);
