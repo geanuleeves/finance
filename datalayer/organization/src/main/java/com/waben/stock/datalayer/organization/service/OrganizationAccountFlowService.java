@@ -338,7 +338,7 @@ public class OrganizationAccountFlowService {
 						+ "t5.name as b_publisher_name, t6.name as s_publisher_name, t1.available_balance, "
 						+ "t8.commodity_symbol, t8.commodity_name, t8.publisher_id AS o_publisher_id, t14.name AS o_publisher_name ,t15.phone AS o_publisher_phone, "
 
-						+ "t1.amount as maid_fee, t1.origin_amount AS commission, t8.trade_no "
+						+ "t16.real_maid_fee as maid_fee, t1.origin_amount AS commission, t8.trade_no "
 
 						+ "from p_organization_account_flow t1 "
 						+ "LEFT JOIN buy_record t2 on t1.resource_type=1 and t1.resource_id=t2.id "
@@ -431,7 +431,7 @@ public class OrganizationAccountFlowService {
 						+ "t8.commodity_symbol, t8.commodity_name, t8.publisher_id AS o_publisher_id, t14.name AS o_publisher_name ,t15.phone AS o_publisher_phone, "
 
 						+ "t1.amount as maid_fee, t1.origin_amount AS commission, t8.trade_no, "
-						+ "t16.id AS audit_id, t16.real_maid_fee, t16.state, t16.audit_remark "
+						+ "t16.id AS audit_id, t16.real_maid_fee, t16.state, t16.audit_remark, t16.examine_time "
 						+ "from p_organization_account_flow t1 "
 						+ "LEFT JOIN buy_record t2 on t1.resource_type=1 and t1.resource_id=t2.id "
 						+ "LEFT JOIN stock_option_trade t3 on t1.resource_type=3 and t1.resource_id=t3.id "
@@ -447,7 +447,7 @@ public class OrganizationAccountFlowService {
 						+ "LEFT JOIN publisher t15 ON t15.id = t8.publisher_id "
 						+ "LEFT JOIN p_futures_commission_audit t16 ON t16.flow_id = t1.id "
 						+ "LEFT JOIN p_organization t7 on t7.id=" + query.getCurrentOrgId() + " "
-						+ "where 1=1 %s %s %s %s %s and t1.org_id is not null order by t1.occurrence_time DESC limit "
+						+ "where 1=1 %s %s %s %s %s and t4.level !=1 and t1.org_id is not null order by t1.occurrence_time DESC limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(), queryTypeCondition, types,
 						commoditySymbol, commodityName, states);
 		String countSql = "select count(*) " + sql.substring(sql.indexOf("from"), sql.indexOf("limit"));
@@ -490,6 +490,7 @@ public class OrganizationAccountFlowService {
 		setMethodMap.put(new Integer(35), new MethodDesc("setRealMaidFee", new Class<?>[] { BigDecimal.class }));
 		setMethodMap.put(new Integer(36), new MethodDesc("setState", new Class<?>[] { Integer.class }));
 		setMethodMap.put(new Integer(37), new MethodDesc("setAuditRemark", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(38), new MethodDesc("setExamineTime", new Class<?>[] { Date.class }));
 		List<FuturesCommissionAuditDto> content = dynamicQuerySqlDao.execute(FuturesCommissionAuditDto.class, sql,
 				setMethodMap);
 		BigInteger totalElements = dynamicQuerySqlDao.executeComputeSql(countSql);

@@ -1,6 +1,7 @@
 package com.waben.stock.interfaces.dto.organization;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 public class FuturesCommissionAuditDto extends OrganizationAccountFlowWithTradeInfoDto {
 
@@ -27,6 +28,10 @@ public class FuturesCommissionAuditDto extends OrganizationAccountFlowWithTradeI
 	 * 佣金审核备注
 	 */
 	private String auditRemark;
+	/**
+	 * 审核时间
+	 */
+	private Date examineTime;
 
 	public Long getAuditId() {
 		return auditId;
@@ -58,6 +63,14 @@ public class FuturesCommissionAuditDto extends OrganizationAccountFlowWithTradeI
 
 	public void setAuditRemark(String auditRemark) {
 		this.auditRemark = auditRemark;
+	}
+
+	public Date getExamineTime() {
+		return examineTime;
+	}
+
+	public void setExamineTime(Date examineTime) {
+		this.examineTime = examineTime;
 	}
 
 }

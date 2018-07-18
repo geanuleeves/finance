@@ -2,6 +2,7 @@ package com.waben.stock.datalayer.organization.repository.impl.jpa;
 
 import java.util.List;
 
+import com.waben.stock.datalayer.organization.entity.Organization;
 import com.waben.stock.datalayer.organization.entity.OrganizationAccountFlow;
 import com.waben.stock.interfaces.enums.OrganizationAccountFlowType;
 import com.waben.stock.interfaces.enums.ResourceType;
@@ -16,5 +17,7 @@ public interface OrganizationAccountFlowRepository extends CustomJpaRepository<O
 
 	List<OrganizationAccountFlow> findByTypeAndResourceTypeAndResourceId(OrganizationAccountFlowType flowType,
 			ResourceType resourceType, Long resourceId);
+
+	OrganizationAccountFlow findByOrg(Organization org);
 
 }

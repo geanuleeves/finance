@@ -367,10 +367,15 @@ public class OrganizationAccountService {
 		flow.setAvailableBalance(account == null ? new BigDecimal(0) : account.getAvailableBalance());
 		flowDao.create(flow);
 
-		if (org != null && org.getLevel() != 1 && amount.compareTo(BigDecimal.ZERO) != 0) {
+		if (org != null && amount.compareTo(BigDecimal.ZERO) != 0) {
 			FuturesCommissionAudit audit = new FuturesCommissionAudit();
 			audit.setAccountFlow(flow);
-			audit.setState(1);
+			if (org.getLevel() != 1) {
+				audit.setState(1);
+			} else {
+				audit.setRealMaidFee(amount);
+			}
+			audit.setExamineTime(date);
 			commissionAuditDao.create(audit);
 		}
 

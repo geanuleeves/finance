@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
+import com.waben.stock.datalayer.organization.entity.Organization;
 import com.waben.stock.datalayer.organization.entity.OrganizationAccountFlow;
 import com.waben.stock.datalayer.organization.repository.OrganizationAccountFlowDao;
 import com.waben.stock.datalayer.organization.repository.impl.jpa.OrganizationAccountFlowRepository;
@@ -66,6 +67,11 @@ public class OrganizationAccountFlowDaoImpl implements OrganizationAccountFlowDa
 	public List<OrganizationAccountFlow> retrieveByTypeAndResourceTypeAndResourceId(
 			OrganizationAccountFlowType flowType, ResourceType resourceType, Long resourceId) {
 		return repository.findByTypeAndResourceTypeAndResourceId(flowType, resourceType, resourceId);
+	}
+
+	@Override
+	public OrganizationAccountFlow findByOrg(Organization org) {
+		return repository.findByOrg(org);
 	}
 
 }
