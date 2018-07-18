@@ -11,6 +11,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 import com.waben.stock.datalayer.organization.entity.FuturesCommissionAudit;
+import com.waben.stock.datalayer.organization.entity.OrganizationAccountFlow;
 import com.waben.stock.datalayer.organization.repository.FuturesCommissionAuditDao;
 import com.waben.stock.datalayer.organization.repository.impl.jpa.FuturesCommissionAuditRepository;
 
@@ -64,4 +65,10 @@ public class FuturesCommissionAuditDaoImpl implements FuturesCommissionAuditDao 
 	public BigDecimal realMaidFee() {
 		return repository.realMaidFee();
 	}
+
+	@Override
+	public FuturesCommissionAudit findByflowId(Long flowId) {
+		return repository.findByflowId(flowId);
+	}
+
 }

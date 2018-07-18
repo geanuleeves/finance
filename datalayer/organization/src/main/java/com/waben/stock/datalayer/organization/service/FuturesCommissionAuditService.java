@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 import com.waben.stock.datalayer.organization.entity.FuturesCommissionAudit;
 import com.waben.stock.datalayer.organization.entity.Organization;
 import com.waben.stock.datalayer.organization.entity.OrganizationAccount;
+import com.waben.stock.datalayer.organization.entity.OrganizationAccountFlow;
 import com.waben.stock.datalayer.organization.repository.FuturesCommissionAuditDao;
 import com.waben.stock.datalayer.organization.repository.OrganizationAccountDao;
+import com.waben.stock.datalayer.organization.repository.OrganizationAccountFlowDao;
 import com.waben.stock.datalayer.organization.repository.OrganizationDao;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.exception.ServiceException;
@@ -35,6 +37,9 @@ public class FuturesCommissionAuditService {
 	@Autowired
 	private OrganizationDao organizationDao;
 
+	@Autowired
+	private OrganizationAccountFlowDao flowDao;
+
 	public Integer countCommissionAudit(Long orgId) {
 		return auditDao.countCommissionAudit();
 	}
@@ -45,21 +50,10 @@ public class FuturesCommissionAuditService {
 
 	public Integer editCommissionAudit(Long auditId, Integer state, String remarks, BigDecimal realMaidFee) {
 		FuturesCommissionAudit audit = auditDao.retrieve(auditId);
-		if (audit == null) {
-			// 该审核记录不存在
-			throw new ServiceException(ExceptionConstant.THE_AUDIT_RECORD_DOESNOT_EXIST_EXCEPTION);
-		}
-		if (audit.getState() == 2 || audit.getState() == 3) {
-			// 该记录已审核
-			throw new ServiceException(ExceptionConstant.THE_STATE_ISNOT_AUDITED_EXCEPTION);
-		}
-		if (audit.getAccountFlow() == null) {
-			// 该审核记录不存在
-			throw new ServiceException(ExceptionConstant.THE_AUDIT_RECORD_DOESNOT_EXIST_EXCEPTION);
-		}
-		if (realMaidFee.abs().compareTo(audit.getAccountFlow().getAmount().abs()) > 0) {
-			// 实际返佣资金不能大于系统返佣金额
-			throw new ServiceException(ExceptionConstant.THAN_AMOUNT_SYSTEM_RETURNS_EXCEPTION);
+		// 判断该条审核记录是否符合要求
+		checkedCommission(audit, realMaidFee);
+		if (state == 3) {
+			realMaidFee = BigDecimal.ZERO;
 		}
 		String remark = "";
 		Date date = new Date();
@@ -72,20 +66,20 @@ public class FuturesCommissionAuditService {
 					if (account == null) {
 						account = initAccount(org, null);
 					}
-					remark += "系统返佣金额：" + audit.getAccountFlow().getAmount() + "元，实际返佣：" + realMaidFee + "元，";
+					remark += "系统返佣金额：" + audit.getAccountFlow().getAmount() + "元，实际返佣：" + realMaidFee + "元";
 					increaseAmount(account, realMaidFee, date);
 					if (realMaidFee.abs().compareTo(audit.getAccountFlow().getAmount().abs()) < 0) {
 						Organization orgParent = null;
 						List<Organization> orgList = organizationDao.listByLevel(1);
 						if (orgList != null && orgList.size() > 0) {
 							orgParent = orgList.get(0);
-							account = organizationAccountDao.retrieveByOrg(orgParent);
+							OrganizationAccount accountParent = organizationAccountDao.retrieveByOrg(orgParent);
 							BigDecimal surplusFee = audit.getAccountFlow().getAmount().subtract(realMaidFee);
-							if (account == null) {
-								account = initAccount(org, null);
+							if (accountParent == null) {
+								accountParent = initAccount(orgParent, null);
 							}
-							remark += "剩余" + surplusFee + "元返佣给平台。";
-							increaseAmount(account, surplusFee, date);
+							remark += "，剩余" + surplusFee + "元返佣给平台。";
+							levelOneAmount(accountParent, surplusFee, orgParent, auditId, date);
 						}
 					}
 				}
@@ -98,6 +92,7 @@ public class FuturesCommissionAuditService {
 			audit.setAuditRemark(remarks);
 		}
 		audit.setRealMaidFee(realMaidFee);
+		audit.setExamineTime(new Date());
 		audit.getAccountFlow().setAvailableBalance(account == null ? new BigDecimal(0) : account.getAvailableBalance());
 		audit = auditDao.update(audit);
 		if (audit != null) {
@@ -133,5 +128,56 @@ public class FuturesCommissionAuditService {
 		account.setAvailableBalance(account.getAvailableBalance().add(amount));
 		account.setUpdateTime(date);
 		organizationAccountDao.update(account);
+	}
+
+	/**
+	 * 更新平台 账户余额，资金流水账户，返佣金额
+	 * 
+	 * @param account
+	 *            代理商账户
+	 * @param amount
+	 *            返佣金额
+	 * @param org
+	 *            一级代理商
+	 * @param auditId
+	 *            佣金审核ID
+	 * @param date
+	 *            当前时间
+	 */
+	private synchronized void levelOneAmount(OrganizationAccount account, BigDecimal amount, Organization org,
+			Long auditId, Date date) {
+		account.setBalance(account.getBalance().add(amount));
+		account.setAvailableBalance(account.getAvailableBalance().add(amount));
+		account.setUpdateTime(date);
+		organizationAccountDao.update(account);
+		OrganizationAccountFlow flow = flowDao.findByOrg(org);
+		flow.setAmount(account.getBalance());
+		flow.setAvailableBalance(account.getAvailableBalance());
+		flow.setOccurrenceTime(date);
+		flowDao.update(flow);
+		FuturesCommissionAudit audit = auditDao.findByflowId(flow.getId());
+		if (audit != null) {
+			audit.setRealMaidFee(audit.getRealMaidFee().add(amount));
+			auditDao.update(audit);
+		}
+	}
+
+	private void checkedCommission(FuturesCommissionAudit audit, BigDecimal realMaidFee) {
+		if (audit == null) {
+			// 该审核记录不存在
+			throw new ServiceException(ExceptionConstant.THE_AUDIT_RECORD_DOESNOT_EXIST_EXCEPTION);
+		}
+		if (audit.getState() == 2 || audit.getState() == 3) {
+			// 该记录已审核
+			throw new ServiceException(ExceptionConstant.THE_STATE_ISNOT_AUDITED_EXCEPTION);
+		}
+		if (audit.getAccountFlow() == null) {
+			// 该审核记录不存在
+			throw new ServiceException(ExceptionConstant.THE_AUDIT_RECORD_DOESNOT_EXIST_EXCEPTION);
+		}
+		if (realMaidFee.abs().compareTo(audit.getAccountFlow().getAmount().abs()) > 0) {
+			// 实际返佣资金不能大于系统返佣金额
+			throw new ServiceException(ExceptionConstant.THAN_AMOUNT_SYSTEM_RETURNS_EXCEPTION);
+		}
 	}
 }

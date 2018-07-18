@@ -1,12 +1,14 @@
 package com.waben.stock.datalayer.organization.entity;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -44,11 +46,15 @@ public class FuturesCommissionAudit {
 	 * 备注
 	 */
 	private String auditRemark;
+	/**
+	 * 审核时间
+	 */
+	private Date examineTime;
 
 	/**
 	 * 返佣金额对象
 	 */
-	@OneToOne
+	@ManyToOne
 	@JoinColumn(name = "flow_id")
 	private OrganizationAccountFlow accountFlow;
 
@@ -109,6 +115,14 @@ public class FuturesCommissionAudit {
 
 	public void setFlowId(Long flowId) {
 		this.flowId = flowId;
+	}
+
+	public Date getExamineTime() {
+		return examineTime;
+	}
+
+	public void setExamineTime(Date examineTime) {
+		this.examineTime = examineTime;
 	}
 
 }
