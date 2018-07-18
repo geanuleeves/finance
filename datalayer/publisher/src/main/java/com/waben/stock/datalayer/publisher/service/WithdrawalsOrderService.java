@@ -178,7 +178,11 @@ public class WithdrawalsOrderService {
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setAmount", new Class<?>[] { BigDecimal.class }));
 		BigDecimal count = sqlDao.executeComputeSql(sql);
-		return count.toString() ;
+		if(count!=null){
+			return count.toString() ;
+		}else{
+			return null;
+		}
 	}
 
 	@Transactional

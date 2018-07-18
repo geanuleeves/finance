@@ -31,6 +31,7 @@ public class MessageBusiness {
 	}
 	
 	public MessagingDto addMessaging(MessagingDto dto){
+		dto.setIsOutside(false);
 		Response<MessagingDto> response = reference.addMessaging(dto);
 		if("200".equals(response.getCode())){
 			return response.getResult();
