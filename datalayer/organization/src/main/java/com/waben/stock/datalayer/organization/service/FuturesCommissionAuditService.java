@@ -36,11 +36,11 @@ public class FuturesCommissionAuditService {
 	private OrganizationDao organizationDao;
 
 	public Integer countCommissionAudit(Long orgId) {
-		return auditDao.countCommissionAudit(orgId);
+		return auditDao.countCommissionAudit();
 	}
 
 	public BigDecimal realMaidFee(Long orgId) {
-		return auditDao.realMaidFee(orgId);
+		return auditDao.realMaidFee();
 	}
 
 	public Integer editCommissionAudit(Long auditId, Integer state, String remarks, BigDecimal realMaidFee) {

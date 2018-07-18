@@ -6,7 +6,7 @@ import com.waben.stock.datalayer.organization.entity.FuturesCommissionAudit;
 
 public interface FuturesCommissionAuditDao extends BaseDao<FuturesCommissionAudit, Long> {
 
-	Integer countCommissionAudit(Long orgId);
+	Integer countCommissionAudit();
 
-	BigDecimal realMaidFee(Long orgId);
+	BigDecimal realMaidFee();
 }
