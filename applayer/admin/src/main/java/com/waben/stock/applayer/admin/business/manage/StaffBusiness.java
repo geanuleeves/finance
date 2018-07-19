@@ -93,6 +93,7 @@ public class StaffBusiness {
 		StaffDto staffDto = reference.fetchById(userDetails.getUserId()).getResult();
 		if(PasswordCrypt.match(originalPassword,staffDto.getPassword())) {
 			staffDto.setPassword(PasswordCrypt.crypt(password));
+			staffDto.setRoleId(staffDto.getRoleDto().getId());
 			staffDto.setUpdateTime(new Date());
 			Response<StaffDto> response = reference.saveStaff(staffDto);
 			String code = response.getCode();
