@@ -157,7 +157,7 @@ public class FuturesCommissionAuditService {
 		// flowDao.update(flow);
 		FuturesCommissionAudit audit = auditDao.findByOneCommission();
 		if (audit != null) {
-			audit.setRealMaidFee(audit.getRealMaidFee().add(amount));
+			audit.setRealMaidFee(amount);
 			audit.getAccountFlow().setAmount(account.getBalance());
 			audit.getAccountFlow().setAvailableBalance(account.getAvailableBalance());
 			audit.getAccountFlow().setOccurrenceTime(date);
