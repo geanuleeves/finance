@@ -48,6 +48,7 @@ public class FuturesTradeController {
 	@ApiOperation(value = "查询期货交易流水")
 	public Response<PageInfo<FuturesFowDto>> futuresFowPageByQuery(FuturesFowQuery query) {
 		query.setCurrentOrgId(SecurityUtil.getUserDetails().getOrgId());
+		query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
 		PageInfo<FuturesFowDto> result = business.futuresFowPageByQuery(query);
 		return new Response<>(result);
 	}
