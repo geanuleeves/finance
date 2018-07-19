@@ -72,7 +72,7 @@ public class OrganizationSettlementService {
 	public void futuresRatioSettlement(Long publisherId, Long benefitResourceId, Long futuresOrderId, String tradeNo,
 			BigDecimal totalQuantity, BigDecimal serviceFee, BigDecimal orderCloseFee, BigDecimal deferredFee) {
 		// 参与结算返佣金额 = 服务费 + 订单盈亏金额 + 递延费
-		BigDecimal comprehensiveFee = serviceFee.add(orderCloseFee).add(deferredFee);
+		BigDecimal comprehensiveFee = serviceFee.subtract(orderCloseFee).add(deferredFee);
 		logger.info("参与结算返佣金额, serviceFee:{},orderCloseFee:{},deferredFee:{}", serviceFee, orderCloseFee, deferredFee);
 		// 结算
 		List<OrganizationAccountFlow> checkFlowList = flowDao.retrieveByTypeAndResourceTypeAndResourceId(
