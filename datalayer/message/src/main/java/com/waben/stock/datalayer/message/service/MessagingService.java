@@ -181,16 +181,6 @@ public class MessagingService {
 			public Predicate toPredicate(Root<Messaging> root, CriteriaQuery<?> criteriaQuery,
 					CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicatesList = new ArrayList<Predicate>();
-				if (!StringUtils.isEmpty(messagingQuery.getTitle())) {
-					Predicate titleQuery = criteriaBuilder.like(root.get("title").as(String.class),
-							"%" + messagingQuery.getTitle() + "%");
-					predicatesList.add(criteriaBuilder.and(titleQuery));
-				}
-				if (!StringUtils.isEmpty(messagingQuery.getMessageType())) {
-					Predicate stateQuery = criteriaBuilder.equal(root.get("type").as(MessageType.class),
-							MessageType.getByType(messagingQuery.getMessageType()));
-					predicatesList.add(criteriaBuilder.and(stateQuery));
-				}
 				if (messagingQuery.getBeginTime() != null && messagingQuery.getEndTime() != null) {
 					Predicate createTimeQuery = criteriaBuilder.between(root.<Date>get("createTime").as(Date.class),
 							messagingQuery.getBeginTime(), messagingQuery.getEndTime());
