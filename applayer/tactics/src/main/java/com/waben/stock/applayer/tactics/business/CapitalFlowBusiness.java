@@ -122,9 +122,9 @@ public class CapitalFlowBusiness {
 					if ("200".equals(recordDto.getCode())) {
 						if (recordDto.getResult() != null) {
 							FuturesOvernightRecordDto record = recordDto.getResult();
-							flowWithExtend.setCommodityName(record.getOrder().getCommodityName());
-							flowWithExtend.setCommoditySymbol(record.getOrder().getCommoditySymbol());
-							flowWithExtend.setContractNo(record.getOrder().getContractNo());
+							flowWithExtend.setCommodityName(record.getCommodityName());
+							flowWithExtend.setCommoditySymbol(record.getCommoditySymbol());
+							flowWithExtend.setContractNo(record.getContractNo());
 						}
 					}
 				}
