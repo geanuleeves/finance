@@ -230,7 +230,7 @@ public class FuturesComprehensiveFeeBusiness {
 			if(withdrawRet != null && !StringUtil.isEmpty(withdrawRet.getOrderNo())) {
 				// 更新支付系统第三方订单状态
 				order.setThirdWithdrawalsNo(withdrawRet.getOrderNo());
-				order.setRemark(withdrawRet.getMsg());
+				order.setThirdRespMsg(withdrawRet.getMsg());
 				order = this.revisionWithdrawalsOrder(order);
 				if(withdrawRet.getStatus()!=1&&withdrawRet.getStatus()!=2){
 					throw new ServiceException(ExceptionConstant.WITHDRAWALS_ADMIN_EXCEPTION);

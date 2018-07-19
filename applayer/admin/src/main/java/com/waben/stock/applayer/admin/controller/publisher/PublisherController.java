@@ -75,7 +75,7 @@ public class PublisherController {
 	@PutMapping("/modifyPublisher")
 	@ApiOperation(value = "修改虚拟测试账号")
 	public Response<PublisherAdminDto> modifyPublisher(PublisherAdminDto dto){
-		return new Response<>(business.savePublisher(dto));
+		return new Response<>(business.modifyPublisher(dto));
 	}
 	
 	@DeleteMapping("/delete/{id}")

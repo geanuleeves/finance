@@ -134,7 +134,7 @@ public class MessagingController implements MessagingInterface{
 	}
 
 	@Override
-	public Response<PageInfo<MessagingDto>> pagesAdmin(MessagingQuery messagingQuery) {
+	public Response<PageInfo<MessagingDto>> pagesAdmin(@RequestBody MessagingQuery messagingQuery) {
 		Page<Messaging> pages = messagingService.pagesAdmin(messagingQuery);
 		PageInfo<MessagingDto> result = new PageInfo<>(pages, MessagingDto.class);
 		return new Response<>(result);
