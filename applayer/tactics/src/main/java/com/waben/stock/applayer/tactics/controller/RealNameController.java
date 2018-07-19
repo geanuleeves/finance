@@ -39,6 +39,7 @@ public class RealNameController {
 	@ApiOperation(value = "添加实名认证")
 	public Response<RealNameDto> addRealName(@RequestParam(required = true) String name,
 			@RequestParam(required = true) String idCard) {
+		name = name.trim();
 		try {
 			boolean ageCheck = IdCardUtil.isBetten18And65(idCard);
 			if (!ageCheck) {
