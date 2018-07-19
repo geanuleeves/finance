@@ -25,7 +25,7 @@ public interface BenefitConfigRepository extends CustomJpaRepository<BenefitConf
 
 	List<BenefitConfig> findByOrgAndTypeAndResourceType(Organization org, BenefitConfigType type, Integer resourceType);
 
-	@Query(value = "SELECT SUM(t1.ratio) FROM p_benefit_config t1 LEFT JOIN p_organization t2 ON t2.id = t1.org_id where t2.tree_code LIKE CONCAT(left(?1, 6),'%')", nativeQuery = true)
+	@Query(value = "SELECT SUM(t1.ratio) FROM p_benefit_config t1 LEFT JOIN p_organization t2 ON t2.id = t1.org_id where t2.tree_code LIKE ?1", nativeQuery = true)
 	BigDecimal surplusRatio(String treeCode);
 
 }

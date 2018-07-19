@@ -150,23 +150,26 @@ public class FuturesCommissionAuditService {
 		account.setAvailableBalance(account.getAvailableBalance().add(amount));
 		account.setUpdateTime(date);
 		organizationAccountDao.update(account);
-		OrganizationAccountFlow flow = flowDao.findByOrg(org);
-		flow.setAmount(account.getBalance());
-		flow.setAvailableBalance(account.getAvailableBalance());
-		flow.setOccurrenceTime(date);
-		flowDao.update(flow);
-		 FuturesCommissionAudit audit = auditDao.findByflowId(flow.getId());
-		 if (audit != null) {
-		 audit.setRealMaidFee(audit.getRealMaidFee().add(amount));
-		 auditDao.update(audit);
-		 }
-//		FuturesCommissionAudit audit = new FuturesCommissionAudit();
-//		audit.setAccountFlow(flow);
-//		audit.setAuditRemark("代理剩余返佣金额");
-//		audit.setExamineTime(new Date());
-//		audit.setRealMaidFee(amount);
-//		audit.setState(2);
-//		auditDao.create(audit);
+		// OrganizationAccountFlow flow = flowDao.findByOrg(org);
+		// flow.setAmount(account.getBalance());
+		// flow.setAvailableBalance(account.getAvailableBalance());
+		// flow.setOccurrenceTime(date);
+		// flowDao.update(flow);
+		FuturesCommissionAudit audit = auditDao.findByOneCommission();
+		if (audit != null) {
+			audit.setRealMaidFee(amount);
+			audit.getAccountFlow().setAmount(account.getBalance());
+			audit.getAccountFlow().setAvailableBalance(account.getAvailableBalance());
+			audit.getAccountFlow().setOccurrenceTime(date);
+			auditDao.update(audit);
+		}
+		// FuturesCommissionAudit audit = new FuturesCommissionAudit();
+		// audit.setAccountFlow(flow);
+		// audit.setAuditRemark("代理剩余返佣金额");
+		// audit.setExamineTime(new Date());
+		// audit.setRealMaidFee(amount);
+		// audit.setState(2);
+		// auditDao.create(audit);
 	}
 
 	private void checkedCommission(FuturesCommissionAudit audit, BigDecimal realMaidFee) {
