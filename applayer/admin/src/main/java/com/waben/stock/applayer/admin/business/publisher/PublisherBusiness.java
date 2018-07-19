@@ -12,6 +12,7 @@ import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.admin.publisher.PublisherAdminQuery;
+import com.waben.stock.interfaces.service.organization.OrganizationPublisherInterface;
 import com.waben.stock.interfaces.service.publisher.PublisherInterface;
 import com.waben.stock.interfaces.util.PasswordCrypt;
 
@@ -26,6 +27,9 @@ public class PublisherBusiness {
 	@Autowired
 	@Qualifier("publisherInterface")
 	private PublisherInterface reference;
+	
+	@Autowired
+	private OrganizationPublisherInterface orgReference;
 
 	@Autowired
 	private RedisCache redisCache;
@@ -80,6 +84,9 @@ public class PublisherBusiness {
 	public PublisherAdminDto savePublisher(PublisherAdminDto dto){
 		Response<PublisherAdminDto> response = reference.savePublisher(dto);
 		if("200".equals(response.getCode())){
+			if(response.getResult() !=null ){
+				orgReference.addOrgPublisher(response.getResult().getId());
+			}
 			return response.getResult();
 		}
 		throw new ServiceException(response.getCode());

@@ -93,11 +93,12 @@ public class PublisherController {
 			@RequestParam(required = true) String password, @RequestParam(required = true) String verificationCode,
 			String promoter, String orgCode, HttpServletRequest request) {
 		// 检查机构代码是否正确
-		if (orgCode != null && !"".equals(orgCode.trim())) {
-			OrganizationDto org = orgBusiness.fetchByCode(orgCode);
-			if (org == null) {
-				throw new ServiceException(ExceptionConstant.ORGCODE_NOTEXIST_EXCEPTION);
-			}
+		if(orgCode == null) {
+			throw new ServiceException(ExceptionConstant.ORGCODE_NOTEXIST_EXCEPTION);
+		}
+		OrganizationDto org = orgBusiness.fetchByCode(orgCode);
+		if (org == null) {
+			throw new ServiceException(ExceptionConstant.ORGCODE_NOTEXIST_EXCEPTION);
 		}
 		// 检查验证码
 		smsCache.matchVerificationCode(SmsType.RegistVerificationCode, phone, "code", verificationCode);

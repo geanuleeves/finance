@@ -37,4 +37,6 @@ public interface OrganizationPublisherInterface {
 	@RequestMapping(value = "/queryByTreeCode", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	Response<List<OrganizationPublisherDto>> queryByTreeCode(@RequestBody FuturesTradeAdminQuery query);
 
+	@RequestMapping(value = "/addOrgPublisher/{publisherId}", method = RequestMethod.GET)
+	Response<OrganizationPublisherDto> addOrgPublisher(@PathVariable("publisherId") Long publisherId);
 }
