@@ -63,7 +63,8 @@ public class BannerService {
 					Predicate categoryQuery = criteriaBuilder
 							.equal(join.get("category").as(BannerForwardCategory.class), query.getCategory());
 					predicatesList.add(categoryQuery);
-					criteriaQuery.orderBy(criteriaBuilder.asc(root.<Date>get("sort").as(Integer.class)));
+					criteriaQuery.orderBy(criteriaBuilder.asc(root.<Date>get("sort").as(Integer.class)),
+							criteriaBuilder.desc(root.<Date>get("createTime").as(Integer.class)));
 				} else {
 					criteriaQuery.orderBy(criteriaBuilder.desc(root.<Date>get("createTime").as(Date.class)));
 				}
@@ -80,7 +81,7 @@ public class BannerService {
 					predicatesList.add(enableQuery);
 				}
 				criteriaQuery.where(predicatesList.toArray(new Predicate[predicatesList.size()]));
-				
+
 				return criteriaQuery.getRestriction();
 			}
 		}, pageable);

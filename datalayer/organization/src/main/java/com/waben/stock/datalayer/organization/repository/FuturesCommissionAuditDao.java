@@ -11,4 +11,6 @@ public interface FuturesCommissionAuditDao extends BaseDao<FuturesCommissionAudi
 	BigDecimal realMaidFee();
 
 	FuturesCommissionAudit findByflowId(Long flowId);
+	
+	FuturesCommissionAudit findByOneCommission();
 }

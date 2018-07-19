@@ -71,4 +71,9 @@ public class FuturesCommissionAuditDaoImpl implements FuturesCommissionAuditDao 
 		return repository.findByflowId(flowId);
 	}
 
+	@Override
+	public FuturesCommissionAudit findByOneCommission() {
+		return repository.findByOneCommission();
+	}
+
 }

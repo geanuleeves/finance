@@ -18,4 +18,7 @@ public interface FuturesCommissionAuditRepository extends CustomJpaRepository<Fu
 
 	@Query(value = "select * from p_futures_commission_audit t1 where t1.flow_id=?1 order by t1.examine_time desc limit 0,1", nativeQuery = true)
 	FuturesCommissionAudit findByflowId(Long flowId);
+
+	@Query(value = "SELECT t1.*,t3.* FROM p_futures_commission_audit t1 LEFT JOIN p_organization_account_flow t3 ON t3.id = t1.flow_id LEFT JOIN p_organization t2 ON t2.id = t3.org_id where t1.state IS NULL order by t1.examine_time desc limit 0,1", nativeQuery = true)
+	FuturesCommissionAudit findByOneCommission();
 }

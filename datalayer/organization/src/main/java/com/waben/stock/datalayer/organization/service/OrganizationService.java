@@ -634,7 +634,7 @@ public class OrganizationService {
 
 		String tradeType = "";
 		if (!StringUtil.isEmpty(query.getTradeType())) {
-			tradeType = " and t1.type = " + query.getTradeType() + "";
+			tradeType = " and t1.type in(" + query.getTradeType() + ")";
 		}
 
 		String sql = String.format(
@@ -924,18 +924,19 @@ public class OrganizationService {
 						new Object[] { contractDto.getName() });
 			}
 		} else {
-			if (agentPrice == null || (agentPrice.getCostOpenwindServiceFee() == null || agentPrice.getCostUnwindServiceFee() == null
-					|| agentPrice.getCostDeferredFee() == null)) {
+			if (agentPrice == null || (agentPrice.getCostOpenwindServiceFee() == null
+					|| agentPrice.getCostUnwindServiceFee() == null || agentPrice.getCostDeferredFee() == null)) {
 				// 上级成本价格不能为空
 				throw new ServiceException(ExceptionConstant.COST_MARGIN_CANNOT_LOWER_GLOBAL_SETTING_EXCEPTION,
 						new Object[] { contractDto.getName() });
 			}
 
-			/*if (currentPrice.getCostReserveFund() == null) {
-				currentPrice.setCostReserveFund(agentPrice.getCostReserveFund());
-			} else if (currentPrice.getCostReserveFund() == BigDecimal.ZERO) {
-				currentPrice.setCostReserveFund(null);
-			}*/ /*
+			/*
+			 * if (currentPrice.getCostReserveFund() == null) {
+			 * currentPrice.setCostReserveFund(agentPrice.getCostReserveFund());
+			 * } else if (currentPrice.getCostReserveFund() == BigDecimal.ZERO)
+			 * { currentPrice.setCostReserveFund(null); }
+			 */ /*
 				 * else if
 				 * (currentPrice.getCostReserveFund().compareTo(agentPrice.
 				 * getCostReserveFund()) < 0) { // 成本保证金不能比上级设置的低 throw new
@@ -1187,7 +1188,10 @@ public class OrganizationService {
 					// 上级未设置分成比例
 					throw new ServiceException(ExceptionConstant.PROPORTION_SUPERIOR_NOTSET_PROPORTION_EXCEPTION);
 				}
-				BigDecimal sumRatio = benefitConfigDao.surplusRatio(orgParent.getTreeCode());
+
+				BigDecimal sumRatio = sqlDao.executeComputeSql(
+						"SELECT SUM(t1.ratio) FROM p_benefit_config t1 LEFT JOIN p_organization t2 ON t2.id = t1.org_id where t2.tree_code LIKE '"
+								+ orgParent.getTreeCode().substring(0, 5) + "%'");
 				if (sumRatio == null) {
 					sumRatio = BigDecimal.ZERO;
 				}

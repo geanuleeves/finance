@@ -447,7 +447,7 @@ public class OrganizationAccountFlowService {
 						+ "LEFT JOIN publisher t15 ON t15.id = t8.publisher_id "
 						+ "LEFT JOIN p_futures_commission_audit t16 ON t16.flow_id = t1.id "
 						+ "LEFT JOIN p_organization t7 on t7.id=" + query.getCurrentOrgId() + " "
-						+ "where 1=1 %s %s %s %s %s and t4.level !=1 and t1.org_id is not null order by t1.occurrence_time DESC limit "
+						+ "where 1=1 %s %s %s %s %s and t4.level !=1 and t1.org_id is not null order by t16.examine_time DESC limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(), queryTypeCondition, types,
 						commoditySymbol, commodityName, states);
 		String countSql = "select count(*) " + sql.substring(sql.indexOf("from"), sql.indexOf("limit"));
