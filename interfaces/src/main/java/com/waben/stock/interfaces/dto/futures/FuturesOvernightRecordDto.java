@@ -38,6 +38,21 @@ public class FuturesOvernightRecordDto {
 	 */
 	@ApiModelProperty(value = "扣费日期")
 	private Date reduceTime;
+	/**
+	 * 品种名称
+	 */
+	@ApiModelProperty(value = "品种名称")
+	private String commodityName;
+	/**
+	 * 品种编号
+	 */
+	@ApiModelProperty(value = "品种编号")
+	private String commoditySymbol;
+	/**
+	 * 合约编号
+	 */
+	@ApiModelProperty(value = "合约编号")
+	private String contractNo;
 
 	public Long getId() {
 		return id;
@@ -93,6 +108,30 @@ public class FuturesOvernightRecordDto {
 
 	public void setReduceTime(Date reduceTime) {
 		this.reduceTime = reduceTime;
+	}
+
+	public String getCommodityName() {
+		return commodityName;
+	}
+
+	public void setCommodityName(String commodityName) {
+		this.commodityName = commodityName;
+	}
+
+	public String getCommoditySymbol() {
+		return commoditySymbol;
+	}
+
+	public void setCommoditySymbol(String commoditySymbol) {
+		this.commoditySymbol = commoditySymbol;
+	}
+
+	public String getContractNo() {
+		return contractNo;
+	}
+
+	public void setContractNo(String contractNo) {
+		this.contractNo = contractNo;
 	}
 
 }

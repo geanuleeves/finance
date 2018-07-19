@@ -10,6 +10,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * 期货订单过夜记录
@@ -50,6 +53,23 @@ public class FuturesOvernightRecord {
 	 * 扣费日期
 	 */
 	private Date reduceTime;
+
+	/***************** 分割线，以下字段为非数据库字段 ********************/
+	/**
+	 * 品种名称
+	 */
+	@ApiModelProperty(value = "品种名称")
+	private String commodityName;
+	/**
+	 * 品种编号
+	 */
+	@Transient
+	private String commoditySymbol;
+	/**
+	 * 合约编号
+	 */
+	@Transient
+	private String contractNo;
 
 	public Long getId() {
 		return id;
@@ -105,6 +125,39 @@ public class FuturesOvernightRecord {
 
 	public void setReduceTime(Date reduceTime) {
 		this.reduceTime = reduceTime;
+	}
+
+	public String getCommodityName() {
+		if(order != null) {
+			return order.getCommodityName();
+		}
+		return commodityName;
+	}
+
+	public void setCommodityName(String commodityName) {
+		this.commodityName = commodityName;
+	}
+
+	public String getCommoditySymbol() {
+		if (order != null) {
+			return order.getCommoditySymbol();
+		}
+		return commoditySymbol;
+	}
+
+	public void setCommoditySymbol(String commoditySymbol) {
+		this.commoditySymbol = commoditySymbol;
+	}
+
+	public String getContractNo() {
+		if (order != null) {
+			return order.getContractNo();
+		}
+		return contractNo;
+	}
+
+	public void setContractNo(String contractNo) {
+		this.contractNo = contractNo;
 	}
 
 }
