@@ -838,11 +838,11 @@ public class FuturesOrderService {
 		order.setUpdateTime(date);
 		orderDao.update(order);
 		// 给渠道推广机构结算
-		if (order.getIsTest() == null || order.getIsTest() == false) {
-			orgBusiness.futuresSettlement(order.getPublisherId(), order.getContract().getCommodity().getId(),
-					order.getId(), order.getTradeNo(), order.getTotalQuantity(), order.getOpenwindServiceFee(),
-					order.getUnwindServiceFee());
-		}
+//		if (order.getIsTest() == null || order.getIsTest() == false) {
+//			orgBusiness.futuresSettlement(order.getPublisherId(), order.getContract().getCommodity().getId(),
+//					order.getId(), order.getTradeNo(), order.getTotalQuantity(), order.getOpenwindServiceFee(),
+//					order.getUnwindServiceFee());
+//		}
 		// 站外消息推送
 		sendOutsideMessage(order);
 		// 放入监控队列
@@ -881,11 +881,11 @@ public class FuturesOrderService {
 		order.setUpdateTime(date);
 		orderDao.update(order);
 		// 给渠道推广机构结算
-		if (order.getIsTest() == null || order.getIsTest() == false) {
-			orgBusiness.futuresSettlement(order.getPublisherId(), order.getContract().getCommodity().getId(),
-					order.getId(), order.getTradeNo(), order.getTotalQuantity(), order.getOpenwindServiceFee(),
-					order.getUnwindServiceFee());
-		}
+//		if (order.getIsTest() == null || order.getIsTest() == false) {
+//			orgBusiness.futuresSettlement(order.getPublisherId(), order.getContract().getCommodity().getId(),
+//					order.getId(), order.getTradeNo(), order.getTotalQuantity(), order.getOpenwindServiceFee(),
+//					order.getUnwindServiceFee());
+//		}
 		// 站外消息推送
 		sendOutsideMessage(order);
 		// 放入监控队列
