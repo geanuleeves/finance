@@ -41,6 +41,36 @@ public class OrganizationPublisherService {
 
 	@Autowired
 	private StockOptionTradeBusiness tradeBusiness;
+	
+	public List<Organization> listByLevel(Integer level){
+		return orgDao.listByLevel(level);
+	}
+	
+	public OrganizationPublisher addOrgPublisherAdmin(String orgCode, Long publisherId) {
+		if (orgCode == null || "".equals(orgCode.trim())) {
+			return null;
+		}
+		Organization org = orgDao.retrieveByCode(orgCode);
+		if (org == null) {
+			throw new ServiceException(ExceptionConstant.ORGCODE_NOTEXIST_EXCEPTION);
+		}
+		
+		OrganizationPublisher orgPublisher = dao.retrieveByPublisherId(publisherId);
+		if (orgPublisher != null) {
+			if (orgPublisher.getOrgCode().equals(orgCode)) {
+				return orgPublisher;
+			} else {
+				dao.delete(orgPublisher.getId());
+			}
+		}
+		orgPublisher = new OrganizationPublisher();
+		orgPublisher.setOrgCode(orgCode);
+		orgPublisher.setTreeCode(org.getTreeCode());
+		orgPublisher.setOrgId(org.getId());
+		orgPublisher.setPublisherId(publisherId);
+		orgPublisher.setCreateTime(new Date());
+		return dao.create(orgPublisher);
+	}
 
 	@Transactional
 	public OrganizationPublisher addOrgPublisher(String orgCode, Long publisherId) {
