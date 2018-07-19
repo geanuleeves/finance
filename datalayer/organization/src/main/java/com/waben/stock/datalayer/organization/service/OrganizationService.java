@@ -1188,7 +1188,10 @@ public class OrganizationService {
 					// 上级未设置分成比例
 					throw new ServiceException(ExceptionConstant.PROPORTION_SUPERIOR_NOTSET_PROPORTION_EXCEPTION);
 				}
-				BigDecimal sumRatio = benefitConfigDao.surplusRatio(orgParent.getTreeCode());
+
+				BigDecimal sumRatio = sqlDao.executeComputeSql(
+						"SELECT SUM(t1.ratio) FROM p_benefit_config t1 LEFT JOIN p_organization t2 ON t2.id = t1.org_id where t2.tree_code LIKE '"
+								+ orgParent.getTreeCode().substring(0, 5) + "%'");
 				if (sumRatio == null) {
 					sumRatio = BigDecimal.ZERO;
 				}
