@@ -417,7 +417,8 @@ public class FuturesOrderService {
 						FuturesOrderState.BuyingFailure, FuturesOrderState.PartPosition, FuturesOrderState.Position,
 						FuturesOrderState.SellingEntrust, FuturesOrderState.PartUnwind, FuturesOrderState.Unwind };
 				FuturesOrderState[] positionStates = { FuturesOrderState.Position };
-				FuturesOrderState[] monitorPositionStates = { FuturesOrderState.Position, FuturesOrderState.SellingEntrust };
+				FuturesOrderState[] monitorPositionStates = { FuturesOrderState.Position,
+						FuturesOrderState.SellingEntrust };
 				if (query.getStates() != null) {
 					if (orderStateArrToString(query.getStates()).equals(orderStateArrToString(unwindStates))) {
 						List<Order> orderList = new ArrayList<Order>();
@@ -427,7 +428,8 @@ public class FuturesOrderService {
 						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingEntrustTime").as(Date.class)));
 					} else if (orderStateArrToString(query.getStates()).equals(orderStateArrToString(positionStates))) {
 						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingTime").as(Date.class)));
-					} else if(orderStateArrToString(query.getStates()).equals(orderStateArrToString(monitorPositionStates))) {
+					} else if (orderStateArrToString(query.getStates())
+							.equals(orderStateArrToString(monitorPositionStates))) {
 						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingTime").as(Date.class)));
 					}
 				}
@@ -573,7 +575,7 @@ public class FuturesOrderService {
 		 * NOT_OPEN_GRANARY_PROVIDE_RELIEF_EXCEPTION); } } } } }
 		 */
 	}
-	
+
 	/**
 	 * 禁止平仓（当前时间是否禁止平仓）
 	 * 
@@ -838,11 +840,13 @@ public class FuturesOrderService {
 		order.setUpdateTime(date);
 		orderDao.update(order);
 		// 给渠道推广机构结算
-//		if (order.getIsTest() == null || order.getIsTest() == false) {
-//			orgBusiness.futuresSettlement(order.getPublisherId(), order.getContract().getCommodity().getId(),
-//					order.getId(), order.getTradeNo(), order.getTotalQuantity(), order.getOpenwindServiceFee(),
-//					order.getUnwindServiceFee());
-//		}
+		// if (order.getIsTest() == null || order.getIsTest() == false) {
+		// orgBusiness.futuresSettlement(order.getPublisherId(),
+		// order.getContract().getCommodity().getId(),
+		// order.getId(), order.getTradeNo(), order.getTotalQuantity(),
+		// order.getOpenwindServiceFee(),
+		// order.getUnwindServiceFee());
+		// }
 		// 站外消息推送
 		sendOutsideMessage(order);
 		// 放入监控队列
@@ -881,11 +885,13 @@ public class FuturesOrderService {
 		order.setUpdateTime(date);
 		orderDao.update(order);
 		// 给渠道推广机构结算
-//		if (order.getIsTest() == null || order.getIsTest() == false) {
-//			orgBusiness.futuresSettlement(order.getPublisherId(), order.getContract().getCommodity().getId(),
-//					order.getId(), order.getTradeNo(), order.getTotalQuantity(), order.getOpenwindServiceFee(),
-//					order.getUnwindServiceFee());
-//		}
+		// if (order.getIsTest() == null || order.getIsTest() == false) {
+		// orgBusiness.futuresSettlement(order.getPublisherId(),
+		// order.getContract().getCommodity().getId(),
+		// order.getId(), order.getTradeNo(), order.getTotalQuantity(),
+		// order.getOpenwindServiceFee(),
+		// order.getUnwindServiceFee());
+		// }
 		// 站外消息推送
 		sendOutsideMessage(order);
 		// 放入监控队列
@@ -1001,6 +1007,7 @@ public class FuturesOrderService {
 
 		// 给代理商分成结算
 		if (order.getIsTest() == null || order.getIsTest() == false) {
+			logger.error("代理分成自动平仓, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
 			// 递延费
 			BigDecimal deferredFee = overnightService.getSUMOvernightRecord(order.getId());
 			if (deferredFee == null) {
@@ -1079,6 +1086,7 @@ public class FuturesOrderService {
 
 		// 给代理商分成结算
 		if (order.getIsTest() == null || order.getIsTest() == false) {
+			logger.error("代理分成手动平仓, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
 			// 递延费
 			BigDecimal deferredFee = overnightService.getSUMOvernightRecord(order.getId());
 			if (deferredFee == null) {
@@ -1436,8 +1444,9 @@ public class FuturesOrderService {
 			List<FuturesTradeLimit> limitList = futuresTradeLimitService.findByContractId(order.getContractId());
 			if (limitList != null && limitList.size() > 0) {
 				// 判断该交易平仓时是否在后台设置的期货交易限制内
-				boolean isLimit = isLimitUnwind(limitList, retriveExchangeTime(new Date(), this.retriveTimeZoneGap(order)));
-				if(isLimit) {
+				boolean isLimit = isLimitUnwind(limitList,
+						retriveExchangeTime(new Date(), this.retriveTimeZoneGap(order)));
+				if (isLimit) {
 					continue;
 				}
 			}
