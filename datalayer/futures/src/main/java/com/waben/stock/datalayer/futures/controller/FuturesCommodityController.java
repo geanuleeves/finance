@@ -188,6 +188,7 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 		oldCommodity.setOvernightPerUnitDeferredFee(dto.getOvernightPerUnitDeferredFee());
 		oldCommodity.setPerContractValue(dto.getPerContractValue());
 		oldCommodity.setCurrentTradeTimeDesc(dto.getCurrentTradeTimeDesc());
+		oldCommodity.setTradeServiceFee(dto.getTradeServiceFee());
 
 		FuturesCommodity result = commodityService.modify(oldCommodity);
 		FuturesCommodityAdminDto response = CopyBeanUtils.copyBeanProperties(result, new FuturesCommodityAdminDto(),
