@@ -174,7 +174,7 @@ public class WithdrawalsOrderService {
 			pulisherIdConditon = " and t1.publisher_id = '"+ query.getPublisherId() +"'";
 		}
 		
-		String sql = String.format("select sum(t1.amount) as amount from withdrawals_order t1 where (t1.comprehensive_state=1 or t1.comprehensive_state=2) %s", pulisherIdConditon);
+		String sql = String.format("select sum(t1.amount) as amount from withdrawals_order t1 where t1.comprehensive_state=1  %s", pulisherIdConditon);
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setAmount", new Class<?>[] { BigDecimal.class }));
 		BigDecimal count = sqlDao.executeComputeSql(sql);
