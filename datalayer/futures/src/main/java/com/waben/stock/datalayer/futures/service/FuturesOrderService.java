@@ -1004,10 +1004,10 @@ public class FuturesOrderService {
 		order.setUpdateTime(date);
 		orderDao.update(order);
 		// unwindReturnOvernightReserveFund(order);
-
+		logger.error("代理分成自动平仓外, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
 		// 给代理商分成结算
 		if (order.getIsTest() == null || order.getIsTest() == false) {
-			logger.error("代理分成自动平仓, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
+			logger.error("代理分成自动平仓内, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
 			// 递延费
 			BigDecimal deferredFee = overnightService.getSUMOvernightRecord(order.getId());
 			if (deferredFee == null) {
@@ -1083,10 +1083,10 @@ public class FuturesOrderService {
 		order.setUpdateTime(date);
 		orderDao.update(order);
 		// unwindReturnOvernightReserveFund(order);
-
+		logger.error("代理分成手动平仓外, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
 		// 给代理商分成结算
 		if (order.getIsTest() == null || order.getIsTest() == false) {
-			logger.error("代理分成手动平仓, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
+			logger.error("代理分成手动平仓内, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
 			// 递延费
 			BigDecimal deferredFee = overnightService.getSUMOvernightRecord(order.getId());
 			if (deferredFee == null) {
