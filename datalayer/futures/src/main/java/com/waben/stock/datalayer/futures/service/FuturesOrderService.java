@@ -1004,17 +1004,18 @@ public class FuturesOrderService {
 		order.setUpdateTime(date);
 		orderDao.update(order);
 		// unwindReturnOvernightReserveFund(order);
-		logger.error("代理分成自动平仓外, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
+		logger.info("代理分成自动平仓外, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
 		// 给代理商分成结算
 		if (order.getIsTest() == null || order.getIsTest() == false) {
-			logger.error("代理分成自动平仓内, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
+			logger.info("代理分成自动平仓内, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
 			// 递延费
 			BigDecimal deferredFee = overnightService.getSUMOvernightRecord(order.getId());
 			if (deferredFee == null) {
 				deferredFee = BigDecimal.ZERO;
 			}
-			orgBusiness.futuresRatioSettlement(order.getPublisherId(), null, order.getId(), order.getTradeNo(),
-					order.getTotalQuantity(), order.getServiceFee(), publisherProfitOrLoss, deferredFee);
+			orgBusiness.futuresRatioSettlement(order.getPublisherId(), order.getContract().getCommodityId(),
+					order.getId(), order.getTradeNo(), order.getTotalQuantity(), order.getServiceFee(),
+					publisherProfitOrLoss, deferredFee);
 		}
 		// 站外消息推送
 		sendOutsideMessage(order);
@@ -1083,10 +1084,10 @@ public class FuturesOrderService {
 		order.setUpdateTime(date);
 		orderDao.update(order);
 		// unwindReturnOvernightReserveFund(order);
-		logger.error("代理分成手动平仓外, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
+		logger.info("代理分成手动平仓外, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
 		// 给代理商分成结算
 		if (order.getIsTest() == null || order.getIsTest() == false) {
-			logger.error("代理分成手动平仓内, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
+			logger.info("代理分成手动平仓内, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
 			// 递延费
 			BigDecimal deferredFee = overnightService.getSUMOvernightRecord(order.getId());
 			if (deferredFee == null) {
