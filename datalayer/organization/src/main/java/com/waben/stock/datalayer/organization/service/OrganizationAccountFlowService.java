@@ -335,7 +335,7 @@ public class OrganizationAccountFlowService {
 						+ "t2.publisher_id as b_publisher_id, t2.publisher_phone as b_publisher_phone, t2.stock_code as b_stock_code, t2.stock_name as b_stock_name, "
 						+ "t3.publisher_id as s_publisher_id, t3.publisher_phone as s_publisher_phone, t3.stock_code as s_stock_code, t3.stock_name as s_stock_name, "
 						+ "t3.cycle_id, t3.cycle_name, t4.code as org_code, t4.name as org_name, "
-						+ "t5.name as b_publisher_name, t6.name as s_publisher_name, t1.available_balance, "
+						+ "t5.name as b_publisher_name, t6.name as s_publisher_name, t16.balance as available_balance, "
 						+ "t8.commodity_symbol, t8.commodity_name, t8.publisher_id AS o_publisher_id, t14.name AS o_publisher_name ,t15.phone AS o_publisher_phone, "
 
 						+ "t16.real_maid_fee as maid_fee, t1.origin_amount AS commission, t8.trade_no "

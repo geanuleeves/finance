@@ -50,6 +50,10 @@ public class FuturesCommissionAudit {
 	 * 审核时间
 	 */
 	private Date examineTime;
+	/**
+	 * 账户余额
+	 */
+	private BigDecimal balance;
 
 	/**
 	 * 返佣金额对象
@@ -123,6 +127,14 @@ public class FuturesCommissionAudit {
 
 	public void setExamineTime(Date examineTime) {
 		this.examineTime = examineTime;
+	}
+
+	public BigDecimal getBalance() {
+		return balance;
+	}
+
+	public void setBalance(BigDecimal balance) {
+		this.balance = balance;
 	}
 
 }
