@@ -43,6 +43,7 @@ import com.waben.stock.interfaces.enums.SmsType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.util.PasswordCrypt;
+import com.waben.stock.interfaces.util.StringUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -116,12 +117,13 @@ public class PublisherController {
 			@RequestParam(required = true) String password, @RequestParam(required = true) String verificationCode,
 			String promoter, String orgCode, HttpServletRequest request) {
 		// 检查机构代码是否正确
-		if(orgCode == null) {
-			throw new ServiceException(ExceptionConstant.ORGCODE_NOTEXIST_EXCEPTION);
-		}
-		OrganizationDto org = orgBusiness.fetchByCode(orgCode);
-		if (org == null) {
-			throw new ServiceException(ExceptionConstant.ORGCODE_NOTEXIST_EXCEPTION);
+		if(StringUtil.isEmpty(orgCode)) {
+			orgCode = "001";
+		} else {
+			OrganizationDto org = orgBusiness.fetchByCode(orgCode);
+			if (org == null) {
+				throw new ServiceException(ExceptionConstant.ORGCODE_NOTEXIST_EXCEPTION);
+			}
 		}
 		// 检查验证码
 		smsCache.matchVerificationCode(SmsType.RegistVerificationCode, phone, "code", verificationCode);

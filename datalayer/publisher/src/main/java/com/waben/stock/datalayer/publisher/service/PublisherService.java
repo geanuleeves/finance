@@ -80,12 +80,11 @@ public class PublisherService {
 	}	
 	
 	public PublisherAdminDto registerDum(PublisherAdminDto dto){
-		if(dto.getId()==null){
 			// 检查手机号
-			Publisher check = publisherDao.retriveByPhone(dto.getPhone());
-			if (check != null) {
-				throw new ServiceException(ExceptionConstant.PHONE_BEEN_REGISTERED_EXCEPTION);
-			}
+//			Publisher check = publisherDao.retriveByPhone(dto.getPhone());
+//			if (check != null) {
+//				throw new ServiceException(ExceptionConstant.PHONE_BEEN_REGISTERED_EXCEPTION);
+//			}
 			
 			// 保存发布策略人信息
 			Publisher publisher = new Publisher();
@@ -116,18 +115,6 @@ public class PublisherService {
 			response.setId(pu.getId());
 			response.setCreateTime(pu.getCreateTime());
 			return response;
-		}else{
-			Publisher pu = this.findById(dto.getId());
-			CapitalAccount account = capitalAccountDao.retriveByPublisherId(pu.getId());
-			account.setAvailableBalance(dto.getAvailableBalance());
-			CapitalAccount result = capitalAccountDao.update(account);
-			PublisherAdminDto response = new PublisherAdminDto();
-			response.setAvailableBalance(result.getAvailableBalance());
-			response.setPhone(pu.getPhone());
-			response.setId(pu.getId());
-			response.setCreateTime(pu.getCreateTime());
-			return response;
-		}
 	}
 
 	@Transactional
@@ -313,10 +300,10 @@ public class PublisherService {
 		}
 		
 		String isEndTypeCondition = "";
-		if(query.getEndType() !=null ){
-			isEndTypeCondition = " and t1.end_type = 'D'";
-		}else{
-			isEndTypeCondition = " and t1.end_type != 'D'";
+		if(query.getInvented()!=null){
+			if(query.getInvented()){
+				isEndTypeCondition = " and t1.end_type = 'T'";
+			}
 		}
 
 		String sql = String.format(

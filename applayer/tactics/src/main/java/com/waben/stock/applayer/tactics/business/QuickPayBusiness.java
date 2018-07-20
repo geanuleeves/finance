@@ -1015,7 +1015,7 @@ public class QuickPayBusiness {
         paymentOrder.setAmount(amount);
         String paymentNo = UniqueCodeGenerator.generatePaymentNo();
         paymentOrder.setPaymentNo(paymentNo);
-        paymentOrder.setType(PaymentType.QuickPay);
+        paymentOrder.setType(PaymentType.UnionPay);
         paymentOrder.setState(PaymentState.Unpaid);
         paymentOrder.setPublisherId(publisher.getId());
         paymentOrder.setCreateTime(new Date());

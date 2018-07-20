@@ -34,7 +34,10 @@ public class PublisherAdminQuery extends PageAndSortQuery {
 	 */
 	private Integer state;
 	
-	private String endType;
+	/**
+	 * 是否为虚拟账号
+	 */
+	private Boolean invented;
 	/**
 	 * 是否为测试
 	 */
@@ -80,12 +83,13 @@ public class PublisherAdminQuery extends PageAndSortQuery {
 		this.state = state;
 	}
 
-	public String getEndType() {
-		return endType;
+
+	public Boolean getInvented() {
+		return invented;
 	}
 
-	public void setEndType(String endType) {
-		this.endType = endType;
+	public void setInvented(Boolean invented) {
+		this.invented = invented;
 	}
 
 	public Boolean getIsTest() {
