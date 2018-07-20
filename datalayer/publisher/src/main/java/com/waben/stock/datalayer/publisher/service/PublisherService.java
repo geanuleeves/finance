@@ -94,7 +94,7 @@ public class PublisherService {
 			publisher.setPassword(PasswordCrypt.crypt("123456"));
 			publisher.setCreateTime(new Date());
 			publisher.setPromoter("");
-			publisher.setEndType("D");
+			publisher.setEndType("T");
 			publisher.setIsTest(true);
 			Publisher pu = publisherDao.create(publisher);
 //		publisher.setPromotionCode(ShareCodeUtil.encode(publisher.getId().intValue()));
