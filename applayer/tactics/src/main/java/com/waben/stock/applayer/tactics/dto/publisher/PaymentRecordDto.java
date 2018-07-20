@@ -113,6 +113,9 @@ public class PaymentRecordDto {
 	}
 
 	public String getTypeStr() {
+		if(type != null) {
+			return type.getType();
+		}
 		return typeStr;
 	}
 
