@@ -348,8 +348,8 @@ public class OrganizationAccountService {
 		Date date = new Date();
 		OrganizationAccount account = null;
 		if (org != null) {
+			account = organizationAccountDao.retrieveByOrg(org);
 			if (org.getLevel() == 1) {
-				account = organizationAccountDao.retrieveByOrg(org);
 				if (account == null) {
 					account = initAccount(org, null);
 				}
@@ -376,9 +376,8 @@ public class OrganizationAccountService {
 			audit.setAccountFlow(flow);
 			if (org.getLevel() != 1) {
 				audit.setState(1);
-			} else {
-				audit.setBalance(account == null ? new BigDecimal(0) : account.getBalance());
 			}
+			audit.setBalance(account == null ? new BigDecimal(0) : account.getBalance());
 			audit.setRealMaidFee(amount);
 			audit.setExamineTime(date);
 			logger.info("创建流水及佣金审核记录, Balance{}", audit.getBalance());

@@ -121,6 +121,16 @@ public class CustomerController {
 			} else {
 				test = "否";
 			}
+			String endType = "";
+			if (trade.getEndType() != null) {
+				if (trade.getEndType().equals("I")) {
+					endType = "苹果";
+				} else if (trade.getEndType().equals("D")) {
+					endType = "PC";
+				} else if (trade.getEndType().equals("A")) {
+					endType = "安卓";
+				}
+			}
 			List<String> data = new ArrayList<>();
 			data.add(String.valueOf(trade.getPublisherId() == null ? "" : trade.getPublisherId()));
 			data.add(trade.getPublisherName() == null ? "" : trade.getPublisherName());
@@ -128,7 +138,7 @@ public class CustomerController {
 			data.add(trade.getOrgCode() + "/" + trade.getOrgName());
 			data.add(String.valueOf(trade.getBalance() == null ? "" : trade.getBalance()));
 			data.add(trade.getCreateTime() != null ? sdf.format(trade.getCreateTime()) : "");
-			data.add(trade.getEndType() == null ? "" : trade.getEndType());
+			data.add(endType);
 			data.add(test);
 			data.add(state);
 			result.add(data);
