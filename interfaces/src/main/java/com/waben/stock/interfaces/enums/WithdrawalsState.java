@@ -13,13 +13,13 @@ public enum WithdrawalsState implements CommonalityEnum {
 
 	UNKONWN("0","未知状态"),
 	
-	PROCESSED("1", "处理成功"),
+	PROCESSED("1", "提现成功"),
 
-	PROCESSING("2", "处理中"),
+	PROCESSING("2", "提现处理中"),
 
-	FAILURE("3", "处理失败"),
+	FAILURE("3", "提现失败"),
 	
-	RETREAT("4", "已退汇"),
+	RETREAT("4", "提现失败"),
 	
 	INIT("5", "待审核");
 
