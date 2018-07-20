@@ -81,6 +81,11 @@ public class CapitalAccountBusiness {
 					totalIncomep = totalIncomep.add(futuresOrderMarketDto.getPublisherProfitOrLoss());
 				}
 				dto.setDayHoldingProfit(totalIncomep.setScale(2, RoundingMode.DOWN));
+				if(dto.getDayHoldingProfit().signum()==-1){
+					dto.setAmount(dto.getAvailableBalance().add(dto.getDayHoldingProfit()));
+				}else{
+					dto.setAmount(dto.getAvailableBalance());
+				}
 			}
 			
 			return response.getResult();
