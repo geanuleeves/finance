@@ -79,6 +79,8 @@ public class OrganizationSettlementService {
 				OrganizationAccountFlowType.FuturesComprehensiveFeeAssign, ResourceType.FUTURESORDER, futuresOrderId);
 		// 判断之前是否结算过
 		if (checkFlowList == null || checkFlowList.size() == 0) {
+			logger.info("参与结算返佣金额未结算前日志, tradeNo{},serviceFee:{},orderCloseFee:{},deferredFee:{}", tradeNo, serviceFee,
+					orderCloseFee, deferredFee);
 			futuresOrderRatioSettlement(publisherId, BenefitConfigType.FuturesComprehensiveFee,
 					OrganizationAccountFlowType.FuturesComprehensiveFeeAssign, comprehensiveFee, benefitResourceId,
 					futuresOrderId, tradeNo);
@@ -590,6 +592,7 @@ public class OrganizationSettlementService {
 	public void futuresOrderRatioSettlement(Long publisherId, BenefitConfigType benefitConfigType,
 			OrganizationAccountFlowType flowType, BigDecimal amount, Long benefitResourceId, Long flowResourceId,
 			String tradeNo) {
+		logger.info("参与结算返佣金额进入结算方法, tradeNo{}", tradeNo);
 		ResourceType flowResourceType = ResourceType.FUTURESORDER;
 		Integer benefitResourceType = 3;
 		List<Organization> orgTreeList = getPublisherOrgTreeList(publisherId);

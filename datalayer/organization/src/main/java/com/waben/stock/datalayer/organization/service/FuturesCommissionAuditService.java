@@ -94,6 +94,7 @@ public class FuturesCommissionAuditService {
 		audit.setRealMaidFee(realMaidFee);
 		audit.setExamineTime(new Date());
 		audit.getAccountFlow().setAvailableBalance(account == null ? new BigDecimal(0) : account.getAvailableBalance());
+		audit.setBalance(account == null ? new BigDecimal(0) : account.getBalance());
 		audit = auditDao.update(audit);
 		if (audit != null) {
 			return 1;
@@ -146,6 +147,7 @@ public class FuturesCommissionAuditService {
 	 */
 	private synchronized void levelOneAmount(OrganizationAccount account, BigDecimal amount, Organization org,
 			Long auditId, Date date) {
+		BigDecimal accountFee = account.getBalance();
 		account.setBalance(account.getBalance().add(amount));
 		account.setAvailableBalance(account.getAvailableBalance().add(amount));
 		account.setUpdateTime(date);
@@ -158,6 +160,7 @@ public class FuturesCommissionAuditService {
 		FuturesCommissionAudit audit = auditDao.findByOneCommission();
 		if (audit != null) {
 			// audit.setRealMaidFee(amount);
+			audit.setBalance(accountFee);
 			audit.getAccountFlow().setAmount(account.getBalance());
 			audit.getAccountFlow().setAvailableBalance(account.getAvailableBalance());
 			audit.getAccountFlow().setOccurrenceTime(date);
@@ -169,6 +172,7 @@ public class FuturesCommissionAuditService {
 		commAudit.setAuditRemark("代理剩余返佣金额");
 		commAudit.setExamineTime(new Date());
 		commAudit.setRealMaidFee(amount);
+		commAudit.setBalance(accountFee.add(amount));
 		auditDao.create(commAudit);
 	}
 
