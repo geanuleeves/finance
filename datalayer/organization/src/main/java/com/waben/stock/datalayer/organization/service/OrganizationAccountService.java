@@ -12,6 +12,8 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,6 +46,8 @@ import com.waben.stock.interfaces.util.UniqueCodeGenerator;
  */
 @Service
 public class OrganizationAccountService {
+
+	Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private OrganizationAccountDao organizationAccountDao;
@@ -372,10 +376,12 @@ public class OrganizationAccountService {
 			audit.setAccountFlow(flow);
 			if (org.getLevel() != 1) {
 				audit.setState(1);
+			} else {
+				audit.setBalance(account == null ? new BigDecimal(0) : account.getBalance());
 			}
 			audit.setRealMaidFee(amount);
 			audit.setExamineTime(date);
-			audit.setBalance(account == null ? new BigDecimal(0) : account.getBalance());
+			logger.info("创建流水及佣金审核记录, Balance{}", audit.getBalance());
 			commissionAuditDao.create(audit);
 		}
 
