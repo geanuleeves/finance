@@ -35,7 +35,15 @@ public class CapitalAccountAdminDto {
 	 */
 	private BigDecimal availableBalance;
 	
+	/**
+	 * 账号余额
+	 */
 	private BigDecimal balance;
+	
+	/**
+	 * 可提现余额
+	 */
+	private BigDecimal amount;
 	/**
 	 * 更新时间
 	 */
@@ -203,6 +211,14 @@ public class CapitalAccountAdminDto {
 
 	public void setIsTest(Boolean isTest) {
 		this.isTest = isTest;
+	}
+
+	public BigDecimal getAmount() {
+		return amount;
+	}
+
+	public void setAmount(BigDecimal amount) {
+		this.amount = amount;
 	}
 
 }

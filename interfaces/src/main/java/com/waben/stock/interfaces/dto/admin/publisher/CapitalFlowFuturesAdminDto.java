@@ -123,4 +123,14 @@ public class CapitalFlowFuturesAdminDto extends CapitalFlowDto {
 	 * 是否测试
 	 */
 	private Boolean isTest;
+	
+	private String remark;
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
 }

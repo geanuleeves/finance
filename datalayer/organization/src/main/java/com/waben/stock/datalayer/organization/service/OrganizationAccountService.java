@@ -375,6 +375,7 @@ public class OrganizationAccountService {
 			}
 			audit.setRealMaidFee(amount);
 			audit.setExamineTime(date);
+			audit.setBalance(account == null ? new BigDecimal(0) : account.getBalance());
 			commissionAuditDao.create(audit);
 		}
 
