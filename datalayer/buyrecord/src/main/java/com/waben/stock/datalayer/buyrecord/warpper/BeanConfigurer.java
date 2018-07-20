@@ -185,5 +185,37 @@ public class BeanConfigurer {
                                           @Qualifier("buyRecordRisk") TopicExchange riskExchange) {
         return BindingBuilder.bind(queue).to(riskExchange).with("position");
     }
+    
+    /**************************************************/
+    
+    @Bean(name = "againEntrust")
+    public Queue againEntrust() {
+        return new Queue("againEntrust");
+    }
+    
+    @Bean(name = "entrustApplyBuyIn")
+    public Queue entrustApplyBuyIn() {
+        return new Queue("entrustApplyBuyIn");
+    }
+    
+    @Bean(name = "entrustApplySellOut")
+    public Queue entrustApplySellOut() {
+        return new Queue("entrustApplySellOut");
+    }
+    
+    @Bean(name = "entrustBuyIn")
+    public Queue entrustBuyIn() {
+        return new Queue("entrustBuyIn");
+    }
 
+    @Bean(name = "entrustSellOut")
+    public Queue entrustSellOut() {
+        return new Queue("entrustSellOut");
+    }
+    
+    @Bean(name = "entrustWaste")
+    public Queue entrustWaste() {
+        return new Queue("entrustWaste");
+    }
+    
 }
