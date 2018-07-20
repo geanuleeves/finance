@@ -13,9 +13,11 @@ import io.netty.channel.SimpleChannelInboundHandler;
 
 @Component
 public class LogicClientHandler extends SimpleChannelInboundHandler<MessageBase> {
-	
+
 	@Autowired
 	private QuoteContainer quoteContainer;
+
+	private NettyClient nettyClient;
 
 	// 连接成功后，向server发送消息
 	@Override
@@ -30,6 +32,7 @@ public class LogicClientHandler extends SimpleChannelInboundHandler<MessageBase>
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		System.out.println("连接断开 ");
+		nettyClient.doConnect();
 	}
 
 	@Override
@@ -62,4 +65,13 @@ public class LogicClientHandler extends SimpleChannelInboundHandler<MessageBase>
 			System.out.println(msg.getData());
 		}
 	}
+
+	public NettyClient getNettyClient() {
+		return nettyClient;
+	}
+
+	public void setNettyClient(NettyClient nettyClient) {
+		this.nettyClient = nettyClient;
+	}
+
 }

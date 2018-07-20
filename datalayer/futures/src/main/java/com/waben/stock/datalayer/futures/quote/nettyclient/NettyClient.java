@@ -69,6 +69,7 @@ public class NettyClient {
 	 */
 	public Bootstrap doConnect() {
 		idleHandler.setNettyClient(this);
+		logicHandler.setNettyClient(this);
 		Bootstrap bootstrap = new Bootstrap();
 		EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
 		try {
