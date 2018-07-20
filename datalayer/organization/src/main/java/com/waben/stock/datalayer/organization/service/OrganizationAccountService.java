@@ -372,9 +372,8 @@ public class OrganizationAccountService {
 			audit.setAccountFlow(flow);
 			if (org.getLevel() != 1) {
 				audit.setState(1);
-			} else {
-				audit.setRealMaidFee(amount);
 			}
+			audit.setRealMaidFee(amount);
 			audit.setExamineTime(date);
 			commissionAuditDao.create(audit);
 		}

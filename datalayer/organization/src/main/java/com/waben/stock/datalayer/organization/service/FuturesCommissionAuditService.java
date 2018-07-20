@@ -157,19 +157,19 @@ public class FuturesCommissionAuditService {
 		// flowDao.update(flow);
 		FuturesCommissionAudit audit = auditDao.findByOneCommission();
 		if (audit != null) {
-			audit.setRealMaidFee(amount);
+			// audit.setRealMaidFee(amount);
 			audit.getAccountFlow().setAmount(account.getBalance());
 			audit.getAccountFlow().setAvailableBalance(account.getAvailableBalance());
 			audit.getAccountFlow().setOccurrenceTime(date);
+
 			auditDao.update(audit);
 		}
-		// FuturesCommissionAudit audit = new FuturesCommissionAudit();
-		// audit.setAccountFlow(flow);
-		// audit.setAuditRemark("代理剩余返佣金额");
-		// audit.setExamineTime(new Date());
-		// audit.setRealMaidFee(amount);
-		// audit.setState(2);
-		// auditDao.create(audit);
+		FuturesCommissionAudit commAudit = new FuturesCommissionAudit();
+		commAudit.setAccountFlow(audit.getAccountFlow());
+		commAudit.setAuditRemark("代理剩余返佣金额");
+		commAudit.setExamineTime(new Date());
+		commAudit.setRealMaidFee(amount);
+		auditDao.create(commAudit);
 	}
 
 	private void checkedCommission(FuturesCommissionAudit audit, BigDecimal realMaidFee) {
