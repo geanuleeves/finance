@@ -29,6 +29,11 @@ public class PaymentRecordDto {
 	@ApiModelProperty(value = "支付方式")
 	private PaymentType type;
 	/**
+	 * 支付方式名称
+	 */
+	@ApiModelProperty(value = "支付方式名称")
+	private String typeStr;
+	/**
 	 * 支付状态
 	 */
 	@ApiModelProperty(value = "支付状态")
@@ -79,9 +84,9 @@ public class PaymentRecordDto {
 	public PaymentState getState() {
 		return state;
 	}
-	
+
 	public String getStateStr() {
-		if(state != null) {
+		if (state != null) {
 			return state.getStatus();
 		}
 		return null;
@@ -105,6 +110,14 @@ public class PaymentRecordDto {
 
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
+	}
+
+	public String getTypeStr() {
+		return typeStr;
+	}
+
+	public void setTypeStr(String typeStr) {
+		this.typeStr = typeStr;
 	}
 
 }
