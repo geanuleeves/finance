@@ -26,7 +26,7 @@ public class PushMessagingSchedule {
 	/**
 	 * 推送间隔
 	 */
-	public static final long Push_Interval = 120 * 1000;
+	public static final long Push_Interval = 120 * 1000*100;
 
 	@Autowired
 	private OutsideMessageInterface reference;

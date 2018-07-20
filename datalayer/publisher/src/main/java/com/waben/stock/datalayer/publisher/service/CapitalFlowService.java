@@ -138,14 +138,14 @@ public class CapitalFlowService {
 		setMethodMap.put(new Integer(6), new MethodDesc("setRemark", new Class<?>[] { String.class }));
 		setMethodMap.put(new Integer(7), new MethodDesc("setType", new Class<?>[] { CapitalFlowType.class }));
 		setMethodMap.put(new Integer(8), new MethodDesc("setPublisherName", new Class<?>[] { String.class }));
-		setMethodMap.put(new Integer(11), new MethodDesc("setCommoditySymbol", new Class<?>[] { String.class }));
-		setMethodMap.put(new Integer(12), new MethodDesc("setCommodityName", new Class<?>[] { String.class }));
-		setMethodMap.put(new Integer(10), new MethodDesc("setContractNo", new Class<?>[] { String.class }));
-		setMethodMap.put(new Integer(13), new MethodDesc("setPaymentType", new Class<?>[] { Integer.class }));
-		setMethodMap.put(new Integer(14), new MethodDesc("setBankCard", new Class<?>[] { String.class }));
-		setMethodMap.put(new Integer(15), new MethodDesc("setBankName", new Class<?>[] { String.class }));
-		setMethodMap.put(new Integer(16), new MethodDesc("setAvailableBalance", new Class<?>[] { BigDecimal.class }));
-		setMethodMap.put(new Integer(17), new MethodDesc("setIsTest", new Class<?>[] { Boolean.class }));		
+		setMethodMap.put(new Integer(9), new MethodDesc("setCommoditySymbol", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(102), new MethodDesc("setCommodityName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(1), new MethodDesc("setContractNo", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(12), new MethodDesc("setPaymentType", new Class<?>[] { Integer.class }));
+		setMethodMap.put(new Integer(13), new MethodDesc("setBankCard", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(14), new MethodDesc("setBankName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(15), new MethodDesc("setAvailableBalance", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(16), new MethodDesc("setIsTest", new Class<?>[] { Boolean.class }));		
 		
 		List<CapitalFlowFuturesAdminDto> content = sqlDao.execute(CapitalFlowFuturesAdminDto.class, sql, setMethodMap);
 		BigInteger totalElements = sqlDao.executeComputeSql(countSql);

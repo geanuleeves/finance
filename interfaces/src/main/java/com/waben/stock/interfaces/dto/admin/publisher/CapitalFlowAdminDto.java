@@ -90,6 +90,8 @@ public class CapitalFlowAdminDto extends CapitalFlowDto {
 	 * 银行名称
 	 */
 	private String bankName;
+	
+	private String remark;
 	/**
 	 * 是否测试
 	 */
@@ -195,6 +197,14 @@ public class CapitalFlowAdminDto extends CapitalFlowDto {
 
 	public void setIsTest(Boolean isTest) {
 		this.isTest = isTest;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 }
