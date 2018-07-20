@@ -300,8 +300,10 @@ public class PublisherService {
 		}
 		
 		String isEndTypeCondition = "";
-		if(query.getInvented()){
-			isEndTypeCondition = " and t1.end_type = 'T'";
+		if(query.getInvented()!=null){
+			if(query.getInvented()){
+				isEndTypeCondition = " and t1.end_type = 'T'";
+			}
 		}
 
 		String sql = String.format(
