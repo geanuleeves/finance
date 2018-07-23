@@ -322,7 +322,8 @@ public class AgentCapitalManageController {
 			data.add(type);
 			data.add(String.valueOf(trade.getCommission() == null ? "" : trade.getCommission()));
 			data.add(String.valueOf(trade.getAmountRemaid() == null ? "" : trade.getAmountRemaid()));
-			data.add(trade.getOccurrenceTime() != null ? sdf.format(trade.getOccurrenceTime()) : "");
+			data.add(String.valueOf(trade.getRealMaidFee() == null ? "" : trade.getRealMaidFee()));
+			data.add(trade.getExamineTime() != null ? sdf.format(trade.getExamineTime()) : "");
 			data.add(trade.getOrgCode() + "/" + trade.getOrgName());
 			data.add(state);
 			result.add(data);
@@ -374,7 +375,8 @@ public class AgentCapitalManageController {
 			data.add(type);
 			data.add(String.valueOf(trade.getCommission() == null ? "" : trade.getCommission()));
 			data.add(String.valueOf(trade.getAmountRemaid() == null ? "" : trade.getAmountRemaid()));
-			data.add(trade.getOccurrenceTime() != null ? sdf.format(trade.getOccurrenceTime()) : "");
+			data.add(String.valueOf(trade.getRealMaidFee() == null ? "" : trade.getRealMaidFee()));
+			data.add(trade.getExamineTime() != null ? sdf.format(trade.getExamineTime()) : "");
 			data.add(trade.getOrgCode() + "/" + trade.getOrgName());
 			data.add(state);
 			data.add(trade.getAuditRemark() == null ? "" : trade.getAuditRemark());

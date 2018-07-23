@@ -247,9 +247,8 @@ public class OrganizationController implements OrganizationInterface {
 
 	@Override
 	public Response<PageInfo<FuturesFowDto>> futuresFowPageByQuery(@RequestBody FuturesFowQuery query) {
-		Page<FuturesFowDto> page = organizationService.futuresFowPageByQuery(query);
-		PageInfo<FuturesFowDto> result = PageToPageInfo.pageToPageInfo(page, FuturesFowDto.class);
-		return new Response<>(result);
+		return new Response<>(
+				PageToPageInfo.pageToPageInfo(organizationService.futuresFowPageByQuery(query), FuturesFowDto.class));
 	}
 
 	@Override

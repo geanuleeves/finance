@@ -157,6 +157,7 @@ public class FuturesCommissionAuditService {
 		// flow.setAvailableBalance(account.getAvailableBalance());
 		// flow.setOccurrenceTime(date);
 		// flowDao.update(flow);
+		// 获取最新平台返佣数据
 		FuturesCommissionAudit audit = auditDao.findByOneCommission();
 		if (audit != null) {
 			// audit.setRealMaidFee(amount);
