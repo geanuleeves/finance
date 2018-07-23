@@ -82,7 +82,6 @@ public class FuturesCommissionAuditService {
 							levelOneAmount(accountParent, surplusFee, orgParent, auditId, date);
 						}
 					}
-					audit.setBalance(account == null ? new BigDecimal(0) : account.getBalance());
 				}
 			}
 		}
@@ -95,6 +94,7 @@ public class FuturesCommissionAuditService {
 		audit.setRealMaidFee(realMaidFee);
 		audit.setExamineTime(new Date());
 		audit.getAccountFlow().setAvailableBalance(account == null ? new BigDecimal(0) : account.getAvailableBalance());
+		audit.setBalance(account == null ? new BigDecimal(0) : account.getBalance());
 		audit = auditDao.update(audit);
 		if (audit != null) {
 			return 1;
