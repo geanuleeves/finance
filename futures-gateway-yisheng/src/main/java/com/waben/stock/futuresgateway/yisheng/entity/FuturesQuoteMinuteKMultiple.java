@@ -10,14 +10,14 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * 行情-分钟K
+ * 行情-多分钟K
  * 
  * @author luomengan
  *
  */
 @Entity
-@Table(name = "f_gateway_futures_es_quote_minutek")
-public class FuturesQuoteMinuteK {
+@Table(name = "f_gateway_futures_es_quote_minutek_multiple")
+public class FuturesQuoteMinuteKMultiple {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +30,8 @@ public class FuturesQuoteMinuteK {
 	private Long contractId;
 	/** 合约编号 */
 	private String contractNo;
+	/** 多分钟K */
+	private Integer mins;
 	/** 时间 */
 	private Date time;
 	/** 时间字符串 */
@@ -179,6 +181,14 @@ public class FuturesQuoteMinuteK {
 
 	public void setPreSettlePrice(BigDecimal preSettlePrice) {
 		this.preSettlePrice = preSettlePrice;
+	}
+
+	public Integer getMins() {
+		return mins;
+	}
+
+	public void setMins(Integer mins) {
+		this.mins = mins;
 	}
 
 }

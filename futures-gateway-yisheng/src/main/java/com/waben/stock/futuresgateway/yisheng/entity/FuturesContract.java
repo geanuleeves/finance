@@ -47,6 +47,8 @@ public class FuturesContract {
 	private Boolean enable;
 	/** 从哪个时间之前取主力合约的日K数据 */
 	private Date dayKMainContractEndTime;
+	/** 从哪个时间之前取主力合约的日K数据 */
+	private Date minuteKMainContractEndTime;
 
 	public Long getId() {
 		return id;
@@ -158,6 +160,14 @@ public class FuturesContract {
 
 	public void setDayKMainContractEndTime(Date dayKMainContractEndTime) {
 		this.dayKMainContractEndTime = dayKMainContractEndTime;
+	}
+
+	public Date getMinuteKMainContractEndTime() {
+		return minuteKMainContractEndTime;
+	}
+
+	public void setMinuteKMainContractEndTime(Date minuteKMainContractEndTime) {
+		this.minuteKMainContractEndTime = minuteKMainContractEndTime;
 	}
 
 }

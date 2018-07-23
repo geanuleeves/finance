@@ -108,8 +108,8 @@ public class FuturesMarketController {
 			@ApiImplicitParam(name = "contractNo", value = "合约编号", dataType = "string", paramType = "path", required = true),
 			@ApiImplicitParam(name = "mins", value = "分钟", dataType = "integer", paramType = "query", required = true) })
 	public Response<List<FuturesContractLineData>> minsLine(@PathVariable("symbol") String symbol,
-			@PathVariable("contractNo") String contractNo, Integer mins) {
-		return new Response<>(RetriveFuturesOverHttp.minsLine(profileBusiness.isProd(), symbol, contractNo, mins));
+			@PathVariable("contractNo") String contractNo, Integer mins, String startTime, String endTime) {
+		return new Response<>(RetriveFuturesOverHttp.minsLine(profileBusiness.isProd(), symbol, contractNo, mins, startTime, endTime));
 	}
 
 	/**
