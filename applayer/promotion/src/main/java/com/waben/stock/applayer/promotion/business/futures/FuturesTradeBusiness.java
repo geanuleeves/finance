@@ -383,6 +383,8 @@ public class FuturesTradeBusiness {
 				orderTrade.setSellingProfit(orderTrade.getProfitOrLoss());
 				orderTrade.setPositionEndTime(orderTrade.getSellingTime());
 				orderTrade.setDealTime(orderTrade.getBuyingTime());
+				orderTrade.setOvernightServiceFee(getSUMOvernightRecord(orderTrade.getId()) == null ? BigDecimal.ZERO
+						: getSUMOvernightRecord(orderTrade.getId()));
 				if (orderTrade.getBuyingTime() != null) {
 					Long date = orderTrade.getBuyingTime().getTime();
 					Long current = new Date().getTime();
@@ -449,6 +451,14 @@ public class FuturesTradeBusiness {
 		Response<PageInfo<FuturesCurrencyRateDto>> response = futuresCurrencyRateInterface.list();
 		if ("200".equals(response.getCode())) {
 			return response.getResult().getContent();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public BigDecimal getSUMOvernightRecord(Long orderId) {
+		Response<BigDecimal> response = reference.getSUMOvernightRecord(orderId);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
 		}
 		throw new ServiceException(response.getCode());
 	}

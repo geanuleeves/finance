@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,6 +51,9 @@ public class FuturesTradeController implements FuturesTradeInterface {
 
 	@Autowired
 	private ProfileBusiness profileBusiness;
+
+	@Autowired
+	private FuturesOvernightRecordService overnightRecordService;
 
 	SimpleDateFormat dateFm = new SimpleDateFormat("HH:mm:ss");
 
@@ -212,6 +216,11 @@ public class FuturesTradeController implements FuturesTradeInterface {
 	public Response<PageInfo<AgentOrderRecordDto>> pagesOrderRecord(@RequestBody FuturesTradeAdminQuery query) {
 		return new Response<>(
 				PageToPageInfo.pageToPageInfo(futuresOrderService.pagesOrderRecord(query), AgentOrderRecordDto.class));
+	}
+
+	@Override
+	public Response<BigDecimal> getSUMOvernightRecord(@PathVariable Long orderId) {
+		return new Response<>(overnightRecordService.getSUMOvernightRecord(orderId));
 	}
 
 }
