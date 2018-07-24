@@ -1242,4 +1242,11 @@ public class OrganizationService {
 		return null;
 	}
 
+	public List<Long> getListByPublisherId(String treeCode) {
+		String sql = String.format(
+				"SELECT t1.publisher_id FROM p_organization_publisher t1 where t1.tree_code LIKE '" + treeCode + "'");
+		List<Long> content = sqlDao.executeComputeSql(sql);
+		return content;
+	}
+
 }

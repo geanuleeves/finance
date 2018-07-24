@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.waben.stock.interfaces.dto.admin.futures.AgentOrderRecordDto;
 import com.waben.stock.interfaces.dto.admin.futures.FutresOrderEntrustDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
@@ -38,6 +39,9 @@ public interface FuturesTradeInterface {
 	@RequestMapping(value = "/countOrderState", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	Response<Object[]> countOrderState(@RequestParam(name = "state") String state);
 
-	@RequestMapping(value = "/getSUMOrder",  method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/getSUMOrder", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	Response<FuturesOrderCountDto> getSUMOrder(@RequestBody FuturesTradeAdminQuery query);
+
+	@RequestMapping(value = "/pages/order/record", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	Response<PageInfo<AgentOrderRecordDto>> pagesOrderRecord(@RequestBody FuturesTradeAdminQuery query);
 }

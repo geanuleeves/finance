@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
+import com.waben.stock.interfaces.enums.FuturesWindControlType;
 
 public class FutresOrderEntrustDto {
 
@@ -41,7 +42,7 @@ public class FutresOrderEntrustDto {
 	 * 订单编号
 	 */
 	private String tradeNo;
-	
+
 	/**
 	 * 合约编号
 	 */
@@ -61,7 +62,7 @@ public class FutresOrderEntrustDto {
 	 * 买入委托价格
 	 */
 	private BigDecimal entrustAppointPrice;
-	
+
 	/**
 	 * 委托价
 	 */
@@ -153,8 +154,10 @@ public class FutresOrderEntrustDto {
 	 * 平仓手续费
 	 */
 	private BigDecimal unwindServiceFee;
-	
+
 	private boolean isTest;
+
+	private Long contractId;
 
 	public Long getId() {
 		return id;
@@ -394,6 +397,14 @@ public class FutresOrderEntrustDto {
 
 	public void setTest(boolean isTest) {
 		this.isTest = isTest;
+	}
+
+	public Long getContractId() {
+		return contractId;
+	}
+
+	public void setContractId(Long contractId) {
+		this.contractId = contractId;
 	}
 
 }

@@ -60,6 +60,7 @@ import com.waben.stock.datalayer.futures.repository.impl.MethodDesc;
 import com.waben.stock.interfaces.commonapi.retrivefutures.TradeFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
+import com.waben.stock.interfaces.dto.admin.futures.AgentOrderRecordDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
 import com.waben.stock.interfaces.dto.futures.MarketAveragePrice;
 import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
@@ -186,7 +187,6 @@ public class FuturesOrderService {
 				if (query.getPublisherIds().size() > 0) {
 					predicateList.add(criteriaBuilder.in(root.get("publisherId")).value(query.getPublisherIds()));
 				}
-
 				if (query.getOrderType() != null) {
 					if (query.getOrderType().equals("1") || query.getOrderType().equals("2")) {
 						predicateList.add(
@@ -194,7 +194,6 @@ public class FuturesOrderService {
 
 					}
 				}
-
 				if (query.getTradeNo() != null && !"".equals(query.getTradeNo())) {
 					predicateList.add(criteriaBuilder.equal(root.get("tradeNo").as(String.class), query.getTradeNo()));
 				}
@@ -1332,11 +1331,14 @@ public class FuturesOrderService {
 					accountBusiness.futuresOrderOvernight(order.getPublisherId(), overnightRecord.getId(), deferredFee,
 							reserveFund);
 					// 给渠道推广机构结算
-//					if (order.getIsTest() == null || order.getIsTest() == false) {
-//						orgBusiness.futuresDeferredSettlement(order.getPublisherId(),
-//								order.getContract().getCommodity().getId(), order.getId(), order.getTradeNo(),
-//								order.getTotalQuantity(), order.getOvernightPerUnitDeferredFee());
-//					}
+					// if (order.getIsTest() == null || order.getIsTest() ==
+					// false) {
+					// orgBusiness.futuresDeferredSettlement(order.getPublisherId(),
+					// order.getContract().getCommodity().getId(),
+					// order.getId(), order.getTradeNo(),
+					// order.getTotalQuantity(),
+					// order.getOvernightPerUnitDeferredFee());
+					// }
 				} catch (ServiceException ex) {
 					if (ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION.equals(ex.getType())) {
 						// step 1.1 : 余额不足，强制平仓
@@ -1352,12 +1354,14 @@ public class FuturesOrderService {
 								throw ex;
 							} else {
 								// 给渠道推广机构结算
-//								if (order.getIsTest() == null || order.getIsTest() == false) {
-//									orgBusiness.futuresDeferredSettlement(order.getPublisherId(),
-//											order.getContract().getCommodity().getId(), overnightRecord.getId(),
-//											order.getTradeNo(), order.getTotalQuantity(),
-//											order.getOvernightPerUnitDeferredFee());
-//								}
+								// if (order.getIsTest() == null ||
+								// order.getIsTest() == false) {
+								// orgBusiness.futuresDeferredSettlement(order.getPublisherId(),
+								// order.getContract().getCommodity().getId(),
+								// overnightRecord.getId(),
+								// order.getTradeNo(), order.getTotalQuantity(),
+								// order.getOvernightPerUnitDeferredFee());
+								// }
 							}
 						} catch (ServiceException frozenEx) {
 							throw ex;
@@ -2201,6 +2205,129 @@ public class FuturesOrderService {
 			}
 		}
 		return result;
+	}
+
+	public Page<AgentOrderRecordDto> pagesOrderRecord(FuturesTradeAdminQuery query) {
+
+		String publisherNameCondition = "";
+		if (!StringUtil.isEmpty(query.getPublisherName())) {
+			publisherNameCondition = " AND t2.name like '%" + query.getPublisherName().trim() + "%' ";
+		}
+		String publisherPhoneCondition = "";
+		if (query.getPublisherPhone() != null && !"".equals(query.getPublisherPhone())) {
+			publisherPhoneCondition = " AND t3.phone like '%" + query.getPublisherPhone().trim() + "%' ";
+		}
+		String symbol = "";
+		if (!StringUtil.isEmpty(query.getSymbol())) {
+			symbol = " AND t1.commodity_symbol like '%" + query.getSymbol().trim() + "%'";
+		}
+		String commodityName = "";
+		if (!StringUtil.isEmpty(query.getName())) {
+			commodityName = " AND t1.commodity_name like '%" + query.getName().trim() + "%'";
+		}
+		String orderType = "";
+		if (!StringUtil.isEmpty(query.getOrderType())) {
+			orderType = " AND t1.order_type =" + query.getOrderType().trim();
+		}
+		String orderByName = "";
+		String orderState = "";
+		if (!StringUtil.isEmpty(query.getOrderState())) {
+			orderState = " AND t1.state in(" + query.getOrderState().trim() + ") ";
+			if (query.getOrderState().equals("6,9") || query.getOrderState().equals("6")
+					|| query.getOrderState().equals("9")) {
+				orderByName = " ORDER BY t1.buying_time DESC";
+			} else {
+				orderByName = " ORDER BY t1.post_time DESC";
+			}
+		}
+		String priceType = "";
+		if (!StringUtil.isEmpty(query.getPriceType())) {
+			orderType = " AND t1.buying_price_type =" + query.getPriceType().trim();
+		}
+		String treeCode = "";
+		if (query.getTreeCode() != null) {
+			treeCode = " AND t5.tree_code LIKE '%" + query.getTreeCode() + "%'";
+		}
+		String tradeNo = "";
+		if (!StringUtil.isEmpty(query.getTradeNo())) {
+			tradeNo = " AND t1.trade_no LIKE '%" + query.getTradeNo() + "%'";
+		}
+		String windControlType = "";
+		if (!StringUtil.isEmpty(query.getWindControlType())) {
+			windControlType = " AND t1.wind_control_type =" + query.getWindControlType();
+		}
+		String startTimeCondition = "";
+		if (query.getStartTime() != null) {
+			startTimeCondition = " and t1.create_time>='" + fullSdf.format(query.getStartTime()) + "' ";
+		}
+		String endTimeCondition = "";
+		if (query.getEndTime() != null) {
+			endTimeCondition = " and t1.create_time<'" + fullSdf.format(query.getEndTime()) + "' ";
+		}
+
+		String sql = String.format(
+				"SELECT t1.id, t2.name AS publisher_name, t3.phone as publisher_phone, t1.commodity_symbol, "
+						+ "t1.commodity_name, t1.contract_no, t1.trade_no, t1.order_type, t1.state, t1.total_quantity, t1.buying_time, "
+						+ "t1.buying_price, t1.publisher_profit_or_loss, t1.buying_price_type, t1.openwind_service_fee, "
+						+ "t1.unwind_service_fee, t1.reserve_fund, t4.overnight_deferred_fee, t4.overnight_reserve_fund, "
+						+ "t1.per_unit_limit_loss_amount, t1.per_unit_limit_profit_amount, t1.selling_time, t1.selling_price, "
+						+ "t1.profit_or_loss, t1.wind_control_type, t6.name AS org_name, t1.contract_id, t1.commodity_currency, "
+						+ "t6.code, t1.buying_entrust_price, t1.post_time, t1.service_fee "
+						+ "FROM  f_futures_order t1 LEFT JOIN real_name t2 ON t2.resource_id = t1.publisher_id "
+						+ " LEFT JOIN publisher t3 ON t3.id = t1.publisher_id "
+						+ " LEFT JOIN f_futures_overnight_record t4 ON t4.order_id = t1.id "
+						+ " LEFT JOIN p_organization_publisher t5 ON t5.publisher_id = t1.publisher_id "
+						+ " LEFT JOIN p_organization t6 ON t6.id = t5.org_id  WHERE 1=1 %s %s %s %s %s %s %s %s %s %s %s LIMIT "
+						+ query.getPage() * query.getSize() + "," + query.getSize(),
+				treeCode, publisherNameCondition, publisherPhoneCondition, symbol, commodityName, orderType, orderState,
+				priceType, tradeNo, windControlType, orderByName);
+		String countSql = "select count(*) " + sql.substring(sql.indexOf("FROM"), sql.indexOf("LIMIT"));
+		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
+		setMethodMap.put(new Integer(0), new MethodDesc("setId", new Class<?>[] { Long.class }));
+		setMethodMap.put(new Integer(1), new MethodDesc("setPublisherName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(2), new MethodDesc("setPublisherPhone", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(3), new MethodDesc("setSymbol", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(4), new MethodDesc("setName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(5), new MethodDesc("setContractNo", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(6), new MethodDesc("setTradeNo", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(7), new MethodDesc("setOrderType", new Class<?>[] { Integer.class }));
+		setMethodMap.put(new Integer(8), new MethodDesc("setState", new Class<?>[] { Integer.class }));
+		setMethodMap.put(new Integer(9), new MethodDesc("setTotalQuantity", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(10), new MethodDesc("setBuyingTime", new Class<?>[] { Date.class }));
+		setMethodMap.put(new Integer(11), new MethodDesc("setBuyingPrice", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(12),
+				new MethodDesc("setPublisherProfitOrLoss", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(13),
+				new MethodDesc("setBuyingPriceType", new Class<?>[] { FuturesTradePriceType.class }));
+		setMethodMap.put(new Integer(14), new MethodDesc("setOpenwindServiceFee", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(15), new MethodDesc("setUnwindServiceFee", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(16), new MethodDesc("setReserveFund", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(17),
+				new MethodDesc("setOvernightServiceFee", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(18),
+				new MethodDesc("setOvernightReserveFund", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(19),
+				new MethodDesc("setPerUnitLimitLossAmount", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(20),
+				new MethodDesc("setPerUnitLimitProfitAmount", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(21), new MethodDesc("setSellingTime", new Class<?>[] { Date.class }));
+		setMethodMap.put(new Integer(22), new MethodDesc("setSellingPrice", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(23), new MethodDesc("setProfitOrLoss", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(24),
+				new MethodDesc("setWindControlType", new Class<?>[] { FuturesWindControlType.class }));
+		setMethodMap.put(new Integer(25), new MethodDesc("setOrgName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(26), new MethodDesc("setContractId", new Class<?>[] { Long.class }));
+		setMethodMap.put(new Integer(27), new MethodDesc("setCommodityCurrency", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(28), new MethodDesc("setCode", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(29),
+				new MethodDesc("setEntrustAppointPrice", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(30), new MethodDesc("setPostTime", new Class<?>[] { Date.class }));
+		setMethodMap.put(new Integer(31), new MethodDesc("setServiceFee", new Class<?>[] { BigDecimal.class }));
+
+		List<AgentOrderRecordDto> content = sqlDao.execute(AgentOrderRecordDto.class, sql, setMethodMap);
+		BigInteger totalElements = sqlDao.executeComputeSql(countSql);
+		return new PageImpl<>(content, new PageRequest(query.getPage(), query.getSize()),
+				totalElements != null ? totalElements.longValue() : 0);
 	}
 
 }

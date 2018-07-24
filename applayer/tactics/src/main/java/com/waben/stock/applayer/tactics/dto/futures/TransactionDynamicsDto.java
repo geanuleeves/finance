@@ -47,6 +47,9 @@ public class TransactionDynamicsDto {
 	@ApiModelProperty(value = "合约编号")
 	private String contractNo;
 
+	@ApiModelProperty(value = "品种ID")
+	private Long commodityId;
+
 	public Long getPublisherId() {
 		return publisherId;
 	}
@@ -134,6 +137,14 @@ public class TransactionDynamicsDto {
 
 	public void setContractNo(String contractNo) {
 		this.contractNo = contractNo;
+	}
+
+	public Long getCommodityId() {
+		return commodityId;
+	}
+
+	public void setCommodityId(Long commodityId) {
+		this.commodityId = commodityId;
 	}
 
 }

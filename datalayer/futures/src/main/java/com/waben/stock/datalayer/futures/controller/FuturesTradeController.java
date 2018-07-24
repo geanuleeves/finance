@@ -12,19 +12,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.waben.stock.datalayer.futures.business.ProfileBusiness;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
-import com.waben.stock.datalayer.futures.service.FuturesCurrencyRateService;
 import com.waben.stock.datalayer.futures.service.FuturesOrderService;
 import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
 import com.waben.stock.datalayer.futures.service.FuturesTradeLimitService;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
+import com.waben.stock.interfaces.dto.admin.futures.AgentOrderRecordDto;
 import com.waben.stock.interfaces.dto.admin.futures.FutresOrderEntrustDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
@@ -47,11 +46,8 @@ public class FuturesTradeController implements FuturesTradeInterface {
 	private FuturesOvernightRecordService overnightService;
 
 	@Autowired
-	private FuturesCurrencyRateService rateService;
-
-	@Autowired
 	private FuturesTradeLimitService limitService;
-	
+
 	@Autowired
 	private ProfileBusiness profileBusiness;
 
@@ -79,7 +75,8 @@ public class FuturesTradeController implements FuturesTradeInterface {
 			}
 			if (order.getCommoditySymbol() != null && !"".equals(order.getCommoditySymbol())) {
 				String symbol = order.getCommoditySymbol();
-				FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(), symbol, order.getContractNo());
+				FuturesContractMarket market = RetriveFuturesOverHttp.market(profileBusiness.isProd(), symbol,
+						order.getContractNo());
 				if (market != null) {
 					result.getContent().get(i).setLastPrice(market.getLastPrice());
 				}
@@ -96,8 +93,6 @@ public class FuturesTradeController implements FuturesTradeInterface {
 
 	@Override
 	public Response<PageInfo<FuturesOrderAdminDto>> adminPagesByQuery(@RequestBody FuturesTradeAdminQuery query) {
-		// Page<FuturesOrderAdminDto> page =
-		// futuresOrderService.adminPagesByQuery(query);
 		Page<FuturesOrder> page = futuresOrderService.pagesOrderAdmin(query);
 		PageInfo<FuturesOrderAdminDto> result = PageToPageInfo.pageToPageInfo(page, FuturesOrderAdminDto.class);
 		for (int i = 0; i < page.getContent().size(); i++) {
@@ -109,7 +104,8 @@ public class FuturesTradeController implements FuturesTradeInterface {
 			double overnightReserveFund = 0.00;
 			for (FuturesOvernightRecord futuresOvernightRecord : recordList) {
 				count += futuresOvernightRecord.getOvernightDeferredFee().doubleValue();
-				overnightReserveFund += futuresOvernightRecord.getOvernightReserveFund() == null ? 0.00 : futuresOvernightRecord.getOvernightReserveFund().doubleValue();
+				overnightReserveFund += futuresOvernightRecord.getOvernightReserveFund() == null ? 0.00
+						: futuresOvernightRecord.getOvernightReserveFund().doubleValue();
 			}
 			result.getContent().get(i).setPublisherId(order.getPublisherId());
 			result.getContent().get(i).setOvernightServiceFee(new BigDecimal(count));
@@ -129,16 +125,14 @@ public class FuturesTradeController implements FuturesTradeInterface {
 			if (order.getBuyingTime() != null) {
 				Long date = order.getBuyingTime().getTime();
 				Long current = new Date().getTime();
-				Long hours = ((current - date) % (1000 * 60 * 60 * 24)/(1000 * 60));
-				if(Math.abs(hours.intValue())>60){
+				Long hours = ((current - date) % (1000 * 60 * 60 * 24) / (1000 * 60));
+				if (Math.abs(hours.intValue()) > 60) {
 					Long stime = hours / 60;
-					result.getContent().get(i).setPositionDays(stime.toString()+"小时");
-				}else{
-					result.getContent().get(i).setPositionDays(hours.toString()+"分钟");
+					result.getContent().get(i).setPositionDays(stime.toString() + "小时");
+				} else {
+					result.getContent().get(i).setPositionDays(hours.toString() + "分钟");
 				}
 			}
-			// FuturesCurrencyRate rate =
-			// rateService.queryByName(order.getContract().getCommodity().getCurrency());
 			if (order.getState().getIndex().equals("9")) {
 				result.getContent().get(i).setProfit(order.getProfitOrLoss());
 				result.getContent().get(i).setSellingProfit(order.getProfitOrLoss());
@@ -146,64 +140,18 @@ public class FuturesTradeController implements FuturesTradeInterface {
 					Long laseDate = order.getSellingTime().getTime();
 					Long date = order.getBuyingTime().getTime();
 					Long hours = ((laseDate - date) % (1000 * 60 * 60 * 24)) / (1000 * 60);
-					if(Math.abs(hours.intValue())>60){
+					if (Math.abs(hours.intValue()) > 60) {
 						Long stime = hours / 60;
-						result.getContent().get(i).setPositionDays(stime.toString()+"小时");
-					}else{
-						result.getContent().get(i).setPositionDays(hours.toString()+"分钟");
+						result.getContent().get(i).setPositionDays(stime.toString() + "小时");
+					} else {
+						result.getContent().get(i).setPositionDays(hours.toString() + "分钟");
 					}
 				}
 			} else {
-				/*
-				 * FuturesContractMarket market =
-				 * RetriveFuturesOverHttp.market(order.getCommoditySymbol(),
-				 * order.getContractNo()); if (market != null) { BigDecimal
-				 * lastPrice = market.getLastPrice(); if (lastPrice != null) {
-				 * BigDecimal profit =
-				 * futuresOrderService.computeProfitOrLoss(order.getOrderType(),
-				 * order.getTotalQuantity(), order.getBuyingPrice(), lastPrice,
-				 * order.getContract().getCommodity().getMinWave(),
-				 * order.getContract().getCommodity().getPerWaveMoney()); if
-				 * (rate != null && rate.getRate() != null) {
-				 * result.getContent().get(i).setProfit(profit.multiply(rate.
-				 * getRate())); } } }
-				 */
 				List<FuturesTradeLimit> limit = limitService.findByContractId(order.getContract().getId());
 				if (limit != null) {
-					// Date da = new Date();
-					// String curreyDay = sdf.format(da);
-					// int weekDays = getWeekOfDate(da);
 					for (int j = 0; j < limit.size(); j++) {
 						// TODO 需求修改，风控限制关联到合约，开始和结束时间精确到日、时、分、秒
-						// if (limit.get(j).getWeekDay() == weekDays) {
-						// try {
-						// Date start = null;
-						// Date end = null;
-						// if (limit.get(j).getStartLimitTime() != null
-						// && !"".equals(limit.get(j).getStartLimitTime())) {
-						// String startStr = curreyDay + " " +
-						// limit.get(j).getStartLimitTime();
-						// start = sdf1.parse(startStr);
-						// }
-						// if (limit.get(j).getEndLimitTime() != null
-						// && !"".equals(limit.get(j).getEndLimitTime())) {
-						// String endStr = curreyDay + " " +
-						// limit.get(j).getEndLimitTime();
-						// end = sdf1.parse(endStr);
-						// }
-						// if (start != null && end != null) {
-						// if (da.getTime() > start.getTime() && da.getTime() <
-						// end.getTime()) {
-						// result.getContent().get(i)
-						// .setWindControlState(limit.get(j).getLimitType().getType());
-						// } else {
-						// result.getContent().get(i).setWindControlState("正常");
-						// }
-						// }
-						// } catch (ParseException e) {
-						// e.printStackTrace();
-						// }
-						// }
 						if (result.getContent().get(i).getWindControlState() == null
 								&& "".equals(result.getContent().get(i).getWindControlState())) {
 							result.getContent().get(i).setWindControlState("正常");
@@ -258,6 +206,12 @@ public class FuturesTradeController implements FuturesTradeInterface {
 	@Override
 	public Response<FuturesOrderCountDto> getSUMOrder(@RequestBody FuturesTradeAdminQuery query) {
 		return new Response<>(limitService.getSUMOrder(query));
+	}
+
+	@Override
+	public Response<PageInfo<AgentOrderRecordDto>> pagesOrderRecord(@RequestBody FuturesTradeAdminQuery query) {
+		return new Response<>(
+				PageToPageInfo.pageToPageInfo(futuresOrderService.pagesOrderRecord(query), AgentOrderRecordDto.class));
 	}
 
 }
