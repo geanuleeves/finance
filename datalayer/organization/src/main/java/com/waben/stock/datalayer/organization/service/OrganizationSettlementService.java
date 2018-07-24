@@ -68,6 +68,9 @@ public class OrganizationSettlementService {
 	@Autowired
 	private FuturesCommodityBusiness commodityBusiness;
 
+	@Autowired
+	private OrganizationDao organizationDao;
+
 	@Transactional
 	public void futuresRatioSettlement(Long publisherId, Long benefitResourceId, Long futuresOrderId, String tradeNo,
 			BigDecimal totalQuantity, BigDecimal serviceFee, BigDecimal orderCloseFee, BigDecimal deferredFee) {
@@ -349,6 +352,11 @@ public class OrganizationSettlementService {
 				}
 				if (orgList.size() > 0 && orgList.get(orgList.size() - 1).getLevel() == 1) {
 					Collections.reverse(orgList);
+					return orgList;
+				}
+			} else {
+				List<Organization> orgList = organizationDao.listByLevel(1);
+				if (orgList != null && orgList.size() > 0) {
 					return orgList;
 				}
 			}

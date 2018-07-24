@@ -305,8 +305,8 @@ public class OrganizationAccountFlowService {
 		}
 		String orgCodeOrName = "";
 		if (!StringUtil.isEmpty(query.getOrgCodeOrName())) {
-			orgCodeOrName = " and t4.code like '%" + query.getOrgCodeOrName() + "%' or t4.name like '%"
-					+ query.getOrgCodeOrName() + "%'";
+			orgCodeOrName = " and (t4.code like '%" + query.getOrgCodeOrName() + "%' or t4.name like '%"
+					+ query.getOrgCodeOrName() + "%')";
 		}
 		String flowNo = "";
 		if (!StringUtil.isEmpty(query.getFlowNo())) {
