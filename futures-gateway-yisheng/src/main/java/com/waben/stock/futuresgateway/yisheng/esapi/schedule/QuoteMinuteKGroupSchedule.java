@@ -14,8 +14,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesContract;
-import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteK;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteKGroup;
+import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteK;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqProducer;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.EsDeleteQuoteMessage;
@@ -79,7 +79,7 @@ public class QuoteMinuteKGroupSchedule {
 				continue;
 			}
 			// step 3.2 : 根据时间获取上一小时的分钟K
-			List<FuturesQuoteMinuteK> minuteKList = minuteKServcie
+			List<MongoFuturesQuoteMinuteK> minuteKList = minuteKServcie
 					.retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(commodityNo, contractNo,
 							beforeTime, afterTime);
 			if (minuteKList != null && minuteKList.size() > 0) {
@@ -104,7 +104,7 @@ public class QuoteMinuteKGroupSchedule {
 				// step 3.4 : 计算最高价、最低价
 				BigDecimal highPrice = minuteKList.get(0).getHighPrice();
 				BigDecimal lowPrice = minuteKList.get(0).getLowPrice();
-				for (FuturesQuoteMinuteK minuteK : minuteKList) {
+				for (MongoFuturesQuoteMinuteK minuteK : minuteKList) {
 					if (minuteK.getHighPrice().compareTo(highPrice) > 0) {
 						highPrice = minuteK.getHighPrice();
 					}
@@ -118,7 +118,7 @@ public class QuoteMinuteKGroupSchedule {
 				// step 3.5 : 保存计算出来的分K数据
 				minuteKGroupServcie.addFuturesQuoteMinuteKGroup(minuteKGroup);
 				// step 3.6 : 删除分K的行情数据
-				for (FuturesQuoteMinuteK minuteK : minuteKList) {
+				for (MongoFuturesQuoteMinuteK minuteK : minuteKList) {
 					EsDeleteQuoteMessage delQuote = new EsDeleteQuoteMessage();
 					delQuote.setQuoteId(String.valueOf(minuteK.getId()));
 					delQuote.setType(2);

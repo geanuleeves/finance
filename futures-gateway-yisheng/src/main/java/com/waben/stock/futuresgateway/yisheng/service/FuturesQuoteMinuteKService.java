@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.waben.stock.futuresgateway.yisheng.dao.FuturesQuoteMinuteKDao;
-import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteK;
+import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteK;
 
 /**
  * 行情-分钟K Service
@@ -23,59 +23,54 @@ public class FuturesQuoteMinuteKService {
 	@Autowired
 	private FuturesQuoteMinuteKDao futuresQuoteMinuteKDao;
 
-	public FuturesQuoteMinuteK getFuturesQuoteMinuteKInfo(Long id) {
-		return futuresQuoteMinuteKDao.retrieveFuturesQuoteMinuteKById(id);
+	public MongoFuturesQuoteMinuteK getFuturesQuoteMinuteKInfo(String commodityNo, String contractNo, String id) {
+		return futuresQuoteMinuteKDao.retrieveFuturesQuoteMinuteKById(commodityNo, contractNo, id);
 	}
 
 	@Transactional
-	public FuturesQuoteMinuteK addFuturesQuoteMinuteK(FuturesQuoteMinuteK futuresQuoteMinuteK) {
+	public MongoFuturesQuoteMinuteK addFuturesQuoteMinuteK(MongoFuturesQuoteMinuteK futuresQuoteMinuteK) {
 		return futuresQuoteMinuteKDao.createFuturesQuoteMinuteK(futuresQuoteMinuteK);
 	}
 
 	@Transactional
-	public FuturesQuoteMinuteK modifyFuturesQuoteMinuteK(FuturesQuoteMinuteK futuresQuoteMinuteK) {
-		return futuresQuoteMinuteKDao.updateFuturesQuoteMinuteK(futuresQuoteMinuteK);
+	public void deleteFuturesQuoteMinuteK(String commodityNo, String contractNo, String id) {
+		futuresQuoteMinuteKDao.deleteFuturesQuoteMinuteKById(commodityNo, contractNo, id);
 	}
 
 	@Transactional
-	public void deleteFuturesQuoteMinuteK(Long id) {
-		futuresQuoteMinuteKDao.deleteFuturesQuoteMinuteKById(id);
-	}
-
-	@Transactional
-	public void deleteFuturesQuoteMinuteKs(String ids) {
+	public void deleteFuturesQuoteMinuteKs(String commodityNo, String contractNo, String ids) {
 		if (ids != null) {
 			String[] idArr = ids.split(",");
 			for (String id : idArr) {
 				if (!"".equals(id.trim())) {
-					futuresQuoteMinuteKDao.deleteFuturesQuoteMinuteKById(Long.parseLong(id.trim()));
+					futuresQuoteMinuteKDao.deleteFuturesQuoteMinuteKById(commodityNo, contractNo, id.trim());
 				}
 			}
 		}
 	}
 
-	public Page<FuturesQuoteMinuteK> futuresQuoteMinuteKs(int page, int limit) {
-		return futuresQuoteMinuteKDao.pageFuturesQuoteMinuteK(page, limit);
+	public Page<MongoFuturesQuoteMinuteK> futuresQuoteMinuteKs(String commodityNo, String contractNo, int page, int limit) {
+		return futuresQuoteMinuteKDao.pageFuturesQuoteMinuteK(commodityNo, contractNo, page, limit);
 	}
 
-	public List<FuturesQuoteMinuteK> list() {
-		return futuresQuoteMinuteKDao.listFuturesQuoteMinuteK();
+	public List<MongoFuturesQuoteMinuteK> list(String commodityNo, String contractNo) {
+		return futuresQuoteMinuteKDao.listFuturesQuoteMinuteK(commodityNo, contractNo);
 	}
 
-	public FuturesQuoteMinuteK getByCommodityNoAndContractNoAndTime(String commodityNo, String contractNo, Date time) {
+	public MongoFuturesQuoteMinuteK getByCommodityNoAndContractNoAndTime(String commodityNo, String contractNo, Date time) {
 		return futuresQuoteMinuteKDao.retrieveByCommodityNoAndContractNoAndTime(commodityNo, contractNo, time);
 	}
 
-	public FuturesQuoteMinuteK getNewestByCommodityNoAndContractNo(String commodityNo, String contractNo) {
+	public MongoFuturesQuoteMinuteK getNewestByCommodityNoAndContractNo(String commodityNo, String contractNo) {
 		return futuresQuoteMinuteKDao.retrieveNewestByCommodityNoAndContractNo(commodityNo, contractNo);
 	}
 
-	public List<FuturesQuoteMinuteK> getByCommodityNoAndContractNoAndTimeStrLike(String commodityNo, String contractNo,
+	public List<MongoFuturesQuoteMinuteK> getByCommodityNoAndContractNoAndTimeStrLike(String commodityNo, String contractNo,
 			String timeStr) {
 		return futuresQuoteMinuteKDao.retriveByCommodityNoAndContractNoAndTimeStrLike(commodityNo, contractNo, timeStr);
 	}
 
-	public List<FuturesQuoteMinuteK> retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(
+	public List<MongoFuturesQuoteMinuteK> retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(
 			String commodityNo, String contractNo, Date startTime, Date endTime) {
 		return futuresQuoteMinuteKDao.retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(
 				commodityNo, contractNo, startTime, endTime);

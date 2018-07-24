@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesContract;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuote;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteLast;
-import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteK;
+import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteK;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqProducer;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.EsDeleteQuoteMessage;
@@ -81,7 +81,7 @@ public class QuoteMinuteKSchedule {
 				continue;
 			}
 			// step 3.1 : 判断之前是否有计算过
-			FuturesQuoteMinuteK beforeMinuteK = minuteKServcie.getByCommodityNoAndContractNoAndTime(commodityNo,
+			MongoFuturesQuoteMinuteK beforeMinuteK = minuteKServcie.getByCommodityNoAndContractNoAndTime(commodityNo,
 					contractNo, currentMin);
 			if (beforeMinuteK != null) {
 				continue;
@@ -91,13 +91,13 @@ public class QuoteMinuteKSchedule {
 					contractNo, minSdf.format(before));
 			if (quoteList != null && quoteList.size() > 0) {
 				// step 3.3 : 初始化部分数据
-				beforeMinuteK = new FuturesQuoteMinuteK();
+				beforeMinuteK = new MongoFuturesQuoteMinuteK();
 				beforeMinuteK.setCommodityNo(commodityNo);
 				beforeMinuteK.setContractNo(contractNo);
 				beforeMinuteK.setTime(currentMin);
 				beforeMinuteK.setTimeStr(fullSdf.format(currentMin));
 				beforeMinuteK.setTotalVolume(quoteList.get(quoteList.size() - 1).getPositionQty());
-				FuturesQuoteMinuteK beforeBeforeMinuteK = minuteKServcie
+				MongoFuturesQuoteMinuteK beforeBeforeMinuteK = minuteKServcie
 						.getByCommodityNoAndContractNoAndTime(commodityNo, contractNo, before);
 				if (beforeBeforeMinuteK != null) {
 					beforeMinuteK.setStartTotalQty(beforeBeforeMinuteK.getEndTotalQty());

@@ -2,17 +2,23 @@ package com.waben.stock.futuresgateway.yisheng.dao.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import com.waben.stock.futuresgateway.yisheng.dao.FuturesQuoteMinuteKMultipleDao;
-import com.waben.stock.futuresgateway.yisheng.dao.impl.jpa.FuturesQuoteMinuteKMultipleRepository;
-import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteKMultiple;
+import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuote;
+import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteKMultiple;
 
 /**
  * 行情-多分钟K Dao实现
@@ -24,70 +30,101 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteKMultiple
 public class FuturesQuoteMinuteKMultipleDaoImpl implements FuturesQuoteMinuteKMultipleDao {
 
 	@Autowired
-	private FuturesQuoteMinuteKMultipleRepository repository;
+	private MongoTemplate mongoTemplate;
+
+	private static String minuteKMultipleCollectionNamePrefix = "minutekmultiple-";
 
 	@Override
-	public FuturesQuoteMinuteKMultiple createFuturesQuoteMinuteKMultiple(
-			FuturesQuoteMinuteKMultiple futuresQuoteMinuteKMultiple) {
-		return repository.save(futuresQuoteMinuteKMultiple);
+	public MongoFuturesQuoteMinuteKMultiple createFuturesQuoteMinuteKMultiple(
+			MongoFuturesQuoteMinuteKMultiple futuresQuoteMinuteKMultiple) {
+		futuresQuoteMinuteKMultiple.setId(new ObjectId().toString());
+		mongoTemplate.save(futuresQuoteMinuteKMultiple, minuteKMultipleCollectionNamePrefix
+				+ futuresQuoteMinuteKMultiple.getCommodityNo() + "-" + futuresQuoteMinuteKMultiple.getContractNo());
+		return futuresQuoteMinuteKMultiple;
 	}
 
 	@Override
-	public void deleteFuturesQuoteMinuteKMultipleById(Long id) {
-		repository.delete(id);
+	public void deleteFuturesQuoteMinuteKMultipleById(String commodityNo, String contractNo, String id) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("id").is(id));
+		mongoTemplate.remove(query, FuturesQuote.class,
+				minuteKMultipleCollectionNamePrefix + commodityNo + "-" + contractNo);
 	}
 
 	@Override
-	public FuturesQuoteMinuteKMultiple updateFuturesQuoteMinuteKMultiple(
-			FuturesQuoteMinuteKMultiple futuresQuoteMinuteKMultiple) {
-		return repository.save(futuresQuoteMinuteKMultiple);
+	public MongoFuturesQuoteMinuteKMultiple retrieveFuturesQuoteMinuteKMultipleById(String commodityNo,
+			String contractNo, String id) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("id").is(id));
+		return mongoTemplate.findOne(query, MongoFuturesQuoteMinuteKMultiple.class,
+				minuteKMultipleCollectionNamePrefix + commodityNo + "-" + contractNo);
 	}
 
 	@Override
-	public FuturesQuoteMinuteKMultiple retrieveFuturesQuoteMinuteKMultipleById(Long id) {
-		return repository.findById(id);
+	public Page<MongoFuturesQuoteMinuteKMultiple> pageFuturesQuoteMinuteKMultiple(String commodityNo, String contractNo,
+			int page, int limit) {
+		Query query = new Query();
+		query.skip(page * limit);
+		query.limit(limit);
+		List<MongoFuturesQuoteMinuteKMultiple> content = mongoTemplate.find(query,
+				MongoFuturesQuoteMinuteKMultiple.class,
+				minuteKMultipleCollectionNamePrefix + commodityNo + "-" + contractNo);
+		long total = mongoTemplate.count(query, FuturesQuote.class,
+				minuteKMultipleCollectionNamePrefix + commodityNo + "-" + contractNo);
+		Page<MongoFuturesQuoteMinuteKMultiple> result = new PageImpl<>(content, new PageRequest(page, limit), total);
+		return result;
 	}
 
 	@Override
-	public Page<FuturesQuoteMinuteKMultiple> pageFuturesQuoteMinuteKMultiple(int page, int limit) {
-		return repository.findAll(new PageRequest(page, limit));
+	public List<MongoFuturesQuoteMinuteKMultiple> listFuturesQuoteMinuteKMultiple(String commodityNo,
+			String contractNo) {
+		Query query = new Query();
+		return mongoTemplate.find(query, MongoFuturesQuoteMinuteKMultiple.class,
+				minuteKMultipleCollectionNamePrefix + commodityNo + "-" + contractNo);
 	}
 
 	@Override
-	public List<FuturesQuoteMinuteKMultiple> listFuturesQuoteMinuteKMultiple() {
-		return repository.findAll();
+	public MongoFuturesQuoteMinuteKMultiple retrieveByCommodityNoAndContractNoAndTime(String commodityNo,
+			String contractNo, Date time) {
+		Query query = new Query();
+		query.skip(0);
+		query.limit(1);
+		query.addCriteria(Criteria.where("time").gte(time));
+		return mongoTemplate.findOne(query, MongoFuturesQuoteMinuteKMultiple.class,
+				minuteKMultipleCollectionNamePrefix + commodityNo + "-" + contractNo);
 	}
 
 	@Override
-	public FuturesQuoteMinuteKMultiple retrieveByCommodityNoAndContractNoAndTime(String commodityNo, String contractNo,
-			Date time) {
-		return repository.findByCommodityNoAndContractNoAndTime(commodityNo, contractNo, time);
+	public MongoFuturesQuoteMinuteKMultiple retrieveNewestByCommodityNoAndContractNo(String commodityNo,
+			String contractNo) {
+		Query query = new Query();
+		query.skip(0);
+		query.limit(1);
+		query.with(new Sort(new Sort.Order(Direction.DESC, "time")));
+		return mongoTemplate.findOne(query, MongoFuturesQuoteMinuteKMultiple.class,
+				minuteKMultipleCollectionNamePrefix + commodityNo + "-" + contractNo);
 	}
 
 	@Override
-	public FuturesQuoteMinuteKMultiple retrieveNewestByCommodityNoAndContractNo(String commodityNo, String contractNo) {
-		Sort sort = new Sort(new Sort.Order(Direction.DESC, "time"));
-		List<FuturesQuoteMinuteKMultiple> list = repository.findByCommodityNoAndContractNo(commodityNo, contractNo,
-				sort);
-		if (list != null && list.size() > 0) {
-			return list.get(0);
-		}
-		return null;
-	}
-
-	@Override
-	public List<FuturesQuoteMinuteKMultiple> retriveByCommodityNoAndContractNoAndTimeStrLike(String commodityNo,
+	public List<MongoFuturesQuoteMinuteKMultiple> retriveByCommodityNoAndContractNoAndTimeStrLike(String commodityNo,
 			String contractNo, String timeStr) {
-		Sort sort = new Sort(new Sort.Order(Direction.ASC, "time"));
-		return repository.findByCommodityNoAndContractNoAndTimeStrLike(commodityNo, contractNo, timeStr, sort);
+		Query query = new Query();
+		Pattern pattern = Pattern.compile("^" + timeStr + ".*", Pattern.CASE_INSENSITIVE);
+		query.addCriteria(Criteria.where("timeStr").regex(pattern));
+		query.with(new Sort(new Sort.Order(Direction.ASC, "time")));
+		return mongoTemplate.find(query, MongoFuturesQuoteMinuteKMultiple.class,
+				minuteKMultipleCollectionNamePrefix + commodityNo + "-" + contractNo);
 	}
 
 	@Override
-	public List<FuturesQuoteMinuteKMultiple> retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(
+	public List<MongoFuturesQuoteMinuteKMultiple> retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(
 			String commodityNo, String contractNo, Date startTime, Date endTime) {
-		Sort sort = new Sort(new Sort.Order(Direction.ASC, "time"));
-		return repository.findByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(commodityNo, contractNo,
-				startTime, endTime, sort);
+		Query query = new Query();
+		query.addCriteria(Criteria.where("time").gte(startTime));
+		query.addCriteria(Criteria.where("time").lt(endTime));
+		query.with(new Sort(new Sort.Order(Direction.ASC, "time")));
+		return mongoTemplate.find(query, MongoFuturesQuoteMinuteKMultiple.class,
+				minuteKMultipleCollectionNamePrefix + commodityNo + "-" + contractNo);
 	}
 
 }

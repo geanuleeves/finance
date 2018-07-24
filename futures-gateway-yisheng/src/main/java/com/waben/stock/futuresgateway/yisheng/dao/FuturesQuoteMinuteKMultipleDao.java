@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
-import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteKMultiple;
+import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteKMultiple;
 
 /**
  * 行情-多分钟K Dao
@@ -15,27 +15,30 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteKMultiple
  */
 public interface FuturesQuoteMinuteKMultipleDao {
 
-	public FuturesQuoteMinuteKMultiple createFuturesQuoteMinuteKMultiple(FuturesQuoteMinuteKMultiple futuresQuoteMinuteKMultiple);
+	public MongoFuturesQuoteMinuteKMultiple createFuturesQuoteMinuteKMultiple(
+			MongoFuturesQuoteMinuteKMultiple futuresQuoteMinuteKMultiple);
 
-	public void deleteFuturesQuoteMinuteKMultipleById(Long id);
+	public void deleteFuturesQuoteMinuteKMultipleById(String commodityNo, String contractNo, String id);
 
-	public FuturesQuoteMinuteKMultiple updateFuturesQuoteMinuteKMultiple(FuturesQuoteMinuteKMultiple futuresQuoteMinuteKMultiple);
+	public MongoFuturesQuoteMinuteKMultiple retrieveFuturesQuoteMinuteKMultipleById(String commodityNo,
+			String contractNo, String id);
 
-	public FuturesQuoteMinuteKMultiple retrieveFuturesQuoteMinuteKMultipleById(Long id);
+	public Page<MongoFuturesQuoteMinuteKMultiple> pageFuturesQuoteMinuteKMultiple(String commodityNo, String contractNo,
+			int page, int limit);
 
-	public Page<FuturesQuoteMinuteKMultiple> pageFuturesQuoteMinuteKMultiple(int page, int limit);
+	public List<MongoFuturesQuoteMinuteKMultiple> listFuturesQuoteMinuteKMultiple(String commodityNo,
+			String contractNo);
 
-	public List<FuturesQuoteMinuteKMultiple> listFuturesQuoteMinuteKMultiple();
+	public MongoFuturesQuoteMinuteKMultiple retrieveByCommodityNoAndContractNoAndTime(String commodityNo,
+			String contractNo, Date time);
 
-	public FuturesQuoteMinuteKMultiple retrieveByCommodityNoAndContractNoAndTime(String commodityNo, String contractNo,
-			Date time);
+	public MongoFuturesQuoteMinuteKMultiple retrieveNewestByCommodityNoAndContractNo(String commodityNo,
+			String contractNo);
 
-	public FuturesQuoteMinuteKMultiple retrieveNewestByCommodityNoAndContractNo(String commodityNo, String contractNo);
-
-	public List<FuturesQuoteMinuteKMultiple> retriveByCommodityNoAndContractNoAndTimeStrLike(String commodityNo,
+	public List<MongoFuturesQuoteMinuteKMultiple> retriveByCommodityNoAndContractNoAndTimeStrLike(String commodityNo,
 			String contractNo, String timeStr);
 
-	public List<FuturesQuoteMinuteKMultiple> retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(
+	public List<MongoFuturesQuoteMinuteKMultiple> retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(
 			String commodityNo, String contractNo, Date startTime, Date endTime);
 
 }
