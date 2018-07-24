@@ -26,9 +26,9 @@ import com.waben.stock.futuresgateway.yisheng.dao.FuturesQuoteMinuteKMultipleDao
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesCommodity;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesContract;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteDayK;
-import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteK;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteKGroup;
-import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteKMultiple;
+import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteK;
+import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteKMultiple;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqProducer;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.EsDeleteQuoteMessage;
@@ -194,7 +194,7 @@ public class ImportDayK {
 								String totalVolume = !StringUtil.isEmpty(splitData[6].trim()) ? splitData[6].trim()
 										: "0";
 								if (openPrice != null && highPrice != null && lowPrice != null && closePrice != null) {
-									FuturesQuoteMinuteK minuteK = new FuturesQuoteMinuteK();
+									MongoFuturesQuoteMinuteK minuteK = new MongoFuturesQuoteMinuteK();
 									minuteK.setClosePrice(new BigDecimal(closePrice));
 									minuteK.setCommodityNo(commodityNo);
 									minuteK.setContractNo(contractNo);
@@ -206,10 +206,10 @@ public class ImportDayK {
 									minuteK.setTotalVolume(new BigDecimal(totalVolume).longValue());
 									minuteK.setVolume(new BigDecimal(volume).longValue());
 
-									FuturesQuoteMinuteK oldMinuteK = minuteKDao
+									MongoFuturesQuoteMinuteK oldMinuteK = minuteKDao
 											.retrieveByCommodityNoAndContractNoAndTime(commodityNo, contractNo, time);
 									if (oldMinuteK != null) {
-										minuteKDao.deleteFuturesQuoteMinuteKById(oldMinuteK.getId());
+										minuteKDao.deleteFuturesQuoteMinuteKById(commodityNo, contractNo, oldMinuteK.getId());
 									}
 									minuteKDao.createFuturesQuoteMinuteK(minuteK);
 								}
@@ -261,7 +261,7 @@ public class ImportDayK {
 								String totalVolume = !StringUtil.isEmpty(splitData[6].trim()) ? splitData[6].trim()
 										: "0";
 								if (openPrice != null && highPrice != null && lowPrice != null && closePrice != null) {
-									FuturesQuoteMinuteKMultiple minuteKMultiple = new FuturesQuoteMinuteKMultiple();
+									MongoFuturesQuoteMinuteKMultiple minuteKMultiple = new MongoFuturesQuoteMinuteKMultiple();
 									minuteKMultiple.setMins(mins);
 									minuteKMultiple.setClosePrice(new BigDecimal(closePrice));
 									minuteKMultiple.setCommodityNo(commodityNo);
@@ -274,10 +274,10 @@ public class ImportDayK {
 									minuteKMultiple.setTotalVolume(new BigDecimal(totalVolume).longValue());
 									minuteKMultiple.setVolume(new BigDecimal(volume).longValue());
 
-									FuturesQuoteMinuteKMultiple oldMinuteKMultiple = minuteKMultipleDao
+									MongoFuturesQuoteMinuteKMultiple oldMinuteKMultiple = minuteKMultipleDao
 											.retrieveByCommodityNoAndContractNoAndTime(commodityNo, contractNo, time);
 									if (oldMinuteKMultiple != null) {
-										minuteKMultipleDao.deleteFuturesQuoteMinuteKMultipleById(oldMinuteKMultiple.getId());
+										minuteKMultipleDao.deleteFuturesQuoteMinuteKMultipleById(commodityNo, contractNo, oldMinuteKMultiple.getId());
 									}
 									minuteKMultipleDao.createFuturesQuoteMinuteKMultiple(minuteKMultiple);
 								}
@@ -520,7 +520,7 @@ public class ImportDayK {
 				continue;
 			}
 			// step 3.2 : 根据时间获取上一小时的分钟K
-			List<FuturesQuoteMinuteK> minuteKList = minuteKService
+			List<MongoFuturesQuoteMinuteK> minuteKList = minuteKService
 					.retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(commodityNo, contractNo,
 							beforeTime, afterTime);
 			if (minuteKList != null && minuteKList.size() > 0) {
@@ -545,7 +545,7 @@ public class ImportDayK {
 				// step 3.4 : 计算最高价、最低价
 				BigDecimal highPrice = minuteKList.get(0).getHighPrice();
 				BigDecimal lowPrice = minuteKList.get(0).getLowPrice();
-				for (FuturesQuoteMinuteK minuteK : minuteKList) {
+				for (MongoFuturesQuoteMinuteK minuteK : minuteKList) {
 					if (minuteK.getHighPrice().compareTo(highPrice) > 0) {
 						highPrice = minuteK.getHighPrice();
 					}
@@ -559,7 +559,7 @@ public class ImportDayK {
 				// step 3.5 : 保存计算出来的分K数据
 				minuteKGroupServcie.addFuturesQuoteMinuteKGroup(minuteKGroup);
 				// step 3.6 : 删除分K的行情数据
-				for (FuturesQuoteMinuteK minuteK : minuteKList) {
+				for (MongoFuturesQuoteMinuteK minuteK : minuteKList) {
 					EsDeleteQuoteMessage delQuote = new EsDeleteQuoteMessage();
 					delQuote.setQuoteId(String.valueOf(minuteK.getId()));
 					delQuote.setType(2);

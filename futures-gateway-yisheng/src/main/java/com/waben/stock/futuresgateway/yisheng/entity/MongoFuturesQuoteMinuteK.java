@@ -3,25 +3,15 @@ package com.waben.stock.futuresgateway.yisheng.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 /**
- * 行情-多分钟K
+ * 行情-分钟K
  * 
  * @author luomengan
  *
  */
-@Entity
-@Table(name = "f_gateway_futures_es_quote_minutek_multiple")
-public class FuturesQuoteMinuteKMultiple {
+public class MongoFuturesQuoteMinuteK {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private String id;
 	/** 品种ID */
 	private Long commodityId;
 	/** 品种编号 */
@@ -30,8 +20,6 @@ public class FuturesQuoteMinuteKMultiple {
 	private Long contractId;
 	/** 合约编号 */
 	private String contractNo;
-	/** 多分钟K */
-	private Integer mins;
 	/** 时间 */
 	private Date time;
 	/** 时间字符串 */
@@ -55,11 +43,11 @@ public class FuturesQuoteMinuteKMultiple {
 	/** 当天总持仓量 */
 	private long totalVolume;
 
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -181,14 +169,6 @@ public class FuturesQuoteMinuteKMultiple {
 
 	public void setPreSettlePrice(BigDecimal preSettlePrice) {
 		this.preSettlePrice = preSettlePrice;
-	}
-
-	public Integer getMins() {
-		return mins;
-	}
-
-	public void setMins(Integer mins) {
-		this.mins = mins;
 	}
 
 }

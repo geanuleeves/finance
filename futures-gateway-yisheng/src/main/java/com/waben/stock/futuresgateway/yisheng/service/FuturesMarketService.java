@@ -34,8 +34,8 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesContract;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuote;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteDayK;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteLast;
-import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteK;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteKGroup;
+import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteK;
 import com.waben.stock.futuresgateway.yisheng.esapi.EsEngine;
 import com.waben.stock.futuresgateway.yisheng.esapi.EsQuoteWrapper;
 import com.waben.stock.futuresgateway.yisheng.pojo.FuturesContractLineData;
@@ -410,7 +410,7 @@ public class FuturesMarketService {
 			mainMinuteKGroupList = new ArrayList<>();
 		}
 		// 查询分时数据（constractNo）
-		List<FuturesQuoteMinuteK> minuteKList = minuteKDao
+		List<MongoFuturesQuoteMinuteK> minuteKList = minuteKDao
 				.retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(commodityNo, contractNo,
 						startTime, endTime);
 		// 查询小时数据（constractNo）
@@ -428,7 +428,7 @@ public class FuturesMarketService {
 				}
 			}
 		}
-		for (FuturesQuoteMinuteK minuteK : minuteKList) {
+		for (MongoFuturesQuoteMinuteK minuteK : minuteKList) {
 			if (minuteK.getOpenPrice() != null && minuteK.getOpenPrice().compareTo(BigDecimal.ZERO) > 0) {
 				result.add(CopyBeanUtils.copyBeanProperties(FuturesContractLineData.class, minuteK, false));
 			}

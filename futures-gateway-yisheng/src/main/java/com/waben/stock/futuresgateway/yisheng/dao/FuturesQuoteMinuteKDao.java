@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
-import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteK;
+import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteK;
 
 /**
  * 行情-分钟K Dao
@@ -15,27 +15,25 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteK;
  */
 public interface FuturesQuoteMinuteKDao {
 
-	public FuturesQuoteMinuteK createFuturesQuoteMinuteK(FuturesQuoteMinuteK futuresQuoteMinuteK);
+	public MongoFuturesQuoteMinuteK createFuturesQuoteMinuteK(MongoFuturesQuoteMinuteK futuresQuoteMinuteK);
 
-	public void deleteFuturesQuoteMinuteKById(Long id);
+	public void deleteFuturesQuoteMinuteKById(String commodityNo, String contractNo, String id);
 
-	public FuturesQuoteMinuteK updateFuturesQuoteMinuteK(FuturesQuoteMinuteK futuresQuoteMinuteK);
+	public MongoFuturesQuoteMinuteK retrieveFuturesQuoteMinuteKById(String commodityNo, String contractNo, String id);
 
-	public FuturesQuoteMinuteK retrieveFuturesQuoteMinuteKById(Long id);
+	public Page<MongoFuturesQuoteMinuteK> pageFuturesQuoteMinuteK(String commodityNo, String contractNo, int page, int limit);
 
-	public Page<FuturesQuoteMinuteK> pageFuturesQuoteMinuteK(int page, int limit);
+	public List<MongoFuturesQuoteMinuteK> listFuturesQuoteMinuteK(String commodityNo, String contractNo);
 
-	public List<FuturesQuoteMinuteK> listFuturesQuoteMinuteK();
-
-	public FuturesQuoteMinuteK retrieveByCommodityNoAndContractNoAndTime(String commodityNo, String contractNo,
+	public MongoFuturesQuoteMinuteK retrieveByCommodityNoAndContractNoAndTime(String commodityNo, String contractNo,
 			Date time);
 
-	public FuturesQuoteMinuteK retrieveNewestByCommodityNoAndContractNo(String commodityNo, String contractNo);
+	public MongoFuturesQuoteMinuteK retrieveNewestByCommodityNoAndContractNo(String commodityNo, String contractNo);
 
-	public List<FuturesQuoteMinuteK> retriveByCommodityNoAndContractNoAndTimeStrLike(String commodityNo,
+	public List<MongoFuturesQuoteMinuteK> retriveByCommodityNoAndContractNoAndTimeStrLike(String commodityNo,
 			String contractNo, String timeStr);
 
-	public List<FuturesQuoteMinuteK> retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(
+	public List<MongoFuturesQuoteMinuteK> retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(
 			String commodityNo, String contractNo, Date startTime, Date endTime);
 
 }

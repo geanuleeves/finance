@@ -33,7 +33,8 @@ public class EsDeleteQuoteConsumer {
 			if (msgObj.getType() != null && msgObj.getType() == 1) {
 				quoteService.deleteFuturesQuote(msgObj.getCommodityNo(), msgObj.getContractNo(), msgObj.getQuoteId());
 			} else if (msgObj.getType() != null && msgObj.getType() == 2) {
-				minuteKService.deleteFuturesQuoteMinuteK(Long.parseLong(msgObj.getQuoteId()));
+				minuteKService.deleteFuturesQuoteMinuteK(msgObj.getCommodityNo(), msgObj.getContractNo(),
+						msgObj.getQuoteId());
 			}
 		} catch (Exception ex) {
 			logger.error("消费删除易盛Quote消息异常!", ex);
