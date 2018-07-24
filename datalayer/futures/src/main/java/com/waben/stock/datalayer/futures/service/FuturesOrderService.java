@@ -2254,7 +2254,7 @@ public class FuturesOrderService {
 		}
 		String windControlType = "";
 		if (!StringUtil.isEmpty(query.getWindControlType())) {
-			windControlType = " AND t1.wind_control_type =" + query.getWindControlType();
+			windControlType = " AND t1.wind_control_type in(" + query.getWindControlType() + ")";
 		}
 		String startTimeCondition = "";
 		if (query.getStartTime() != null) {
