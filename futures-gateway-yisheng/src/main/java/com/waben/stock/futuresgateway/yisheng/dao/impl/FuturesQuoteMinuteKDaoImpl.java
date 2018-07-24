@@ -1,5 +1,6 @@
 package com.waben.stock.futuresgateway.yisheng.dao.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -113,9 +114,9 @@ public class FuturesQuoteMinuteKDaoImpl implements FuturesQuoteMinuteKDao {
 	@Override
 	public List<MongoFuturesQuoteMinuteK> retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(
 			String commodityNo, String contractNo, Date startTime, Date endTime) {
+		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Query query = new Query();
-		query.addCriteria(Criteria.where("time").gte(startTime));
-		query.addCriteria(Criteria.where("time").lt(endTime));
+		query.addCriteria(Criteria.where("timeStr").gte(fullSdf.format(startTime)).lt(fullSdf.format(endTime)));
 		query.with(new Sort(new Sort.Order(Direction.ASC, "time")));
 		return mongoTemplate.find(query, MongoFuturesQuoteMinuteK.class,
 				minuteKCollectionNamePrefix + commodityNo + "-" + contractNo);

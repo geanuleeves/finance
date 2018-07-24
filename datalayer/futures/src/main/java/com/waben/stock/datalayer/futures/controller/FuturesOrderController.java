@@ -126,7 +126,7 @@ public class FuturesOrderController implements FuturesOrderInterface {
 	}
 
 	@Override
-	public Response<FuturesOvernightRecordDto> fetchByOvernightId(Long id) {
+	public Response<FuturesOvernightRecordDto> fetchByOvernightId(@PathVariable Long id) {
 		FuturesOvernightRecord result = recordService.retrieve(id);
 		FuturesOvernightRecordDto response = CopyBeanUtils.copyBeanProperties(result, new FuturesOvernightRecordDto(), false);
 		return new Response<>(response);

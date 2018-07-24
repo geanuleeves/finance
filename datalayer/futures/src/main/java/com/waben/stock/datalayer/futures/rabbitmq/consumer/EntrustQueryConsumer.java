@@ -59,18 +59,20 @@ public class EntrustQueryConsumer {
 			}
 			Integer entrustType = messgeObj.getEntrustType();
 			boolean isNeedRetry = true;
-			if (entrustType == 1) {
-				// 开仓
-				isNeedRetry = openwind(order);
-			} else if (entrustType == 2) {
-				// 平仓
-				isNeedRetry = unwind(order, false);
-			} else if (entrustType == 3) {
-				// 反手
-				isNeedRetry = unwind(order, true);
-			} else {
-				logger.error("错误的委托类型!");
-				isNeedRetry = false;
+			if(orderService.isTradeTime(order)) {
+				if (entrustType == 1) {
+					// 开仓
+					isNeedRetry = openwind(order);
+				} else if (entrustType == 2) {
+					// 平仓
+					isNeedRetry = unwind(order, false);
+				} else if (entrustType == 3) {
+					// 反手
+					isNeedRetry = unwind(order, true);
+				} else {
+					logger.error("错误的委托类型!");
+					isNeedRetry = false;
+				}
 			}
 			if (isNeedRetry) {
 				retry(messgeObj);
@@ -115,8 +117,9 @@ public class EntrustQueryConsumer {
 		FuturesTradePriceType priceType = order.getSellingPriceType();
 		if (order.getState() == FuturesOrderState.SellingEntrust) {
 			MarketAveragePrice avgPrice = null;
+			FuturesContractMarket market = null;
 			if (priceType == FuturesTradePriceType.MKT) {
-				FuturesContractMarket market = quoteContainer.getQuote(commodityNo, contractNo); 
+				market = quoteContainer.getQuote(commodityNo, contractNo); 
 				BigDecimal lastPrice = market.getLastPrice();
 				// 市价
 				if(lastPrice != null && lastPrice.compareTo(BigDecimal.ZERO) > 0) {
@@ -146,6 +149,7 @@ public class EntrustQueryConsumer {
 			}
 			if (avgPrice.getFilled().compareTo(BigDecimal.ZERO) > 0) {
 				if (avgPrice.getRemaining().compareTo(BigDecimal.ZERO) <= 0) {
+					logger.info("订单{}【平仓】成功，买入成功时候的行情为{}", order.getId(), market != null ? JacksonUtil.encode(market) : "");
 					BigDecimal sellingPrice = avgPrice.getAvgFillPrice();
 					if (closeSlipPoint != null && closeSlipPoint > 0) {
 						sellingPrice = sellingPrice
@@ -225,8 +229,9 @@ public class EntrustQueryConsumer {
 		FuturesTradePriceType priceType = order.getBuyingPriceType();
 		if (order.getState() == FuturesOrderState.BuyingEntrust) {
 			MarketAveragePrice avgPrice = null;
+			FuturesContractMarket market = null;
 			if (priceType == FuturesTradePriceType.MKT) {
-				FuturesContractMarket market = quoteContainer.getQuote(commodityNo, contractNo); 
+				market = quoteContainer.getQuote(commodityNo, contractNo); 
 				// 市价
 				avgPrice = new MarketAveragePrice();
 				avgPrice.setAvgFillPrice(order.getOrderType() == FuturesOrderType.BuyUp ? market.getAskPrice() : market.getBidPrice());
@@ -246,7 +251,7 @@ public class EntrustQueryConsumer {
 				avgPrice.setRemaining(totalQuantity);
 				avgPrice.setTotalQuantity(totalQuantity);
 				avgPrice.setTotalFillCost(BigDecimal.ZERO);
-				FuturesContractMarket market = quoteContainer.getQuote(commodityNo, contractNo); 
+				market = quoteContainer.getQuote(commodityNo, contractNo); 
 				BigDecimal askPrice = market.getAskPrice();
 				BigDecimal bidPrice = market.getBidPrice();
 				BigDecimal buyingEntrustPrice = order.getBuyingEntrustPrice();
@@ -269,6 +274,7 @@ public class EntrustQueryConsumer {
 			}
 			if (avgPrice.getFilled().compareTo(BigDecimal.ZERO) > 0) {
 				if (avgPrice.getRemaining().compareTo(BigDecimal.ZERO) <= 0) {
+					logger.info("订单{}【开仓】成功，买入成功时候的行情为{}", order.getId(), market != null ? JacksonUtil.encode(market) : "");
 					// 持仓中
 					BigDecimal buyingPrice = avgPrice.getAvgFillPrice();
 					if (openSlipPoint != null && openSlipPoint > 0) {

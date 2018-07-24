@@ -12,8 +12,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import io.swagger.annotations.ApiModelProperty;
-
 /**
  * 期货订单过夜记录
  * 
@@ -58,7 +56,7 @@ public class FuturesOvernightRecord {
 	/**
 	 * 品种名称
 	 */
-	@ApiModelProperty(value = "品种名称")
+	@Transient
 	private String commodityName;
 	/**
 	 * 品种编号

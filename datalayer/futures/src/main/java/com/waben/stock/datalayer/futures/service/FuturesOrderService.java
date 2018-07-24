@@ -1655,6 +1655,21 @@ public class FuturesOrderService {
 	 *            合约期限
 	 * @return 是否在交易时间
 	 */
+	public boolean isTradeTime(FuturesOrder order) {
+		Integer timeZoneGap = this.retriveTimeZoneGap(order);
+		FuturesContract contract = order.getContract();
+		return isTradeTime(timeZoneGap, contract, new Date());
+	}
+	
+	/**
+	 * 是否在交易时间
+	 * 
+	 * @param timeZoneGap
+	 *            时区
+	 * @param term
+	 *            合约期限
+	 * @return 是否在交易时间
+	 */
 	public boolean isTradeTime(Integer timeZoneGap, FuturesContract contract) {
 		return isTradeTime(timeZoneGap, contract, new Date());
 	}
