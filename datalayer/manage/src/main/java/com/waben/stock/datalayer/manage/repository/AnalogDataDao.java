@@ -8,7 +8,7 @@ import com.waben.stock.interfaces.enums.AnalogDataType;
 /**
  * 模拟数据 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface AnalogDataDao extends BaseDao<AnalogData, Long> {

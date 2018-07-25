@@ -12,7 +12,7 @@ import com.waben.stock.interfaces.service.manage.AppVersionAuditInterface;
 /**
  * app版本 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

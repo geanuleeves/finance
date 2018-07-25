@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 /**
  * 应用 Test
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class DomainControllerTest extends BaseControllerTest {

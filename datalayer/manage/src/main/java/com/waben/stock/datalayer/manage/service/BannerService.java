@@ -28,7 +28,7 @@ import org.springframework.util.StringUtils;
 /**
  * 轮播 Service
  *
- * @author luomengan
+ * @author lma
  */
 @Service
 public class BannerService {

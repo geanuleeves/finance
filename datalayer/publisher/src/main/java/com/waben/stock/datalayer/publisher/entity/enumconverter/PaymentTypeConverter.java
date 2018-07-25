@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.PaymentType;
 /**
  * 支付状态 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class PaymentTypeConverter implements AttributeConverter<PaymentType, Integer> {

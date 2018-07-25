@@ -19,7 +19,7 @@ import com.waben.stock.datalayer.buyrecord.repository.impl.jpa.BuyRecordReposito
 /**
  * 点买记录 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

@@ -13,7 +13,7 @@ import com.waben.stock.interfaces.pojo.Response;
 /**
  * 期权周期 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "stockoption", path = "stockoptioncycle", qualifier = "stockOptionCycleInterface")
 public interface StockOptionCycleInterface {

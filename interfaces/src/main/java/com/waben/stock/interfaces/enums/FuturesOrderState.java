@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 期权订单状态 类型
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum FuturesOrderState implements CommonalityEnum {

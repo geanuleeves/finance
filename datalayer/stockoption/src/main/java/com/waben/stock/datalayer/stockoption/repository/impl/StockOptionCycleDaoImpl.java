@@ -16,7 +16,7 @@ import com.waben.stock.datalayer.stockoption.repository.impl.jpa.StockOptionCycl
 /**
  * 期权周期 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

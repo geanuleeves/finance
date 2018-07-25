@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * 轮播 Dto
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class BannerVo {

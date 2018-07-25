@@ -18,7 +18,7 @@ import com.waben.stock.interfaces.pojo.query.PageInfo;
 /**
  * 通告 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "manage", path = "circulars", qualifier = "circularsInterface")
 public interface CircularsInterface {

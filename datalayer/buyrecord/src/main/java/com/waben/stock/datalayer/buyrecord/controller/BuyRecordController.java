@@ -34,7 +34,7 @@ import com.waben.stock.interfaces.util.PageToPageInfo;
 /**
  * 点买记录 Controller
  *
- * @author luomengan
+ * @author lma
  */
 @RestController
 @RequestMapping("/buyrecord")

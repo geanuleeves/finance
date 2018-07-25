@@ -22,7 +22,7 @@ import com.waben.stock.interfaces.pojo.query.StrategyTypeQuery;
 /**
  * 策略类型 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "stockcontent", path = "strategytype", qualifier = "strategyTypeInterface")
 public interface StrategyTypeInterface {

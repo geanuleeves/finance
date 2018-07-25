@@ -5,7 +5,7 @@ import com.waben.stock.datalayer.manage.entity.AppVersionUpgrade;
 /**
  * app版本升级 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface AppVersionUpgradeDao extends BaseDao<AppVersionUpgrade, Long> {

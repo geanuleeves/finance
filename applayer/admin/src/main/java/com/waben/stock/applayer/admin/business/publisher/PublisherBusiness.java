@@ -19,7 +19,7 @@ import com.waben.stock.interfaces.util.PasswordCrypt;
 /**
  * 发布人 Business
  * 
- * @author luomengan
+ * @author lma
  */
 @Service
 public class PublisherBusiness {

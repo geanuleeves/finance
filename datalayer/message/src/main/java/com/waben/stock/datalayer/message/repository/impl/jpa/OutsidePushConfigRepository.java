@@ -7,7 +7,7 @@ import com.waben.stock.datalayer.message.entity.OutsidePushConfig;
 /**
  * 站外推送配置 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface OutsidePushConfigRepository extends CustomJpaRepository<OutsidePushConfig, Long> {

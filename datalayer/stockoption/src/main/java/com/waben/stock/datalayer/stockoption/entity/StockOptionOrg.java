@@ -9,7 +9,7 @@ import javax.persistence.Table;
 /**
  * 期权第三方机构
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

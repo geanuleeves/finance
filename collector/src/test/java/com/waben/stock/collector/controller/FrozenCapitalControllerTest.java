@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 /**
  * 冻结资金 Test
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class FrozenCapitalControllerTest extends BaseControllerTest {

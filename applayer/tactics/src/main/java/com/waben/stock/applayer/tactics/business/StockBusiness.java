@@ -46,7 +46,7 @@ import com.waben.stock.interfaces.util.JacksonUtil;
 /**
  * 股票 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

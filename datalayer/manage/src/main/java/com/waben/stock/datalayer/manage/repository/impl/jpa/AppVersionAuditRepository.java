@@ -5,7 +5,7 @@ import com.waben.stock.datalayer.manage.entity.AppVersionAudit;
 /**
  * app版本 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface AppVersionAuditRepository extends CustomJpaRepository<AppVersionAudit, Long> {

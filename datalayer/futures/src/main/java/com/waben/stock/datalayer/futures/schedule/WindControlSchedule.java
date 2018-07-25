@@ -44,7 +44,7 @@ import com.waben.stock.interfaces.util.RandomUtil;
 /**
  * 风控作业
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Component

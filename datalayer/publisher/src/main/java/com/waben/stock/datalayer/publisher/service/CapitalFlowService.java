@@ -42,7 +42,7 @@ import com.waben.stock.interfaces.util.StringUtil;
 /**
  * 资金流水 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

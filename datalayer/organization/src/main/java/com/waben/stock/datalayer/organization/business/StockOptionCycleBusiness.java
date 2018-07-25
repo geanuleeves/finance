@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.service.stockoption.StockOptionCycleInterface;
 /**
  * 期权周期 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

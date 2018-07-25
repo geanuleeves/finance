@@ -21,7 +21,7 @@ import com.waben.stock.interfaces.service.manage.CircularsInterface;
 /**
  * 公告 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

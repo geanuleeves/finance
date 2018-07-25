@@ -13,7 +13,7 @@ import com.waben.stock.interfaces.util.JacksonUtil;
 /**
  * 银行卡四要素校验器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class BankCardInfoVerifier {

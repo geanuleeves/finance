@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * 期权第三方机构 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "stockoption", path = "stockoptionorg", qualifier = "stockOptionOrgInterface")
 public interface StockOptionOrgInterface {

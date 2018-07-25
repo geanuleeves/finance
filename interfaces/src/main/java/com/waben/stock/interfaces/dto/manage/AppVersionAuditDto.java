@@ -6,7 +6,7 @@ import java.util.Date;
  * 
  * app版本
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class AppVersionAuditDto {

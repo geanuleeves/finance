@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 /**
  * 应用表更新最新索引 Test
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class DomainTableUpdateIndexControllerTest extends BaseControllerTest {

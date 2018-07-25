@@ -11,7 +11,7 @@ import com.waben.stock.datalayer.buyrecord.repository.DeferredRecordDao;
 /**
  * 递延记录 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

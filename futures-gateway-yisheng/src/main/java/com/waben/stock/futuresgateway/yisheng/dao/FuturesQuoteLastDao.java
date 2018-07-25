@@ -9,7 +9,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteLast;
 /**
  * 期货合约行情-最新 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface FuturesQuoteLastDao {

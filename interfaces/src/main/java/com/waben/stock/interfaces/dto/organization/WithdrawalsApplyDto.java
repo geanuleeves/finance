@@ -8,7 +8,7 @@ import com.waben.stock.interfaces.enums.WithdrawalsApplyState;
 /**
  * 提现申请
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class WithdrawalsApplyDto {

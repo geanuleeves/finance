@@ -11,7 +11,7 @@ import com.waben.stock.interfaces.pojo.Response;
 /**
  * 短消息 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "message", path = "sms", qualifier = "smsInterface")
 public interface SmsInterface {

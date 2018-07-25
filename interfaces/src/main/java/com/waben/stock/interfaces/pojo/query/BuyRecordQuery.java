@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.BuyRecordState;
 /**
  * 点买记录 查询条件
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class BuyRecordQuery extends PageAndSortQuery {

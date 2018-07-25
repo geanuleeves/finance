@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.util.CopyBeanUtils;
 /**
  * app版本升级 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

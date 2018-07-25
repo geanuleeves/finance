@@ -16,7 +16,7 @@ import com.waben.stock.datalayer.organization.repository.impl.jpa.OrganizationPu
 /**
  * 机构推广的发布人 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

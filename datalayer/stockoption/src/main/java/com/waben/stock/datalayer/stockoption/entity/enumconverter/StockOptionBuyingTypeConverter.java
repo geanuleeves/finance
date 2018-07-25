@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.StockOptionBuyingType;
 /**
  * 买入方式 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class StockOptionBuyingTypeConverter implements AttributeConverter<StockOptionBuyingType, Integer> {

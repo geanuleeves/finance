@@ -7,7 +7,7 @@ import com.waben.stock.datalayer.stockoption.entity.StockOptionCycle;
 /**
  * 期权周期 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface StockOptionCycleRepository extends CustomJpaRepository<StockOptionCycle, Long> {

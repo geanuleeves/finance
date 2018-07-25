@@ -31,7 +31,7 @@ import cn.jpush.api.push.model.notification.Notification;
 /**
  * 极光推送
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

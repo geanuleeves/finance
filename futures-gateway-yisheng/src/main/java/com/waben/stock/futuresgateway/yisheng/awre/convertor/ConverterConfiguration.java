@@ -11,7 +11,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 /**
  * 请求参数转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Configuration

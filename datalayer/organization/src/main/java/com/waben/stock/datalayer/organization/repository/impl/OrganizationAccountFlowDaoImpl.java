@@ -19,7 +19,7 @@ import com.waben.stock.interfaces.enums.ResourceType;
 /**
  * 机构账户流水 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

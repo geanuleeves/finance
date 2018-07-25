@@ -16,7 +16,7 @@ import com.waben.stock.datalayer.organization.repository.impl.jpa.UserRepository
 /**
  * 机构管理用户 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

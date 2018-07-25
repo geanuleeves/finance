@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 /**
  * 期权名义本金
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class StockOptionAmountDto implements Comparable<StockOptionAmountDto> {

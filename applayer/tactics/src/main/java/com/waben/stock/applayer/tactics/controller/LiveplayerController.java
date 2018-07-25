@@ -16,7 +16,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 直播
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

@@ -8,7 +8,7 @@ import com.waben.stock.interfaces.enums.BindCardResourceType;
 /**
  * 绑卡 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface BindCardRepository extends CustomJpaRepository<BindCard, Long> {

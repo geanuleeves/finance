@@ -13,7 +13,7 @@ import com.waben.stock.interfaces.enums.CapitalFlowType;
 /**
  * 资金流水 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface CapitalFlowRepository extends CustomJpaRepository<CapitalFlow, Long> {

@@ -15,7 +15,7 @@ import com.waben.stock.interfaces.service.publisher.PublisherInterface;
 /**
  * 绑卡 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

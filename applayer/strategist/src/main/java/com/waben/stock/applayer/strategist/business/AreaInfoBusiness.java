@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.service.manage.AreaInfoInterface;
 /**
  * 区域 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

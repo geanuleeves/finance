@@ -7,7 +7,7 @@ import com.waben.stock.datalayer.manage.entity.BankInfo;
 /**
  * 银行信息 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface BankInfoRepository extends CustomJpaRepository<BankInfo, Long> {

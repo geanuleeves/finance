@@ -19,7 +19,7 @@ import com.waben.stock.interfaces.commonapi.retrivestock.bean.StockMarket;
 /**
  * 定期更新股票是否停牌信息
  * 
- * @author luomengan
+ * @author lma
  * 
  */
 @Component

@@ -14,7 +14,7 @@ import com.waben.stock.collector.entity.DomainTable;
 /**
  * 应用表 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

@@ -48,7 +48,7 @@ import com.waben.stock.futuresgateway.yisheng.util.TimeZoneUtil;
 /**
  * 期货行情 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

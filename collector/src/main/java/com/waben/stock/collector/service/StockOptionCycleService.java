@@ -13,7 +13,7 @@ import com.waben.stock.collector.entity.StockOptionCycle;
 /**
  * 期权周期 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

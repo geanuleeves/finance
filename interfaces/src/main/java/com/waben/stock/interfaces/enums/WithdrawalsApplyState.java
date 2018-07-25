@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 机构提现申请状态
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum WithdrawalsApplyState implements CommonalityEnum {

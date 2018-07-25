@@ -9,7 +9,7 @@ import java.util.UUID;
  * 生成规则后续再确定，一下生成规则都是暂用
  * </p>
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class UniqueCodeGenerator {

@@ -64,7 +64,7 @@ import com.waben.stock.interfaces.util.UniqueCodeGenerator;
 /**
  * 点买记录 Service
  *
- * @author luomengan
+ * @author lma
  */
 @Service
 public class BuyRecordService {

@@ -9,7 +9,7 @@ import com.waben.stock.collector.entity.DeferredRecord;
 /**
  * 递延记录 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface DeferredRecordDao {

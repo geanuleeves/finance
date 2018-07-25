@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.service.organization.PromotionBuyRecordInterfa
 /**
  * 推广渠道产生的策略 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

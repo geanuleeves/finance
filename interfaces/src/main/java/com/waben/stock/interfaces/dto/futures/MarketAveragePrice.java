@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 /**
  * 行情均价
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class MarketAveragePrice {

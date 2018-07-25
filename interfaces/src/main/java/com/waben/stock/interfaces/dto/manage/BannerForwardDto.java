@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * 轮播图跳转 Dto
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @ApiModel(value="BannerForwardDto",description="轮播图跳转对象")

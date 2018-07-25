@@ -3,7 +3,7 @@ package com.waben.stock.interfaces.dto.manage;
 /**
  * 银行信息
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class BankInfoDto {

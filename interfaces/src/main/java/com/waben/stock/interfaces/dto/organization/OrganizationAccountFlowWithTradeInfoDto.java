@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * 机构账户流水
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class OrganizationAccountFlowWithTradeInfoDto {

@@ -21,7 +21,7 @@ import com.waben.stock.interfaces.util.CopyBeanUtils;
 /**
  * 绑卡 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

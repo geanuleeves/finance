@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * 通告 Service
  *
- * @author luomengan
+ * @author lma
  */
 @Service
 public class CircularsService {

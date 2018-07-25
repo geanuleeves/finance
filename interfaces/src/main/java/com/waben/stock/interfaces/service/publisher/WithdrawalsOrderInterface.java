@@ -16,7 +16,7 @@ import com.waben.stock.interfaces.pojo.query.WithdrawalsOrderQuery;
 /**
  * 支提现订单 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "publisher", path = "withdrawalsorder", qualifier = "withdrawalsOrderInterface")
 public interface WithdrawalsOrderInterface {

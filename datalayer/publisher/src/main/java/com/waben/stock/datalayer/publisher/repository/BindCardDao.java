@@ -8,7 +8,7 @@ import com.waben.stock.interfaces.enums.BindCardResourceType;
 /**
  * 绑卡 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface BindCardDao extends BaseDao<BindCard, Long> {

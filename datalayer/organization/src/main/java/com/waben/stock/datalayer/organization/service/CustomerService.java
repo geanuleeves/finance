@@ -23,7 +23,7 @@ import com.waben.stock.interfaces.util.StringUtil;
 /**
  * 客户 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

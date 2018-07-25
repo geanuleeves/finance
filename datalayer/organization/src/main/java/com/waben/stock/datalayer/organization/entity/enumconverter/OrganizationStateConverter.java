@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.OrganizationState;
 /**
  * 机构状态 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class OrganizationStateConverter implements AttributeConverter<OrganizationState, Integer> {

@@ -6,7 +6,7 @@ import java.math.BigDecimal;
  * 
  * 加价配置 Dto
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class PriceMarkupConfigDto {

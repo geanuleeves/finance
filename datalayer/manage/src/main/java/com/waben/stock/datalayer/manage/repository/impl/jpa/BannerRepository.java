@@ -7,7 +7,7 @@ import com.waben.stock.datalayer.manage.entity.Banner;
 /**
  * 轮播 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface BannerRepository extends CustomJpaRepository<Banner, Long> {

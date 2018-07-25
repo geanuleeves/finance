@@ -14,7 +14,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteDayK;
 /**
  * 行情-日K Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

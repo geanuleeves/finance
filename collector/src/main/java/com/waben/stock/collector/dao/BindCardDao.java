@@ -9,7 +9,7 @@ import com.waben.stock.collector.entity.BindCard;
 /**
  * 绑卡 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface BindCardDao {

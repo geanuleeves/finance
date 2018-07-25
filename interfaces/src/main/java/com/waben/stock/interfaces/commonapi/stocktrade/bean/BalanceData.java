@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * 账户信息
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class BalanceData {

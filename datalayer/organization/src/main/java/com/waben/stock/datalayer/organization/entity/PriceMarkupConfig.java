@@ -14,7 +14,7 @@ import javax.persistence.Table;
  * 
  * 加价配置 实体
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

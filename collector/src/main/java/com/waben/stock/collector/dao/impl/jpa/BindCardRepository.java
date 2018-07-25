@@ -11,7 +11,7 @@ import com.waben.stock.collector.entity.BindCard;
 /**
  * 绑卡 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface BindCardRepository extends Repository<BindCard, Long> {

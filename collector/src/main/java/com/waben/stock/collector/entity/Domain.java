@@ -10,7 +10,7 @@ import javax.persistence.Table;
  * 
  * 应用 实体
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

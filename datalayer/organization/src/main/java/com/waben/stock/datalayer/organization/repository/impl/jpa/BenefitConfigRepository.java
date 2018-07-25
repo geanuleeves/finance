@@ -13,7 +13,7 @@ import com.waben.stock.interfaces.enums.BenefitConfigType;
 /**
  * 分成配置 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface BenefitConfigRepository extends CustomJpaRepository<BenefitConfig, Long> {

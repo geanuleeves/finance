@@ -7,7 +7,7 @@ import com.waben.stock.datalayer.organization.entity.Organization;
 /**
  * 机构 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface OrganizationDao extends BaseDao<Organization, Long> {

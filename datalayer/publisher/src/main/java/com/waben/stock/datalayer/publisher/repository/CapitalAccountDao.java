@@ -5,7 +5,7 @@ import com.waben.stock.datalayer.publisher.entity.CapitalAccount;
 /**
  * 资金账号 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface CapitalAccountDao extends BaseDao<CapitalAccount, Long> {

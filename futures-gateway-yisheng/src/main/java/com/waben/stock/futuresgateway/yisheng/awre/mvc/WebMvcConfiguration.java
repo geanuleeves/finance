@@ -21,7 +21,7 @@ import com.mongodb.MongoClientURI;
 /**
  * web mvc配置
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Configuration

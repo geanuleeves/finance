@@ -9,7 +9,7 @@ import com.waben.stock.collector.entity.CapitalAccount;
 /**
  * 资金账户 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface CapitalAccountDao {

@@ -31,7 +31,7 @@ import com.waben.stock.interfaces.service.futures.FuturesOrderInterface;
 /**
  * 机构推广的发布人 Service
  *
- * @author luomengan
+ * @author lma
  */
 @Service
 public class OrganizationPublisherService {

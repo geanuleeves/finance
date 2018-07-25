@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.ResourceType;
 /**
  * 资源类型 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class ResourceTypeConverter implements AttributeConverter<ResourceType, Integer> {

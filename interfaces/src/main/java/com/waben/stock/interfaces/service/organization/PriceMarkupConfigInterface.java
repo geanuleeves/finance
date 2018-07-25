@@ -17,7 +17,7 @@ import com.waben.stock.interfaces.pojo.form.organization.PriceMarkupForm;
 /**
  * 加价配置 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "organization", path = "priceMarkupConfig", qualifier = "priceMarkupConfigInterface")
 public interface PriceMarkupConfigInterface {

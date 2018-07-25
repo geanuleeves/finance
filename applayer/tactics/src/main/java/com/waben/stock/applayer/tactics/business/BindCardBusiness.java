@@ -28,7 +28,7 @@ import com.waben.stock.interfaces.service.publisher.BindCardInterface;
 /**
  * 绑卡 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

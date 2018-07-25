@@ -13,7 +13,7 @@ import com.waben.stock.interfaces.service.message.SmsInterface;
 /**
  * 短信消息 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

@@ -17,7 +17,7 @@ import com.waben.stock.datalayer.stockoption.repository.impl.jpa.StockOptionOrgQ
 /**
  * 期权第三方机构报价 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

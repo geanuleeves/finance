@@ -7,7 +7,7 @@ import com.waben.stock.datalayer.manage.entity.CardBin;
 /**
  * 银行卡片 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface CardBinRepository extends CustomJpaRepository<CardBin, Long> {

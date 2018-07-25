@@ -26,7 +26,7 @@ import com.waben.stock.interfaces.pojo.form.organization.PriceMarkupForm;
 /**
  * 加价配置 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

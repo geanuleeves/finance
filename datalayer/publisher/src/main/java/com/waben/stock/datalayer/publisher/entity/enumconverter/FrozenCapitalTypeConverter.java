@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.FrozenCapitalType;
 /**
  * 冻结类型 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class FrozenCapitalTypeConverter implements AttributeConverter<FrozenCapitalType, Integer> {

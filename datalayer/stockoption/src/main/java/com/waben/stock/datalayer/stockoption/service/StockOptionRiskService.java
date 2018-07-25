@@ -28,7 +28,7 @@ import com.waben.stock.interfaces.util.StringUtil;
 /**
  * 期权风控 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

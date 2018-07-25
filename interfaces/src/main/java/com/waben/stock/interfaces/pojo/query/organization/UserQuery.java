@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 用户查询条件
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

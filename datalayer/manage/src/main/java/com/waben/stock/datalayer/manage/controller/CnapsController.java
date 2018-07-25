@@ -20,7 +20,7 @@ import com.waben.stock.interfaces.util.CopyBeanUtils;
 /**
  * Cnaps Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

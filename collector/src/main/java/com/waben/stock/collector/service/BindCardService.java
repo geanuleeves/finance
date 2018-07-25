@@ -13,7 +13,7 @@ import com.waben.stock.collector.entity.BindCard;
 /**
  * 绑卡 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

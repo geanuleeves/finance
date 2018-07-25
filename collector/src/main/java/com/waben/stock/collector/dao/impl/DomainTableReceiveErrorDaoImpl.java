@@ -14,7 +14,7 @@ import com.waben.stock.collector.entity.DomainTableReceiveError;
 /**
  * 同步错误日志 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

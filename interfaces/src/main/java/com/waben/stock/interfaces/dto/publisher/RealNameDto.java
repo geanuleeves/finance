@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.ResourceType;
 /**
  * 实名认证
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class RealNameDto {

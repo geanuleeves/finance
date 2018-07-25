@@ -8,7 +8,7 @@ import com.waben.stock.interfaces.dto.manage.CircularsDto;
 /**
  * APP首页顶部数据
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class AppHomeTopDataDto {

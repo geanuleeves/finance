@@ -10,7 +10,7 @@ import com.waben.stock.datalayer.manage.entity.AppVersionUpgrade;
 /**
  * app版本升级 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface AppVersionUpgradeRepository extends CustomJpaRepository<AppVersionUpgrade, Long> {

@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.WithdrawalsApplyState;
 /**
  * 资源类型 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class WithdrawalsApplyStateConverter implements AttributeConverter<WithdrawalsApplyState, Integer> {

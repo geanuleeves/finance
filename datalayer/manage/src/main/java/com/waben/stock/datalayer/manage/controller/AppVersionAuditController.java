@@ -13,7 +13,7 @@ import com.waben.stock.interfaces.util.CopyBeanUtils;
 /**
  * app版本审核 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

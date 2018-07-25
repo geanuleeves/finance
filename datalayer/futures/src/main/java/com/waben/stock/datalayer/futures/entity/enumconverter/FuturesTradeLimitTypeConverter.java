@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.FuturesTradeLimitType;
 /**
  * 期货交易限制 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class FuturesTradeLimitTypeConverter implements AttributeConverter<FuturesTradeLimitType, Integer> {

@@ -13,7 +13,7 @@ import com.waben.stock.interfaces.pojo.Response;
 /**
  * 递延记录 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "buyrecord", path = "deferredrecord", qualifier = "deferredRecordInterface")
 public interface DeferredRecordInterface {
