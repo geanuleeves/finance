@@ -642,17 +642,17 @@ public class OrganizationService {
 						+ "t2.stock_code as b_stock_code, t2.stock_name as b_stock_name, t11.commodity_symbol as commodity_symbol, t11.commodity_name as commodity_name, t11.contract_no as contract_no, "
 						+ "t3.stock_code as s_stock_code, t3.stock_name as s_stock_name, t6.type as payment_type, t7.bank_card, t8.bank_name, t1.available_balance, t5.is_test, "
 						+ " t10.code AS agentCode,t10.name AS agentName   from capital_flow t1 "
-						+ " LEFT JOIN buy_record t2 on t1.extend_type=1 and t1.extend_id=t2.id "
-						+ " LEFT JOIN stock_option_trade t3 on t1.extend_type=3 and t1.extend_id=t3.id "
-						+ " LEFT JOIN real_name t4 on t4.resource_type=2 and t1.publisher_id=t4.resource_id "
-						+ " LEFT JOIN publisher t5 on t5.id=t1.publisher_id "
-						+ " LEFT JOIN payment_order t6 on t1.extend_type=4 and t1.extend_id=t6.id"
-						+ " LEFT JOIN withdrawals_order t7 on t1.extend_type=5 and t1.extend_id=t7.id "
-						+ " LEFT JOIN bind_card t8 on t7.bank_card=t8.bank_card"
-						+ " LEFT JOIN p_organization_publisher t9 ON t9.publisher_id = t5.id"
-						+ " LEFT JOIN p_organization t10 ON t10.code = t9.org_code"
-						+ " LEFT JOIN f_futures_overnight_record t12 on t1.extend_type=7 and t1.extend_id=t12.id "
-						+ " LEFT JOIN f_futures_order t11 on (t1.extend_type=6 and t1.extend_id=t11.id ) or (t1.extend_type=7 and t11.id=t12.order_id) "
+						+ " LEFT JOIN buy_record t2 ON t1.extend_type = 1 AND t1.extend_id = t2.id "
+						+ " LEFT JOIN stock_option_trade t3 ON t1.extend_type = 3 AND t3.id = t1.extend_id "
+						+ " LEFT JOIN real_name t4 ON t4.resource_type = 2 AND t4.resource_id = t1.publisher_id "
+						+ " LEFT JOIN publisher t5 ON t5.id = t1.publisher_id "
+						+ " LEFT JOIN payment_order t6 ON t1.extend_type = 4 AND t6.id = t1.extend_id "
+						+ " LEFT JOIN withdrawals_order t7 ON t1.extend_type = 5 AND t1.extend_id = t7.id "
+						+ " LEFT JOIN bind_card t8 ON t8.bank_card = t7.bank_card "
+						+ " LEFT JOIN p_organization_publisher t9 ON t9.publisher_id = t5.id "
+						+ " LEFT JOIN p_organization t10 ON t10. CODE = t9.org_code "
+						+ " LEFT JOIN f_futures_order t11 ON t1.extend_type =6 AND t11.id = t1.extend_id "
+						+ " LEFT JOIN f_futures_overnight_record t12 ON t1.extend_type = 7 AND t12.id = t1.extend_id AND t12.order_id = t11.id "
 						+ " WHERE 1=1 and t10.id is not null  %s %s %s %s %s %s %s %s %s %s %s order by t1.occurrence_time desc limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(),
 				customerNameQuery, tradingNumberQuery, startTimeCondition, endTimeCondition, typeCondition,
@@ -1181,22 +1181,31 @@ public class OrganizationService {
 		Organization org = organizationDao.retrieve(orgId);
 		Organization orgParent = org.getParent();
 		List<BenefitConfig> orgParentList = benefitConfigDao.retrieveByOrgAndResourceType(orgParent, 3);
-		if (orgParent.getLevel() != 1) {
+		BigDecimal sumRatio = sqlDao.executeComputeSql(
+				"SELECT IF(SUM(t1.ratio) is null,0,SUM(t1.ratio)) as sum_ratio FROM p_benefit_config t1 LEFT JOIN p_organization t2 ON t2.id = t1.org_id where t2.tree_code LIKE '"
+						+ org.getTreeCode().substring(0, 5) + "%'");
+		// 剩余可设置比例
+		BigDecimal surplusRatio = BigDecimal.ZERO;
+		if (orgParent.getLevel() == 1) {
+			if (id != null) {
+				BenefitConfig benfit = benefitConfigDao.retrieve(id);
+				if (benfit != null) {
+					surplusRatio = new BigDecimal(100).subtract(sumRatio.add(benfit.getPlatformRatio()))
+							.add(benfit.getRatio()).add(benfit.getPlatformRatio());
+				}
+			}
+			if (ratio.add(platformRatio).compareTo(surplusRatio) > 0) {
+				// 分成比例已满额
+				throw new ServiceException(ExceptionConstant.THE_PROPORTION_ISFULL_EXCEPTION);
+			}
+		} else {
 			if (orgParentList != null && orgParentList.size() > 0) {
 				BenefitConfig config = orgParentList.get(0);
 				if (config.getRatio() == null) {
 					// 上级未设置分成比例
 					throw new ServiceException(ExceptionConstant.PROPORTION_SUPERIOR_NOTSET_PROPORTION_EXCEPTION);
 				}
-
-				BigDecimal sumRatio = sqlDao.executeComputeSql(
-						"SELECT SUM(t1.ratio) FROM p_benefit_config t1 LEFT JOIN p_organization t2 ON t2.id = t1.org_id where t2.tree_code LIKE '"
-								+ orgParent.getTreeCode().substring(0, 5) + "%'");
-				if (sumRatio == null) {
-					sumRatio = BigDecimal.ZERO;
-				}
-				// 剩余可设置比例
-				BigDecimal surplusRatio = new BigDecimal(100).subtract(sumRatio.add(config.getPlatformRatio()));
+				surplusRatio = new BigDecimal(100).subtract(sumRatio.add(config.getPlatformRatio()));
 				if (id != null) {
 					BenefitConfig benfit = benefitConfigDao.retrieve(id);
 					if (benfit != null) {
@@ -1208,7 +1217,6 @@ public class OrganizationService {
 					// 分成比例已满额
 					throw new ServiceException(ExceptionConstant.THE_PROPORTION_ISFULL_EXCEPTION);
 				}
-
 			} else {
 				// 上级未设置分成比例
 				throw new ServiceException(ExceptionConstant.PROPORTION_SUPERIOR_NOTSET_PROPORTION_EXCEPTION);
@@ -1240,6 +1248,13 @@ public class OrganizationService {
 			return list.get(0);
 		}
 		return null;
+	}
+
+	public List<Long> getListByPublisherId(String treeCode) {
+		String sql = String.format(
+				"SELECT t1.publisher_id FROM p_organization_publisher t1 where t1.tree_code LIKE '" + treeCode + "'");
+		List<Long> content = sqlDao.executeComputeSql(sql);
+		return content;
 	}
 
 }

@@ -357,32 +357,34 @@ public class OrganizationAccountService {
 			}
 		}
 		// 产生流水
-		OrganizationAccountFlow flow = new OrganizationAccountFlow();
-		flow.setAmount(amount);
-		flow.setOriginAmount(originAmount);
-		flow.setFlowNo(UniqueCodeGenerator.generateFlowNo());
-		flow.setOccurrenceTime(date);
-		flow.setOrg(org);
-		flow.setResourceType(resourceType);
-		flow.setResourceId(resourceId);
-		flow.setType(flowType);
-		flow.setResourceTradeNo(resourceTradeNo);
-		flow.setRemark(flowType.getType());
-		flow.setAvailableBalance(account == null ? new BigDecimal(0) : account.getAvailableBalance());
-		flowDao.create(flow);
+		OrganizationAccountFlow flow = null;
+		if (amount.compareTo(BigDecimal.ZERO) != 0) {
+			flow = new OrganizationAccountFlow();
+			flow.setAmount(amount);
+			flow.setOriginAmount(originAmount);
+			flow.setFlowNo(UniqueCodeGenerator.generateFlowNo());
+			flow.setOccurrenceTime(date);
+			flow.setOrg(org);
+			flow.setResourceType(resourceType);
+			flow.setResourceId(resourceId);
+			flow.setType(flowType);
+			flow.setResourceTradeNo(resourceTradeNo);
+			flow.setRemark(flowType.getType());
+			flow.setAvailableBalance(account == null ? new BigDecimal(0) : account.getAvailableBalance());
+			flowDao.create(flow);
 
-		if (org != null && amount.compareTo(BigDecimal.ZERO) != 0
-				|| (org != null && org.getLevel() == 1 && amount.compareTo(BigDecimal.ZERO) == 0)) {
-			FuturesCommissionAudit audit = new FuturesCommissionAudit();
-			audit.setAccountFlow(flow);
-			if (org.getLevel() != 1) {
-				audit.setState(1);
+			if (org != null) {
+				FuturesCommissionAudit audit = new FuturesCommissionAudit();
+				audit.setAccountFlow(flow);
+				if (org.getLevel() != 1) {
+					audit.setState(1);
+				}
+				audit.setBalance(account == null ? new BigDecimal(0) : account.getBalance());
+				audit.setRealMaidFee(amount);
+				audit.setExamineTime(date);
+				logger.info("创建流水及佣金审核记录, Balance{}", audit.getBalance());
+				commissionAuditDao.create(audit);
 			}
-			audit.setBalance(account == null ? new BigDecimal(0) : account.getBalance());
-			audit.setRealMaidFee(amount);
-			audit.setExamineTime(date);
-			logger.info("创建流水及佣金审核记录, Balance{}", audit.getBalance());
-			commissionAuditDao.create(audit);
 		}
 
 		return flow;

@@ -17,6 +17,7 @@ import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.organization.FuturesFowDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationDetailDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationDto;
+import com.waben.stock.interfaces.dto.organization.OrganizationPublisherDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationStaDto;
 import com.waben.stock.interfaces.dto.organization.TradingFowDto;
 import com.waben.stock.interfaces.dto.organization.TreeNode;
@@ -260,5 +261,8 @@ public interface OrganizationInterface {
 	 */
 	@RequestMapping(value = "/superior/partition/{orgId}", method = RequestMethod.GET)
 	Response<BenefitConfigDto> getSuperiorAgentPartition(@PathVariable("orgId") Long orgId);
+
+	@RequestMapping(value = "/list/publisherid", method = RequestMethod.GET)
+	Response<List<Long>> getListByPublisherId(@RequestParam("treeCode") String treeCode);
 
 }

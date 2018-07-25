@@ -133,4 +133,9 @@ public class FuturesOrderDaoImpl implements FuturesOrderDao {
 		return repository.findByIdAndPublisherId(orderId, publisherId);
 	}
 
+	@Override
+	public Integer countByPublisherId(Long publisherId) {
+		return repository.countByPublisherId(publisherId);
+	}
+
 }

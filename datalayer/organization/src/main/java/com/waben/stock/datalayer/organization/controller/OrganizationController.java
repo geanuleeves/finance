@@ -287,4 +287,9 @@ public class OrganizationController implements OrganizationInterface {
 				organizationService.getSuperiorAgentPartition(orgId), false));
 	}
 
+	@Override
+	public Response<List<Long>> getListByPublisherId(String treeCode) {
+		return new Response<>(organizationService.getListByPublisherId(treeCode));
+	}
+
 }

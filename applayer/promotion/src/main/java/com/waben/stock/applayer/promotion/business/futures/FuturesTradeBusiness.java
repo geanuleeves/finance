@@ -2,7 +2,10 @@ package com.waben.stock.applayer.promotion.business.futures;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,6 +16,7 @@ import com.waben.stock.applayer.promotion.security.SecurityUtil;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
+import com.waben.stock.interfaces.dto.admin.futures.AgentOrderRecordDto;
 import com.waben.stock.interfaces.dto.admin.futures.FutresOrderEntrustDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
@@ -308,6 +312,151 @@ public class FuturesTradeBusiness {
 
 	public FuturesCurrencyRateDto findByCurrency(String currency) {
 		Response<FuturesCurrencyRateDto> response = futuresCurrencyRateInterface.findByCurrency(currency);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public List<Long> getListByPublisherId(String treeCode) {
+		Response<List<Long>> response = orgReference.getListByPublisherId(treeCode);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public PageInfo<AgentOrderRecordDto> pagesOrderRecord(FuturesTradeAdminQuery query) {
+		Response<PageInfo<AgentOrderRecordDto>> response = reference.pagesOrderRecord(query);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public PageInfo<AgentOrderRecordDto> pagesOrderRecords(FuturesTradeAdminQuery query) {
+		PageInfo<AgentOrderRecordDto> pageOrder = pagesOrderRecord(query);
+		List<AgentOrderRecordDto> orderTradeList = CopyBeanUtils.copyListBeanPropertiesToList(pageOrder.getContent(),
+				AgentOrderRecordDto.class);
+		orderTradeList = getListFuturesTradeOrder(orderTradeList);
+		return new PageInfo<>(orderTradeList, pageOrder.getTotalPages(), pageOrder.getLast(),
+				pageOrder.getTotalElements(), pageOrder.getSize(), pageOrder.getNumber(), pageOrder.getFrist());
+	}
+
+	public String getQuoteCacheKey(String commodityNo, String contractNo) {
+		return commodityNo + "-" + contractNo;
+	}
+
+	public List<AgentOrderRecordDto> getListFuturesTradeOrder(List<AgentOrderRecordDto> tradeList) {
+
+		// 封装合约
+		Map<Long, FuturesContractDto> contractMap = new HashMap<Long, FuturesContractDto>();
+		List<FuturesContractDto> contractList = getListContract();
+		for (FuturesContractDto futuresContractDto : contractList) {
+			contractMap.put(futuresContractDto.getId(), futuresContractDto);
+		}
+		// 封装汇率
+		Map<String, FuturesCurrencyRateDto> rateMap = new HashMap<String, FuturesCurrencyRateDto>();
+		List<FuturesCurrencyRateDto> rateList = getListCurrencyRate();
+		for (FuturesCurrencyRateDto futuresCurrencyRateDto : rateList) {
+			rateMap.put(futuresCurrencyRateDto.getCurrency(), futuresCurrencyRateDto);
+		}
+		// 封装行情
+		Map<String, FuturesContractMarket> marketMap = RetriveFuturesOverHttp.marketAll(profileBusiness.isProd());
+
+		if (tradeList != null && tradeList.size() > 0) {
+			for (AgentOrderRecordDto orderTrade : tradeList) {
+				FuturesCurrencyRateDto rate = rateMap.get(orderTrade.getCommodityCurrency());
+				if (rate == null) {
+					break;
+				}
+				FuturesContractDto contract = contractMap.get(orderTrade.getContractId());
+				if (contract == null) {
+					break;
+				}
+				FuturesContractMarket market = marketMap
+						.get(getQuoteCacheKey(orderTrade.getSymbol(), orderTrade.getContractNo()));
+				if (market == null) {
+					break;
+				}
+				orderTrade.setLastPrice(market.getLastPrice());
+				orderTrade.setSellingProfit(orderTrade.getProfitOrLoss());
+				orderTrade.setPositionEndTime(orderTrade.getSellingTime());
+				orderTrade.setDealTime(orderTrade.getBuyingTime());
+				orderTrade.setOvernightServiceFee(getSUMOvernightRecord(orderTrade.getId()) == null ? BigDecimal.ZERO
+						: getSUMOvernightRecord(orderTrade.getId()));
+				if (orderTrade.getBuyingTime() != null) {
+					Long date = orderTrade.getBuyingTime().getTime();
+					Long current = new Date().getTime();
+					Long hours = ((current - date) % (1000 * 60 * 60 * 24) / (1000 * 60));
+					if (Math.abs(hours.intValue()) > 60) {
+						Long stime = hours / 60;
+						orderTrade.setPositionDays(stime.toString() + "小时");
+					} else {
+						orderTrade.setPositionDays(hours.toString() + "分钟");
+					}
+				}
+
+				if (orderTrade.getState() == 8) {
+					orderTrade.setDealTime(orderTrade.getSellingTime());
+				}
+				if (orderTrade.getState() == 9) {
+					orderTrade.setProfit(orderTrade.getProfitOrLoss());
+					orderTrade.setSellingProfit(orderTrade.getProfitOrLoss());
+					if (orderTrade.getSellingTime() != null) {
+						Long laseDate = orderTrade.getSellingTime().getTime();
+						Long date = orderTrade.getBuyingTime().getTime();
+						Long hours = ((laseDate - date) % (1000 * 60 * 60 * 24)) / (1000 * 60);
+						if (Math.abs(hours.intValue()) > 60) {
+							Long stime = hours / 60;
+							orderTrade.setPositionDays(stime.toString() + "小时");
+						} else {
+							orderTrade.setPositionDays(hours.toString() + "分钟");
+						}
+					}
+				}
+
+				if (orderTrade.getPublisherProfitOrLoss() == null && orderTrade.getBuyingPrice() != null) {
+					// 用户买涨盈亏 = （最新价 - 买入价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
+					if (orderTrade.getOrderType() != null && orderTrade.getOrderType() == 1) {
+						orderTrade.setPublisherProfitOrLoss(market.getLastPrice().subtract(orderTrade.getBuyingPrice())
+								.divide(contract.getMinWave(), 2, BigDecimal.ROUND_HALF_EVEN)
+								.multiply(contract.getPerWaveMoney()).multiply(rate.getRate())
+								.multiply(orderTrade.getTotalQuantity()));
+					} else if (orderTrade.getOrderType() != null && orderTrade.getOrderType() == 2) {
+						// 用户买跌盈亏 = （买入价 - 最新价） / 最小波动点 * 波动一次盈亏金额 * 汇率
+						// *手数
+						orderTrade.setPublisherProfitOrLoss(orderTrade.getBuyingPrice().subtract(market.getLastPrice())
+								.divide(contract.getMinWave(), 2, BigDecimal.ROUND_HALF_EVEN)
+								.multiply(contract.getPerWaveMoney()).multiply(rate.getRate())
+								.multiply(orderTrade.getTotalQuantity()));
+					}
+				} else {
+					orderTrade.setFloatingProfitOrLoss(orderTrade.getPublisherProfitOrLoss());
+				}
+			}
+		}
+		return tradeList;
+	}
+
+	public List<FuturesContractDto> getListContract() {
+		Response<List<FuturesContractDto>> response = futuresContractInterface.list();
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public List<FuturesCurrencyRateDto> getListCurrencyRate() {
+		Response<PageInfo<FuturesCurrencyRateDto>> response = futuresCurrencyRateInterface.list();
+		if ("200".equals(response.getCode())) {
+			return response.getResult().getContent();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public BigDecimal getSUMOvernightRecord(Long orderId) {
+		Response<BigDecimal> response = reference.getSUMOvernightRecord(orderId);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}

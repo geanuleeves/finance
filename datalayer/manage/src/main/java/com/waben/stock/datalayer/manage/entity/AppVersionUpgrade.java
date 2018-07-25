@@ -53,6 +53,7 @@ public class AppVersionUpgrade {
 	 * <ul>
 	 * <li>0安卓</li>
 	 * <li>1IOS</li>
+	 * <li>2PC</li>
 	 * </ul>
 	 */
 	private Integer deviceType;

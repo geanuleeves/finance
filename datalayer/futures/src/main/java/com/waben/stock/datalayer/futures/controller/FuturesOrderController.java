@@ -38,7 +38,7 @@ public class FuturesOrderController implements FuturesOrderInterface {
 
 	@Autowired
 	private FuturesOrderService futuresOrderService;
-	
+
 	@Autowired
 	private FuturesOvernightRecordService recordService;
 
@@ -51,7 +51,8 @@ public class FuturesOrderController implements FuturesOrderInterface {
 
 	@Override
 	public Response<FuturesOrderDto> addOrder(@RequestBody FuturesOrderDto futuresOrderDto) {
-		logger.info("发布人{}期货下单{}，手数{}!", futuresOrderDto.getPublisherId(), futuresOrderDto.getContractId(), futuresOrderDto.getTotalQuantity());
+		logger.info("发布人{}期货下单{}，手数{}!", futuresOrderDto.getPublisherId(), futuresOrderDto.getContractId(),
+				futuresOrderDto.getTotalQuantity());
 		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesOrderDto.class,
 				futuresOrderService.save(CopyBeanUtils.copyBeanProperties(FuturesOrder.class, futuresOrderDto, false),
 						futuresOrderDto.getContractId()),
@@ -128,8 +129,14 @@ public class FuturesOrderController implements FuturesOrderInterface {
 	@Override
 	public Response<FuturesOvernightRecordDto> fetchByOvernightId(@PathVariable Long id) {
 		FuturesOvernightRecord result = recordService.retrieve(id);
-		FuturesOvernightRecordDto response = CopyBeanUtils.copyBeanProperties(result, new FuturesOvernightRecordDto(), false);
+		FuturesOvernightRecordDto response = CopyBeanUtils.copyBeanProperties(result, new FuturesOvernightRecordDto(),
+				false);
 		return new Response<>(response);
+	}
+
+	@Override
+	public Response<Integer> countByPublisherId(@PathVariable Long publisherId) {
+		return new Response<>(futuresOrderService.countByPublisherId(publisherId));
 	}
 
 }
