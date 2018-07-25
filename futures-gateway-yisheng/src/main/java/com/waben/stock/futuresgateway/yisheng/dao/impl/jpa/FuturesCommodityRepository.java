@@ -28,4 +28,6 @@ public interface FuturesCommodityRepository extends Repository<FuturesCommodity,
 
 	FuturesCommodity findByCommodityNo(String commodityNo);
 
+	List<FuturesCommodity> findByEnable(boolean enable);
+
 }

@@ -305,8 +305,8 @@ public class OrganizationAccountFlowService {
 		}
 		String orgCodeOrName = "";
 		if (!StringUtil.isEmpty(query.getOrgCodeOrName())) {
-			orgCodeOrName = " and t4.code like '%" + query.getOrgCodeOrName() + "%' or t4.name like '%"
-					+ query.getOrgCodeOrName() + "%'";
+			orgCodeOrName = " and (t4.code like '%" + query.getOrgCodeOrName() + "%' or t4.name like '%"
+					+ query.getOrgCodeOrName() + "%')";
 		}
 		String flowNo = "";
 		if (!StringUtil.isEmpty(query.getFlowNo())) {
@@ -335,10 +335,10 @@ public class OrganizationAccountFlowService {
 						+ "t2.publisher_id as b_publisher_id, t2.publisher_phone as b_publisher_phone, t2.stock_code as b_stock_code, t2.stock_name as b_stock_name, "
 						+ "t3.publisher_id as s_publisher_id, t3.publisher_phone as s_publisher_phone, t3.stock_code as s_stock_code, t3.stock_name as s_stock_name, "
 						+ "t3.cycle_id, t3.cycle_name, t4.code as org_code, t4.name as org_name, "
-						+ "t5.name as b_publisher_name, t6.name as s_publisher_name, t16.balance as available_balance, "
+						+ "t5.name as b_publisher_name, t6.name as s_publisher_name, IF(t1.type = 4 || t1.type = 5, t1.available_balance, t16.balance) AS available_balance, "
 						+ "t8.commodity_symbol, t8.commodity_name, t8.publisher_id AS o_publisher_id, t14.name AS o_publisher_name ,t15.phone AS o_publisher_phone, "
 
-						+ "t16.real_maid_fee as maid_fee, t1.origin_amount AS commission, t8.trade_no "
+						+ "IF(t1.type = 4 || t1.type = 5, t1.amount, t16.real_maid_fee)  as maid_fee, t1.origin_amount AS commission, t8.trade_no "
 
 						+ "from p_organization_account_flow t1 "
 						+ "LEFT JOIN buy_record t2 on t1.resource_type=1 and t1.resource_id=t2.id "

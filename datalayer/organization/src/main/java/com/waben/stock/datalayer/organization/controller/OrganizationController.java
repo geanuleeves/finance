@@ -247,9 +247,8 @@ public class OrganizationController implements OrganizationInterface {
 
 	@Override
 	public Response<PageInfo<FuturesFowDto>> futuresFowPageByQuery(@RequestBody FuturesFowQuery query) {
-		Page<FuturesFowDto> page = organizationService.futuresFowPageByQuery(query);
-		PageInfo<FuturesFowDto> result = PageToPageInfo.pageToPageInfo(page, FuturesFowDto.class);
-		return new Response<>(result);
+		return new Response<>(
+				PageToPageInfo.pageToPageInfo(organizationService.futuresFowPageByQuery(query), FuturesFowDto.class));
 	}
 
 	@Override
@@ -286,6 +285,11 @@ public class OrganizationController implements OrganizationInterface {
 	public Response<BenefitConfigDto> getSuperiorAgentPartition(@PathVariable Long orgId) {
 		return new Response<>(CopyBeanUtils.copyBeanProperties(BenefitConfigDto.class,
 				organizationService.getSuperiorAgentPartition(orgId), false));
+	}
+
+	@Override
+	public Response<List<Long>> getListByPublisherId(String treeCode) {
+		return new Response<>(organizationService.getListByPublisherId(treeCode));
 	}
 
 }

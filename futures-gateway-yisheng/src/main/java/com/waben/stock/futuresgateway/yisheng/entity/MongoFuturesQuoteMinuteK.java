@@ -3,25 +3,15 @@ package com.waben.stock.futuresgateway.yisheng.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
 /**
  * 行情-分钟K
  * 
  * @author luomengan
  *
  */
-@Entity
-@Table(name = "f_gateway_futures_es_quote_minutek")
-public class FuturesQuoteMinuteK {
+public class MongoFuturesQuoteMinuteK {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private String id;
 	/** 品种ID */
 	private Long commodityId;
 	/** 品种编号 */
@@ -53,11 +43,11 @@ public class FuturesQuoteMinuteK {
 	/** 当天总持仓量 */
 	private long totalVolume;
 
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

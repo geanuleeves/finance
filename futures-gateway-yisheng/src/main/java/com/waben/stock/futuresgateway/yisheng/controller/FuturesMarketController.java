@@ -97,7 +97,7 @@ public class FuturesMarketController {
 	@ApiOperation(value = "取消订阅")
 	public Response<String> unsubcribe(@PathVariable("commodityNo") String commodityNo,
 			@PathVariable("contractNo") String contractNo) {
-		service	.unsubcribe(commodityNo, contractNo);
+		service.unsubcribe(commodityNo, contractNo);
 		Response<String> result = new Response<>();
 		result.setResult("success");
 		return result;
@@ -112,6 +112,17 @@ public class FuturesMarketController {
 		return result;
 	}
 
+	@PostMapping("/updateMainDayline")
+	@ApiOperation(value = "更新主力合约日K数据")
+	public Response<String> updateMainDayline(String commodityNo) {
+		importDayK.updateMainDayline(commodityNo);
+		Response<String> result = new Response<>();
+		result.setResult("success");
+		return result;
+	}
+
+	/******************************************** 以下接口为导入文华财经接口数据 *****************************************/
+
 	@GetMapping("/importMainDayline")
 	@ApiOperation(value = "导入主力合约日K数据")
 	public Response<String> importMainDayline(String dirPath) {
@@ -121,10 +132,33 @@ public class FuturesMarketController {
 		return result;
 	}
 
-	@PostMapping("/updateMainDayline")
-	@ApiOperation(value = "更新主力合约日K数据")
-	public Response<String> updateMainDayline(String commodityNo) {
-		importDayK.updateMainDayline(commodityNo);
+	@GetMapping("/importMainMinuteline")
+	@ApiOperation(value = "导入主力合约分K数据")
+	public Response<String> importMainMinuteline(String dirPath) {
+		importDayK.importMainMinuteline(dirPath);
+		Response<String> result = new Response<>();
+		result.setResult("success");
+		return result;
+	}
+	
+	@GetMapping("/importMainMultipleMinuteline")
+	@ApiOperation(value = "导入主力合约多分钟K数据")
+	public Response<String> importMainMultipleMinuteline(String dirPath) {
+		importDayK.importMainMultipleMinuteline(dirPath);
+		Response<String> result = new Response<>();
+		result.setResult("success");
+		return result;
+	}
+	
+	@GetMapping("/computeMainMinuteKGroup")
+	@ApiOperation(value = "计算主力合约分钟K组合数据")
+	public Response<String> computeMainMinuteKGroup(String startTime) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		try {
+			importDayK.computeMainMinuteKGroup(sdf.parse(startTime));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		Response<String> result = new Response<>();
 		result.setResult("success");
 		return result;
@@ -137,6 +171,21 @@ public class FuturesMarketController {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		try {
 			importDayK.setDayKMainContractEndTime(commodityNo, contractNo, sdf.parse(dayKMainContractEndTime));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		Response<String> result = new Response<>();
+		result.setResult("success");
+		return result;
+	}
+
+	@PostMapping("/setMintueKMainContractEndTime")
+	@ApiOperation(value = "设置主力合约的分K结束时间")
+	public Response<String> setMintueKMainContractEndTime(String commodityNo, String contractNo,
+			String minuteKMainContractEndTime) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		try {
+			importDayK.setMinuteKMainContractEndTime(commodityNo, contractNo, sdf.parse(minuteKMainContractEndTime));
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

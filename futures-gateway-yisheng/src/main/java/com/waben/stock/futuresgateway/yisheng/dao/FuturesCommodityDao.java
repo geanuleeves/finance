@@ -28,4 +28,6 @@ public interface FuturesCommodityDao {
 
 	public FuturesCommodity retrieveByCommodityNo(String commodityNo);
 
+	public List<FuturesCommodity> retrieveByEnable(boolean enable);
+
 }

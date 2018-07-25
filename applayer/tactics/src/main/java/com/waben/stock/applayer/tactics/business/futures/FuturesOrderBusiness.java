@@ -299,6 +299,7 @@ public class FuturesOrderBusiness {
 				unwind.setTotalQuantity(unwindOrder.getTotalQuantity());
 				unwind.setOrderType(unwindOrder.getOrderType());
 				unwind.setPhone(publisher == null ? "" : publisher.getPhone());
+				unwind.setCommodityId(unwindOrder.getCommodityId());
 				// unwind.setState(contract == null ? 3 : contract.getState());
 				content.add(unwind);
 				isSettlement = false;
@@ -324,6 +325,7 @@ public class FuturesOrderBusiness {
 					position.setTotalQuantity(positionOrder.getTotalQuantity());
 					position.setOrderType(positionOrder.getOrderType());
 					position.setPhone(publisher == null ? "" : publisher.getPhone());
+					position.setCommodityId(positionOrder.getCommodityId());
 					// position.setState(contract == null ? 3 :
 					// contract.getState());
 					content.add(position);

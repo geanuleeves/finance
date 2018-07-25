@@ -34,8 +34,8 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesContract;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuote;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteDayK;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteLast;
-import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteK;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteKGroup;
+import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteK;
 import com.waben.stock.futuresgateway.yisheng.esapi.EsEngine;
 import com.waben.stock.futuresgateway.yisheng.esapi.EsQuoteWrapper;
 import com.waben.stock.futuresgateway.yisheng.pojo.FuturesContractLineData;
@@ -350,6 +350,7 @@ public class FuturesMarketService {
 		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		// 获取开始和结束时间
 		Date startTime = null;
+		Date betweenTime = null;
 		Date endTime = null;
 		try {
 			if (!StringUtil.isEmpty(startTimeStr)) {
@@ -388,17 +389,46 @@ public class FuturesMarketService {
 			Date[] timeArr = TimeZoneUtil.retriveBeijingTimeInterval(computeTime, commodityNo);
 			startTime = timeArr[0];
 		}
-		// 查询分时数据
-		List<FuturesQuoteMinuteK> minuteKList = minuteKDao
+
+		// 判断是否需要获取主力合约的历史数据
+		FuturesContract contract = contractDao.retrieveByCommodityNoAndContractNo(commodityNo, contractNo);
+		if (contract == null) {
+			return new ArrayList<>();
+		} else {
+			if (contract.getMinuteKMainContractEndTime() != null
+					&& contract.getMinuteKMainContractEndTime().getTime() > startTime.getTime()) {
+				betweenTime = contract.getMinuteKMainContractEndTime();
+			} else {
+				betweenTime = startTime;
+			}
+		}
+		// 获取主力合约的分K数据（main）
+		List<FuturesQuoteMinuteKGroup> mainMinuteKGroupList = minuteKGroupDao
+				.retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(commodityNo, "main",
+						startTime, betweenTime);
+		if (mainMinuteKGroupList == null) {
+			mainMinuteKGroupList = new ArrayList<>();
+		}
+		// 查询分时数据（constractNo）
+		List<MongoFuturesQuoteMinuteK> minuteKList = minuteKDao
 				.retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(commodityNo, contractNo,
 						startTime, endTime);
-		// 查询小时数据
+		// 查询小时数据（constractNo）
 		List<FuturesQuoteMinuteKGroup> minuteKGoupList = minuteKGroupDao
 				.retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(commodityNo, contractNo,
 						startTime, endTime);
 		// 统计
 		List<FuturesContractLineData> result = new ArrayList<>();
-		for (FuturesQuoteMinuteK minuteK : minuteKList) {
+		for (FuturesQuoteMinuteKGroup minuteKGoup : mainMinuteKGroupList) {
+			List<FuturesContractLineData> dataList = JacksonUtil.decode(minuteKGoup.getGroupData(),
+					JacksonUtil.getGenericType(ArrayList.class, FuturesContractLineData.class));
+			for (FuturesContractLineData data : dataList) {
+				if (data.getOpenPrice() != null && data.getOpenPrice().compareTo(BigDecimal.ZERO) > 0) {
+					result.add(data);
+				}
+			}
+		}
+		for (MongoFuturesQuoteMinuteK minuteK : minuteKList) {
 			if (minuteK.getOpenPrice() != null && minuteK.getOpenPrice().compareTo(BigDecimal.ZERO) > 0) {
 				result.add(CopyBeanUtils.copyBeanProperties(FuturesContractLineData.class, minuteK, false));
 			}
@@ -564,7 +594,8 @@ public class FuturesMarketService {
 						data.setAskPrice7(new BigDecimal(info.getQAskPrice()[6]).setScale(scale, RoundingMode.HALF_UP));
 						data.setAskPrice8(new BigDecimal(info.getQAskPrice()[7]).setScale(scale, RoundingMode.HALF_UP));
 						data.setAskPrice9(new BigDecimal(info.getQAskPrice()[8]).setScale(scale, RoundingMode.HALF_UP));
-						data.setAskPrice10(new BigDecimal(info.getQAskPrice()[9]).setScale(scale, RoundingMode.HALF_UP));
+						data.setAskPrice10(
+								new BigDecimal(info.getQAskPrice()[9]).setScale(scale, RoundingMode.HALF_UP));
 						data.setAskSize2(info.getQAskQty()[1]);
 						data.setAskSize3(info.getQAskQty()[2]);
 						data.setAskSize4(info.getQAskQty()[3]);
@@ -583,7 +614,8 @@ public class FuturesMarketService {
 						data.setBidPrice7(new BigDecimal(info.getQBidPrice()[6]).setScale(scale, RoundingMode.HALF_UP));
 						data.setBidPrice8(new BigDecimal(info.getQBidPrice()[7]).setScale(scale, RoundingMode.HALF_UP));
 						data.setBidPrice9(new BigDecimal(info.getQBidPrice()[8]).setScale(scale, RoundingMode.HALF_UP));
-						data.setBidPrice10(new BigDecimal(info.getQBidPrice()[9]).setScale(scale, RoundingMode.HALF_UP));
+						data.setBidPrice10(
+								new BigDecimal(info.getQBidPrice()[9]).setScale(scale, RoundingMode.HALF_UP));
 						data.setBidSize2(info.getQBidQty()[1]);
 						data.setBidSize3(info.getQBidQty()[2]);
 						data.setBidSize4(info.getQBidQty()[3]);

@@ -133,12 +133,18 @@ public class RetriveFuturesOverHttp {
 	}
 
 	public static List<FuturesContractLineData> minsLine(boolean isProd, String commodityNo, String contractNo,
-			Integer mins) {
+			Integer mins, String startTime, String endTime) {
 		String url = getBaseUrl(isProd) + "market/" + commodityNo + "/" + contractNo + "/minsline";
 		if (mins == null || mins < 1) {
 			mins = 1;
 		}
 		url += "?mins=" + mins;
+		if(startTime != null) {
+			url += "&startTime=" + startTime;
+		}
+		if(endTime != null) {
+			url += "&endTime=" + endTime;
+		}
 		String response = restTemplate.getForObject(url, String.class);
 		Response<List<FuturesContractLineData>> responseObj = JacksonUtil.decode(response, JacksonUtil
 				.getGenericType(Response.class, JacksonUtil.getGenericType(List.class, FuturesContractLineData.class)));

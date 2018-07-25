@@ -58,4 +58,9 @@ public class FuturesCommodityDaoImpl implements FuturesCommodityDao {
 		return futuresCommodityRepository.findByCommodityNo(commodityNo);
 	}
 
+	@Override
+	public List<FuturesCommodity> retrieveByEnable(boolean enable) {
+		return futuresCommodityRepository.findByEnable(enable);
+	}
+
 }

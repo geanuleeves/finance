@@ -13,8 +13,8 @@ public class TestBCrypt {
 	@Test
 	public void test() {
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		System.out.println(encoder.encode("wangbei"));
-		System.out.println(encoder.matches("123456", "$2a$10$lqVvBG4JnL52xGzWt040GuZjZ2vexxmRlM8TNQZI9KkjWEQpJ/DZS"));
+		System.out.println(encoder.encode("741852"));
+		System.out.println(encoder.matches("wangbei", "$2a$10$l18hnSijOQ9pWglwxI2rdORzOftFJS9ecZiuTcZNHlmUyq8Sv38r."));
 	}
 	
 }
