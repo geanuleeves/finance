@@ -115,4 +115,7 @@ public interface FuturesOrderRepository extends CustomJpaRepository<FuturesOrder
 
 	FuturesOrder findByIdAndPublisherId(Long orderId, Long publisherId);
 
+	@Query("select count(t) from FuturesOrder t where t.publisherId = ?1")
+	Integer countByPublisherId(Long publisherId);
+
 }

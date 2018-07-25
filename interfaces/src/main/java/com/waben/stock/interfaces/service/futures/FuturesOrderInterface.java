@@ -30,7 +30,7 @@ public interface FuturesOrderInterface {
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	Response<FuturesOrderDto> fetchById(@PathVariable("id") Long id);
-	
+
 	@RequestMapping(value = "/fetchByOvernightId/{id}", method = RequestMethod.GET)
 	Response<FuturesOvernightRecordDto> fetchByOvernightId(@PathVariable("id") Long id);
 
@@ -168,5 +168,8 @@ public interface FuturesOrderInterface {
 	 */
 	@RequestMapping(value = "/{publisherId}/unsettled/profitOrLoss", method = RequestMethod.GET)
 	Response<BigDecimal> getUnsettledProfitOrLoss(@PathVariable("publisherId") Long publisherId);
+
+	@RequestMapping(value = "/count/{publisherId}", method = RequestMethod.GET)
+	Response<Integer> countByPublisherId(@PathVariable("publisherId") Long publisherId);
 
 }

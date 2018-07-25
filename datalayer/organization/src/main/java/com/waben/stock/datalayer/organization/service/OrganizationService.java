@@ -1181,22 +1181,31 @@ public class OrganizationService {
 		Organization org = organizationDao.retrieve(orgId);
 		Organization orgParent = org.getParent();
 		List<BenefitConfig> orgParentList = benefitConfigDao.retrieveByOrgAndResourceType(orgParent, 3);
-		if (orgParent.getLevel() != 1) {
+		BigDecimal sumRatio = sqlDao.executeComputeSql(
+				"SELECT IF(SUM(t1.ratio) is null,0,SUM(t1.ratio)) as sum_ratio FROM p_benefit_config t1 LEFT JOIN p_organization t2 ON t2.id = t1.org_id where t2.tree_code LIKE '"
+						+ org.getTreeCode().substring(0, 5) + "%'");
+		// 剩余可设置比例
+		BigDecimal surplusRatio = BigDecimal.ZERO;
+		if (orgParent.getLevel() == 1) {
+			if (id != null) {
+				BenefitConfig benfit = benefitConfigDao.retrieve(id);
+				if (benfit != null) {
+					surplusRatio = new BigDecimal(100).subtract(sumRatio.add(benfit.getPlatformRatio()))
+							.add(benfit.getRatio()).add(benfit.getPlatformRatio());
+				}
+			}
+			if (ratio.add(platformRatio).compareTo(surplusRatio) > 0) {
+				// 分成比例已满额
+				throw new ServiceException(ExceptionConstant.THE_PROPORTION_ISFULL_EXCEPTION);
+			}
+		} else {
 			if (orgParentList != null && orgParentList.size() > 0) {
 				BenefitConfig config = orgParentList.get(0);
 				if (config.getRatio() == null) {
 					// 上级未设置分成比例
 					throw new ServiceException(ExceptionConstant.PROPORTION_SUPERIOR_NOTSET_PROPORTION_EXCEPTION);
 				}
-
-				BigDecimal sumRatio = sqlDao.executeComputeSql(
-						"SELECT SUM(t1.ratio) FROM p_benefit_config t1 LEFT JOIN p_organization t2 ON t2.id = t1.org_id where t2.tree_code LIKE '"
-								+ orgParent.getTreeCode().substring(0, 5) + "%'");
-				if (sumRatio == null) {
-					sumRatio = BigDecimal.ZERO;
-				}
-				// 剩余可设置比例
-				BigDecimal surplusRatio = new BigDecimal(100).subtract(sumRatio.add(config.getPlatformRatio()));
+				surplusRatio = new BigDecimal(100).subtract(sumRatio.add(config.getPlatformRatio()));
 				if (id != null) {
 					BenefitConfig benfit = benefitConfigDao.retrieve(id);
 					if (benfit != null) {
@@ -1208,7 +1217,6 @@ public class OrganizationService {
 					// 分成比例已满额
 					throw new ServiceException(ExceptionConstant.THE_PROPORTION_ISFULL_EXCEPTION);
 				}
-
 			} else {
 				// 上级未设置分成比例
 				throw new ServiceException(ExceptionConstant.PROPORTION_SUPERIOR_NOTSET_PROPORTION_EXCEPTION);

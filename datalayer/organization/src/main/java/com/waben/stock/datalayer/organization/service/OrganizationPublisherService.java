@@ -11,6 +11,7 @@ import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,8 @@ import com.waben.stock.datalayer.organization.repository.OrganizationDao;
 import com.waben.stock.datalayer.organization.repository.OrganizationPublisherDao;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.exception.ServiceException;
+import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.service.futures.FuturesOrderInterface;
 
 /**
  * 机构推广的发布人 Service
@@ -41,11 +44,15 @@ public class OrganizationPublisherService {
 
 	@Autowired
 	private StockOptionTradeBusiness tradeBusiness;
-	
-	public List<Organization> listByLevel(Integer level){
+
+	@Autowired
+	@Qualifier("futuresOrderInterface")
+	private FuturesOrderInterface futuresOrderInterface;
+
+	public List<Organization> listByLevel(Integer level) {
 		return orgDao.listByLevel(level);
 	}
-	
+
 	public OrganizationPublisher addOrgPublisherAdmin(String orgCode, Long publisherId) {
 		if (orgCode == null || "".equals(orgCode.trim())) {
 			return null;
@@ -54,7 +61,7 @@ public class OrganizationPublisherService {
 		if (org == null) {
 			throw new ServiceException(ExceptionConstant.ORGCODE_NOTEXIST_EXCEPTION);
 		}
-		
+
 		OrganizationPublisher orgPublisher = dao.retrieveByPublisherId(publisherId);
 		if (orgPublisher != null) {
 			if (orgPublisher.getOrgCode().equals(orgCode)) {
@@ -81,7 +88,7 @@ public class OrganizationPublisherService {
 		if (org == null) {
 			throw new ServiceException(ExceptionConstant.ORGCODE_NOTEXIST_EXCEPTION);
 		}
-		Integer count = tradeBusiness.countStockOptionTradeState(publisherId);
+		Integer count = countByPublisherId(publisherId);
 		if (count > 0) {
 			throw new ServiceException(ExceptionConstant.MODIFY_DISABLED_EXCEPITON);
 		}
@@ -118,27 +125,35 @@ public class OrganizationPublisherService {
 	public List<OrganizationPublisher> findByOrgId(List<Long> orgId) {
 		return dao.findByOrdId(orgId);
 	}
-	
+
 	public List<OrganizationPublisher> findByOrgCode(final String orgCode) {
 		Pageable pageable = new PageRequest(Integer.valueOf("0"), Integer.MAX_VALUE);
 		Page<OrganizationPublisher> page = dao.page(new Specification<OrganizationPublisher>() {
-			
+
 			@Override
-			public Predicate toPredicate(Root<OrganizationPublisher> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+			public Predicate toPredicate(Root<OrganizationPublisher> root, CriteriaQuery<?> criteriaQuery,
+					CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<>();
-				
+
 				if (orgCode != null && !"".equals(orgCode)) {
-					predicateList.add(criteriaBuilder.like(root.get("treeCode").as(String.class),
-							 orgCode + "%"));
+					predicateList.add(criteriaBuilder.like(root.get("treeCode").as(String.class), orgCode + "%"));
 				}
-				
+
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
 				return criteriaQuery.getRestriction();
 			}
 		}, pageable);
-		
+
 		return page.getContent();
+	}
+
+	public Integer countByPublisherId(Long publisherId) {
+		Response<Integer> response = futuresOrderInterface.countByPublisherId(publisherId);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
 	}
 }

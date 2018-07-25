@@ -2330,4 +2330,8 @@ public class FuturesOrderService {
 				totalElements != null ? totalElements.longValue() : 0);
 	}
 
+	public Integer countByPublisherId(Long publisherId) {
+		return orderDao.countByPublisherId(publisherId);
+	}
+
 }
