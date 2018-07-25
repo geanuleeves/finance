@@ -3,12 +3,15 @@ package com.waben.stock.futuresgateway.yisheng.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * 行情-分钟K
  * 
  * @author luomengan
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MongoFuturesQuoteMinuteK {
 
 	private String id;

@@ -26,6 +26,7 @@ import com.waben.stock.futuresgateway.yisheng.dao.FuturesQuoteMinuteKMultipleDao
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesCommodity;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesContract;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteDayK;
+import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteK;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteKGroup;
 import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteK;
 import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteKMultiple;
@@ -35,6 +36,7 @@ import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.EsDeleteQuoteMess
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteDayKService;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteMinuteKGroupService;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteMinuteKService;
+import com.waben.stock.futuresgateway.yisheng.util.CopyBeanUtils;
 import com.waben.stock.futuresgateway.yisheng.util.JacksonUtil;
 import com.waben.stock.futuresgateway.yisheng.util.StringUtil;
 
@@ -568,6 +570,37 @@ public class ImportDayK {
 			}
 		}
 		logger.info("计算分K组合数据结束:" + fullSdf.format(new Date()));
+	}
+
+	public void moveMinuteKToMongo() {
+		List<FuturesQuoteMinuteK> dbList = minuteKDao.listDbMinuteK();
+		List<FuturesQuoteMinuteKGroup> groupList = minuteKGroupServcie.list();
+		// 迁移FuturesQuoteMinuteK
+		if(dbList != null && dbList.size() > 0) {
+			for(FuturesQuoteMinuteK minuteK : dbList) {
+				MongoFuturesQuoteMinuteK check = minuteKDao.retrieveByCommodityNoAndContractNoAndTime(minuteK.getCommodityNo(), minuteK.getContractNo(), minuteK.getTime());
+				if(check == null) {
+					MongoFuturesQuoteMinuteK mongoMinuteK = CopyBeanUtils.copyBeanProperties(MongoFuturesQuoteMinuteK.class, minuteK, false);
+					minuteKDao.createFuturesQuoteMinuteK(mongoMinuteK);
+				}
+			}
+		}
+		// 迁移FuturesQuoteMinuteKGroup
+		if(groupList != null && groupList.size() > 0) {
+			for(FuturesQuoteMinuteKGroup group : groupList) {
+				String groupData = group.getGroupData();
+				List<MongoFuturesQuoteMinuteK> dataList = JacksonUtil.decode(groupData,
+						JacksonUtil.getGenericType(ArrayList.class, MongoFuturesQuoteMinuteK.class));
+				for (MongoFuturesQuoteMinuteK data : dataList) {
+					if (data.getOpenPrice() != null && data.getOpenPrice().compareTo(BigDecimal.ZERO) > 0) {
+						MongoFuturesQuoteMinuteK check = minuteKDao.retrieveByCommodityNoAndContractNoAndTime(data.getCommodityNo(), data.getContractNo(), data.getTime());
+						if(check == null) {
+							minuteKDao.createFuturesQuoteMinuteK(data);
+						}
+					}
+				}
+			}
+		}
 	}
 
 }

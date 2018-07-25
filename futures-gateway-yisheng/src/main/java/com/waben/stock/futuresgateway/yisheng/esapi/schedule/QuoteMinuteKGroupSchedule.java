@@ -16,9 +16,6 @@ import org.springframework.stereotype.Component;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesContract;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteKGroup;
 import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteK;
-import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqConfiguration;
-import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqProducer;
-import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.EsDeleteQuoteMessage;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesContractService;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteMinuteKGroupService;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteMinuteKService;
@@ -44,9 +41,6 @@ public class QuoteMinuteKGroupSchedule {
 
 	@Autowired
 	private FuturesQuoteMinuteKGroupService minuteKGroupServcie;
-
-	@Autowired
-	private RabbitmqProducer producer;
 
 	/**
 	 * 每小时组合上一小时的分钟K，计算小时K
@@ -118,12 +112,12 @@ public class QuoteMinuteKGroupSchedule {
 				// step 3.5 : 保存计算出来的分K数据
 				minuteKGroupServcie.addFuturesQuoteMinuteKGroup(minuteKGroup);
 				// step 3.6 : 删除分K的行情数据
-				for (MongoFuturesQuoteMinuteK minuteK : minuteKList) {
-					EsDeleteQuoteMessage delQuote = new EsDeleteQuoteMessage();
-					delQuote.setQuoteId(String.valueOf(minuteK.getId()));
-					delQuote.setType(2);
-					producer.sendMessage(RabbitmqConfiguration.deleteQuoteQueueName, delQuote);
-				}
+//				for (MongoFuturesQuoteMinuteK minuteK : minuteKList) {
+//					EsDeleteQuoteMessage delQuote = new EsDeleteQuoteMessage();
+//					delQuote.setQuoteId(String.valueOf(minuteK.getId()));
+//					delQuote.setType(2);
+//					producer.sendMessage(RabbitmqConfiguration.deleteQuoteQueueName, delQuote);
+//				}
 			}
 		}
 		logger.info("计算分K组合数据结束:" + fullSdf.format(new Date()));

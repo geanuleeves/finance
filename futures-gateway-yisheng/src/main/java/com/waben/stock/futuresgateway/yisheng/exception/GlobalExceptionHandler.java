@@ -20,6 +20,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	public Response<? extends Object> exceptionHandler(ServiceException ex, HttpServletRequest request,
 			HttpServletResponse response) {
+		ex.printStackTrace();
 		Response<? extends Object> result = new Response<>(null);
 		result.setCode(ex.getCode());
 		result.setMessage(ex.getErrorMsg());
@@ -30,6 +31,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	public Response<? extends Object> exceptionHandler(Exception ex, HttpServletRequest request,
 			HttpServletResponse response) {
+		ex.printStackTrace();
 		String message = ExceptionEnum.Unknow.getErrorMsg() + ":" + ex.getMessage();
 		String servletPath = request.getServletPath();
 		logger.error(String.format("%s:%s:%s", message, servletPath, ex.getMessage()), ex);

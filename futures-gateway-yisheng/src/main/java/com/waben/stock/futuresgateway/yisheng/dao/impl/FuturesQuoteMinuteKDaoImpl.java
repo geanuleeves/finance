@@ -18,7 +18,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import com.waben.stock.futuresgateway.yisheng.dao.FuturesQuoteMinuteKDao;
+import com.waben.stock.futuresgateway.yisheng.dao.impl.jpa.FuturesQuoteMinuteKRepository;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuote;
+import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteK;
 import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteK;
 
 /**
@@ -32,8 +34,16 @@ public class FuturesQuoteMinuteKDaoImpl implements FuturesQuoteMinuteKDao {
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
+	
+	@Autowired
+	private FuturesQuoteMinuteKRepository repository;
 
 	private static String minuteKCollectionNamePrefix = "minutek-";
+	
+	@Override
+	public List<FuturesQuoteMinuteK> listDbMinuteK() {
+		return repository.findAll();
+	}
 
 	@Override
 	public MongoFuturesQuoteMinuteK createFuturesQuoteMinuteK(MongoFuturesQuoteMinuteK futuresQuoteMinuteK) {

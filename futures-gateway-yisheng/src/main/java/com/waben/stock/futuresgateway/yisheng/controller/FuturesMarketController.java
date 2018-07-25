@@ -122,7 +122,7 @@ public class FuturesMarketController {
 	}
 
 	/******************************************** 以下接口为导入文华财经接口数据 *****************************************/
-
+	
 	@GetMapping("/importMainDayline")
 	@ApiOperation(value = "导入主力合约日K数据")
 	public Response<String> importMainDayline(String dirPath) {
@@ -136,6 +136,15 @@ public class FuturesMarketController {
 	@ApiOperation(value = "导入主力合约分K数据")
 	public Response<String> importMainMinuteline(String dirPath) {
 		importDayK.importMainMinuteline(dirPath);
+		Response<String> result = new Response<>();
+		result.setResult("success");
+		return result;
+	}
+	
+	@GetMapping("/moveMinuteKToMongo")
+	@ApiOperation(value = "迁移分钟K到mongdo")
+	public Response<String> moveMinuteKToMongo() {
+		importDayK.moveMinuteKToMongo();
 		Response<String> result = new Response<>();
 		result.setResult("success");
 		return result;
