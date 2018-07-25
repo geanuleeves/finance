@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * 资金统计
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class CapitalStatisticDto {

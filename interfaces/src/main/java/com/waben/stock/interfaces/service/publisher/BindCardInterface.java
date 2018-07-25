@@ -16,7 +16,7 @@ import com.waben.stock.interfaces.pojo.Response;
 /**
  * 绑卡 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "publisher", path = "bindCard", qualifier = "bindCardInterface")
 public interface BindCardInterface {

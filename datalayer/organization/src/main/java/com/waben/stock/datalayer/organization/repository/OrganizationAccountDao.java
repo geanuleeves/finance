@@ -6,7 +6,7 @@ import com.waben.stock.datalayer.organization.entity.OrganizationAccount;
 /**
  * 机构账户 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface OrganizationAccountDao extends BaseDao<OrganizationAccount, Long> {

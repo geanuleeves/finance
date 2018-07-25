@@ -5,7 +5,7 @@ import com.waben.stock.datalayer.organization.entity.WithdrawalsApply;
 /**
  * 提现申请 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface WithdrawalsApplyRepository extends CustomJpaRepository<WithdrawalsApply, Long> {

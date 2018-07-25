@@ -12,7 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * 期货合约行情
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

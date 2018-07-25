@@ -7,7 +7,7 @@ import com.waben.stock.datalayer.publisher.entity.FavoriteStock;
 /**
  * 收藏股票 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface FavoriteStockDao extends BaseDao<FavoriteStock, Long> {

@@ -10,7 +10,7 @@ import com.waben.stock.datalayer.organization.entity.PriceMarkupConfig;
 /**
  * 加价配置 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface PriceMarkupConfigDao {

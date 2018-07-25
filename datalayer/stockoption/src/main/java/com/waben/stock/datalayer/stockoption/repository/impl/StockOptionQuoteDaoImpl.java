@@ -16,7 +16,7 @@ import com.waben.stock.datalayer.stockoption.repository.impl.jpa.StockOptionQuot
 /**
  * 期权报价 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

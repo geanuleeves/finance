@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * 通告 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface CircularsRepository extends CustomJpaRepository<Circulars, Long> {

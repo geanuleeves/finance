@@ -13,7 +13,7 @@ import com.waben.stock.collector.entity.DomainTableReceiveError;
 /**
  * 同步错误日志 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

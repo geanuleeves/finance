@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 /**
  * 期权名义本金
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

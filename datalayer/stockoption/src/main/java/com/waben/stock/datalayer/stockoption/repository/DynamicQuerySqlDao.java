@@ -8,7 +8,7 @@ import com.waben.stock.datalayer.stockoption.repository.impl.MethodDesc;
 /**
  * 动态执行查询sql
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface DynamicQuerySqlDao {

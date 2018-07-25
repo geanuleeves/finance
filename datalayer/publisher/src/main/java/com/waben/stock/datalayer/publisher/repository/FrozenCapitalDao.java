@@ -5,7 +5,7 @@ import com.waben.stock.datalayer.publisher.entity.FrozenCapital;
 /**
  * 冻结资金 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface FrozenCapitalDao extends BaseDao<FrozenCapital, Long> {

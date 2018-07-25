@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 /**
  * 配置事务
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @EnableTransactionManagement

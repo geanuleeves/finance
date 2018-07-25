@@ -5,7 +5,7 @@ import com.waben.stock.interfaces.commonapi.retrivestock.bean.StockMarket;
 /**
  * 股票行情和是否收藏
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class StockMarketWithFavoriteDto extends StockMarket {

@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 /**
  * 用户股票期权交易信息 Test
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class StockOptionTradeControllerTest extends BaseControllerTest {

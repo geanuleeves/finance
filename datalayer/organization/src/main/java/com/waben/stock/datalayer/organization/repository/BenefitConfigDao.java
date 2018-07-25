@@ -10,7 +10,7 @@ import com.waben.stock.interfaces.enums.BenefitConfigType;
 /**
  * 分成配置 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface BenefitConfigDao extends BaseDao<BenefitConfig, Long> {

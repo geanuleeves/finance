@@ -22,7 +22,7 @@ import com.waben.stock.interfaces.pojo.query.StrategyUnwindQuery;
 /**
  * 点买记录 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "buyrecord", path = "buyrecord", qualifier = "buyRecordInterface")
 public interface BuyRecordInterface {

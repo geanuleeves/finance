@@ -11,7 +11,7 @@ import com.waben.stock.collector.entity.OrganizationAccount;
 /**
  * 机构账户 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface OrganizationAccountRepository extends Repository<OrganizationAccount, Long> {

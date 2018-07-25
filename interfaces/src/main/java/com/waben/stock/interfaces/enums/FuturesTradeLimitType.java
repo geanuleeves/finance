@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 期货交易限制 类型
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum FuturesTradeLimitType implements CommonalityEnum {

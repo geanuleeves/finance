@@ -8,7 +8,7 @@ import com.waben.stock.interfaces.dto.stockoption.StockOptionTradeDto;
 /**
  * 期权交易+股票行情信息
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class StockOptionTradeWithMarketDto extends StockOptionTradeDto {

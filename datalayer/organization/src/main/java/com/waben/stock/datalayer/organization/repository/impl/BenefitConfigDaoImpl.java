@@ -21,7 +21,7 @@ import com.waben.stock.interfaces.enums.BenefitConfigType;
 /**
  * 分成配置 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

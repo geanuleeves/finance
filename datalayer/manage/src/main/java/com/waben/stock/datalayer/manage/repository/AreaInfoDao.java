@@ -7,7 +7,7 @@ import com.waben.stock.datalayer.manage.entity.AreaInfo;
 /**
  * 区域 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface AreaInfoDao extends BaseDao<AreaInfo, Long> {

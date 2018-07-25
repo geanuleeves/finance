@@ -11,7 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * 期货合约历史图数据（分时、日K、分钟K）
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

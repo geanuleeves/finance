@@ -5,7 +5,7 @@ import com.waben.stock.interfaces.dto.stockcontent.StockDto;
 /**
  * 股票
  *
- * @author luomengan
+ * @author lma
  */
 public class StockWithFavoriteDto extends StockDto {
 

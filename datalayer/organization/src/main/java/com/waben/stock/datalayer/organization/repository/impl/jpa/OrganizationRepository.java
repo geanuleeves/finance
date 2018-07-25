@@ -12,7 +12,7 @@ import com.waben.stock.datalayer.organization.entity.Organization;
 /**
  * 机构 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface OrganizationRepository extends CustomJpaRepository<Organization, Long> {

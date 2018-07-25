@@ -3,7 +3,7 @@ package com.waben.stock.interfaces.dto.manage;
 /**
  * 支付支行信息
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class CnapsDto {

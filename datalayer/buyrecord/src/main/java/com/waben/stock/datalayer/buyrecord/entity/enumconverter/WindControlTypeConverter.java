@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.WindControlType;
 /**
  * 风控类型 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class WindControlTypeConverter implements AttributeConverter<WindControlType, Integer> {

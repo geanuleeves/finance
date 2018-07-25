@@ -8,7 +8,7 @@ import com.waben.stock.interfaces.enums.WithdrawalsState;
 /**
  * 提现订单
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class WithdrawalsOrderDto {

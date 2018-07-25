@@ -17,7 +17,7 @@ import javax.persistence.Table;
  * 设置某支股票的权利金比例
  * </p>
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

@@ -14,7 +14,7 @@ import com.waben.stock.collector.entity.StockOptionTrade;
 /**
  * 用户股票期权交易信息 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

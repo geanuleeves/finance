@@ -20,7 +20,7 @@ import io.swagger.annotations.Api;
 /**
  * 推广渠道产生的策略 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

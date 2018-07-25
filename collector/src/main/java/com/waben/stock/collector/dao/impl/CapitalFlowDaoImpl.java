@@ -14,7 +14,7 @@ import com.waben.stock.collector.entity.CapitalFlow;
 /**
  * 资金流水 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

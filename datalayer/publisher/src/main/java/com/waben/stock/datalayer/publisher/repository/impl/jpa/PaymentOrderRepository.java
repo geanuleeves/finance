@@ -5,7 +5,7 @@ import com.waben.stock.datalayer.publisher.entity.PaymentOrder;
 /**
  * 支付订单 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface PaymentOrderRepository extends CustomJpaRepository<PaymentOrder, Long> {

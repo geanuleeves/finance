@@ -17,7 +17,7 @@ import com.waben.stock.interfaces.enums.BindCardResourceType;
 /**
  * 绑卡 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

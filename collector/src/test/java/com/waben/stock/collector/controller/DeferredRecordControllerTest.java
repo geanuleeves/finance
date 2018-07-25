@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 /**
  * 递延记录 Test
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class DeferredRecordControllerTest extends BaseControllerTest {

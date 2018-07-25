@@ -16,7 +16,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesOrder;
 /**
  * 期货订单 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

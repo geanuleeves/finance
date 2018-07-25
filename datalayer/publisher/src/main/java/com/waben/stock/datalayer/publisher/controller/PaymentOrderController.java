@@ -21,7 +21,7 @@ import com.waben.stock.interfaces.util.PageToPageInfo;
 /**
  * 支付订单 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

@@ -24,7 +24,7 @@ import com.waben.stock.futuresgateway.yisheng.util.JacksonUtil;
 /**
  * 行情-分钟K组合作业
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Component

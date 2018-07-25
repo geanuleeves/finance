@@ -9,7 +9,7 @@ import com.waben.stock.collector.entity.OrganizationAccountFlow;
 /**
  * 机构账户流水 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface OrganizationAccountFlowDao {

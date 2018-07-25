@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 绑卡资源 类型
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum BindCardResourceType implements CommonalityEnum {

@@ -17,7 +17,7 @@ import com.waben.stock.interfaces.enums.ResourceType;
 /**
  * 实名认证 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

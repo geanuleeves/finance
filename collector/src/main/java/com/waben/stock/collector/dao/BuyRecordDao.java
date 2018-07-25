@@ -9,7 +9,7 @@ import com.waben.stock.collector.entity.BuyRecord;
 /**
  * 点买记录 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface BuyRecordDao {

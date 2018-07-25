@@ -11,7 +11,7 @@ import java.util.Date;
 /**
  * 用户股票期权申购信息
  * 
- * @author luomengan
+ * @author lma
  *
  */
 

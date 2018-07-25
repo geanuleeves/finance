@@ -12,7 +12,7 @@ import javax.persistence.Table;
 /**
  * 收藏股票
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

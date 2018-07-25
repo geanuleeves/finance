@@ -38,7 +38,7 @@ import com.waben.stock.interfaces.util.JacksonUtil;
 /**
  * 直播管理
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Controller

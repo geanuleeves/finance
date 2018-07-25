@@ -13,7 +13,7 @@ import javax.persistence.Table;
 /**
  * 线下期权交易信息
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

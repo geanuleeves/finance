@@ -13,7 +13,7 @@ import javax.persistence.Table;
  * 
  * app版本审核专用
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

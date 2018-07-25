@@ -30,7 +30,7 @@ import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.EsOrderActionMess
 /**
  * 易盛交易
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Component

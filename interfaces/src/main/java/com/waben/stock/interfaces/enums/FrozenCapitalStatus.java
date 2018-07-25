@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 冻结资金状态
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum FrozenCapitalStatus implements CommonalityEnum {

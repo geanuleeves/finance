@@ -9,7 +9,7 @@ import com.waben.stock.collector.entity.OfflineStockOptionTrade;
 /**
  * 线下期权交易信息 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface OfflineStockOptionTradeDao {

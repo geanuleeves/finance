@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.BindCardResourceType;
 /**
  * 绑卡资源 类型 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class BindCardResourceTypeConverter implements AttributeConverter<BindCardResourceType, Integer> {

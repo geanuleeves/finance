@@ -21,7 +21,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * Cnaps Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

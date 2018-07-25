@@ -18,7 +18,7 @@ import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractM
 /**
  * 行情
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Component

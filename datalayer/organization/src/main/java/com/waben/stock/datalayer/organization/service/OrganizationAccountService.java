@@ -42,7 +42,7 @@ import com.waben.stock.interfaces.util.UniqueCodeGenerator;
 /**
  * 机构账户 Service
  *
- * @author luomengan
+ * @author lma
  */
 @Service
 public class OrganizationAccountService {

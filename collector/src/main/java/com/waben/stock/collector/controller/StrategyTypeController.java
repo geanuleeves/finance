@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 策略类型 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

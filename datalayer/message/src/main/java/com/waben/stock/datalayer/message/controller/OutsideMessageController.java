@@ -13,7 +13,7 @@ import com.waben.stock.interfaces.service.message.OutsideMessageInterface;
 /**
  * 站外消息 Controller
  *
- * @author luomengan
+ * @author lma
  */
 @RestController
 @RequestMapping("/outsidemsg")

@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 /**
  * 资金账户 Test
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class CapitalAccountControllerTest extends BaseControllerTest {

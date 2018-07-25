@@ -31,7 +31,7 @@ import javax.management.relation.Role;
 /**
  * 机构管理用户 Controller
  *
- * @author luomengan
+ * @author lma
  */
 @RestController
 @RequestMapping("/user")

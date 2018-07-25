@@ -14,7 +14,7 @@ import com.waben.stock.collector.entity.OrganizationPublisher;
 /**
  * 机构推广的发布人 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

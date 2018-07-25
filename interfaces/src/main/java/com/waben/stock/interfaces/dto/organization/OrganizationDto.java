@@ -8,7 +8,7 @@ import com.waben.stock.interfaces.enums.OrganizationState;
 /**
  * 机构
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class OrganizationDto {

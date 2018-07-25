@@ -17,7 +17,7 @@ import com.waben.stock.interfaces.service.organization.OrganizationSettlementInt
 /**
  * 机构结算 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

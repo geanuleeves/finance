@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 /**
  * 结算 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface SettlementRepository extends CustomJpaRepository<Settlement, Long> {

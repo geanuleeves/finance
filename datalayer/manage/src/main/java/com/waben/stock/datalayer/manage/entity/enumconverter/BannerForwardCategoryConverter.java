@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.BannerForwardCategory;
 /**
  * 跳转类别 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class BannerForwardCategoryConverter implements AttributeConverter<BannerForwardCategory, Integer> {

@@ -9,7 +9,7 @@ import com.waben.stock.collector.entity.Domain;
 /**
  * 应用 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface DomainDao {

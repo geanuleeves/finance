@@ -3,7 +3,7 @@ package com.waben.stock.applayer.tactics.dto.publisher;
 /**
  * 个人设置提醒
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class SettingRemindDto {

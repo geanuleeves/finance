@@ -12,7 +12,7 @@ import com.waben.stock.interfaces.service.organization.OrganizationInterface;
 /**
  * 机构 Business
  *
- * @author luomengan
+ * @author lma
  */
 @Service
 public class OrganizationBusiness {

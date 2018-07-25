@@ -17,7 +17,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteLast;
 /**
  * 期货合约行情-最新 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

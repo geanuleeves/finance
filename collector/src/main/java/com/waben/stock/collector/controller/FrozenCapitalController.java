@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 冻结资金 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

@@ -10,7 +10,7 @@ import com.waben.stock.datalayer.publisher.entity.FavoriteStock;
 /**
  * 收藏股票 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface FavoriteStockRepository extends CustomJpaRepository<FavoriteStock, Long> {

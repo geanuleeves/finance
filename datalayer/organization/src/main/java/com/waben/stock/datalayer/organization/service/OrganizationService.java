@@ -70,7 +70,7 @@ import com.waben.stock.interfaces.util.StringUtil;
 /**
  * 机构 Service
  *
- * @author luomengan
+ * @author lma
  */
 @Service
 public class OrganizationService {

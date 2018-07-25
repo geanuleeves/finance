@@ -9,7 +9,7 @@ import com.waben.stock.collector.entity.StockOptionTrade;
 /**
  * 用户股票期权交易信息 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface StockOptionTradeDao {

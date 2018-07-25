@@ -25,7 +25,7 @@ import com.waben.stock.interfaces.commonapi.retrivestock.bean.StockVariety;
  * 用于更新股票信息，不需要定期更新
  * </p>
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Component

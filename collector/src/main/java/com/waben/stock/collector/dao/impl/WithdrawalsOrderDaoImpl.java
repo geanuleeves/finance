@@ -14,7 +14,7 @@ import com.waben.stock.collector.entity.WithdrawalsOrder;
 /**
  * 提现订单 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

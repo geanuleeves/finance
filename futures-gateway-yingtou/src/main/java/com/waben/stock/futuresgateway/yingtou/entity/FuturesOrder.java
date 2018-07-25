@@ -12,7 +12,7 @@ import javax.persistence.Table;
 /**
  * 期货订单
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

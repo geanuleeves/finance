@@ -12,7 +12,7 @@ import com.waben.stock.interfaces.enums.WindControlType;
 /**
  * 点买记录
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

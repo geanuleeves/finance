@@ -14,7 +14,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuote;
 /**
  * 期货合约行情 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

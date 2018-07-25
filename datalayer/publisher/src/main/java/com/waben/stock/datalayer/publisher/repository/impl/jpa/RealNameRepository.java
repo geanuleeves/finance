@@ -12,7 +12,7 @@ import feign.Param;
 /**
  * 实名认证 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface RealNameRepository extends CustomJpaRepository<RealName, Long> {

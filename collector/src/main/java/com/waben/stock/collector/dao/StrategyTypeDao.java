@@ -9,7 +9,7 @@ import com.waben.stock.collector.entity.StrategyType;
 /**
  * 策略类型 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface StrategyTypeDao {

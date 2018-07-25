@@ -13,7 +13,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteKGroup;
 /**
  * 行情-分钟K组合 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface FuturesQuoteMinuteKGroupRepository extends Repository<FuturesQuoteMinuteKGroup, Long> {

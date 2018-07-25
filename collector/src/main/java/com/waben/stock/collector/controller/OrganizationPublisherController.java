@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 机构推广的发布人 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

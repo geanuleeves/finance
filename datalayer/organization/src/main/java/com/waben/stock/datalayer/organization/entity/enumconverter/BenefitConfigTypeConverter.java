@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.BenefitConfigType;
 /**
  * 分成配置类型 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class BenefitConfigTypeConverter implements AttributeConverter<BenefitConfigType, Integer> {

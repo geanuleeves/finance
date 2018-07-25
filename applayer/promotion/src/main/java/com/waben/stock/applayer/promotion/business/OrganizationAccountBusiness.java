@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.service.organization.OrganizationAccountInterf
 /**
  * 机构账户 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

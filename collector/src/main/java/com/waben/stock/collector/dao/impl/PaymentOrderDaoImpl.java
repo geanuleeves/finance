@@ -14,7 +14,7 @@ import com.waben.stock.collector.entity.PaymentOrder;
 /**
  * 支付订单 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

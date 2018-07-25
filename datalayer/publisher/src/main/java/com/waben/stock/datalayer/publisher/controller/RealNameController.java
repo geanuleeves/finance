@@ -20,7 +20,7 @@ import com.waben.stock.interfaces.util.CopyBeanUtils;
 /**
  * 实名认证 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

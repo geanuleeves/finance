@@ -18,7 +18,7 @@ import com.waben.stock.datalayer.publisher.repository.DynamicQuerySqlDao;
 /**
  * 动态执行查询sql
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

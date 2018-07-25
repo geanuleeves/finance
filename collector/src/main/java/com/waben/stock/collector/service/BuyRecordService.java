@@ -13,7 +13,7 @@ import com.waben.stock.collector.entity.BuyRecord;
 /**
  * 点买记录 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

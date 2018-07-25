@@ -10,7 +10,7 @@ import com.waben.stock.interfaces.enums.ResourceType;
 /**
  * 机构账户流水 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface OrganizationAccountFlowRepository extends CustomJpaRepository<OrganizationAccountFlow, Long> {

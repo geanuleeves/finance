@@ -14,7 +14,7 @@ import com.waben.stock.collector.entity.Publisher;
 /**
  * 策略发布人 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

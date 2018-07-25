@@ -12,7 +12,7 @@ import com.waben.stock.datalayer.organization.entity.PriceMarkupConfig;
 /**
  * 加价配置 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface PriceMarkupConfigRepository extends Repository<PriceMarkupConfig, Long> {

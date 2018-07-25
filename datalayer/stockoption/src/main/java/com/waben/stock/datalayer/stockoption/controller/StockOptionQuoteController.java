@@ -16,7 +16,7 @@ import com.waben.stock.interfaces.util.CopyBeanUtils;
 /**
  * 期权报价
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

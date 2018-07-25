@@ -6,7 +6,7 @@ import com.waben.stock.datalayer.manage.entity.BannerForward;
 /**
  * 轮播 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface BannerForwardRepository extends CustomJpaRepository<BannerForward, Long> {

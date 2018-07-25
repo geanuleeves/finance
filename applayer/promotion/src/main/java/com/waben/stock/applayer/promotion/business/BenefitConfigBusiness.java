@@ -19,7 +19,7 @@ import com.waben.stock.interfaces.service.organization.BenefitConfigInterface;
 /**
  * 分成配置 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

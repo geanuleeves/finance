@@ -23,7 +23,7 @@ import com.waben.stock.interfaces.service.publisher.CapitalAccountInterface;
 /**
  * 资金账户 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

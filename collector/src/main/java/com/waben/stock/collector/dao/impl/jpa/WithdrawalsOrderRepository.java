@@ -11,7 +11,7 @@ import com.waben.stock.collector.entity.WithdrawalsOrder;
 /**
  * 提现订单 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface WithdrawalsOrderRepository extends Repository<WithdrawalsOrder, Long> {

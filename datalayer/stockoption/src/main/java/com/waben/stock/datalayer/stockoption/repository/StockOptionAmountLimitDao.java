@@ -5,7 +5,7 @@ import com.waben.stock.datalayer.stockoption.entity.StockOptionAmountLimit;
 /**
  * 期权交易限额 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface StockOptionAmountLimitDao extends BaseDao<StockOptionAmountLimit, Long> {

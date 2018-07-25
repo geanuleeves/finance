@@ -7,7 +7,7 @@ import com.waben.stock.datalayer.manage.entity.Cnaps;
 /**
  * Cnaps Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface CnapsDao extends BaseDao<Cnaps, Long> {

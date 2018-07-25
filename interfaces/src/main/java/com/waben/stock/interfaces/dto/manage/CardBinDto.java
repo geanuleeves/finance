@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * 银行卡片
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class CardBinDto {

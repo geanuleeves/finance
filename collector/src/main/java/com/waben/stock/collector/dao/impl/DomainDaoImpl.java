@@ -14,7 +14,7 @@ import com.waben.stock.collector.entity.Domain;
 /**
  * 应用 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

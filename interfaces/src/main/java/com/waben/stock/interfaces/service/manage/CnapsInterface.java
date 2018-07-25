@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.pojo.Response;
 /**
  * Canps Controller接口
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @FeignClient(name = "manage", path = "cnaps", qualifier = "cnapsInterface")

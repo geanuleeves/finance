@@ -13,7 +13,7 @@ import javax.persistence.Table;
 /**
  * 点买记录
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

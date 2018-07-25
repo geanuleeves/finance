@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 资源 类型
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum ResourceType implements CommonalityEnum {

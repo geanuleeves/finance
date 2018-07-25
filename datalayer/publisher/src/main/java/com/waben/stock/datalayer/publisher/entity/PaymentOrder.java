@@ -19,7 +19,7 @@ import com.waben.stock.interfaces.enums.PaymentType;
 /**
  * 支付订单
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

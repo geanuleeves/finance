@@ -19,7 +19,7 @@ import com.waben.stock.interfaces.enums.FrozenCapitalType;
 /**
  * 冻结资金
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

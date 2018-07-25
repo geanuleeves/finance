@@ -9,7 +9,7 @@ import com.waben.stock.collector.entity.StockOptionCycle;
 /**
  * 期权周期 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface StockOptionCycleDao {

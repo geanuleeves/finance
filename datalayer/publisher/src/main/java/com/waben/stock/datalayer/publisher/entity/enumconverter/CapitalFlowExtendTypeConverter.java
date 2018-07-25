@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.CapitalFlowExtendType;
 /**
  * 资金流水扩展 类型 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class CapitalFlowExtendTypeConverter implements AttributeConverter<CapitalFlowExtendType, Integer> {

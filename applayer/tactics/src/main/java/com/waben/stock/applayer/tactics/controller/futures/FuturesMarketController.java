@@ -31,7 +31,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 期货合约行情
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

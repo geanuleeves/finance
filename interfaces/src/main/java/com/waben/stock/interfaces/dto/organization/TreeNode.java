@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * 树节点
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class TreeNode {

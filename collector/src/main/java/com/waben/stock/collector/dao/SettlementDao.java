@@ -9,7 +9,7 @@ import com.waben.stock.collector.entity.Settlement;
 /**
  * 结算 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface SettlementDao {

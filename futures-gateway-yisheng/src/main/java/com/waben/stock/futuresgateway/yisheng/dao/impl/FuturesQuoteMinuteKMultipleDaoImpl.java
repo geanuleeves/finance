@@ -24,7 +24,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteKMul
 /**
  * 行情-多分钟K Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository
