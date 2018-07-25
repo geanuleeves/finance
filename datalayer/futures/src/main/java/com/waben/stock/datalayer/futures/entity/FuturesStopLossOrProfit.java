@@ -52,6 +52,11 @@ public class FuturesStopLossOrProfit {
 	@ManyToOne
 	@JoinColumn(name = "commodity_id")
 	private FuturesCommodity commodity;
+	
+	/**
+	 * 是否启用
+	 */
+	private boolean enable;
 
 	/************************************ 分割线，以下字段为非数据库字段 **********************************************/
 
@@ -104,6 +109,14 @@ public class FuturesStopLossOrProfit {
 
 	public void setCommodity(FuturesCommodity commodity) {
 		this.commodity = commodity;
+	}
+
+	public boolean isEnable() {
+		return enable;
+	}
+
+	public void setEnable(boolean enable) {
+		this.enable = enable;
 	}
 
 	public Long getCommodityId() {
