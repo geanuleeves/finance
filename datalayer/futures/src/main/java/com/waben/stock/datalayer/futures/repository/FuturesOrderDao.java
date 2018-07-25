@@ -142,11 +142,11 @@ public interface FuturesOrderDao extends BaseDao<FuturesOrder, Long> {
 	FuturesOrder retrieveByOrderIdAndPublisherId(Long orderId, Long publisherId);
 
 	/**
-	 * 根据用户ID获取订单条数
+	 * 根据用户ID获取未完成订单条数
 	 * 
 	 * @param publisherId
 	 *            用户ID
-	 * @return 订单条数
+	 * @return 未完成订单条数
 	 */
 	Integer countByPublisherId(Long publisherId);
 
