@@ -11,7 +11,7 @@ import com.waben.stock.collector.entity.CapitalAccount;
 /**
  * 资金账户 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface CapitalAccountRepository extends Repository<CapitalAccount, Long> {

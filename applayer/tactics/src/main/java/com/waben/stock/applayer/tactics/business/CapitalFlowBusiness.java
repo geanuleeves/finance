@@ -29,7 +29,7 @@ import com.waben.stock.interfaces.util.CopyBeanUtils;
 /**
  * 资金流水 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

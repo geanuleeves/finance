@@ -12,7 +12,7 @@ import com.waben.stock.interfaces.service.stockcontent.StockInterface;
 /**
  * 股票 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

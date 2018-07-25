@@ -26,7 +26,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 收藏股票 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

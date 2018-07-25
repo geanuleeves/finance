@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 /**
  * 股票市场指数
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class StockMarketExponentDto {

@@ -13,7 +13,7 @@ import com.waben.stock.collector.entity.StockOptionTrade;
 /**
  * 用户股票期权交易信息 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

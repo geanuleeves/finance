@@ -28,7 +28,7 @@ import com.waben.stock.interfaces.util.PageToPageInfo;
 /**
  * 结算 Controller
  *
- * @author luomengan
+ * @author lma
  */
 @RestController
 @RequestMapping("/settlement")

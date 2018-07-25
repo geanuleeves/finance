@@ -23,7 +23,7 @@ import com.waben.stock.interfaces.util.CopyBeanUtils;
 /**
  * 期权报价 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

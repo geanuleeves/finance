@@ -9,7 +9,7 @@ import com.waben.stock.collector.entity.FrozenCapital;
 /**
  * 冻结资金 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface FrozenCapitalDao {

@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * 机构推广的发布人
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class OrganizationPublisherDto {

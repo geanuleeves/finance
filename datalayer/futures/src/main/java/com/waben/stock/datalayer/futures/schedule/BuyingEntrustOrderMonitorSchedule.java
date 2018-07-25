@@ -31,7 +31,7 @@ import com.waben.stock.interfaces.util.RandomUtil;
  * 达到合约强平日或者隔夜时间余额不足，买入委托订单要自动取消，金额退还用户
  * </p>
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Component

@@ -36,7 +36,7 @@ import com.waben.stock.interfaces.util.JacksonUtil;
  * 结构指新湖瑞丰
  * </p>
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Component

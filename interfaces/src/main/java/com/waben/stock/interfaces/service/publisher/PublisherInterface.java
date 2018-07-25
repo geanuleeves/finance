@@ -20,7 +20,7 @@ import com.waben.stock.interfaces.pojo.query.admin.publisher.PublisherAdminQuery
 /**
  * 发布人 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "publisher", path = "publisher", qualifier = "publisherInterface")
 public interface PublisherInterface {

@@ -11,7 +11,7 @@ import com.waben.stock.collector.entity.StrategyType;
 /**
  * 策略类型 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface StrategyTypeRepository extends Repository<StrategyType, Long> {

@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * banner跳转类别
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum BannerForwardCategory implements CommonalityEnum {

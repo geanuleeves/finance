@@ -18,7 +18,7 @@ import com.waben.stock.interfaces.pojo.query.organization.OrganizationAccountQue
 /**
  * 机构账户 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "organization", path = "organizationAccount", qualifier = "organizationAccountInterface")
 public interface OrganizationAccountInterface {

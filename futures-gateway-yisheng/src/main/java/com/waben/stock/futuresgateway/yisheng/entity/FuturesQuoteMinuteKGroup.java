@@ -14,7 +14,7 @@ import org.hibernate.annotations.Type;
 /**
  * 行情-分钟K组合
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

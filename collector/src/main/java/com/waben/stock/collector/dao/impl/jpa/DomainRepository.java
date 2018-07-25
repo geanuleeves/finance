@@ -11,7 +11,7 @@ import com.waben.stock.collector.entity.Domain;
 /**
  * 应用 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface DomainRepository extends Repository<Domain, Long> {

@@ -19,7 +19,7 @@ import com.waben.stock.interfaces.util.RandomUtil;
 /**
  * 直播频道统一请求网易云
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class ChannelManageOverHttps {

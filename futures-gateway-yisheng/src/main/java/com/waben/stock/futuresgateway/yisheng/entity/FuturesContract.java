@@ -11,7 +11,7 @@ import javax.persistence.Table;
 /**
  * 期货合约
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

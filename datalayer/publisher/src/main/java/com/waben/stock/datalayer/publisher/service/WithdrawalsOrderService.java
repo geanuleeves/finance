@@ -39,7 +39,7 @@ import com.waben.stock.interfaces.pojo.query.WithdrawalsOrderQuery;
 /**
  * 提现订单 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

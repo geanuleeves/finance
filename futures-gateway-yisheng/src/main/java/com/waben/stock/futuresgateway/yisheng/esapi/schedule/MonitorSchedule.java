@@ -13,7 +13,7 @@ import com.waben.stock.futuresgateway.yisheng.esapi.EsTradeWrapper;
 /**
  * 监控API
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Component

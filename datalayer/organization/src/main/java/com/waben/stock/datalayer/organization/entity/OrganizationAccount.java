@@ -16,7 +16,7 @@ import javax.persistence.Table;
 /**
  * 机构账户
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

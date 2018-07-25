@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 /**
  * 基础Controller测试类
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RunWith(SpringRunner.class)

@@ -13,7 +13,7 @@ import com.waben.stock.interfaces.pojo.Response;
 /**
  * 区域 Controller接口
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @FeignClient(name = "manage", path = "areainfo", qualifier = "areaInfoInterface")

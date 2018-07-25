@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.FrozenCapitalStatus;
 /**
  * 冻结资金状态 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class FrozenCapitalStatusConverter implements AttributeConverter<FrozenCapitalStatus, Integer> {

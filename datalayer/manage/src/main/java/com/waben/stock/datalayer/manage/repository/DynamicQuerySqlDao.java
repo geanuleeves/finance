@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * 动态执行查询sql
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface DynamicQuerySqlDao {

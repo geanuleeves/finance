@@ -9,7 +9,7 @@ import com.waben.stock.interfaces.enums.AnalogDataType;
 /**
  * 模拟数据 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface AnalogDataRepository extends CustomJpaRepository<AnalogData, Long> {

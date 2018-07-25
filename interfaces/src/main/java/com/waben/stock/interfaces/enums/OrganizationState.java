@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 机构状态
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum OrganizationState implements CommonalityEnum {

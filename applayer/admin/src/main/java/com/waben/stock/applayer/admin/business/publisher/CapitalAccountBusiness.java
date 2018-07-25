@@ -38,7 +38,7 @@ import com.waben.stock.interfaces.util.CopyBeanUtils;
 /**
  * 资金账户 Business
  * 
- * @author luomengan
+ * @author lma
  */
 @Service
 public class CapitalAccountBusiness {

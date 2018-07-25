@@ -11,7 +11,7 @@ import com.waben.stock.interfaces.enums.AnalogDataType;
 /**
  * 模拟数据 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

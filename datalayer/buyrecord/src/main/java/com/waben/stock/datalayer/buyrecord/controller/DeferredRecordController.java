@@ -17,7 +17,7 @@ import com.waben.stock.interfaces.util.CopyBeanUtils;
 /**
  * 递延记录 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

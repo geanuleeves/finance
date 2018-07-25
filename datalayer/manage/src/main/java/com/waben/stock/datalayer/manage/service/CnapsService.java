@@ -17,7 +17,7 @@ import com.waben.stock.interfaces.exception.ServiceException;
 /**
  * Cnaps Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 机构账户流水 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

@@ -24,7 +24,7 @@ import com.waben.stock.interfaces.exception.ServiceException;
 /**
  * 收藏股票 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

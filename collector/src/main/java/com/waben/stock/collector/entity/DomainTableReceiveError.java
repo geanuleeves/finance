@@ -12,7 +12,7 @@ import javax.persistence.Table;
  * 
  * 同步错误日志 实体
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

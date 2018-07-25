@@ -11,7 +11,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteK;
 /**
  * 行情-分钟K Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface FuturesQuoteMinuteKDao {

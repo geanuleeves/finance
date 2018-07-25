@@ -11,7 +11,7 @@ import com.waben.stock.datalayer.manage.repository.AreaInfoDao;
 /**
  * 区域 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

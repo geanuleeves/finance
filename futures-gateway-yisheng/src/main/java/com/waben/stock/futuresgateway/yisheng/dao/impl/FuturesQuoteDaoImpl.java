@@ -22,7 +22,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuote;
 /**
  * 期货合约行情 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

@@ -11,7 +11,7 @@ import com.waben.stock.collector.entity.OrganizationAccountFlow;
 /**
  * 机构账户流水 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface OrganizationAccountFlowRepository extends Repository<OrganizationAccountFlow, Long> {

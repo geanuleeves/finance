@@ -19,7 +19,7 @@ import com.waben.stock.datalayer.organization.repository.impl.jpa.OrganizationRe
 /**
  * 机构 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

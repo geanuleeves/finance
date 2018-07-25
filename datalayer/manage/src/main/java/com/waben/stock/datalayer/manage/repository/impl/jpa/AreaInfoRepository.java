@@ -7,7 +7,7 @@ import com.waben.stock.datalayer.manage.entity.AreaInfo;
 /**
  * 区域 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface AreaInfoRepository extends CustomJpaRepository<AreaInfo, Long> {

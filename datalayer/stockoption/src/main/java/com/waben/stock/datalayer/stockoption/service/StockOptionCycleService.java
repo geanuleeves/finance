@@ -11,7 +11,7 @@ import com.waben.stock.datalayer.stockoption.repository.StockOptionCycleDao;
 /**
  * 期权周期 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

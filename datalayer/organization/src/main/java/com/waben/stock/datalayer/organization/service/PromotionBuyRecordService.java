@@ -25,7 +25,7 @@ import com.waben.stock.interfaces.pojo.query.organization.PromotionBuyRecordQuer
 /**
  * 推广渠道产生的策略 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

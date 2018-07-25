@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.service.organization.PromotionStockOptionTrade
 /**
  * 推广渠道产生的期权交易 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

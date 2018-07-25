@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 站外消息类型
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum OutsideMessageType implements CommonalityEnum {

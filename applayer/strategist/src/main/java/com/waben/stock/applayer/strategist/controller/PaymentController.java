@@ -46,7 +46,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 支付 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

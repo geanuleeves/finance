@@ -18,7 +18,7 @@ import com.waben.stock.datalayer.publisher.repository.impl.jpa.FavoriteStockRepo
 /**
  * 收藏股票 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

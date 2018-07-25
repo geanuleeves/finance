@@ -6,7 +6,7 @@ import com.waben.stock.interfaces.pojo.query.PageAndSortQuery;
 /**
  * 期权查询条件
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

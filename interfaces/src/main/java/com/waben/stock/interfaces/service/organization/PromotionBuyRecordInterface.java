@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.pojo.query.organization.PromotionBuyRecordQuer
 /**
  * 推广渠道产生的策略 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "organization", path = "promotionBuyRecord", qualifier = "promotionBuyRecordInterface")
 public interface PromotionBuyRecordInterface {

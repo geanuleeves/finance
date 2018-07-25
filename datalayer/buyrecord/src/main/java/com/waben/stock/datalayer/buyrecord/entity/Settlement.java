@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 /**
  * 结算
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

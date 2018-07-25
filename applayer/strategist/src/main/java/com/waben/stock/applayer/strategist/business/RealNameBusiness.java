@@ -13,7 +13,7 @@ import com.waben.stock.interfaces.service.publisher.RealNameInterface;
 /**
  * 实名认证 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

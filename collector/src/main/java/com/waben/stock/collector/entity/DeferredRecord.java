@@ -13,7 +13,7 @@ import javax.persistence.Table;
 /**
  * 递延记录
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

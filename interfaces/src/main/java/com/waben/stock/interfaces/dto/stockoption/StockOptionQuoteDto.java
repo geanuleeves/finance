@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 /**
  * 期权报价
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class StockOptionQuoteDto {

@@ -26,7 +26,7 @@ import com.waben.stock.interfaces.exception.ServiceException;
 /**
  * 实名认证 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

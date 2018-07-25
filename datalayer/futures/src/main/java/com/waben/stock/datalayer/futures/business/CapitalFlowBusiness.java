@@ -15,7 +15,7 @@ import com.waben.stock.interfaces.service.publisher.CapitalFlowInterface;
 /**
  * 资金流水 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

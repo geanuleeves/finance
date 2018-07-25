@@ -16,7 +16,7 @@ import com.waben.stock.applayer.tactics.websocket.StockMarketWebsocket;
 /**
  * 推送股票市场指数作业
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Component

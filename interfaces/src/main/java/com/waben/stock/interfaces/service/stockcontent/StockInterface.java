@@ -16,7 +16,7 @@ import com.waben.stock.interfaces.pojo.query.StockQuery;
 /**
  * 股票 reference服务接口
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @FeignClient(name = "stockcontent", path = "stock", qualifier = "stockInterface")

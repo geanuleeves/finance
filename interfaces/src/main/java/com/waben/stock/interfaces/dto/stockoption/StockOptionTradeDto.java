@@ -11,7 +11,7 @@ import com.waben.stock.interfaces.enums.StockOptionTradeState;
 /**
  * 用户股票期权申购信息
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 /**
  * 策略类型 Test
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class StrategyTypeControllerTest extends BaseControllerTest {

@@ -12,7 +12,7 @@ import javax.persistence.Table;
 /**
  * 银行卡片
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

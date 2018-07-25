@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * 递延费
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class DeferredRecordDto {

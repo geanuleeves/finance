@@ -15,7 +15,7 @@ import com.waben.stock.interfaces.commonapi.retrivestock.bean.StockMarket;
 /**
  * 股票行情 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

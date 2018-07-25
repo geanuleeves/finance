@@ -42,7 +42,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 提现申请 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

@@ -11,7 +11,7 @@ import com.waben.stock.collector.entity.BuyRecord;
 /**
  * 点买记录 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface BuyRecordRepository extends Repository<BuyRecord, Long> {

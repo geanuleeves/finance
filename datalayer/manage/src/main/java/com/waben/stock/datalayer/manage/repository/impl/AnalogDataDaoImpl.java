@@ -19,7 +19,7 @@ import com.waben.stock.interfaces.enums.AnalogDataType;
 /**
  * 模拟数据 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

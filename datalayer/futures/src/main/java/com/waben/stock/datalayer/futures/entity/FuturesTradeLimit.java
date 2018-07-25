@@ -17,7 +17,7 @@ import com.waben.stock.interfaces.enums.FuturesTradeLimitType;
 /**
  * 期货交易 限制
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

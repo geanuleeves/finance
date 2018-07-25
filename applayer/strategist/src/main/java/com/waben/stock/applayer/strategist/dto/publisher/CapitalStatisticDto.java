@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 /**
  * 资金统计
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class CapitalStatisticDto {

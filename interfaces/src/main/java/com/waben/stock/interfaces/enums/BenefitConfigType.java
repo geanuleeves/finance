@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 分成配置类型
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum BenefitConfigType implements CommonalityEnum {

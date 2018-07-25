@@ -11,7 +11,7 @@ import javax.persistence.Table;
 /**
  * 机构推广的发布人
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

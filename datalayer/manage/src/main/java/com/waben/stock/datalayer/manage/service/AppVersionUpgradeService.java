@@ -9,7 +9,7 @@ import com.waben.stock.datalayer.manage.repository.AppVersionUpgradeDao;
 /**
  * app版本升级 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

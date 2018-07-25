@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 点买状态
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum BuyRecordState implements CommonalityEnum {

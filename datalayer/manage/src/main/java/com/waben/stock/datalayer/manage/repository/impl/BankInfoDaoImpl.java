@@ -16,7 +16,7 @@ import com.waben.stock.datalayer.manage.repository.impl.jpa.BankInfoRepository;
 /**
  * 银行信息 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

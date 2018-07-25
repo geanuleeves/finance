@@ -11,7 +11,7 @@ import com.waben.stock.collector.entity.DomainTableReceiveError;
 /**
  * 同步错误日志 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface DomainTableReceiveErrorRepository extends Repository<DomainTableReceiveError, Integer> {

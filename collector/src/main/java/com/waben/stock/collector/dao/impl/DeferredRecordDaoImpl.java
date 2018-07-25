@@ -14,7 +14,7 @@ import com.waben.stock.collector.entity.DeferredRecord;
 /**
  * 递延记录 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

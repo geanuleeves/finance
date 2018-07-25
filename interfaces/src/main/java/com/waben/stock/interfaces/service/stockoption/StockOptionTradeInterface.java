@@ -30,7 +30,7 @@ import com.waben.stock.interfaces.pojo.query.promotion.stockoption.StockOptionPr
 /**
  * 期权交易 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "stockoption", path = "stockoptiontrade", qualifier = "stockOptionTradeInterface")
 public interface StockOptionTradeInterface {

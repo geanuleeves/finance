@@ -6,7 +6,7 @@ import com.waben.stock.datalayer.publisher.entity.Publisher;
 /**
  * 资金账号 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface CapitalAccountRepository extends CustomJpaRepository<CapitalAccount, Long> {

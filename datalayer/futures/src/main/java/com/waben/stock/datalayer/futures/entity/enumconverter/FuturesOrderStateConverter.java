@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.FuturesOrderState;
 /**
  * 期货订单状态 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class FuturesOrderStateConverter implements AttributeConverter<FuturesOrderState, Integer> {

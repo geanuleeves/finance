@@ -14,7 +14,7 @@ import com.waben.stock.collector.entity.Settlement;
 /**
  * 结算 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

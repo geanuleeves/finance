@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 /**
  * 绑卡 Test
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class BindCardControllerTest extends BaseControllerTest {

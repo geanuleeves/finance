@@ -16,7 +16,7 @@ import com.waben.stock.datalayer.manage.repository.impl.jpa.AppVersionUpgradeRep
 /**
  * app版本升级 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

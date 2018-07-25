@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 /**
  * 股票品种
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

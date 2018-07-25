@@ -11,7 +11,7 @@ import com.waben.stock.interfaces.service.stockoption.StockOptionTradeInterface;
 /**
  * 期权交易 Business
  * 
- * @author luomengan
+ * @author lma
  */
 @Service
 public class StockOptionTradeBusiness {

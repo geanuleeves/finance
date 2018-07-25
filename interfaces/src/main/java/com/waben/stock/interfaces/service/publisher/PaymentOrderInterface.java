@@ -16,7 +16,7 @@ import com.waben.stock.interfaces.pojo.query.PaymentOrderQuery;
 /**
  * 支付订单 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "publisher", path = "paymentorder", qualifier = "paymentOrderInterface")
 public interface PaymentOrderInterface {

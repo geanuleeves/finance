@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.AnalogDataType;
 /**
  * 模拟数据 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class AnalogDataTypeConverter implements AttributeConverter<AnalogDataType, Integer> {

@@ -25,7 +25,7 @@ import io.swagger.annotations.Api;
 /**
  * 提现申请 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

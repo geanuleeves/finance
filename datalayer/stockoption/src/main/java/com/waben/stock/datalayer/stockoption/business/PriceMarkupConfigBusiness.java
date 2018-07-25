@@ -19,7 +19,7 @@ import com.waben.stock.interfaces.service.organization.PriceMarkupConfigInterfac
 /**
  * 加价配置 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

@@ -12,7 +12,7 @@ import javax.persistence.Table;
 /**
  * 期货货币汇率
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

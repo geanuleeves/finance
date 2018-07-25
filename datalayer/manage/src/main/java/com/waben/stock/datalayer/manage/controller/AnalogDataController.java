@@ -17,7 +17,7 @@ import com.waben.stock.interfaces.util.PageToPageInfo;
 /**
  * 模拟数据 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

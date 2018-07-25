@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * 期货合约行情
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class FuturesQuote {

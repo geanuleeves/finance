@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * 
  * 直播统一响应实体
  * 
- * @author luomengan
+ * @author lma
  *
  * @param <T>
  *            响应主信息泛型

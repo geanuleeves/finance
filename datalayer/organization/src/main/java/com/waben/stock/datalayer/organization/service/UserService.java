@@ -31,7 +31,7 @@ import com.waben.stock.interfaces.util.PasswordCrypt;
 /**
  * 机构管理用户 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

@@ -8,7 +8,7 @@ import com.waben.stock.applayer.strategist.service.RedisCache;
 /**
  * 体验活动 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

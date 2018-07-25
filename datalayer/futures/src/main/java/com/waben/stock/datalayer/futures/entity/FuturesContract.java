@@ -17,7 +17,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * 期货合约
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

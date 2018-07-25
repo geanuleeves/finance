@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.FuturesOrderType;
 /**
  * 期货订单类型 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class FuturesOrderTypeConverter implements AttributeConverter<FuturesOrderType, Integer> {

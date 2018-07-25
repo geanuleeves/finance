@@ -37,7 +37,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 资金流水 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController
