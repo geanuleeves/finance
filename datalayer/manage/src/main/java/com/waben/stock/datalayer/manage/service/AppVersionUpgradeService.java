@@ -1,8 +1,11 @@
 package com.waben.stock.datalayer.manage.service;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Date;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,17 +28,6 @@ public class AppVersionUpgradeService {
 	public AppVersionUpgrade checkUpgrade(Integer versionCode, Integer deviceType, Integer shellIndex) {
 		AppVersionUpgrade upgrade = dao.getGreaterThanCurrentVersion(versionCode, deviceType, shellIndex);
 		return upgrade;
-	}
-	
-	public AppVersionUpgrade addUpgrade(AppVersionUpgrade grade){
-		grade.setIsCurrentVersion(false);
-		grade.setPublishDate(new Date());
-		grade.setShellIndex(1);
-		grade.setUpgradStrategy(0);
-		if(grade.getDeviceType()!=null && grade.getDeviceType()==0){
-		}
-		
-		return null;
 	}
 
 }

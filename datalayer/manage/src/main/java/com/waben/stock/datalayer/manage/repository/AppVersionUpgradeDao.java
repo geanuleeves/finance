@@ -11,5 +11,5 @@ import com.waben.stock.datalayer.manage.entity.AppVersionUpgrade;
 public interface AppVersionUpgradeDao extends BaseDao<AppVersionUpgrade, Long> {
 
 	AppVersionUpgrade getGreaterThanCurrentVersion(Integer versionCode, Integer deviceType, Integer shellIndex);
-
+	
 }
