@@ -127,13 +127,9 @@ public class FuturesCommodity {
 	 */
 	private BigDecimal unwindServiceFee;
 	/**
-	 * 交易综合费
-	 */
-	private BigDecimal tradeServiceFee;
-	/**
 	 * 隔夜时间（交易所时间）
 	 * <p>
-	 * 格式如04:50:00，该时间为收取隔夜手续费和递延费的时间
+	 * 格式如04:50:00，该时间为隔夜保证金冻结和递延费收取的时间
 	 * </p>
 	 */
 	private String overnightTime;
@@ -227,9 +223,10 @@ public class FuturesCommodity {
 	 */
 	@OneToMany(cascade = { CascadeType.REMOVE }, fetch = FetchType.EAGER, mappedBy = "commodity")
 	private Set<FuturesPreQuantity> preQuantitySet;
-
+	/**
+	 * 创建时间
+	 */
 	private Date createTime;
-
 	/**
 	 * 当天交易时间描述
 	 */
@@ -638,15 +635,6 @@ public class FuturesCommodity {
 		this.buyFallCloseSlipPoint = buyFallCloseSlipPoint;
 	}
 
-
-	public BigDecimal getTradeServiceFee() {
-		return tradeServiceFee;
-	}
-
-	public void setTradeServiceFee(BigDecimal tradeServiceFee) {
-		this.tradeServiceFee = tradeServiceFee;
-	}
-		
 	public String getCurrentTradeTimeDesc() {
 		return currentTradeTimeDesc;
 	}
