@@ -20,7 +20,6 @@ import com.waben.stock.datalayer.futures.entity.FuturesExchange;
 import com.waben.stock.datalayer.futures.entity.FuturesHoliday;
 import com.waben.stock.datalayer.futures.entity.FuturesPreQuantity;
 import com.waben.stock.datalayer.futures.entity.FuturesStopLossOrProfit;
-import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesProductTypeConverter;
 import com.waben.stock.datalayer.futures.service.FuturesCommodityService;
 import com.waben.stock.datalayer.futures.service.FuturesContractService;
@@ -28,17 +27,14 @@ import com.waben.stock.datalayer.futures.service.FuturesCurrencyRateService;
 import com.waben.stock.datalayer.futures.service.FuturesExchangeService;
 import com.waben.stock.datalayer.futures.service.FuturesHolidayService;
 import com.waben.stock.datalayer.futures.service.FuturesPreQuantityService;
-import com.waben.stock.datalayer.futures.service.FuturesTradeLimitService;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesCommodityAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesPreQuantityDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeTimeDto;
 import com.waben.stock.interfaces.dto.admin.futures.SetSlipPointDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
-import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
 import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 import com.waben.stock.interfaces.enums.FuturesProductType;
-import com.waben.stock.interfaces.enums.FuturesTradeLimitType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
@@ -69,9 +65,6 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 
 	@Autowired
 	private FuturesPreQuantityService quantityService;
-
-	@Autowired
-	private FuturesTradeLimitService futuresTradeLimitService;
 
 	@Autowired
 	private FuturesHolidayService futuresHolidayService;
@@ -188,7 +181,6 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 		oldCommodity.setOvernightPerUnitDeferredFee(dto.getOvernightPerUnitDeferredFee());
 		oldCommodity.setPerContractValue(dto.getPerContractValue());
 		oldCommodity.setCurrentTradeTimeDesc(dto.getCurrentTradeTimeDesc());
-		oldCommodity.setTradeServiceFee(dto.getTradeServiceFee());
 
 		FuturesCommodity result = commodityService.modify(oldCommodity);
 		FuturesCommodityAdminDto response = CopyBeanUtils.copyBeanProperties(result, new FuturesCommodityAdminDto(),
