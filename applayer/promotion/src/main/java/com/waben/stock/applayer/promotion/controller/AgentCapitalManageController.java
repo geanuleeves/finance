@@ -128,10 +128,10 @@ public class AgentCapitalManageController {
 		return new Response<>(agentCapitalManageBusiness.pageAgentCapitalManage(query));
 	}
 
-	@RequestMapping(value = "/current/sum/ratio", method = RequestMethod.GET)
+	@RequestMapping(value = "/current/sum/ratio/{orgId}", method = RequestMethod.GET)
 	@ApiOperation(value = "获取当前代理商可设比例")
-	public Response<BigDecimal> getSumRatio() {
-		return new Response<>(organizationBusiness.getSumRatio(SecurityUtil.getUserDetails().getOrgId()));
+	public Response<BigDecimal> getSumRatio(@PathVariable("orgId") Long orgId) {
+		return new Response<>(organizationBusiness.getSumRatio(orgId));
 	}
 
 	@RequestMapping(value = "/export", method = RequestMethod.GET)
