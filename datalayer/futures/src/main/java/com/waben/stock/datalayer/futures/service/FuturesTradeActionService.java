@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * 订单交易开平仓记录
+ *
  * @author chenk 2018/7/26
  */
 @Service
@@ -21,6 +22,18 @@ public class FuturesTradeActionService {
 
     public FuturesTradeAction findById(Long id) {
         return futuresTradeActionDao.retrieve(id);
+    }
+
+    public FuturesTradeAction save(FuturesTradeAction futuresTradeAction) {
+        return futuresTradeActionDao.create(futuresTradeAction);
+    }
+
+    public FuturesTradeAction modify(FuturesTradeAction futuresTradeAction) {
+        return futuresTradeActionDao.update(futuresTradeAction);
+    }
+
+    public void delete(Long id) {
+        futuresTradeActionDao.delete(id);
     }
 
 }
