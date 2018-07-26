@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * 合约订单
+ *
  * @author chenk 2018/7/26
  */
 @Service
@@ -22,5 +23,18 @@ public class FuturesContractOrderService {
     public FuturesContractOrder findById(Long id) {
         return futuresContractOrderDao.retrieve(id);
     }
+
+    public FuturesContractOrder save(FuturesContractOrder futuresContractOrder) {
+        return futuresContractOrderDao.create(futuresContractOrder);
+    }
+
+    public FuturesContractOrder modify(FuturesContractOrder futuresContractOrder) {
+        return futuresContractOrderDao.update(futuresContractOrder);
+    }
+
+    public void delete(Long id) {
+        futuresContractOrderDao.delete(id);
+    }
+
 
 }
