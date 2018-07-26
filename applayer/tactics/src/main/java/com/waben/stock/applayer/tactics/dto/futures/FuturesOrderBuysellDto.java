@@ -24,9 +24,6 @@ public class FuturesOrderBuysellDto {
 	@ApiModelProperty(value = "触发止盈类型  1 价格, 2 金额")
 	private Integer limitProfitType;
 
-	@ApiModelProperty(value = "止损档位ID")
-	private Long stopLossOrProfitId;
-
 	@ApiModelProperty(value = "止盈金额点位")
 	private BigDecimal perUnitLimitProfitAmount;
 
@@ -109,14 +106,6 @@ public class FuturesOrderBuysellDto {
 
 	public void setBuyingEntrustPrice(BigDecimal buyingEntrustPrice) {
 		this.buyingEntrustPrice = buyingEntrustPrice;
-	}
-
-	public Long getStopLossOrProfitId() {
-		return stopLossOrProfitId;
-	}
-
-	public void setStopLossOrProfitId(Long stopLossOrProfitId) {
-		this.stopLossOrProfitId = stopLossOrProfitId;
 	}
 
 }

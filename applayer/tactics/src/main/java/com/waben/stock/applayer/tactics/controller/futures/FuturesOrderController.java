@@ -93,19 +93,41 @@ public class FuturesOrderController {
 	@ApiOperation(value = "买涨买跌下单")
 	public Response<FuturesOrderDto> placeOrder(FuturesOrderBuysellDto buysellDto) {
 		logger.info("调用接口发布人{}期货下单{}，手数{}!", SecurityUtil.getUserId(), buysellDto.getContractId(), buysellDto.getTotalQuantity());
-		FuturesContractQuery query = new FuturesContractQuery();
-		query.setPage(0);
-		query.setSize(1);
-		query.setContractId(buysellDto.getContractId());
-		// 判断该合约是否可用是否在交易中、网关是否支持该合约、合约交易所是否可用、以及是否在交易时间内
-		FuturesContractDto contractDto = futuresContractBusiness.getContractByOne(query);
-		futuresContractBusiness.wrapperAgentPrice(contractDto);
-		// 根据最后交易日和首次通知日判断是否可以下单，可以下单计算公式：MIN（最后交易日，首次通知日）> 当前日期
-		checkedMinPlaceOrder(contractDto);
-		// 用户单笔最大可交易数量
-		BigDecimal perNum = contractDto.getPerOrderLimit();
-		// 用户最大可持仓量
-		BigDecimal userMaxNum = contractDto.getUserTotalLimit();
+		// step 1 : 检查合约信息
+		FuturesContractDto contract = futuresContractBusiness.findByContractId(buysellDto.getContractId());
+		if(contract == null) {
+			throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION, "contractId", buysellDto.getContractId());
+		}
+		if (contract.getExchangeEnable() != null && !contract.getExchangeEnable()) {
+			throw new ServiceException(ExceptionConstant.EXCHANGE_ISNOT_AVAILABLE_EXCEPTION);
+		}
+		if (contract.getEnable() != null && !contract.getEnable()) {
+			throw new ServiceException(ExceptionConstant.CONTRACT_ABNORMALITY_EXCEPTION);
+		}
+		if(!contract.getIsTradeTime()) {
+			throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
+		}
+		// step 2 : 根据最后交易日和首次通知日判断是否可以下单，可以下单计算公式：MIN（最后交易日，首次通知日）> 当前日期
+		Long checkLastTrade = 0L;
+		if(contract.getFirstNoticeDate() != null) {
+			checkLastTrade = contract.getFirstNoticeDate().getTime();
+		}
+		if(contract.getLastTradingDate() != null) {
+			checkLastTrade = checkLastTrade == 0 ? contract.getLastTradingDate().getTime() : Math.min(checkLastTrade ,contract.getLastTradingDate().getTime());
+		}
+		if(checkLastTrade > 0) {
+			Date exchangeTime = contract.getTimeZoneGap() == null ? new Date()
+					: retriveExchangeTime(new Date(), contract.getTimeZoneGap());
+			if (checkLastTrade.compareTo(exchangeTime.getTime()) < 0) {
+				throw new ServiceException(ExceptionConstant.MIN_PLACE_ORDER_EXCEPTION);
+			}
+		}
+		// step 3 : 包装代理商销售价格到合约信息
+		futuresContractBusiness.wrapperAgentPrice(contract);
+		// step 4 : 检查下单数量
+		
+		BigDecimal perNum = contract.getPerOrderLimit();
+		BigDecimal userMaxNum = contract.getUserTotalLimit();
 		// 用户买涨持仓总额度
 		Integer buyUp = futuresOrderBusiness.sumUserNum(buysellDto.getContractId(), SecurityUtil.getUserId(), 1);
 		BigDecimal buyUpNum = buyUp == null ? new BigDecimal(0) : new BigDecimal(buyUp).abs();
@@ -725,7 +747,7 @@ public class FuturesOrderController {
 	 * @param buysellDto
 	 *            当前合约详情
 	 */
-	public void checkBuyUpAndFullSUM(BigDecimal buyUpNum, BigDecimal buyFullNum, BigDecimal perNum,
+	public void checkBuyUpAndFullSum(BigDecimal buyUpNum, BigDecimal buyFullNum, BigDecimal perNum,
 			BigDecimal userMaxNum, FuturesOrderBuysellDto buysellDto, FuturesContractDto contractDto) {
 		BigDecimal userNum = buysellDto.getTotalQuantity();
 		BigDecimal buyUpTotal = BigDecimal.ZERO;

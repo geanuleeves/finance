@@ -244,6 +244,16 @@ public class FuturesCommodity {
 	 */
 	@Transient
 	private String exchangeName;
+	/**
+	 * 交易所是否可用
+	 */
+	@Transient
+	private Boolean exchangeEnable;
+	/**
+	 * 时差
+	 */
+	@Transient
+	private Integer timeZoneGap;
 
 	public Long getId() {
 		return id;
@@ -642,6 +652,20 @@ public class FuturesCommodity {
 	public void setCurrentTradeTimeDesc(String currentTradeTimeDesc) {
 		this.currentTradeTimeDesc = currentTradeTimeDesc;
 
+	}
+
+	public Boolean getExchangeEnable() {
+		if (exchange != null) {
+			return exchange.getEnable();
+		}
+		return exchangeEnable;
+	}
+
+	public Integer getTimeZoneGap() {
+		if (exchange != null) {
+			return exchange.getTimeZoneGap();
+		}
+		return timeZoneGap;
 	}
 
 }

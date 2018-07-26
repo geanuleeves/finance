@@ -9,17 +9,20 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * 交易委托
+ * 
  * @author chenk 2018/7/26
  */
 @FeignClient(name = "futures", path = "trade_entrust", qualifier = "futuresTradeEntrustInterface")
 public interface FuturesTradeEntrustInterface {
 
-    /**
-     * 根据ID获取合约订单
-     * @param id  订单ID
-     * @return 订单
-     */
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    Response<FuturesTradeEntrustDto> fetchById(@PathVariable("id") Long id);
+	/**
+	 * 根据ID获取合约订单
+	 * 
+	 * @param id
+	 *            订单ID
+	 * @return 订单
+	 */
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	Response<FuturesTradeEntrustDto> fetchById(@PathVariable("id") Long id);
 
 }

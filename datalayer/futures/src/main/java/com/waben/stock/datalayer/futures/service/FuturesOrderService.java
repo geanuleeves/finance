@@ -74,6 +74,7 @@ import com.waben.stock.interfaces.enums.CapitalFlowType;
 import com.waben.stock.interfaces.enums.FuturesActionType;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
 import com.waben.stock.interfaces.enums.FuturesTradeLimitType;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.enums.FuturesWindControlType;
@@ -1662,6 +1663,19 @@ public class FuturesOrderService {
 	public boolean isTradeTime(FuturesOrder order) {
 		Integer timeZoneGap = this.retriveTimeZoneGap(order);
 		FuturesContract contract = order.getContract();
+		return isTradeTime(timeZoneGap, contract, new Date());
+	}
+	
+	/**
+	 * 是否在交易时间
+	 * @param timeZoneGap 时差
+	 * @param contract 合约
+	 * @param tradeActionType 开仓或者平仓
+	 * @return 是否在交易时间
+	 */
+	public boolean isTradeTime(Integer timeZoneGap, FuturesContract contract, FuturesTradeActionType tradeActionType) {
+		// TODO 判断是否假期
+		// TODO 判断是否在风控的禁止开仓和平仓时间内
 		return isTradeTime(timeZoneGap, contract, new Date());
 	}
 	

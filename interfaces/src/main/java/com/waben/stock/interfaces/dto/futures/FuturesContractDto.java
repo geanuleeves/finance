@@ -121,6 +121,11 @@ public class FuturesContractDto extends FuturesCommodityDto {
 	@ApiModelProperty(value = "期货合约状态,1 交易中;2 休市中;3 异常")
 	private Integer state;
 	/**
+	 * 是否在交易时间段
+	 */
+	@ApiModelProperty(value = "是否在交易时间段")
+	private Boolean isTradeTime;
+	/**
 	 * 当天交易时间描述
 	 */
 	@ApiModelProperty(value = "当天交易时间描述")
@@ -160,7 +165,6 @@ public class FuturesContractDto extends FuturesCommodityDto {
 	 */
 	@ApiModelProperty(value = "下一个交易时间")
 	private String nextTradingTime;
-
 	/**
 	 * 自动平仓时间
 	 */
@@ -389,6 +393,14 @@ public class FuturesContractDto extends FuturesCommodityDto {
 
 	public void setAutomaticWarehouseTime(String automaticWarehouseTime) {
 		this.automaticWarehouseTime = automaticWarehouseTime;
+	}
+
+	public Boolean getIsTradeTime() {
+		return isTradeTime;
+	}
+
+	public void setIsTradeTime(Boolean isTradeTime) {
+		this.isTradeTime = isTradeTime;
 	}
 
 }

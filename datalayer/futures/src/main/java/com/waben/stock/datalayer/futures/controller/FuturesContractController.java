@@ -29,10 +29,12 @@ import com.waben.stock.datalayer.futures.service.FuturesContractService;
 import com.waben.stock.datalayer.futures.service.FuturesCurrencyRateService;
 import com.waben.stock.datalayer.futures.service.FuturesExchangeService;
 import com.waben.stock.datalayer.futures.service.FuturesHolidayService;
+import com.waben.stock.datalayer.futures.service.FuturesOrderService;
 import com.waben.stock.datalayer.futures.service.FuturesTradeLimitService;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesContractAdminDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
 import com.waben.stock.interfaces.enums.FuturesTradeLimitType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
@@ -68,6 +70,9 @@ public class FuturesContractController implements FuturesContractInterface {
 
 	@Autowired
 	private FuturesHolidayService futuresHolidayService;
+	
+	@Autowired
+	private FuturesOrderService orderService;
 
 	private SimpleDateFormat daySdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -399,10 +404,13 @@ public class FuturesContractController implements FuturesContractInterface {
 	@Override
 	public Response<FuturesContractDto> findByContractId(@PathVariable Long contractId) {
 		FuturesContract contract = futuresContractService.findByContractId(contractId);
-		FuturesContractDto dto = CopyBeanUtils.copyBeanProperties(FuturesContractDto.class, contract.getCommodity(),
-				false);
-		dto = CopyBeanUtils.copyBeanProperties(contract, dto);
-		return new Response<>(dto);
+		FuturesCommodity commodity = contract.getCommodity();
+		FuturesContractDto result = CopyBeanUtils.copyBeanProperties(FuturesContractDto.class, contract.getCommodity(), false);
+		result = CopyBeanUtils.copyBeanProperties(contract, result);
+		// 获取是否在交易时间段
+		boolean isTradeTime = orderService.isTradeTime(commodity.getTimeZoneGap(), contract, FuturesTradeActionType.OPEN);
+		result.setIsTradeTime(isTradeTime);
+		return new Response<>(result);
 	}
 
 	@Override

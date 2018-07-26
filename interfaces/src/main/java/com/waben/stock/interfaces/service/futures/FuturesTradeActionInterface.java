@@ -9,17 +9,20 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * 订单交易开平仓记录
+ * 
  * @author chenk 2018/7/26
  */
 @FeignClient(name = "futures", path = "trade_action", qualifier = "futuresTradeActionInterface")
 public interface FuturesTradeActionInterface {
 
-    /**
-     * 根据ID获取合约订单
-     * @param id  订单ID
-     * @return 订单
-     */
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    Response<FuturesTradeActionDto> fetchById(@PathVariable("id") Long id);
+	/**
+	 * 根据ID获取合约订单
+	 * 
+	 * @param id
+	 *            订单ID
+	 * @return 订单
+	 */
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	Response<FuturesTradeActionDto> fetchById(@PathVariable("id") Long id);
 
 }
