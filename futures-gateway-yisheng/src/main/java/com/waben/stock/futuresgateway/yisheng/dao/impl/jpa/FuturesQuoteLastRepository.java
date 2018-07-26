@@ -11,7 +11,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteLast;
 /**
  * 期货合约行情-最新 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface FuturesQuoteLastRepository extends Repository<FuturesQuoteLast, Integer> {

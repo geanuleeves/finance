@@ -11,7 +11,7 @@ import java.util.TreeSet;
 /**
  * 期权周期
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @ApiModel(value = "StockOptionCycleDto",description = "期权周期对象")

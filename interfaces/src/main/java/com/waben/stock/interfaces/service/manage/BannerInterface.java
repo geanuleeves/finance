@@ -18,7 +18,7 @@ import com.waben.stock.interfaces.pojo.query.PageInfo;
 /**
  * 轮播 公共接口
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @FeignClient(name = "manage", path = "banner", qualifier = "bannerInterface")

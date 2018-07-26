@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 机构账户流水 类型
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum OrganizationAccountFlowType implements CommonalityEnum {

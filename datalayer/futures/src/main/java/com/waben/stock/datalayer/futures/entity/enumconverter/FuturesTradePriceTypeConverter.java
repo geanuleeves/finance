@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 /**
  * 期权交易价格类型 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class FuturesTradePriceTypeConverter implements AttributeConverter<FuturesTradePriceType, Integer> {

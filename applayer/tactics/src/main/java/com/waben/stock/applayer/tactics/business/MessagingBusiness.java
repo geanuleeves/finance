@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.service.message.MessagingInterface;
 /**
  * 消息 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

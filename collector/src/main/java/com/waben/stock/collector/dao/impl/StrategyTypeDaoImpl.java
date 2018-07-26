@@ -14,7 +14,7 @@ import com.waben.stock.collector.entity.StrategyType;
 /**
  * 策略类型 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

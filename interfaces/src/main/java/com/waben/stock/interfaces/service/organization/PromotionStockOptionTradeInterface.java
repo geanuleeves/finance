@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.pojo.query.organization.PromotionStockOptionTr
 /**
  * 推广渠道产生的期权交易 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "organization", path = "promotionStockOptionTrade", qualifier = "promotionStockOptionTradeInterface")
 public interface PromotionStockOptionTradeInterface {

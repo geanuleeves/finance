@@ -10,7 +10,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteDayK;
 /**
  * 行情-日K Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface FuturesQuoteDayKDao {

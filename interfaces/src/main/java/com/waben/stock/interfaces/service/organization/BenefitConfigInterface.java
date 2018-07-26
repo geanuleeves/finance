@@ -17,7 +17,7 @@ import com.waben.stock.interfaces.pojo.form.organization.BenefitConfigForm;
 /**
  * 分成配置 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "organization", path = "benefitConfig", qualifier = "benefitConfigInterface")
 public interface BenefitConfigInterface {

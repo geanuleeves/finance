@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 /**
  * 策略发布人 Test
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class PublisherControllerTest extends BaseControllerTest {

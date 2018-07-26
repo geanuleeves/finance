@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 /**
  * 期权周期
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 /**
  * 机构推广的发布人 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface OrganizationPublisherRepository extends CustomJpaRepository<OrganizationPublisher, Long> {

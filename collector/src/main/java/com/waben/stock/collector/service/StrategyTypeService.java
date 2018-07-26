@@ -13,7 +13,7 @@ import com.waben.stock.collector.entity.StrategyType;
 /**
  * 策略类型 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

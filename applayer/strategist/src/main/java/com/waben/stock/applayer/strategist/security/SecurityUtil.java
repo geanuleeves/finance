@@ -6,7 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 /**
  * 安全认证 工具类
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class SecurityUtil {

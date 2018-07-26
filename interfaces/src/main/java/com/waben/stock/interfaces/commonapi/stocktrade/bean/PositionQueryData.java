@@ -3,7 +3,7 @@ package com.waben.stock.interfaces.commonapi.stocktrade.bean;
 /**
  * 查询持仓
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class PositionQueryData {

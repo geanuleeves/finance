@@ -16,7 +16,7 @@ import com.waben.stock.datalayer.buyrecord.repository.impl.jpa.DeferredRecordRep
 /**
  * 递延记录 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

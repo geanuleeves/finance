@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 冻结类型
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum FrozenCapitalType implements CommonalityEnum {

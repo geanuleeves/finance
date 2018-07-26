@@ -11,7 +11,7 @@ import com.waben.stock.collector.entity.Settlement;
 /**
  * 结算 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface SettlementRepository extends Repository<Settlement, Long> {

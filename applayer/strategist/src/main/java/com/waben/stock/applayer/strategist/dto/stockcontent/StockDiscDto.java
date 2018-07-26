@@ -6,7 +6,7 @@ import java.math.RoundingMode;
 /**
  * 股票盘口
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class StockDiscDto {

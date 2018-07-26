@@ -5,7 +5,7 @@ import com.waben.stock.datalayer.publisher.entity.WithdrawalsOrder;
 /**
  * 提现订单 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface WithdrawalsOrderRepository extends CustomJpaRepository<WithdrawalsOrder, Long> {

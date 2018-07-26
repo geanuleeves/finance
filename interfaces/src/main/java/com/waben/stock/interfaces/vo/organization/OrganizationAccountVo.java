@@ -9,7 +9,7 @@ import java.util.Date;
 /**
  * 机构账户
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @ApiModel(value="OrganizationAccountVo",description="代理商资产对象")

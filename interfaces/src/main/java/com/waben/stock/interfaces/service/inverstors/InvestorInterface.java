@@ -20,7 +20,7 @@ import com.waben.stock.interfaces.pojo.stock.SecuritiesStockEntrust;
 /**
  * 投资人 reference服务接口
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @FeignClient(name = "investors", path = "investor", qualifier = "investorInterface")

@@ -29,7 +29,7 @@ import com.waben.stock.futuresgateway.yisheng.util.CopyBeanUtils;
 /**
  * 行情分钟作业
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Component

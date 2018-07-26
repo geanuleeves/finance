@@ -23,7 +23,7 @@ import com.waben.stock.interfaces.pojo.form.organization.BenefitConfigForm;
 /**
  * 分成配置 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

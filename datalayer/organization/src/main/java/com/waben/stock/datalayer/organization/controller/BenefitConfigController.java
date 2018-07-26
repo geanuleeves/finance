@@ -32,7 +32,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 分成配置 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

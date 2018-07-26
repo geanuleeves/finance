@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 用户交易状态
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum StockOptionTradeState implements CommonalityEnum {

@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 期货风控类型
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum FuturesWindControlType implements CommonalityEnum {

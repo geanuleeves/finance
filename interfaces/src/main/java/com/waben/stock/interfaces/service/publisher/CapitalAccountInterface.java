@@ -21,7 +21,7 @@ import com.waben.stock.interfaces.pojo.query.admin.publisher.CapitalAccountAdmin
 /**
  * 资金账号 reference服务接口
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @FeignClient(name = "publisher", path = "capitalAccount", qualifier = "capitalAccountInterface")

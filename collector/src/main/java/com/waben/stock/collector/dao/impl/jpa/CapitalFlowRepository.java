@@ -11,7 +11,7 @@ import com.waben.stock.collector.entity.CapitalFlow;
 /**
  * 资金流水 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface CapitalFlowRepository extends Repository<CapitalFlow, Long> {

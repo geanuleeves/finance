@@ -20,7 +20,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 资金账户 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

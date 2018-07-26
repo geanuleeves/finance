@@ -18,7 +18,7 @@ import com.waben.stock.datalayer.manage.repository.impl.jpa.BannerRepository;
 /**
  * 轮播 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

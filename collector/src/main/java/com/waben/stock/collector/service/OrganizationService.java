@@ -13,7 +13,7 @@ import com.waben.stock.collector.entity.Organization;
 /**
  * 机构 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

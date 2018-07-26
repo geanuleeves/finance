@@ -16,7 +16,7 @@ import com.waben.stock.datalayer.manage.repository.impl.jpa.CardBinRepository;
 /**
  * 银行卡片 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

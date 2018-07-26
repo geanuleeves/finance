@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.BuyRecordState;
 /**
  * 点买记录状态 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class BuyingRecordStatusConverter implements AttributeConverter<BuyRecordState, Integer> {

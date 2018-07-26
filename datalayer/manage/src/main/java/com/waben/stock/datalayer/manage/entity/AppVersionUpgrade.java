@@ -13,7 +13,7 @@ import org.hibernate.annotations.Type;
 /**
  * APP版本升级
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

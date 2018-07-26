@@ -19,7 +19,7 @@ import com.waben.stock.interfaces.util.CopyBeanUtils;
 /**
  * 区域 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

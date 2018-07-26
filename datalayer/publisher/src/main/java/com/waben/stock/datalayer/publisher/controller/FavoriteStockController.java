@@ -23,7 +23,7 @@ import com.waben.stock.interfaces.util.PageToPageInfo;
 /**
  * 收藏股票 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

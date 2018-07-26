@@ -7,7 +7,7 @@ import com.waben.stock.datalayer.stockoption.entity.StockOptionQuote;
 /**
  * 期权报价 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface StockOptionQuoteRepository extends CustomJpaRepository<StockOptionQuote, Long> {

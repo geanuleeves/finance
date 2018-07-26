@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * 点买记录 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface BuyRecordRepository extends CustomJpaRepository<BuyRecord, Long> {

@@ -32,7 +32,7 @@ import com.waben.stock.interfaces.util.StringUtil;
 /**
  * 机构账户流水 Service
  *
- * @author luomengan
+ * @author lma
  */
 @Service
 public class OrganizationAccountFlowService {

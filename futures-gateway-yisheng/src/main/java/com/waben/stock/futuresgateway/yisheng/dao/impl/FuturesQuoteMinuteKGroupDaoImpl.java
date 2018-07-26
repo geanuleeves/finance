@@ -17,7 +17,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteMinuteKGroup;
 /**
  * 行情-分钟K组合 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

@@ -13,7 +13,7 @@ import javax.persistence.Table;
 /**
  * 机构管理用户
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

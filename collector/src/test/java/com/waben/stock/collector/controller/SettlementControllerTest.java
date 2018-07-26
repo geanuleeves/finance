@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 /**
  * 结算 Test
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class SettlementControllerTest extends BaseControllerTest {

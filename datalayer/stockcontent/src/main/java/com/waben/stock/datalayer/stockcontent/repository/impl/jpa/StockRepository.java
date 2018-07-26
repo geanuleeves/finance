@@ -11,7 +11,7 @@ import com.waben.stock.datalayer.stockcontent.entity.Stock;
 /**
  * 股票 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface StockRepository extends CustomJpaRepository<Stock, Long> {

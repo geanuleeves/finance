@@ -13,7 +13,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteLast;
 /**
  * 期货合约行情-最新 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

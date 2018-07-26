@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.dto.stockcontent.StockRecommendDto;
 /**
  * 推荐股票和股票行情
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class StockRecommendWithMarketDto extends StockRecommendDto {

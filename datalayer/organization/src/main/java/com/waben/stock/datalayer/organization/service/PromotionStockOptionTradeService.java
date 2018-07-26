@@ -25,7 +25,7 @@ import com.waben.stock.interfaces.pojo.query.organization.PromotionStockOptionTr
 /**
  * 推广渠道产生的期权交易 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

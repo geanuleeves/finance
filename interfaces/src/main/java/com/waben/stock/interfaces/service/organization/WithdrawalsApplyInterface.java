@@ -16,7 +16,7 @@ import com.waben.stock.interfaces.pojo.query.organization.WithdrawalsApplyQuery;
 /**
  * 提现申请 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "organization", path = "withdrawalsApply", qualifier = "withdrawalsApplyInterface")
 public interface WithdrawalsApplyInterface {

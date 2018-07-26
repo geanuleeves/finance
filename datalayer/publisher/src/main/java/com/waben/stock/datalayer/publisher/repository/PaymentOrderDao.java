@@ -5,7 +5,7 @@ import com.waben.stock.datalayer.publisher.entity.PaymentOrder;
 /**
  * 支付订单 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface PaymentOrderDao extends BaseDao<PaymentOrder, Long> {

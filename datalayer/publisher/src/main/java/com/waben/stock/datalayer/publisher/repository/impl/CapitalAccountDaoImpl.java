@@ -17,7 +17,7 @@ import com.waben.stock.datalayer.publisher.repository.impl.jpa.CapitalAccountRep
 /**
  * 资金账号 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

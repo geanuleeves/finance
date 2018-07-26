@@ -15,7 +15,7 @@ import com.waben.stock.datalayer.organization.repository.impl.jpa.PriceMarkupCon
 /**
  * 加价配置 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

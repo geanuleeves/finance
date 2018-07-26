@@ -9,7 +9,7 @@ import com.waben.stock.collector.entity.DomainTableReceiveError;
 /**
  * 同步错误日志 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface DomainTableReceiveErrorDao {

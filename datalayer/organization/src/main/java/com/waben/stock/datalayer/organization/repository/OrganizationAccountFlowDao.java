@@ -10,7 +10,7 @@ import com.waben.stock.interfaces.enums.ResourceType;
 /**
  * 机构账户流水 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface OrganizationAccountFlowDao extends BaseDao<OrganizationAccountFlow, Long> {

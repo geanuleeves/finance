@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.OrganizationAccountFlowType;
 /**
  * 机构账户流水类型 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class OrganizationAccountFlowTypeConverter implements AttributeConverter<OrganizationAccountFlowType, Integer> {

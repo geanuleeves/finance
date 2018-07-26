@@ -11,7 +11,7 @@ import com.waben.stock.collector.entity.StockOptionCycle;
 /**
  * 期权周期 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface StockOptionCycleRepository extends Repository<StockOptionCycle, Long> {

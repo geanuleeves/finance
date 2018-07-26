@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 /**
  * 资金流水扩展信息 Test
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class CapitalFlowExtendControllerTest extends BaseControllerTest {

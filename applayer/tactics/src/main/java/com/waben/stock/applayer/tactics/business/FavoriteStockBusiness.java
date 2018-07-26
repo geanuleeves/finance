@@ -19,7 +19,7 @@ import com.waben.stock.interfaces.util.CopyBeanUtils;
 /**
  * 收藏股票 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

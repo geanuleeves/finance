@@ -11,7 +11,7 @@ import com.waben.stock.interfaces.pojo.Response;
 /**
  * app版本审核 公共接口
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @FeignClient(name = "manage", path = "appversionaudit", qualifier = "appVersionAuditInterface")

@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 风控类型
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum WindControlType implements CommonalityEnum {

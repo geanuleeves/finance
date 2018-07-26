@@ -9,7 +9,7 @@ import com.waben.stock.interfaces.enums.ResourceType;
 /**
  * 机构账户流水
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class OrganizationAccountFlowDto {

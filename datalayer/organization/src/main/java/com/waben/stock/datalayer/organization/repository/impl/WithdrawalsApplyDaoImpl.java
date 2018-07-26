@@ -16,7 +16,7 @@ import com.waben.stock.datalayer.organization.repository.impl.jpa.WithdrawalsApp
 /**
  * 提现申请 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

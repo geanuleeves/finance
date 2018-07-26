@@ -15,7 +15,7 @@ import javax.persistence.Transient;
 /**
  * 期货订单过夜记录
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

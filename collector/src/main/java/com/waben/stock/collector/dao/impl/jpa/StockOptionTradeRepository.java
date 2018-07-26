@@ -11,7 +11,7 @@ import com.waben.stock.collector.entity.StockOptionTrade;
 /**
  * 用户股票期权交易信息 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface StockOptionTradeRepository extends Repository<StockOptionTrade, Long> {

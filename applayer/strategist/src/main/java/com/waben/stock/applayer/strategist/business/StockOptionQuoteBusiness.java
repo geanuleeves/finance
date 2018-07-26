@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.service.stockoption.StockOptionQuoteInterface;
 /**
  * 期权报价 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

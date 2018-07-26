@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.service.manage.BannerInterface;
 /**
  * 轮播图 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

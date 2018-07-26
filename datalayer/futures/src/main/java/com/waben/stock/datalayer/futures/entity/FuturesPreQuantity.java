@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 /**
  * 预购买手数
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

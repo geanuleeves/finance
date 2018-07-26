@@ -13,7 +13,7 @@ import javax.persistence.Table;
 /**
  * 机构账户流水
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

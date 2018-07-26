@@ -16,7 +16,7 @@ import com.waben.stock.datalayer.buyrecord.repository.impl.jpa.SettlementReposit
 /**
  * 结算 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

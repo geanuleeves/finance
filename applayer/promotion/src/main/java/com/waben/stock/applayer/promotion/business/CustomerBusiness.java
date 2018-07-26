@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.service.organization.CustomerInterface;
 /**
  * 推广系统推广的客户 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

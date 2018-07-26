@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * web mvc配置
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Configuration
