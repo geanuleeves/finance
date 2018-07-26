@@ -1,5 +1,6 @@
 package com.waben.stock.datalayer.futures.repository.impl;
 
+import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
 import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
 import com.waben.stock.datalayer.futures.repository.impl.jpa.FuturesContractOrderRepository;
@@ -56,4 +57,10 @@ public class FuturesContractOrderDaoImpl implements FuturesContractOrderDao{
     public List<FuturesContractOrder> list() {
         return repository.findAll();
     }
+
+	@Override
+	public FuturesContractOrder retrieveByContract(FuturesContract contract) {
+		return repository.findByContract(contract);
+	}
+	
 }

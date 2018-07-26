@@ -1,5 +1,6 @@
 package com.waben.stock.datalayer.futures.repository;
 
+import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
 
 /**
@@ -7,4 +8,7 @@ import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
  * @author chenk 2018/7/26.
  */
 public interface FuturesContractOrderDao extends BaseDao<FuturesContractOrder, Long> {
+
+	FuturesContractOrder retrieveByContract(FuturesContract contract);
+	
 }

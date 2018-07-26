@@ -1,11 +1,14 @@
 package com.waben.stock.datalayer.futures.service;
 
-import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
-import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.waben.stock.datalayer.futures.entity.FuturesContract;
+import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
+import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
+import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
 
 /**
  * 合约订单
@@ -19,6 +22,9 @@ public class FuturesContractOrderService {
 
     @Autowired
     private FuturesContractOrderDao futuresContractOrderDao;
+    
+    @Autowired
+    private FuturesContractDao contractDao;
 
     public FuturesContractOrder findById(Long id) {
         return futuresContractOrderDao.retrieve(id);
@@ -35,6 +41,14 @@ public class FuturesContractOrderService {
     public void delete(Long id) {
         futuresContractOrderDao.delete(id);
     }
+
+	public FuturesContractOrder findByContractId(Long contractId) {
+		FuturesContract contract = contractDao.retrieve(contractId);
+		if(contract != null) {
+			return futuresContractOrderDao.retrieveByContract(contract);
+		}
+		return null;
+	}
 
 
 }

@@ -25,44 +25,51 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(description = "合约订单接口列表")
 public class FuturesContractOrderController implements FuturesContractOrderInterface {
 
-    Logger logger = LoggerFactory.getLogger(getClass());
+	Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    private FuturesContractOrderService futuresContractOrderService;
+	@Autowired
+	private FuturesContractOrderService futuresContractOrderService;
 
-    @Override
-    public Response<FuturesContractOrderDto> fetchById(@PathVariable Long id) {
-        return new Response<>(
-                CopyBeanUtils.copyBeanProperties(FuturesContractOrderDto.class, futuresContractOrderService.findById(id), false));
-    }
+	@Override
+	public Response<FuturesContractOrderDto> fetchById(@PathVariable Long id) {
+		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesContractOrderDto.class,
+				futuresContractOrderService.findById(id), false));
+	}
 
-    @Override
-    public Response<FuturesContractOrderDto> save(@RequestBody FuturesContractOrderDto dto) {
-        FuturesContractOrder futuresContractOrder = CopyBeanUtils.copyBeanProperties(
-                FuturesContractOrder.class, dto, false);
-        FuturesContractOrder result = futuresContractOrderService.save(futuresContractOrder);
-        FuturesContractOrderDto response = CopyBeanUtils.copyBeanProperties(result, new FuturesContractOrderDto(),
-                false);
-        return new Response<>(response);
-    }
+	@Override
+	public Response<FuturesContractOrderDto> fetchByContractId(@PathVariable Long contractId) {
+		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesContractOrderDto.class,
+				futuresContractOrderService.findByContractId(contractId), false));
+	}
 
-    @Override
-    public Response<FuturesContractOrderDto> modify(@RequestBody FuturesContractOrderDto dto) {
-        FuturesContractOrder futuresContractOrder = CopyBeanUtils.copyBeanProperties(FuturesContractOrder.class, dto, false);
-        FuturesContractOrder result = futuresContractOrderService.modify(futuresContractOrder);
-        FuturesContractOrderDto resultDto = CopyBeanUtils.copyBeanProperties(result, new FuturesContractOrderDto(),
-                false);
-        return new Response<>(resultDto);
-    }
+	@Override
+	public Response<FuturesContractOrderDto> save(@RequestBody FuturesContractOrderDto dto) {
+		FuturesContractOrder futuresContractOrder = CopyBeanUtils.copyBeanProperties(FuturesContractOrder.class, dto,
+				false);
+		FuturesContractOrder result = futuresContractOrderService.save(futuresContractOrder);
+		FuturesContractOrderDto response = CopyBeanUtils.copyBeanProperties(result, new FuturesContractOrderDto(),
+				false);
+		return new Response<>(response);
+	}
 
-    @Override
-    public Response<String> delete(Long id) {
-        futuresContractOrderService.delete(id);
-        Response<String> res = new Response<String>();
-        res.setCode("200");
-        res.setMessage("响应成功");
-        res.setResult("1");
-        return res;
-    }
+	@Override
+	public Response<FuturesContractOrderDto> modify(@RequestBody FuturesContractOrderDto dto) {
+		FuturesContractOrder futuresContractOrder = CopyBeanUtils.copyBeanProperties(FuturesContractOrder.class, dto,
+				false);
+		FuturesContractOrder result = futuresContractOrderService.modify(futuresContractOrder);
+		FuturesContractOrderDto resultDto = CopyBeanUtils.copyBeanProperties(result, new FuturesContractOrderDto(),
+				false);
+		return new Response<>(resultDto);
+	}
+
+	@Override
+	public Response<String> delete(Long id) {
+		futuresContractOrderService.delete(id);
+		Response<String> res = new Response<String>();
+		res.setCode("200");
+		res.setMessage("响应成功");
+		res.setResult("1");
+		return res;
+	}
 
 }

@@ -1674,6 +1674,8 @@ public class FuturesOrderService {
 	 * @return 是否在交易时间
 	 */
 	public boolean isTradeTime(Integer timeZoneGap, FuturesContract contract, FuturesTradeActionType tradeActionType) {
+		// contract.getCommodity();
+		// contract.getCommodity().getTimeZoneGap();
 		// TODO 判断是否假期
 		// TODO 判断是否在风控的禁止开仓和平仓时间内
 		return isTradeTime(timeZoneGap, contract, new Date());

@@ -27,31 +27,44 @@ public interface FuturesContractOrderInterface {
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	Response<FuturesContractOrderDto> fetchById(@PathVariable("id") Long id);
 
-    /**
-     * 新增合约订单
-     *
-     * @param dto 订单ID
-     * @return 订单
-     */
-    @RequestMapping(value = "/save", method = RequestMethod.POST, consumes = "application/json")
-    Response<FuturesContractOrderDto> save(@RequestBody FuturesContractOrderDto dto);
+	/**
+	 * 根据合约ID获取合约订单
+	 * 
+	 * @param contractId
+	 *            合约ID
+	 * @return 订单
+	 */
+	@RequestMapping(value = "/contractId/{contractId}", method = RequestMethod.GET)
+	Response<FuturesContractOrderDto> fetchByContractId(@PathVariable("contractId") Long contractId);
 
-    /**
-     * 修改合约订单
-     *
-     * @param dto 订单ID
-     * @return 订单
-     */
-    @RequestMapping(value = "/modify", method = RequestMethod.POST, consumes = "application/json")
-    Response<FuturesContractOrderDto> modify(@RequestBody FuturesContractOrderDto dto);
+	/**
+	 * 新增合约订单
+	 *
+	 * @param dto
+	 *            订单ID
+	 * @return 订单
+	 */
+	@RequestMapping(value = "/save", method = RequestMethod.POST, consumes = "application/json")
+	Response<FuturesContractOrderDto> save(@RequestBody FuturesContractOrderDto dto);
 
-    /**
-     * 删除合约订单
-     *
-     * @param id 订单ID
-     * @return 订单
-     */
-    @RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
-    Response<String> delete(@PathVariable("id") Long id);
+	/**
+	 * 修改合约订单
+	 *
+	 * @param dto
+	 *            订单ID
+	 * @return 订单
+	 */
+	@RequestMapping(value = "/modify", method = RequestMethod.POST, consumes = "application/json")
+	Response<FuturesContractOrderDto> modify(@RequestBody FuturesContractOrderDto dto);
+
+	/**
+	 * 删除合约订单
+	 *
+	 * @param id
+	 *            订单ID
+	 * @return 订单
+	 */
+	@RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
+	Response<String> delete(@PathVariable("id") Long id);
 
 }

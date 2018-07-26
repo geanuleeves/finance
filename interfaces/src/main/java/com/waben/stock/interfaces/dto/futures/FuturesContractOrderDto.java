@@ -20,9 +20,15 @@ public class FuturesContractOrderDto {
 	/** 合约编号 */
 	@ApiModelProperty(value = "合约编号")
 	private String contractNo;
+	/** 买涨手数（总，包括买入委托中的） */
+	@ApiModelProperty(value = "买涨手数（总，包括买入委托中的）")
+	private BigDecimal buyUpTotalQuantity;
 	/** 买涨手数（成功） */
 	@ApiModelProperty(value = "买涨手数（成功）")
 	private BigDecimal buyUpQuantity;
+	/** 买跌手数（总，包括买入委托中的） */
+	@ApiModelProperty(value = "买跌手数（总，包括买入委托中的）")
+	private BigDecimal buyFallTotalQuantity;
 	/** 买跌手数（成功） */
 	@ApiModelProperty(value = "买跌手数（成功）")
 	private BigDecimal buyFallQuantity;
@@ -162,6 +168,22 @@ public class FuturesContractOrderDto {
 
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
+	}
+
+	public BigDecimal getBuyUpTotalQuantity() {
+		return buyUpTotalQuantity;
+	}
+
+	public void setBuyUpTotalQuantity(BigDecimal buyUpTotalQuantity) {
+		this.buyUpTotalQuantity = buyUpTotalQuantity;
+	}
+
+	public BigDecimal getBuyFallTotalQuantity() {
+		return buyFallTotalQuantity;
+	}
+
+	public void setBuyFallTotalQuantity(BigDecimal buyFallTotalQuantity) {
+		this.buyFallTotalQuantity = buyFallTotalQuantity;
 	}
 
 }
