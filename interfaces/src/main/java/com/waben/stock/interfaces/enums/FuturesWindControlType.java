@@ -11,10 +11,6 @@ import java.util.Map;
  */
 public enum FuturesWindControlType implements CommonalityEnum {
 
-	InitPosition("1", "初始持仓"),
-
-	OvernightPosition("2", "隔夜持仓"),
-
 	DayUnwind("3", "日内平仓"),
 
 	UserApplyUnwind("4", "用户申请平仓"),

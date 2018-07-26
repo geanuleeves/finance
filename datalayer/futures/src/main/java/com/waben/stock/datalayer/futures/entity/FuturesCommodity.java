@@ -20,8 +20,6 @@ import javax.persistence.Transient;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesProductTypeConverter;
 import com.waben.stock.interfaces.enums.FuturesProductType;
 
-import io.swagger.annotations.ApiModelProperty;
-
 /**
  * 期货品种
  * 
