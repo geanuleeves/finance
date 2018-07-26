@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.waben.stock.applayer.promotion.business.AgentCapitalManageBusiness;
+import com.waben.stock.applayer.promotion.business.OrganizationBusiness;
 import com.waben.stock.applayer.promotion.security.SecurityUtil;
 import com.waben.stock.applayer.promotion.util.PoiUtil;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
@@ -48,6 +49,9 @@ public class AgentCapitalManageController {
 
 	@Autowired
 	public AgentCapitalManageBusiness agentCapitalManageBusiness;
+
+	@Autowired
+	private OrganizationBusiness organizationBusiness;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -122,6 +126,12 @@ public class AgentCapitalManageController {
 		// query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
 		query.setCurrentOrgId(SecurityUtil.getUserDetails().getOrgId());
 		return new Response<>(agentCapitalManageBusiness.pageAgentCapitalManage(query));
+	}
+
+	@RequestMapping(value = "/current/sum/ratio", method = RequestMethod.GET)
+	@ApiOperation(value = "获取当前代理商可设比例")
+	public Response<BigDecimal> getSumRatio() {
+		return new Response<>(organizationBusiness.getSumRatio(SecurityUtil.getUserDetails().getOrgId()));
 	}
 
 	@RequestMapping(value = "/export", method = RequestMethod.GET)
