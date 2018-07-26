@@ -338,7 +338,7 @@ public class OrganizationAccountFlowService {
 						+ "t5.name as b_publisher_name, t6.name as s_publisher_name, IF(t1.type = 4 || t1.type = 5, t1.available_balance, t16.balance) AS available_balance, "
 						+ "t8.commodity_symbol, t8.commodity_name, t8.publisher_id AS o_publisher_id, t14.name AS o_publisher_name ,t15.phone AS o_publisher_phone, "
 
-						+ "IF(t1.type = 4 || t1.type = 5, t1.amount, t16.real_maid_fee)  as maid_fee, t1.origin_amount AS commission, t8.trade_no "
+						+ "IF(t1.type = 4 || t1.type = 5, t1.amount, t16.real_maid_fee)  as maid_fee, t1.origin_amount AS commission, IF(t16.order_id is not null,t16.order_id,t8.trade_no) as trade_no "
 
 						+ "from p_organization_account_flow t1 "
 						+ "LEFT JOIN buy_record t2 on t1.resource_type=1 and t1.resource_id=t2.id "
@@ -430,7 +430,7 @@ public class OrganizationAccountFlowService {
 						+ "t5.name as b_publisher_name, t6.name as s_publisher_name, t1.available_balance, "
 						+ "t8.commodity_symbol, t8.commodity_name, t8.publisher_id AS o_publisher_id, t14.name AS o_publisher_name ,t15.phone AS o_publisher_phone, "
 
-						+ "t1.amount as maid_fee, t1.origin_amount AS commission, IF(t16.order_id is not null,t16.order_id,t8.trade_no) as trade_no, "
+						+ "t1.amount as maid_fee, t1.origin_amount AS commission, t8.trade_no, "
 						+ "t16.id AS audit_id, t16.real_maid_fee, t16.state, t16.audit_remark, t16.examine_time "
 						+ "from p_organization_account_flow t1 "
 						+ "LEFT JOIN buy_record t2 on t1.resource_type=1 and t1.resource_id=t2.id "
