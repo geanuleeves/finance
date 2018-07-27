@@ -58,6 +58,12 @@ public class FuturesCommodityController {
 	public Response<List<FuturesCommodityDto>> listByExchangeId(@PathVariable("exchangeId") Long exchangeId) {
 		return new Response<>(business.listByExchangeId(exchangeId));
 	}
+	
+	@RequestMapping(value = "/getTradingState/{id}", method = RequestMethod.GET)
+	@ApiOperation(value = "获取品种交易状态")
+	public Response<Integer> getTradingState(@PathVariable("id") Long id){
+		return business.getTradingState(id);
+	}
 
 	@RequestMapping(value = "/isCurrency", method = RequestMethod.POST)
 	@ApiOperation(value = "上线/下线品种")

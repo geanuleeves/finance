@@ -3,9 +3,12 @@ package com.waben.stock.datalayer.manage.entity;
 import java.util.Date;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
@@ -73,6 +76,22 @@ public class AppVersionUpgrade {
 	 * 是否为当前版本
 	 */
 	private Boolean isCurrentVersion;
+	
+	/**
+	 * 更新时间
+	 */
+	private Date updateTime;
+	
+	@ManyToOne(targetEntity = Staff.class, fetch = FetchType.EAGER)
+    private Staff staff;
+
+	public Staff getStaff() {
+		return staff;
+	}
+
+	public void setStaff(Staff staff) {
+		this.staff = staff;
+	}
 
 	public Long getId() {
 		return id;
@@ -160,6 +179,14 @@ public class AppVersionUpgrade {
 
 	public void setShellIndex(Integer shellIndex) {
 		this.shellIndex = shellIndex;
+	}
+
+	public Date getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Date updateTime) {
+		this.updateTime = updateTime;
 	}
 
 }

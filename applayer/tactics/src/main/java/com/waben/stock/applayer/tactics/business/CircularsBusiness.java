@@ -15,6 +15,7 @@ import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.CircularsQuery;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.admin.BroadcastQuery;
+import com.waben.stock.interfaces.service.manage.AppVersionUpgradeInterface;
 import com.waben.stock.interfaces.service.manage.BroadcastInterface;
 import com.waben.stock.interfaces.service.manage.CircularsInterface;
 
@@ -33,6 +34,20 @@ public class CircularsBusiness {
 	
 	@Autowired
 	private BroadcastInterface broadReference;
+	
+	@Autowired
+	private AppVersionUpgradeInterface reference;
+	
+	public String dowload(Integer deviceType){
+		Response<String> response = reference.dowload(deviceType);
+		if("200".equals(response.getCode())){
+			if(response.getResult()==null){
+				throw new ServiceException(ExceptionConstant.FILE_ISNOT_FOUND);
+			}
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
 	
 	public List<BroadcastDto> findByType(BroadcastQuery query){
 		Response<List<BroadcastDto>> response = broadReference.findBytype(query);

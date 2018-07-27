@@ -259,6 +259,10 @@ public class ExceptionConstant {
 	// 上传文件
 	// 上传图片失败
 	public static final String FAILED_TO_UPLOAD_PICTURES = "12001";
+	//文件下载失败
+	public static final String FAILED_TO_DOWLOAD_PICTURES = "12002";
+	//文件没有找到
+	public static final String FILE_ISNOT_FOUND= "12003";
 
 	// 期货
 	// 期货订单状态不匹配，不支持该操作

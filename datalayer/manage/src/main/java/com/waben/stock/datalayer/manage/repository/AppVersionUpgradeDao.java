@@ -12,4 +12,7 @@ public interface AppVersionUpgradeDao extends BaseDao<AppVersionUpgrade, Long> {
 
 	AppVersionUpgrade getGreaterThanCurrentVersion(Integer versionCode, Integer deviceType, Integer shellIndex);
 	
+	void isCurrentVersion(Integer deviceType);
+	
+	AppVersionUpgrade findByIsCurrentVersionAndDeviceType(Boolean isCurrentVersion, Integer deviceType);
 }

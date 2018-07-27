@@ -49,6 +49,34 @@ public class AppVersionUpgradeDto {
 	 * 是否为当前版本
 	 */
 	private Boolean isCurrentVersion;
+	
+	private String uploadFilePath;
+	
+	/**
+	 * 上线时间
+	 */
+	private Date updateTime;
+	
+	private Long staffId;
+	
+	private String userName;
+	
+
+	public Long getStaffId() {
+		return staffId;
+	}
+
+	public void setStaffId(Long staffId) {
+		this.staffId = staffId;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
 
 	public Long getId() {
 		return id;
@@ -128,6 +156,22 @@ public class AppVersionUpgradeDto {
 
 	public void setIsCurrentVersion(Boolean isCurrentVersion) {
 		this.isCurrentVersion = isCurrentVersion;
+	}
+
+	public Date getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Date updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	public String getUploadFilePath() {
+		return uploadFilePath;
+	}
+
+	public void setUploadFilePath(String uploadFilePath) {
+		this.uploadFilePath = uploadFilePath;
 	}
 
 }

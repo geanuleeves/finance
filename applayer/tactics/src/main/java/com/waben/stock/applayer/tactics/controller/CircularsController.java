@@ -52,4 +52,15 @@ public class CircularsController {
 	public Response<List<BroadcastDto>> findBytype(BroadcastQuery query){
 		return new Response<>(circularsBusiness.findByType(query));
 	}
+	
+	@GetMapping("/dowload")
+	@ApiOperation(value = "文件下载")
+	public Response<String> dowload(Integer deviceType){
+		String url = circularsBusiness.dowload(deviceType);
+		Response<String> response = new Response<>();
+		response.setCode("200");
+		response.setMessage("响应成功");
+		response.setResult(url);
+		return response;
+	}
 }

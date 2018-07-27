@@ -21,6 +21,10 @@ public class FuturesCommodityBusiness {
 
 	@Autowired
 	private FuturesCommodityInterface reference;
+	
+	public Response<Integer> getTradingState(Long id){
+		return reference.getTradingState(id);
+	}
 
 	public Response<PageInfo<FuturesCommodityAdminDto>> pagesCommodity(FuturesCommodityAdminQuery query) {
 		return reference.pagesAdmin(query);
