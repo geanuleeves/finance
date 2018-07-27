@@ -71,7 +71,7 @@ public class CapitalFlowDaoImpl implements CapitalFlowDao {
 
 	@Override
 	public CapitalFlow create(Publisher publisher, CapitalFlowType type, BigDecimal amount, Date occurrenceTime,
-			CapitalFlowExtendType extendType, Long extendId, BigDecimal availableBalance) {
+			CapitalFlowExtendType extendType, Long extendId, BigDecimal availableBalance, BigDecimal frozenCapital) {
 		CapitalFlow t = new CapitalFlow();
 		t.setAmount(amount);
 		t.setOccurrenceTime(occurrenceTime);
@@ -82,6 +82,7 @@ public class CapitalFlowDaoImpl implements CapitalFlowDao {
 		t.setExtendId(extendId);
 		t.setExtendType(extendType);
 		t.setAvailableBalance(availableBalance);
+		t.setFrozenCapital(frozenCapital);
 		return repository.save(t);
 	}
 

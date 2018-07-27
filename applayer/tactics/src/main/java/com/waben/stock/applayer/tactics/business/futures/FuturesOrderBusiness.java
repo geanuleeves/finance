@@ -32,8 +32,8 @@ import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
-import com.waben.stock.interfaces.pojo.query.futures.FuturesContractQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
 import com.waben.stock.interfaces.service.futures.FuturesCommodityInterface;
 import com.waben.stock.interfaces.service.futures.FuturesContractInterface;
@@ -117,8 +117,8 @@ public class FuturesOrderBusiness {
 		throw new ServiceException(response.getCode());
 	}
 
-	public FuturesOrderDto buy(FuturesOrderDto orderDto) {
-		Response<FuturesOrderDto> response = futuresOrderInterface.addOrder(orderDto);
+	public FuturesOrderDto placeOrder(PlaceOrderParam orderParam) {
+		Response<FuturesOrderDto> response = futuresOrderInterface.placeOrder(orderParam);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}

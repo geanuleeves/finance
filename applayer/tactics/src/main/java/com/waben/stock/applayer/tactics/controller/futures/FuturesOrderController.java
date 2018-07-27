@@ -41,7 +41,6 @@ import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractOrderDto;
 import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
-import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
@@ -50,6 +49,7 @@ import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesContractQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
@@ -72,7 +72,7 @@ import io.swagger.annotations.ApiOperation;
 public class FuturesOrderController {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
-	
+
 	@Autowired
 	private FuturesContractOrderBusiness contractOrderBusiness;
 
@@ -100,7 +100,7 @@ public class FuturesOrderController {
 		logger.info("调用接口发布人{}期货下单{}，手数{}!", SecurityUtil.getUserId(), param.getContractId(), param.getTotalQuantity());
 		// step 1 : 检查合约信息
 		FuturesContractDto contract = futuresContractBusiness.findByContractId(param.getContractId());
-		if(contract == null) {
+		if (contract == null) {
 			throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION, "contractId", param.getContractId());
 		}
 		if (contract.getExchangeEnable() != null && !contract.getExchangeEnable()) {
@@ -109,18 +109,19 @@ public class FuturesOrderController {
 		if (contract.getEnable() != null && !contract.getEnable()) {
 			throw new ServiceException(ExceptionConstant.CONTRACT_ABNORMALITY_EXCEPTION);
 		}
-		if(!contract.getIsTradeTime()) {
+		if (!contract.getIsTradeTime()) {
 			throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
 		}
 		// step 2 : 根据最后交易日和首次通知日判断是否可以下单，可以下单计算公式：MIN（最后交易日，首次通知日）> 当前日期
 		Long checkLastTrade = 0L;
-		if(contract.getFirstNoticeDate() != null) {
+		if (contract.getFirstNoticeDate() != null) {
 			checkLastTrade = contract.getFirstNoticeDate().getTime();
 		}
-		if(contract.getLastTradingDate() != null) {
-			checkLastTrade = checkLastTrade == 0 ? contract.getLastTradingDate().getTime() : Math.min(checkLastTrade ,contract.getLastTradingDate().getTime());
+		if (contract.getLastTradingDate() != null) {
+			checkLastTrade = checkLastTrade == 0 ? contract.getLastTradingDate().getTime()
+					: Math.min(checkLastTrade, contract.getLastTradingDate().getTime());
 		}
-		if(checkLastTrade > 0) {
+		if (checkLastTrade > 0) {
 			Date exchangeTime = contract.getTimeZoneGap() == null ? new Date()
 					: retriveExchangeTime(new Date(), contract.getTimeZoneGap());
 			if (checkLastTrade.compareTo(exchangeTime.getTime()) < 0) {
@@ -132,18 +133,20 @@ public class FuturesOrderController {
 		// step 4 : 检查下单数量
 		BigDecimal perNum = contract.getPerOrderLimit();
 		BigDecimal userMaxNum = contract.getUserTotalLimit();
-		FuturesContractOrderDto contractOrder = contractOrderBusiness.fetchByContractId(param.getContractId());
+		FuturesContractOrderDto contractOrder = contractOrderBusiness.fetchByContractIdAndPublisherId(param.getContractId(), SecurityUtil.getUserId());
 		BigDecimal buyUpNum = BigDecimal.ZERO;
 		BigDecimal buyFallNum = BigDecimal.ZERO;
-		if(contractOrder != null) {
+		BigDecimal alreadyReserveFund = BigDecimal.ZERO;
+		if (contractOrder != null) {
 			buyUpNum = contractOrder.getBuyUpTotalQuantity();
 			buyFallNum = contractOrder.getBuyFallTotalQuantity();
+			alreadyReserveFund = contractOrder.getReserveFund();
 		}
 		checkBuyUpAndFullSum(buyUpNum, buyFallNum, perNum, userMaxNum, param, contract);
 		// step 5 : 计算总费用，总保证金=单边最大手数*一手保证金
 		BigDecimal totalFee = new BigDecimal(0);
 		BigDecimal singleEdgeMax = BigDecimal.ZERO;
-		if(param.getOrderType() == FuturesOrderType.BuyUp) {
+		if (param.getOrderType() == FuturesOrderType.BuyUp) {
 			BigDecimal preBuyUpNum = param.getTotalQuantity().add(buyUpNum);
 			singleEdgeMax = preBuyUpNum.compareTo(buyFallNum) >= 0 ? preBuyUpNum : buyFallNum;
 		} else {
@@ -151,19 +154,12 @@ public class FuturesOrderController {
 			singleEdgeMax = prebuyFallNum.compareTo(buyUpNum) >= 0 ? prebuyFallNum : buyUpNum;
 		}
 		BigDecimal totalReserveFund = contract.getPerUnitReserveFund().multiply(singleEdgeMax);
-		BigDecimal 
-		
-		// 保证金金额
-		BigDecimal reserveAmount = lossOrProfitDto.getReserveFund().multiply(param.getTotalQuantity())
-				.multiply(contractDto.getRate());
-		// 开仓手续费 + 平仓手续费
-		BigDecimal openUnwin = contractDto.getOpenwindServiceFee().add(contractDto.getUnwindServiceFee());
-		// 交易综合费 = (开仓手续费 + 平仓手续费)* 交易持仓数
-		BigDecimal comprehensiveAmount = openUnwin.multiply(param.getTotalQuantity());
-		// 总金额 = 保证金金额 + 交易综合费
-		totalFee = reserveAmount.add(comprehensiveAmount);
-
-		// 检查余额
+		BigDecimal reserveFund = totalReserveFund.compareTo(alreadyReserveFund) > 0
+				? totalReserveFund.subtract(alreadyReserveFund) : BigDecimal.ZERO;
+		BigDecimal serviceFee = contract.getOpenwindServiceFee().add(contract.getUnwindServiceFee())
+				.multiply(param.getTotalQuantity());
+		totalFee = reserveFund.add(serviceFee);
+		// step 6 : 检查余额
 		CapitalAccountDto capitalAccount = futuresContractBusiness.findByPublisherId(SecurityUtil.getUserId());
 		if (totalFee.compareTo(capitalAccount.getAvailableBalance()) > 0) {
 			throw new ServiceException(ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION);
@@ -174,43 +170,37 @@ public class FuturesOrderController {
 				throw new ServiceException(ExceptionConstant.HOLDINGLOSS_LEADTO_NOTENOUGH_EXCEPTION);
 			}
 		}
-
-		FuturesOrderDto orderDto = new FuturesOrderDto();
-		orderDto.setPublisherId(SecurityUtil.getUserId());
-		orderDto.setOrderType(param.getOrderType());
-		orderDto.setContractId(param.getContractId());
-		orderDto.setTotalQuantity(param.getTotalQuantity());
-		orderDto.setReserveFund(reserveAmount);
-		orderDto.setServiceFee(comprehensiveAmount);
-		orderDto.setCommoditySymbol(contractDto.getSymbol());
-		orderDto.setCommodityName((contractDto.getName()));
-		orderDto.setCommodityCurrency(contractDto.getCurrency());
-		orderDto.setContractNo(contractDto.getContractNo());
-		orderDto.setOpenwindServiceFee(contractDto.getOpenwindServiceFee());
-		orderDto.setUnwindServiceFee(contractDto.getUnwindServiceFee());
-		orderDto.setPerUnitUnwindPoint(lossOrProfitDto.getStrongLevelingAmount());
-		orderDto.setDefaultStopLossFee(lossOrProfitDto.getStopLossFee());
-		orderDto.setUnwindPointType(2);
-		orderDto.setOvernightPerUnitReserveFund(contractDto.getOvernightPerUnitReserveFund());
-		orderDto.setOvernightPerUnitDeferredFee(contractDto.getOvernightPerUnitDeferredFee());
-		orderDto.setBuyingPriceType(param.getBuyingPriceType());
-		// 止损类型及金额点位
-		if (param.getLimitLossType() != null && param.getLimitLossType() > 0) {
-			orderDto.setLimitLossType(param.getLimitLossType());
-			orderDto.setPerUnitLimitLossAmount(param.getPerUnitLimitLossAmount());
+		// step 7 : 组装请求参数，请求下单
+		PlaceOrderParam orderParam = new PlaceOrderParam();
+		orderParam.setPublisherId(SecurityUtil.getUserId());
+		orderParam.setOrderType(param.getOrderType());
+		orderParam.setContractId(param.getContractId());
+		orderParam.setTotalQuantity(param.getTotalQuantity());
+		orderParam.setReserveFund(reserveFund);
+		orderParam.setServiceFee(serviceFee);
+		orderParam.setCommoditySymbol(contract.getSymbol());
+		orderParam.setCommodityName((contract.getName()));
+		orderParam.setCommodityCurrency(contract.getCurrency());
+		orderParam.setContractNo(contract.getContractNo());
+		orderParam.setOpenwindServiceFee(contract.getOpenwindServiceFee());
+		orderParam.setUnwindServiceFee(contract.getUnwindServiceFee());
+		orderParam.setTradePriceType(param.getBuyingPriceType());
+		orderParam.setEntrustPrice(param.getBuyingEntrustPrice());
+		if (param.getLimitLossType() != null && param.getLimitLossType() > 0
+				&& param.getPerUnitLimitLossAmount() != null
+				&& param.getPerUnitLimitLossAmount().compareTo(BigDecimal.ZERO) > 0) {
+			orderParam.setLimitLossType(param.getLimitLossType());
+			orderParam.setPerUnitLimitLossAmount(param.getPerUnitLimitLossAmount());
 		}
-		// 止盈类型及金额点位
-		if (param.getLimitProfitType() != null && param.getLimitProfitType() > 0) {
-			orderDto.setLimitProfitType(param.getLimitProfitType());
-			orderDto.setPerUnitLimitProfitAmount(param.getPerUnitLimitProfitAmount());
+		if (param.getLimitProfitType() != null && param.getLimitProfitType() > 0
+				&& param.getPerUnitLimitProfitAmount() != null
+				&& param.getPerUnitLimitProfitAmount().compareTo(BigDecimal.ZERO) > 0) {
+			orderParam.setLimitProfitType(param.getLimitProfitType());
+			orderParam.setPerUnitLimitProfitAmount(param.getPerUnitLimitProfitAmount());
 		}
-		// 委托买入价格
-		orderDto.setBuyingEntrustPrice(param.getBuyingEntrustPrice());
-		// 获取是否为测试单
 		PublisherDto publisher = publisherBusiness.findById(SecurityUtil.getUserId());
-		orderDto.setIsTest(publisher.getIsTest());
-		orderDto.setStopLossOrProfitId(param.getStopLossOrProfitId());
-		return new Response<>(futuresOrderBusiness.buy(orderDto));
+		orderParam.setIsTest(publisher.getIsTest());
+		return new Response<>(futuresOrderBusiness.placeOrder(orderParam));
 	}
 
 	@PostMapping("/cancelOrder/{orderId}")

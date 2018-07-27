@@ -34,8 +34,8 @@ public interface FuturesContractOrderInterface {
 	 *            合约ID
 	 * @return 订单
 	 */
-	@RequestMapping(value = "/contractId/{contractId}", method = RequestMethod.GET)
-	Response<FuturesContractOrderDto> fetchByContractId(@PathVariable("contractId") Long contractId);
+	@RequestMapping(value = "/contractId/{contractId}/{publisherId}", method = RequestMethod.GET)
+	Response<FuturesContractOrderDto> fetchByContractIdAndPublisherId(@PathVariable("contractId") Long contractId, @PathVariable("publisherId") Long publisherId);
 
 	/**
 	 * 新增合约订单
