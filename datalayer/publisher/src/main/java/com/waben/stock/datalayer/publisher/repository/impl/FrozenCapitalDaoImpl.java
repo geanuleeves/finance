@@ -16,7 +16,7 @@ import com.waben.stock.datalayer.publisher.repository.impl.jpa.FrozenCapitalRepo
 /**
  * 冻结资金 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

@@ -20,12 +20,10 @@ import javax.persistence.Transient;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesProductTypeConverter;
 import com.waben.stock.interfaces.enums.FuturesProductType;
 
-import io.swagger.annotations.ApiModelProperty;
-
 /**
  * 期货品种
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity
@@ -129,13 +127,9 @@ public class FuturesCommodity {
 	 */
 	private BigDecimal unwindServiceFee;
 	/**
-	 * 交易综合费
-	 */
-	private BigDecimal tradeServiceFee;
-	/**
 	 * 隔夜时间（交易所时间）
 	 * <p>
-	 * 格式如04:50:00，该时间为收取隔夜手续费和递延费的时间
+	 * 格式如04:50:00，该时间为隔夜保证金冻结和递延费收取的时间
 	 * </p>
 	 */
 	private String overnightTime;
@@ -229,9 +223,10 @@ public class FuturesCommodity {
 	 */
 	@OneToMany(cascade = { CascadeType.REMOVE }, fetch = FetchType.EAGER, mappedBy = "commodity")
 	private Set<FuturesPreQuantity> preQuantitySet;
-
+	/**
+	 * 创建时间
+	 */
 	private Date createTime;
-
 	/**
 	 * 当天交易时间描述
 	 */
@@ -249,6 +244,16 @@ public class FuturesCommodity {
 	 */
 	@Transient
 	private String exchangeName;
+	/**
+	 * 交易所是否可用
+	 */
+	@Transient
+	private Boolean exchangeEnable;
+	/**
+	 * 时差
+	 */
+	@Transient
+	private Integer timeZoneGap;
 
 	public Long getId() {
 		return id;
@@ -640,15 +645,6 @@ public class FuturesCommodity {
 		this.buyFallCloseSlipPoint = buyFallCloseSlipPoint;
 	}
 
-
-	public BigDecimal getTradeServiceFee() {
-		return tradeServiceFee;
-	}
-
-	public void setTradeServiceFee(BigDecimal tradeServiceFee) {
-		this.tradeServiceFee = tradeServiceFee;
-	}
-		
 	public String getCurrentTradeTimeDesc() {
 		return currentTradeTimeDesc;
 	}
@@ -656,6 +652,20 @@ public class FuturesCommodity {
 	public void setCurrentTradeTimeDesc(String currentTradeTimeDesc) {
 		this.currentTradeTimeDesc = currentTradeTimeDesc;
 
+	}
+
+	public Boolean getExchangeEnable() {
+		if (exchange != null) {
+			return exchange.getEnable();
+		}
+		return exchangeEnable;
+	}
+
+	public Integer getTimeZoneGap() {
+		if (exchange != null) {
+			return exchange.getTimeZoneGap();
+		}
+		return timeZoneGap;
 	}
 
 }

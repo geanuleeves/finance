@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 支付状态
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum PaymentState implements CommonalityEnum {

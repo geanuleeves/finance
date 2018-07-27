@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 线下期权交易状态
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum OfflineStockOptionTradeState implements CommonalityEnum {

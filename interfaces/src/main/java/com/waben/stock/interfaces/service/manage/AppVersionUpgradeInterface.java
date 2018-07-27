@@ -15,7 +15,7 @@ import com.waben.stock.interfaces.pojo.query.PageInfo;
 /**
  * app版本升级 公共接口
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @FeignClient(name = "manage", path = "upgrade", qualifier = "appVersionUpgradeInterface")

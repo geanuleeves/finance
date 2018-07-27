@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.service.organization.WithdrawalsApplyInterface
 /**
  * 提现申请 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

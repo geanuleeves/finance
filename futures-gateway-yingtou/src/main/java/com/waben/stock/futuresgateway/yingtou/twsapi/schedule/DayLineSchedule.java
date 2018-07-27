@@ -19,7 +19,7 @@ import com.waben.stock.futuresgateway.yingtou.twsapi.TwsEngine;
 /**
  * K线图定时作业
  * 
- * @author luomengan
+ * @author lma
  *
  */
 // @Component

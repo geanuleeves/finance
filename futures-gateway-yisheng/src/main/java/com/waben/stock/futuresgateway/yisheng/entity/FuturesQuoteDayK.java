@@ -12,7 +12,7 @@ import javax.persistence.Table;
 /**
  * 行情-日K
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

@@ -17,7 +17,7 @@ import com.waben.stock.datalayer.organization.repository.impl.jpa.OrganizationAc
 /**
  * 机构账户 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

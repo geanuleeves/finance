@@ -34,7 +34,7 @@ import com.waben.stock.interfaces.util.UniqueCodeGenerator;
 /**
  * 提现申请 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

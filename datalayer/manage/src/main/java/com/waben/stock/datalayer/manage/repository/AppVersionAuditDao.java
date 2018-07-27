@@ -5,7 +5,7 @@ import com.waben.stock.datalayer.manage.entity.AppVersionAudit;
 /**
  * app版本 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface AppVersionAuditDao extends BaseDao<AppVersionAudit, Long> {

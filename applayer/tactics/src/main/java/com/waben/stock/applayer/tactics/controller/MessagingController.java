@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 消息 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

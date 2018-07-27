@@ -12,7 +12,7 @@ import com.waben.stock.interfaces.enums.CapitalFlowType;
 /**
  * 资金流水 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface CapitalFlowDao extends BaseDao<CapitalFlow, Long> {

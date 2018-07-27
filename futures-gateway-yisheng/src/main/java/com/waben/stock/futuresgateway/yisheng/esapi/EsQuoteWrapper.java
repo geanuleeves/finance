@@ -43,7 +43,7 @@ import io.netty.util.AttributeKey;
 /**
  * 易盛行情
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Component

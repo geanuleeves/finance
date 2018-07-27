@@ -19,7 +19,7 @@ import com.waben.stock.interfaces.util.JacksonUtil;
 /**
  * 定时获取股票行情作业
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Component

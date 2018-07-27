@@ -7,7 +7,7 @@ import com.waben.stock.datalayer.manage.entity.Banner;
 /**
  * 轮播 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface BannerDao extends BaseDao<Banner, Long> {

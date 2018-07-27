@@ -51,7 +51,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 期权管理 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

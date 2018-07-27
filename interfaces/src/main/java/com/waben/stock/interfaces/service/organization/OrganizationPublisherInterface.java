@@ -16,7 +16,7 @@ import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuer
 /**
  * 机构推广的发布人 reference服务接口
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @FeignClient(name = "organization", path = "orgpublisher", qualifier = "organizationPublisherInterface")

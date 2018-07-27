@@ -3,7 +3,7 @@ package com.waben.stock.interfaces.pojo.query;
 /**
  * 结算 查询条件
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class SettlementQuery extends PageAndSortQuery {

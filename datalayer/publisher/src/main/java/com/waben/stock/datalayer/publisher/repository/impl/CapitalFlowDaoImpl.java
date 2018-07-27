@@ -23,7 +23,7 @@ import com.waben.stock.interfaces.util.UniqueCodeGenerator;
 /**
  * 资金流水 Dao实现
  *
- * @author luomengan
+ * @author lma
  */
 @Repository
 public class CapitalFlowDaoImpl implements CapitalFlowDao {

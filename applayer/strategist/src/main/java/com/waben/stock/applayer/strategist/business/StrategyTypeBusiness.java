@@ -18,7 +18,7 @@ import com.waben.stock.interfaces.service.stockcontent.StrategyTypeInterface;
 /**
  * 策略类型 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

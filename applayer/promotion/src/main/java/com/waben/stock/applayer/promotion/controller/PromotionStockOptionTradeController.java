@@ -37,7 +37,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 推广渠道产生的期权交易 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

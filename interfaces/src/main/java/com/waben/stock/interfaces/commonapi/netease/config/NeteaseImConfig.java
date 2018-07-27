@@ -3,7 +3,7 @@ package com.waben.stock.interfaces.commonapi.netease.config;
 /**
  * 网易云即时通讯配置
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class NeteaseImConfig {

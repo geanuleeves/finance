@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * 轮播 Dto
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @ApiModel(value = "BannerDto", description = "轮播图对象")

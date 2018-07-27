@@ -27,7 +27,6 @@ import com.waben.stock.datalayer.futures.service.FuturesCurrencyRateService;
 import com.waben.stock.datalayer.futures.service.FuturesExchangeService;
 import com.waben.stock.datalayer.futures.service.FuturesHolidayService;
 import com.waben.stock.datalayer.futures.service.FuturesPreQuantityService;
-import com.waben.stock.datalayer.futures.service.FuturesTradeLimitService;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesCommodityAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesPreQuantityDto;
@@ -66,9 +65,6 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 
 	@Autowired
 	private FuturesPreQuantityService quantityService;
-
-	@Autowired
-	private FuturesTradeLimitService futuresTradeLimitService;
 
 	@Autowired
 	private FuturesHolidayService futuresHolidayService;
@@ -189,7 +185,6 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 		oldCommodity.setOvernightPerUnitDeferredFee(dto.getOvernightPerUnitDeferredFee());
 		oldCommodity.setPerContractValue(dto.getPerContractValue());
 		oldCommodity.setCurrentTradeTimeDesc(dto.getCurrentTradeTimeDesc());
-		oldCommodity.setTradeServiceFee(dto.getTradeServiceFee());
 
 		FuturesCommodity result = commodityService.modify(oldCommodity);
 		FuturesCommodityAdminDto response = CopyBeanUtils.copyBeanProperties(result, new FuturesCommodityAdminDto(),

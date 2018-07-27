@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.pojo.Response;
 /**
  * 期权报价 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "stockoption", path = "stockoptionquote", qualifier = "stockOptionQuoteInterface")
 public interface StockOptionQuoteInterface {

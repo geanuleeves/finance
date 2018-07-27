@@ -10,7 +10,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * 通告 Dto
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

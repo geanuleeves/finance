@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * 期权交易限额
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class StockOptionAmountLimitDto {

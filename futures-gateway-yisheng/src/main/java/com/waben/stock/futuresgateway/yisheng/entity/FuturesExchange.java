@@ -9,7 +9,7 @@ import javax.persistence.Table;
 /**
  * 期货交易所
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

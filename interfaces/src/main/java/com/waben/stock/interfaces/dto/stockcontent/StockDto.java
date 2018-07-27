@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 /**
  * 股票
  *
- * @author luomengan
+ * @author lma
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class StockDto {

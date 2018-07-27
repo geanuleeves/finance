@@ -14,7 +14,7 @@ import com.waben.stock.collector.entity.BindCard;
 /**
  * 绑卡 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

@@ -3,7 +3,7 @@ package com.waben.stock.datalayer.manage.service.collector.bean;
 /**
  * 数据结果对象
  * 
- * @author luomengan
+ * @author lma
  *
  * @param <T>
  *            数据类型

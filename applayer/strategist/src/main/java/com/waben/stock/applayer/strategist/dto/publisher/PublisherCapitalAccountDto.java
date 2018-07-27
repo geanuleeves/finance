@@ -8,7 +8,7 @@ import com.waben.stock.interfaces.dto.publisher.PublisherDto;
 /**
  * 策略发布人和资金账号
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class PublisherCapitalAccountDto {

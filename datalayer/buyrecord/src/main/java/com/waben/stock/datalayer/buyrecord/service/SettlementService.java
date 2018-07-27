@@ -28,7 +28,7 @@ import com.waben.stock.interfaces.pojo.query.SettlementQuery;
 /**
  * 结算 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

@@ -22,7 +22,7 @@ import com.waben.stock.interfaces.util.PasswordCrypt;
 /**
  * 后台管理用户 Business
  * 
- * @author luomengan
+ * @author lma
  */
 @Service
 public class StaffBusiness {

@@ -7,7 +7,7 @@ import com.waben.stock.datalayer.buyrecord.entity.DeferredRecord;
 /**
  * 递延记录 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface DeferredRecordRepository extends CustomJpaRepository<DeferredRecord, Long> {

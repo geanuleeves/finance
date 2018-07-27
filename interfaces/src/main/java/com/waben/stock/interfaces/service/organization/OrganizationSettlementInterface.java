@@ -13,7 +13,7 @@ import com.waben.stock.interfaces.pojo.Response;
 /**
  * 机构结算 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "organization", path = "organizationSettlement", qualifier = "organizationSettlementInterface")
 public interface OrganizationSettlementInterface {

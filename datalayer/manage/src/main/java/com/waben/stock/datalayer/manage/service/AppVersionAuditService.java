@@ -9,7 +9,7 @@ import com.waben.stock.datalayer.manage.repository.AppVersionAuditDao;
 /**
  * app版本 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

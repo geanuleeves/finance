@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.dto.buyrecord.BuyRecordDto;
 /**
  * 点买记录+股票行情信息
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class BuyRecordWithMarketDto extends BuyRecordDto {

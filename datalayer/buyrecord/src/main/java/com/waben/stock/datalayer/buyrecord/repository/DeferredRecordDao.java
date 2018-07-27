@@ -7,7 +7,7 @@ import com.waben.stock.datalayer.buyrecord.entity.DeferredRecord;
 /**
  * 递延记录 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface DeferredRecordDao extends BaseDao<DeferredRecord, Long> {

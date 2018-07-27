@@ -8,7 +8,7 @@ import com.waben.stock.datalayer.manage.entity.Circulars;
 /**
  * 通告 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface CircularsDao extends BaseDao<Circulars, Long> {

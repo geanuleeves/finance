@@ -13,7 +13,7 @@ import com.waben.stock.collector.entity.CapitalAccount;
 /**
  * 资金账户 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

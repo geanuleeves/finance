@@ -3,7 +3,7 @@ package com.waben.stock.interfaces.dto.manage;
 /**
  * 区域
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class AreaInfoDto {

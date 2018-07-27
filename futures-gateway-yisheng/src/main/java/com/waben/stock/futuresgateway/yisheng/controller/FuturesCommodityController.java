@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 期货品种 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

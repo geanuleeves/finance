@@ -12,7 +12,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesOrder;
 /**
  * 期货订单 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface FuturesOrderRepository extends Repository<FuturesOrder, Long> {

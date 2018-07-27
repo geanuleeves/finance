@@ -11,7 +11,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesContract;
 /**
  * 期货合约 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface FuturesContractRepository extends Repository<FuturesContract, Long> {

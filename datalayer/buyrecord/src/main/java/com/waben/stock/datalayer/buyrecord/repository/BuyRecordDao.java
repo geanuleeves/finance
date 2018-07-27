@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * 点买记录 Dao
- * @author luomengan
+ * @author lma
  *
  */
 public interface BuyRecordDao extends BaseDao<BuyRecord, Long> {

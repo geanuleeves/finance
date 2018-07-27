@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * 通告 Dto
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class CircularsVo {

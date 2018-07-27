@@ -8,7 +8,7 @@ import com.waben.stock.interfaces.enums.ResourceType;
 /**
  * 实名认证 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface RealNameDao extends BaseDao<RealName, Long> {

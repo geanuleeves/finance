@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 模拟数据 类型
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum AnalogDataType implements CommonalityEnum {

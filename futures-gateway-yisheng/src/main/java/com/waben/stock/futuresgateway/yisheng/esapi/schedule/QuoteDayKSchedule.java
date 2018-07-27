@@ -26,7 +26,7 @@ import com.waben.stock.futuresgateway.yisheng.util.TimeZoneUtil;
 /**
  * 行情-日K组合作业
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Component

@@ -13,7 +13,7 @@ import com.waben.stock.collector.entity.DeferredRecord;
 /**
  * 递延记录 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

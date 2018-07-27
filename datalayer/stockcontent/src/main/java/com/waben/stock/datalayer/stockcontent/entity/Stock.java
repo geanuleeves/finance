@@ -5,7 +5,7 @@ import javax.persistence.*;
 /**
  * 股票
  *
- * @author luomengan
+ * @author lma
  */
 @Entity
 @Table(name = "stock")

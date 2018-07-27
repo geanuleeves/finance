@@ -7,7 +7,7 @@ import com.waben.stock.datalayer.manage.entity.Cnaps;
 /**
  * 支付支行信息 Jpa
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface CnapsRepository extends CustomJpaRepository<Cnaps, Long> {

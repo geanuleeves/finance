@@ -5,7 +5,7 @@ import com.waben.stock.datalayer.message.entity.OutsidePushConfig;
 /**
  * 站外推送配置 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface OutsidePushConfigDao extends BaseDao<OutsidePushConfig, Long> {

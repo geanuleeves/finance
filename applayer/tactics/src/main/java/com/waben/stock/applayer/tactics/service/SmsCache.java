@@ -13,7 +13,7 @@ import com.waben.stock.interfaces.exception.ServiceException;
 /**
  * 发送成功的短信 缓存
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Component

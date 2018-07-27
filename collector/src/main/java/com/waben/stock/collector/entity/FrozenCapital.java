@@ -13,7 +13,7 @@ import javax.persistence.Table;
 /**
  * 冻结资金
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

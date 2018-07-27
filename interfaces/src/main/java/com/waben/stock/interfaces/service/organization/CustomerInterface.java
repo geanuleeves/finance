@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.pojo.query.organization.CustomerQuery;
 /**
  * 客户 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "organization", path = "customer", qualifier = "customerInterface")
 public interface CustomerInterface {

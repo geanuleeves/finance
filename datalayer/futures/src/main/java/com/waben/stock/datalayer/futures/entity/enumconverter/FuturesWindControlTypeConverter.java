@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.FuturesWindControlType;
 /**
  * 期权风控类型 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class FuturesWindControlTypeConverter implements AttributeConverter<FuturesWindControlType, Integer> {

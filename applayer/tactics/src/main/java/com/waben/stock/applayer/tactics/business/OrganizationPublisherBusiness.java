@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.service.organization.OrganizationPublisherInte
 /**
  * 机构推广的发布人 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

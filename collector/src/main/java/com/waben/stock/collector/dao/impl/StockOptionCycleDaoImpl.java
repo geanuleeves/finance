@@ -14,7 +14,7 @@ import com.waben.stock.collector.entity.StockOptionCycle;
 /**
  * 期权周期 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

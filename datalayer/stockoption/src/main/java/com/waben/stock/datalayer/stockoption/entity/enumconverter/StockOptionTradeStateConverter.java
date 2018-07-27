@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.StockOptionTradeState;
 /**
  * 交易状态 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class StockOptionTradeStateConverter implements AttributeConverter<StockOptionTradeState, Integer> {

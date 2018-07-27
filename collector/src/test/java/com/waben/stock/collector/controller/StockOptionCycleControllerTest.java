@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 /**
  * 期权周期 Test
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class StockOptionCycleControllerTest extends BaseControllerTest {

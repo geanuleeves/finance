@@ -15,7 +15,7 @@ import com.waben.stock.futuresgateway.yisheng.service.FuturesContractService;
 /**
  * 常用数据缓存
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Component

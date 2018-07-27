@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 点买记录 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

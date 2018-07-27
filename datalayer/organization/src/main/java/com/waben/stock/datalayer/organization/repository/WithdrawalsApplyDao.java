@@ -5,7 +5,7 @@ import com.waben.stock.datalayer.organization.entity.WithdrawalsApply;
 /**
  * 提现申请 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface WithdrawalsApplyDao extends BaseDao<WithdrawalsApply, Long> {

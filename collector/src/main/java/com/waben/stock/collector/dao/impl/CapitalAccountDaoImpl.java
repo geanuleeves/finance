@@ -14,7 +14,7 @@ import com.waben.stock.collector.entity.CapitalAccount;
 /**
  * 资金账户 Dao实现
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Repository

@@ -9,7 +9,7 @@ import org.springframework.web.filter.CorsFilter;
 /**
  * 设置跨域权限
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class CustomCorsFilter extends CorsFilter {

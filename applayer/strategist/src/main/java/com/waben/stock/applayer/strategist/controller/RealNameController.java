@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * 实名认证 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

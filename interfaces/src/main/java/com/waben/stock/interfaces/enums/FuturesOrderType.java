@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 期货订单类型 类型
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum FuturesOrderType implements CommonalityEnum {

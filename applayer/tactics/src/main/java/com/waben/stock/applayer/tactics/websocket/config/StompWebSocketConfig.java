@@ -11,7 +11,7 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 /**
  * WebSocket的相关配置信息
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Configuration

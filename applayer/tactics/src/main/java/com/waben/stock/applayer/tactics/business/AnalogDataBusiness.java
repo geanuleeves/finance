@@ -14,7 +14,7 @@ import com.waben.stock.interfaces.service.manage.AnalogDataInterface;
 /**
  * 模拟数据 Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

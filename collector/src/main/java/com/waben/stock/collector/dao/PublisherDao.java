@@ -9,7 +9,7 @@ import com.waben.stock.collector.entity.Publisher;
 /**
  * 策略发布人 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface PublisherDao {

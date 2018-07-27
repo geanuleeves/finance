@@ -16,7 +16,7 @@ import io.swagger.annotations.ApiOperation;
 /**
  * app版本 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController

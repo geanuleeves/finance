@@ -16,7 +16,7 @@ import com.waben.stock.interfaces.service.manage.CnapsInterface;
 /**
  * Cnaps Business
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

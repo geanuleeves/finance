@@ -13,7 +13,7 @@ import com.waben.stock.collector.entity.FrozenCapital;
 /**
  * 冻结资金 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

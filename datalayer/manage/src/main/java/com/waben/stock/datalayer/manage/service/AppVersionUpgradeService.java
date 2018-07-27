@@ -30,7 +30,7 @@ import com.waben.stock.interfaces.util.Md5Util;
 /**
  * app版本升级 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

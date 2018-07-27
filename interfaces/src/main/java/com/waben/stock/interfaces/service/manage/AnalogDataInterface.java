@@ -12,7 +12,7 @@ import com.waben.stock.interfaces.pojo.query.PageInfo;
 /**
  * 模拟数据 公共接口
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @FeignClient(name = "manage", path = "analogdata", qualifier = "analogDataInterface")

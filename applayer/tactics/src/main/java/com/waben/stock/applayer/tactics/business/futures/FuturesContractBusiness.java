@@ -29,7 +29,6 @@ import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesContractQuery;
-import com.waben.stock.interfaces.service.futures.FuturesBrokerInterface;
 import com.waben.stock.interfaces.service.futures.FuturesCommodityInterface;
 import com.waben.stock.interfaces.service.futures.FuturesContractInterface;
 import com.waben.stock.interfaces.service.futures.FuturesOrderInterface;
@@ -53,10 +52,6 @@ public class FuturesContractBusiness {
 	@Autowired
 	@Qualifier("futuresOrderInterface")
 	private FuturesOrderInterface futuresOrderInterface;
-
-	@Autowired
-	@Qualifier("futuresBrokerInterface")
-	private FuturesBrokerInterface futuresBrokerInterface;
 
 	@Autowired
 	@Qualifier("organizationInterface")
@@ -326,7 +321,14 @@ public class FuturesContractBusiness {
 			return response.getResult();
 		}
 		throw new ServiceException(response.getCode());
-
+	}
+	
+	public FuturesContractDto findByContractId(Long contractId) {
+		Response<FuturesContractDto> response = futuresContractInterface.findByContractId(contractId);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
 	}
 
 }

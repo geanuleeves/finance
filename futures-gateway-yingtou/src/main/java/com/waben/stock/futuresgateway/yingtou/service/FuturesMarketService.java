@@ -25,7 +25,7 @@ import com.waben.stock.futuresgateway.yingtou.util.StringUtil;
 /**
  * 期货行情 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

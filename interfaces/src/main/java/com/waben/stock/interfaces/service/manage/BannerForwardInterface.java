@@ -12,7 +12,7 @@ import com.waben.stock.interfaces.pojo.Response;
 /**
  * 轮播 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "manage", path = "bannerforward", qualifier = "bannerForwardInterface")
 public interface BannerForwardInterface {

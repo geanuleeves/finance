@@ -5,7 +5,7 @@ import com.waben.stock.datalayer.stockoption.entity.StockOptionCycle;
 /**
  * 期权周期 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface StockOptionCycleDao extends BaseDao<StockOptionCycle, Long> {

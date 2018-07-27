@@ -13,7 +13,7 @@ import com.waben.stock.collector.entity.Publisher;
 /**
  * 策略发布人 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

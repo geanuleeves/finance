@@ -13,7 +13,7 @@ import com.waben.stock.collector.entity.PaymentOrder;
 /**
  * 支付订单 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

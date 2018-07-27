@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * 期权买入方式
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public enum StockOptionBuyingType implements CommonalityEnum {

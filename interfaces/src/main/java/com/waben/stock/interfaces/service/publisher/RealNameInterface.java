@@ -15,7 +15,7 @@ import com.waben.stock.interfaces.pojo.Response;
 /**
  * 实名认证 reference服务接口
  *
- * @author luomengan
+ * @author lma
  */
 @FeignClient(name = "publisher", path = "realname", qualifier = "realNameInterface")
 public interface RealNameInterface {

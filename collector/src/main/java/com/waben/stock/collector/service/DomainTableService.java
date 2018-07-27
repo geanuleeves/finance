@@ -59,7 +59,7 @@ import com.waben.stock.collector.entity.WithdrawalsOrder;
 /**
  * 应用表 Service
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Service

@@ -12,7 +12,7 @@ import javax.persistence.Table;
 /**
  * 期货合约行情-最新
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

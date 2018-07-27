@@ -29,7 +29,7 @@ import com.waben.stock.interfaces.util.StringUtil;
 /**
  * 机构推广的发布人 Controller
  *
- * @author luomengan
+ * @author lma
  */
 @RestController
 @RequestMapping("/orgpublisher")

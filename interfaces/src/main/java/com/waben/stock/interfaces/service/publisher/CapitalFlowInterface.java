@@ -23,7 +23,7 @@ import com.waben.stock.interfaces.pojo.query.admin.publisher.CapitalFlowFuturesA
 /**
  * 资金流水 reference服务接口
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @FeignClient(name = "publisher", path = "capitalFlow", qualifier = "capitalFlowInterface")

@@ -9,7 +9,7 @@ import com.waben.stock.collector.entity.WithdrawalsOrder;
 /**
  * 提现订单 Dao
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface WithdrawalsOrderDao {

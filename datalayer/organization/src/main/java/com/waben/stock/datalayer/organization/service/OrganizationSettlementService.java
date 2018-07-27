@@ -36,7 +36,7 @@ import com.waben.stock.interfaces.exception.ServiceException;
 /**
  * 机构结算 Service
  *
- * @author luomengan
+ * @author lma
  *
  */
 @Service

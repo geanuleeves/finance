@@ -7,7 +7,7 @@ import com.waben.stock.interfaces.enums.OfflineStockOptionTradeState;
 /**
  * 线下期权交易状态 转换器
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class OfflineStockOptionTradeStateConverter implements AttributeConverter<OfflineStockOptionTradeState, Integer> {

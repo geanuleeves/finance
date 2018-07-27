@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 /**
  * 提现订单 Test
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class WithdrawalsOrderControllerTest extends BaseControllerTest {

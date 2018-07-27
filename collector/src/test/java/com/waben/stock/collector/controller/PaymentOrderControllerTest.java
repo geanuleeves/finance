@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 /**
  * 支付订单 Test
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class PaymentOrderControllerTest extends BaseControllerTest {

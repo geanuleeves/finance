@@ -12,7 +12,7 @@ import javax.persistence.Table;
 /**
  * 策略类型
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Entity

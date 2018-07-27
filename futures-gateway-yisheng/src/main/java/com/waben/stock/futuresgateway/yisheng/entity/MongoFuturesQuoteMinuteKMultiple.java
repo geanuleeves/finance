@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * 行情-多分钟K
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class MongoFuturesQuoteMinuteKMultiple {

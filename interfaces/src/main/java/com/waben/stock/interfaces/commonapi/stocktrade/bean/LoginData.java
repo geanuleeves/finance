@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * 登陆结果
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class LoginData {

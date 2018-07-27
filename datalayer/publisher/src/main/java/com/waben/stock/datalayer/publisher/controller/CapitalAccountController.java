@@ -29,7 +29,7 @@ import com.waben.stock.interfaces.util.PageToPageInfo;
 /**
  * 资金账户 Controller
  *
- * @author luomengan
+ * @author lma
  */
 @RestController
 @RequestMapping("/capitalAccount")

@@ -11,7 +11,7 @@ import com.waben.stock.collector.entity.OfflineStockOptionTrade;
 /**
  * 线下期权交易信息 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface OfflineStockOptionTradeRepository extends Repository<OfflineStockOptionTrade, Long> {

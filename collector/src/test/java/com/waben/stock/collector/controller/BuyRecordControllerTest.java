@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 /**
  * 点买记录 Test
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class BuyRecordControllerTest extends BaseControllerTest {

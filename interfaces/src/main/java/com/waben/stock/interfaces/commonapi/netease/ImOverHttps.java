@@ -34,7 +34,7 @@ import com.waben.stock.interfaces.util.RandomUtil;
 /**
  * Im即时通讯统一请求网易云
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class ImOverHttps {

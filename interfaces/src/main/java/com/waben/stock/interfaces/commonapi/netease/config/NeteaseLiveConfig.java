@@ -3,7 +3,7 @@ package com.waben.stock.interfaces.commonapi.netease.config;
 /**
  * 网易云直播配置
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public class NeteaseLiveConfig {

@@ -11,7 +11,7 @@ import com.waben.stock.collector.entity.DomainTable;
 /**
  * 应用表 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface DomainTableRepository extends Repository<DomainTable, Long> {

@@ -11,7 +11,7 @@ import com.waben.stock.collector.entity.PaymentOrder;
 /**
  * 支付订单 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface PaymentOrderRepository extends Repository<PaymentOrder, Long> {

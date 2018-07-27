@@ -11,7 +11,7 @@ import com.waben.stock.collector.entity.Publisher;
 /**
  * 策略发布人 Repository
  * 
- * @author luomengan
+ * @author lma
  *
  */
 public interface PublisherRepository extends Repository<Publisher, Long> {

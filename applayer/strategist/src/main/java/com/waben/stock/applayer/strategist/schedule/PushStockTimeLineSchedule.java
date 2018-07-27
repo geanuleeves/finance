@@ -21,7 +21,7 @@ import com.waben.stock.interfaces.commonapi.retrivestock.bean.StockTimeLine;
 /**
  * 推送股票分时图作业
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @Component

@@ -25,7 +25,7 @@ import com.waben.stock.interfaces.util.PageToPageInfo;
 /**
  * app版本升级 Controller
  * 
- * @author luomengan
+ * @author lma
  *
  */
 @RestController
