@@ -1,14 +1,69 @@
 package com.waben.stock.datalayer.futures.service;
 
-import com.waben.stock.datalayer.futures.business.*;
-import com.waben.stock.datalayer.futures.entity.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
+import com.waben.stock.datalayer.futures.business.CapitalFlowBusiness;
+import com.waben.stock.datalayer.futures.business.OrganizationBusiness;
+import com.waben.stock.datalayer.futures.business.OutsideMessageBusiness;
+import com.waben.stock.datalayer.futures.business.ProfileBusiness;
+import com.waben.stock.datalayer.futures.business.PublisherBusiness;
+import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
+import com.waben.stock.datalayer.futures.entity.FuturesContract;
+import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
+import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
+import com.waben.stock.datalayer.futures.entity.FuturesHoliday;
+import com.waben.stock.datalayer.futures.entity.FuturesOrder;
+import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
+import com.waben.stock.datalayer.futures.entity.FuturesStopLossOrProfit;
+import com.waben.stock.datalayer.futures.entity.FuturesTradeAction;
+import com.waben.stock.datalayer.futures.entity.FuturesTradeEntrust;
+import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesOrderStateConverter;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControlTypeConverter;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.EntrustQueryConsumer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorPublisherFuturesOrderConsumer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorSingleFuturesOrderConsumer;
-import com.waben.stock.datalayer.futures.repository.*;
+import com.waben.stock.datalayer.futures.repository.DynamicQuerySqlDao;
+import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
+import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
+import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
+import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
+import com.waben.stock.datalayer.futures.repository.FuturesOvernightRecordDao;
+import com.waben.stock.datalayer.futures.repository.FuturesStopLossOrProfitDao;
+import com.waben.stock.datalayer.futures.repository.FuturesTradeActionDao;
+import com.waben.stock.datalayer.futures.repository.FuturesTradeEntrustDao;
 import com.waben.stock.datalayer.futures.repository.impl.MethodDesc;
 import com.waben.stock.interfaces.commonapi.retrivefutures.TradeFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
@@ -22,32 +77,25 @@ import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
 import com.waben.stock.interfaces.dto.publisher.FrozenCapitalDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
-import com.waben.stock.interfaces.enums.*;
+import com.waben.stock.interfaces.enums.CapitalFlowExtendType;
+import com.waben.stock.interfaces.enums.CapitalFlowType;
+import com.waben.stock.interfaces.enums.FuturesActionType;
+import com.waben.stock.interfaces.enums.FuturesOrderState;
+import com.waben.stock.interfaces.enums.FuturesOrderType;
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
+import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
+import com.waben.stock.interfaces.enums.FuturesTradeLimitType;
+import com.waben.stock.interfaces.enums.FuturesTradePriceType;
+import com.waben.stock.interfaces.enums.FuturesWindControlType;
+import com.waben.stock.interfaces.enums.OutsideMessageType;
+import com.waben.stock.interfaces.enums.ResourceType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.message.OutsideMessage;
+import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
 import com.waben.stock.interfaces.util.StringUtil;
 import com.waben.stock.interfaces.util.UniqueCodeGenerator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.criteria.*;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.RoundingMode;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  * 期货订单 service
@@ -67,6 +115,15 @@ public class FuturesOrderService {
 
     @Autowired
     private FuturesContractDao contractDao;
+    
+    @Autowired
+	private FuturesContractOrderDao contractOrderDao;
+
+	@Autowired
+	private FuturesTradeEntrustDao tradeEntrustDao;
+
+	@Autowired
+	private FuturesTradeActionDao tradeActionDao;
 
     @Autowired
     private FuturesCommodityDao commodityDao;
@@ -418,95 +475,178 @@ public class FuturesOrderService {
     }
 
     @Transactional
-    public FuturesOrder save(FuturesOrder order, Long contractId) {
-        // step 1 : 检查网关是否正常
-        boolean isConnected = TradeFuturesOverHttp.checkConnection(profileBusiness.isProd());
-        if (!isConnected) {
-            throw new ServiceException(ExceptionConstant.FUTURESAPI_NOTCONNECTED_EXCEPTION);
-        }
-        // step 2 : 再一次确认余额是否充足
-        CapitalAccountDto capitalAccount = accountBusiness.fetchByPublisherId(order.getPublisherId());
-        BigDecimal totalFee = order.getServiceFee().add(order.getReserveFund());
-        if (totalFee.compareTo(capitalAccount.getAvailableBalance()) > 0) {
-            throw new ServiceException(ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION);
-        }
-        // step 3 : 获取期货合约和期货合约期限
-        FuturesContract contract = contractDao.retrieve(contractId);
-        List<FuturesTradeLimit> limitList = futuresTradeLimitService.findByContractId(contract.getId());
-        if (limitList != null && limitList.size() > 0) {
-            // 判断该交易在开仓时是否在后台设置的期货交易限制内
-            checkedLimitOpenwind(limitList,
-                    retriveExchangeTime(new Date(), contract.getCommodity().getExchange().getTimeZoneGap()));
-        }
-        // step 4 : 初始化订单
-        order.setTradeNo(UniqueCodeGenerator.generateTradeNo());
-        Date date = new Date();
-        order.setPostTime(date);
-        order.setUpdateTime(date);
-        order.setState(FuturesOrderState.Posted);
-        order.setContract(contract);
-        order = orderDao.create(order);
-        // step 5 : 扣去金额、冻结保证金
-        try {
-            accountBusiness.futuresOrderServiceFeeAndReserveFund(order.getPublisherId(), order.getId(),
-                    order.getServiceFee(), order.getReserveFund());
-        } catch (ServiceException ex) {
-            if (ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION.equals(ex.getType())) {
-                throw ex;
-            } else {
-                // 再一次确认是否已经扣款
-                try {
-                    FrozenCapitalDto frozen = accountBusiness.futuresOrderFetchFrozenCapital(order.getPublisherId(),
-                            order.getId());
-                    if (frozen == null) {
-                        throw ex;
-                    }
-                } catch (ServiceException frozenEx) {
-                    throw ex;
-                }
-            }
-        }
-        // step 6 : 调用期货网关委托下单
-        // FuturesActionType action = order.getOrderType() ==
-        // FuturesOrderType.BuyUp ? FuturesActionType.BUY
-        // : FuturesActionType.SELL;
-        // Integer orderType = order.getBuyingPriceType() ==
-        // FuturesTradePriceType.MKT ? 1 : 2;
-        // //
-        // 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
-        // BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
-        // if (("CN".equals(order.getCommoditySymbol()) ||
-        // "HSI".equals(order.getCommoditySymbol())
-        // || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
-        // orderType = 2;
-        // if (action == FuturesActionType.BUY) {
-        // gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
-        // .add(new
-        // BigDecimal("3").multiply(contract.getCommodity().getMinWave()));
-        // } else {
-        // gatewayBuyingEntrustPrice = gatewayBuyingEntrustPrice
-        // .subtract(new
-        // BigDecimal("3").multiply(contract.getCommodity().getMinWave()));
-        // }
-        // }
-        // 修改成模拟下单，以下代码注释
-        // FuturesGatewayOrder gatewayOrder =
-        // TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain,
-        // order.getCommoditySymbol(), order.getContractNo(), order.getId(),
-        // action, order.getTotalQuantity(),
-        // orderType, gatewayBuyingEntrustPrice);
-        // TODO 委托下单异常情况处理，此处默认为所有的委托都能成功
-        // step 7 : 更新订单状态
-        order.setState(FuturesOrderState.BuyingEntrust);
-        order.setOpenGatewayOrderId(-1L);
-        order.setBuyingEntrustTime(date);
-        order = orderDao.update(order);
-        // step 8 : 站外消息推送
-        sendOutsideMessage(order);
-        // step 9 : 放入委托查询队列（开仓）
-        entrueQuery.entrustQuery(order.getId(), 1);
-        return order;
-    }
+	public FuturesOrder placeOrder(PlaceOrderParam orderParam) {
+		// step 1 : 检查网关是否正常
+		boolean isConnected = TradeFuturesOverHttp.checkConnection(profileBusiness.isProd());
+		if (!isConnected) {
+			throw new ServiceException(ExceptionConstant.FUTURESAPI_NOTCONNECTED_EXCEPTION);
+		}
+		// step 2 : 再一次确认余额是否充足
+		CapitalAccountDto capitalAccount = accountBusiness.fetchByPublisherId(orderParam.getPublisherId());
+		BigDecimal totalFee = orderParam.getServiceFee().add(orderParam.getReserveFund());
+		if (totalFee.compareTo(capitalAccount.getAvailableBalance()) > 0) {
+			throw new ServiceException(ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION);
+		}
+		// step 3 : 更新合约订单信息
+		Long contractId = orderParam.getContractId();
+		FuturesOrderType orderType = orderParam.getOrderType();
+		BigDecimal totalQuantity = orderParam.getTotalQuantity();
+		FuturesContract contract = contractDao.retrieve(contractId);
+		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract,
+				orderParam.getPublisherId());
+		if (contractOrder != null) {
+			if (orderType == FuturesOrderType.BuyUp) {
+				contractOrder.setBuyUpTotalQuantity(contractOrder.getBuyUpTotalQuantity().add(totalQuantity));
+			} else {
+				contractOrder.setBuyFallTotalQuantity(contractOrder.getBuyFallTotalQuantity().add(totalQuantity));
+			}
+			contractOrder.setReserveFund(contractOrder.getReserveFund().add(orderParam.getReserveFund()));
+			if (orderParam.getLimitLossType() != null && orderParam.getLimitLossType() > 0
+					&& orderParam.getPerUnitLimitLossAmount() != null
+					&& orderParam.getPerUnitLimitLossAmount().compareTo(BigDecimal.ZERO) > 0) {
+				orderParam.setLimitLossType(orderParam.getLimitLossType());
+				orderParam.setPerUnitLimitLossAmount(orderParam.getPerUnitLimitLossAmount());
+			}
+			if (orderParam.getLimitProfitType() != null && orderParam.getLimitProfitType() > 0
+					&& orderParam.getPerUnitLimitProfitAmount() != null
+					&& orderParam.getPerUnitLimitProfitAmount().compareTo(BigDecimal.ZERO) > 0) {
+				orderParam.setLimitProfitType(orderParam.getLimitProfitType());
+				orderParam.setPerUnitLimitProfitAmount(orderParam.getPerUnitLimitProfitAmount());
+			}
+			contractOrder.setUpdateTime(new Date());
+			contractOrderDao.update(contractOrder);
+		} else {
+			contractOrder = new FuturesContractOrder();
+			contractOrder.setBuyFallQuantity(BigDecimal.ZERO);
+			contractOrder.setBuyUpQuantity(BigDecimal.ZERO);
+			if (orderType == FuturesOrderType.BuyUp) {
+				contractOrder.setBuyUpTotalQuantity(totalQuantity);
+			} else {
+				contractOrder.setBuyFallTotalQuantity(totalQuantity);
+			}
+			contractOrder.setContract(contract);
+			contractOrder.setCommodityNo(contract.getCommodity().getSymbol());
+			contractOrder.setContractNo(contract.getContractNo());
+			contractOrder.setLightQuantity(BigDecimal.ZERO);
+			contractOrder.setPublisherId(orderParam.getPublisherId());
+			contractOrder.setReserveFund(orderParam.getReserveFund());
+			if (orderParam.getLimitLossType() != null && orderParam.getLimitLossType() > 0
+					&& orderParam.getPerUnitLimitLossAmount() != null
+					&& orderParam.getPerUnitLimitLossAmount().compareTo(BigDecimal.ZERO) > 0) {
+				orderParam.setLimitLossType(orderParam.getLimitLossType());
+				orderParam.setPerUnitLimitLossAmount(orderParam.getPerUnitLimitLossAmount());
+			}
+			if (orderParam.getLimitProfitType() != null && orderParam.getLimitProfitType() > 0
+					&& orderParam.getPerUnitLimitProfitAmount() != null
+					&& orderParam.getPerUnitLimitProfitAmount().compareTo(BigDecimal.ZERO) > 0) {
+				orderParam.setLimitProfitType(orderParam.getLimitProfitType());
+				orderParam.setPerUnitLimitProfitAmount(orderParam.getPerUnitLimitProfitAmount());
+			}
+			contractOrder.setUpdateTime(new Date());
+			contractOrderDao.create(contractOrder);
+		}
+		// step 4 : 创建订单信息
+		Date date = new Date();
+		FuturesOrder order = new FuturesOrder();
+		order.setCloseAvgFillPrice(BigDecimal.ZERO);
+		order.setCloseFilled(BigDecimal.ZERO);
+		order.setCloseRemaining(BigDecimal.ZERO);
+		order.setCloseTotalFillCost(BigDecimal.ZERO);
+		order.setCommodityCurrency(orderParam.getCommodityCurrency());
+		order.setCommodityName(orderParam.getCommodityName());
+		order.setCommoditySymbol(orderParam.getCommoditySymbol());
+		order.setContract(contract);
+		order.setContractNo(orderParam.getContractNo());
+		order.setContractOrder(contractOrder);
+		order.setIsTest(orderParam.getIsTest());
+		order.setOpenAvgFillPrice(BigDecimal.ZERO);
+		order.setOpenFilled(BigDecimal.ZERO);
+		order.setOpenRemaining(orderParam.getTotalQuantity());
+		order.setOpenTotalFillCost(BigDecimal.ZERO);
+		order.setOpenwindServiceFee(orderParam.getOpenwindServiceFee());
+		order.setOrderType(orderParam.getOrderType());
+		order.setPostTime(new Date());
+		order.setPublisherId(orderParam.getPublisherId());
+		order.setReserveFund(orderParam.getReserveFund());
+		order.setServiceFee(orderParam.getServiceFee());
+		order.setState(FuturesOrderState.BuyingEntrust);
+		order.setTotalQuantity(orderParam.getTotalQuantity());
+		order.setTradeNo(UniqueCodeGenerator.generateTradeNo());
+		order.setUnwindServiceFee(orderParam.getUnwindServiceFee());
+		order.setUpdateTime(date);
+		orderDao.create(order);
+		// step 5 : 创建委托记录
+		FuturesTradeEntrust tradeEntrust = new FuturesTradeEntrust();
+		tradeEntrust.setCommodityNo(orderParam.getCommoditySymbol());
+		tradeEntrust.setContract(contract);
+		tradeEntrust.setContractNo(orderParam.getContractNo());
+		if (orderParam.getTradePriceType() == FuturesTradePriceType.MKT) {
+			orderParam.setEntrustPrice(
+					allQuote.getLastPrice(orderParam.getCommoditySymbol(), orderParam.getContractNo()));
+		}
+		tradeEntrust.setEntrustPrice(orderParam.getEntrustPrice());
+		tradeEntrust.setEntrustTime(new Date());
+		tradeEntrust.setOrderType(orderParam.getOrderType());
+		tradeEntrust.setPriceType(orderParam.getTradePriceType());
+		tradeEntrust.setPublisherId(orderParam.getPublisherId());
+		tradeEntrust.setQuantity(orderParam.getTotalQuantity());
+		tradeEntrust.setRemaining(orderParam.getTotalQuantity());
+		tradeEntrust.setFilled(BigDecimal.ZERO);
+		tradeEntrust.setAvgFillPrice(BigDecimal.ZERO);
+		tradeEntrust.setTotalFillCost(BigDecimal.ZERO);
+		tradeEntrust.setState(FuturesTradeEntrustState.Queuing);
+		tradeEntrust.setTradeActionType(FuturesTradeActionType.OPEN);
+		tradeEntrust.setTradePrice(BigDecimal.ZERO);
+		tradeEntrust.setUpdateTime(date);
+		tradeEntrustDao.create(tradeEntrust);
+		// step 6 : 创建开仓记录
+		FuturesTradeAction tradeAction = new FuturesTradeAction();
+		tradeAction.setAvgFillPrice(BigDecimal.ZERO);
+		tradeAction.setCurrencyProfitOrLoss(BigDecimal.ZERO);
+		tradeAction.setEntrustTime(date);
+		tradeAction.setFilled(BigDecimal.ZERO);
+		tradeAction.setOrder(order);
+		tradeAction.setPlatformProfitOrLoss(BigDecimal.ZERO);
+		tradeAction.setProfitOrLoss(BigDecimal.ZERO);
+		tradeAction.setPublisherId(orderParam.getPublisherId());
+		tradeAction.setPublisherProfitOrLoss(BigDecimal.ZERO);
+		tradeAction.setQuantity(orderParam.getTotalQuantity());
+		tradeAction.setRemaining(orderParam.getTotalQuantity());
+		tradeAction.setSettlementRate(BigDecimal.ZERO);
+		tradeAction.setSort(1);
+		tradeAction.setState(FuturesTradeEntrustState.Queuing);
+		tradeAction.setTotalFillCost(BigDecimal.ZERO);
+		tradeAction.setTradeActionType(FuturesTradeActionType.OPEN);
+		tradeAction.setTradeEntrust(tradeEntrust);
+		tradeAction.setTradePrice(BigDecimal.ZERO);
+		tradeAction.setUpdateTime(date);
+		tradeActionDao.create(tradeAction);
+		// step 7 : 扣去金额、冻结保证金
+		try {
+			accountBusiness.futuresOrderServiceFeeAndReserveFund(order.getPublisherId(), order.getId(),
+					order.getServiceFee(), order.getReserveFund());
+		} catch (ServiceException ex) {
+			if (ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION.equals(ex.getType())) {
+				throw ex;
+			} else {
+				// 再一次确认是否已经扣款
+				try {
+					FrozenCapitalDto frozen = accountBusiness.futuresOrderFetchFrozenCapital(order.getPublisherId(),
+							order.getId());
+					if (frozen == null) {
+						throw ex;
+					}
+				} catch (ServiceException frozenEx) {
+					throw ex;
+				}
+			}
+		}
+		// step 8 : 站外消息推送
+		sendOutsideMessage(order);
+		// step 9 : 放入委托查询队列（开仓）
+		entrueQuery.entrustQuery(order.getId(), 1);
+		return order;
+	}
 
     /**
      * 禁止开仓

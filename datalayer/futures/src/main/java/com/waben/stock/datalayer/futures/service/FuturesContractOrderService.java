@@ -42,10 +42,10 @@ public class FuturesContractOrderService {
         futuresContractOrderDao.delete(id);
     }
 
-	public FuturesContractOrder findByContractId(Long contractId) {
+	public FuturesContractOrder findByContractIdAndPublisherId(Long contractId, Long publisherId) {
 		FuturesContract contract = contractDao.retrieve(contractId);
 		if(contract != null) {
-			return futuresContractOrderDao.retrieveByContract(contract);
+			return futuresContractOrderDao.retrieveByContractAndPublisherId(contract, publisherId);
 		}
 		return null;
 	}

@@ -37,9 +37,9 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 	}
 
 	@Override
-	public Response<FuturesContractOrderDto> fetchByContractId(@PathVariable Long contractId) {
+	public Response<FuturesContractOrderDto> fetchByContractIdAndPublisherId(@PathVariable Long contractId, @PathVariable Long publisherId) {
 		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesContractOrderDto.class,
-				futuresContractOrderService.findByContractId(contractId), false));
+				futuresContractOrderService.findByContractIdAndPublisherId(contractId, publisherId), false));
 	}
 
 	@Override
