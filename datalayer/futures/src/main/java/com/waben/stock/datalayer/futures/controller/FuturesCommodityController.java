@@ -169,8 +169,12 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 		oldCommodity.setTradeUnit(dto.getTradeUnit());
 		oldCommodity.setMinWave(dto.getMinWave());
 		oldCommodity.setPerWaveMoney(dto.getPerWaveMoney());
-		oldCommodity.setPerUnitReserveFund(dto.getPerUnitReserveFund());
-		oldCommodity.setPerUnitUnwindPoint(dto.getPerUnitUnwindPoint());
+		Integer tradeState = getTradingTime(oldCommodity.getId());
+		if(tradeState==1){
+			oldCommodity.setPerUnitReserveFund(dto.getPerUnitReserveFund());
+			oldCommodity.setPerUnitUnwindPoint(dto.getPerUnitUnwindPoint());
+		}
+
 		oldCommodity.setUnwindPointType(dto.getUnwindPointType());
 		oldCommodity.setOpenwindServiceFee(dto.getOpenwindServiceFee());
 		oldCommodity.setUnwindServiceFee(dto.getUnwindServiceFee());
@@ -434,5 +438,46 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 			}
 		}
 		return 1;
+	}
+
+	@Override
+	public Response<Integer> getTradingState(@PathVariable("id") Long id) {
+
+		FuturesCommodity commodity = commodityService.retrieve(id);
+
+		// 获取交易所信息
+		FuturesExchange exchange = exchangeService.findById(commodity.getExchangeId());
+		Response<Integer> response = new Response<Integer>();
+		response.setCode("200");
+		response.setMessage("响应成功");
+		if (exchange == null || !exchange.getEnable()) {
+			response.setResult(3);
+		} else {
+			Date exchangeTime = retriveExchangeTime(new Date(), exchange.getTimeZoneGap());
+			String tradeTime = retriveExchangeTradeTimeStr(exchange.getTimeZoneGap(), commodity, new Date());
+			if (!StringUtil.isEmpty(tradeTime)) {
+				Integer state = checkedTradingTime(commodity, exchangeTime, tradeTime);
+				response.setResult(state);
+			}
+		}
+		return response;
+	}
+
+	public Integer getTradingTime(Long id) {
+
+		FuturesCommodity commodity = commodityService.retrieve(id);
+		// 获取交易所信息
+		FuturesExchange exchange = exchangeService.findById(commodity.getExchangeId());
+		if (exchange == null || !exchange.getEnable()) {
+			return 3;
+		} else {
+			Date exchangeTime = retriveExchangeTime(new Date(), exchange.getTimeZoneGap());
+			String tradeTime = retriveExchangeTradeTimeStr(exchange.getTimeZoneGap(), commodity, new Date());
+			if (!StringUtil.isEmpty(tradeTime)) {
+				Integer state = checkedTradingTime(commodity, exchangeTime, tradeTime);
+				return state;
+			}
+		}
+		return 0;
 	}
 }

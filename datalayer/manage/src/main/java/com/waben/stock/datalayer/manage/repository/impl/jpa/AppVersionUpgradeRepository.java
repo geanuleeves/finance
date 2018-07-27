@@ -18,5 +18,10 @@ public interface AppVersionUpgradeRepository extends CustomJpaRepository<AppVers
 	AppVersionUpgrade findByIsCurrentVersionAndDeviceTypeAndShellIndexAndVersionCodeGreaterThan(
 			Boolean isCurrentVersion, Integer deviceType, Integer shellIndex, Integer versionCode);
 	
+	@Transactional
+	@Modifying(clearAutomatically = true)  
+	@Query(value = "update AppVersionUpgrade sc set sc.isCurrentVersion=false  where sc.deviceType=?1") 
+	void isCurrentVersion(Integer deviceType);
 	
+	AppVersionUpgrade findByIsCurrentVersionAndDeviceType(Boolean isCurrentVersion, Integer deviceType);
 }

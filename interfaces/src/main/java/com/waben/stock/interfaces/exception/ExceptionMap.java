@@ -128,6 +128,8 @@ public class ExceptionMap {
 		exceptionMap.put(ExceptionConstant.OVERSTEP_NUMBER_OF_DRAW, "今日抽奖已达上限");
 		exceptionMap.put(ExceptionConstant.PRIZE_IS_EMPTY, "奖品已空");
 		exceptionMap.put(ExceptionConstant.FAILED_TO_UPLOAD_PICTURES, "上传图片失败");
+		exceptionMap.put(ExceptionConstant.FAILED_TO_DOWLOAD_PICTURES, "文件下载失败");
+		exceptionMap.put(ExceptionConstant.FILE_ISNOT_FOUND, "文件未找到");
 
 		exceptionMap.put(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION, "期货订单状态不匹配，不支持该操作");
 		exceptionMap.put(ExceptionConstant.SINGLE_TRANSACTION_QUANTITY_EXCEPTION, "单笔交易数量过大");

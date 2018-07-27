@@ -107,4 +107,33 @@ public class UploadBusiness {
         return resultPath;
         */
     }
+    
+    public String uploadPC(MultipartFile file) throws IllegalStateException, IOException {
+    	String resultPath = null;
+    	//取得当前上传文件的文件名称  
+        String myFileName = file.getOriginalFilename();
+        //如果名称不为"",说明该文件存在，否则说明该文件不存在  
+        if (myFileName.trim() != "") {
+            //定义上传路径  
+            String resoultPath = "update/" + myFileName;
+            String path = uploadFilePath + resoultPath;
+            resultPath = fileSystem + resoultPath;
+            String paths[] = path.split("/");
+            String dir = paths[0];
+            for (int i = 0; i < paths.length-2; i++) {
+                try {
+                    dir = dir + "/" + paths[i + 1];
+                    File dirFile = new File(dir);
+                    if (!dirFile.exists()) {
+                    	dirFile.mkdir();
+                    }
+                } catch (Exception err) {
+                    return "error";
+                }
+            }
+            File localFile = new File(path);
+            file.transferTo(localFile);
+        }
+        return resultPath;
+    }
 }

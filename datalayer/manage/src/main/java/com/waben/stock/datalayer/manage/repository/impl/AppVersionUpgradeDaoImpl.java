@@ -65,4 +65,14 @@ public class AppVersionUpgradeDaoImpl implements AppVersionUpgradeDao {
 		return repository.findByIsCurrentVersionAndDeviceTypeAndShellIndexAndVersionCodeGreaterThan(true, deviceType, shellIndex, versionCode);
 	}
 
+	@Override
+	public void isCurrentVersion(Integer deviceType) {
+		repository.isCurrentVersion(deviceType);
+	}
+
+	@Override
+	public AppVersionUpgrade findByIsCurrentVersionAndDeviceType(Boolean isCurrentVersion, Integer deviceType) {
+		return repository.findByIsCurrentVersionAndDeviceType(isCurrentVersion, deviceType);
+	}
+
 }
