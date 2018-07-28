@@ -23,7 +23,9 @@ public enum ResourceType implements CommonalityEnum {
 
 	FUTURESORDER("6", "期货订单交易记录"),
 	
-	FUTURESOVERNIGHTRECORD("7", "期货订单过夜记录");
+	FUTURESOVERNIGHTRECORD("7", "期货订单过夜记录"),
+	
+	FUTURESTRADEENTRUST("8", "期货交易委托");
 
 	private String index;
 	private String type;

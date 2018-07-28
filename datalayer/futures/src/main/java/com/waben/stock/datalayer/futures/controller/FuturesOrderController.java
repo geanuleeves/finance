@@ -19,7 +19,6 @@ import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
 import com.waben.stock.interfaces.dto.futures.FuturesOvernightRecordDto;
 import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
-import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
@@ -72,29 +71,23 @@ public class FuturesOrderController implements FuturesOrderInterface {
 
 	@Override
 	public Response<FuturesOrderDto> cancelOrder(@PathVariable Long id, Long publisherId) {
-		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesOrderDto.class,
-				futuresOrderService.cancelOrder(id, publisherId), false));
+		return new Response<>();
 	}
 
 	@Override
 	public Response<FuturesOrderDto> applyUnwind(@PathVariable Long id, String sellingPriceTypeIndex,
 			BigDecimal sellingEntrustPrice, Long publisherId) {
-		return new Response<>(CopyBeanUtils.copyBeanProperties(
-				FuturesOrderDto.class, futuresOrderService.applyUnwind(id,
-						FuturesTradePriceType.getByIndex(sellingPriceTypeIndex), sellingEntrustPrice, publisherId),
-				false));
+		return new Response<>();
 	}
 
 	@Override
 	public Response<Void> applyUnwindAll(@PathVariable Long publisherId) {
-		futuresOrderService.applyUnwindAll(publisherId);
 		return new Response<>();
 	}
 
 	@Override
 	public Response<FuturesOrderDto> backhandUnwind(@PathVariable Long id, Long publisherId) {
-		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesOrderDto.class,
-				futuresOrderService.backhandUnwind(id, publisherId), false));
+		return new Response<>();
 	}
 
 	@Override
@@ -107,12 +100,7 @@ public class FuturesOrderController implements FuturesOrderInterface {
 	public Response<FuturesOrderDto> settingStopLoss(@PathVariable Long orderId, Integer limitProfitType,
 			BigDecimal perUnitLimitProfitAmount, Integer limitLossType, BigDecimal perUnitLimitLossAmount,
 			Long publisherId, Long stopLossOrProfitId) {
-		return new Response<>(
-				CopyBeanUtils
-						.copyBeanProperties(FuturesOrderDto.class,
-								futuresOrderService.settingStopLoss(orderId, limitProfitType, perUnitLimitProfitAmount,
-										limitLossType, perUnitLimitLossAmount, publisherId, stopLossOrProfitId),
-								false));
+		return new Response<>();
 	}
 
 	@Override

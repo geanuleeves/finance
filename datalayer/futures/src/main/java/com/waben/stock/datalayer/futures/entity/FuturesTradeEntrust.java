@@ -13,10 +13,12 @@ import javax.persistence.Table;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesOrderTypeConverter;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesTradeActionTypeConverter;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesTradePriceTypeConverter;
+import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControlTypeConverter;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.enums.FuturesTradeActionType;
 import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
+import com.waben.stock.interfaces.enums.FuturesWindControlType;
 
 /**
  * 交易委托
@@ -33,7 +35,7 @@ public class FuturesTradeEntrust {
 	private Long id;
 	/** 用户ID */
 	private Long publisherId;
-	/** 对应的合约ID */
+	/** 对应的合约 */
 	private FuturesContract contract;
 	/** 品种编号 */
 	private String commodityNo;
@@ -52,6 +54,9 @@ public class FuturesTradeEntrust {
 	/** 交易开平仓 类型 */
 	@Convert(converter = FuturesTradeActionTypeConverter.class)
 	private FuturesTradeActionType tradeActionType;
+	/** 风控类型 */
+	@Convert(converter = FuturesWindControlTypeConverter.class)
+	private FuturesWindControlType windControlType;
 	/** 委托数量 */
 	private BigDecimal quantity;
 	/** 委托状态 */
@@ -221,6 +226,14 @@ public class FuturesTradeEntrust {
 
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
+	}
+
+	public FuturesWindControlType getWindControlType() {
+		return windControlType;
+	}
+
+	public void setWindControlType(FuturesWindControlType windControlType) {
+		this.windControlType = windControlType;
 	}
 
 }

@@ -17,6 +17,8 @@ import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteK;
 public interface FuturesQuoteMinuteKDao {
 	
 	public List<FuturesQuoteMinuteK> listDbMinuteK();
+	
+	public Page<FuturesQuoteMinuteK> pageDbMinuteK(int page, int size);
 
 	public MongoFuturesQuoteMinuteK createFuturesQuoteMinuteK(MongoFuturesQuoteMinuteK futuresQuoteMinuteK);
 

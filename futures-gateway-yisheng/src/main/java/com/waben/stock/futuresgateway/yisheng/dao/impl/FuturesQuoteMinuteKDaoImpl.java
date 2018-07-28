@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -43,6 +44,12 @@ public class FuturesQuoteMinuteKDaoImpl implements FuturesQuoteMinuteKDao {
 	@Override
 	public List<FuturesQuoteMinuteK> listDbMinuteK() {
 		return repository.findAll();
+	}
+	
+	@Override
+	public Page<FuturesQuoteMinuteK> pageDbMinuteK(int page, int size) {
+		Pageable pageable = new PageRequest(page, size);
+		return repository.findAll(pageable);
 	}
 
 	@Override

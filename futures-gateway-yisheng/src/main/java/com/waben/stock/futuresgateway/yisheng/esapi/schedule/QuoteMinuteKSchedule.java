@@ -17,9 +17,7 @@ import com.waben.stock.futuresgateway.yisheng.entity.FuturesContract;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuote;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuoteLast;
 import com.waben.stock.futuresgateway.yisheng.entity.MongoFuturesQuoteMinuteK;
-import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.futuresgateway.yisheng.rabbitmq.RabbitmqProducer;
-import com.waben.stock.futuresgateway.yisheng.rabbitmq.message.EsDeleteQuoteMessage;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesContractService;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteLastService;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteMinuteKService;
@@ -130,24 +128,24 @@ public class QuoteMinuteKSchedule {
 						&& lowPrice.compareTo(BigDecimal.ZERO) > 0) {
 					minuteKServcie.addFuturesQuoteMinuteK(beforeMinuteK);
 					// step 3.6 : 删除该分钟的行情数据
-					for (int i = 0; i < quoteList.size(); i++) {
-						FuturesQuote quote = quoteList.get(i);
-						EsDeleteQuoteMessage delQuote = new EsDeleteQuoteMessage();
-						delQuote.setCommodityNo(commodityNo);
-						delQuote.setContractNo(contractNo);
-						delQuote.setQuoteId(quote.getId());
-						delQuote.setType(1);
-						producer.sendMessage(RabbitmqConfiguration.deleteQuoteQueueName, delQuote);
-						if (i == quoteList.size() - 1) {
-							// 判断当前分钟有没有行情数据，如果没有的话，将这条数据保存到FuturesQuoteLast中
-							Long count = quoteService.countByTimeGreaterThanEqual(commodityNo, contractNo, currentMin);
-							if (count <= 0) {
-								FuturesQuoteLast quoteLast = convertToQuoteLast(quote);
-								quoteLast.setId(null);
-								quoteLastService.addFuturesQuoteLast(quoteLast);
-							}
-						}
-					}
+//					for (int i = 0; i < quoteList.size(); i++) {
+//						FuturesQuote quote = quoteList.get(i);
+//						EsDeleteQuoteMessage delQuote = new EsDeleteQuoteMessage();
+//						delQuote.setCommodityNo(commodityNo);
+//						delQuote.setContractNo(contractNo);
+//						delQuote.setQuoteId(quote.getId());
+//						delQuote.setType(1);
+//						producer.sendMessage(RabbitmqConfiguration.deleteQuoteQueueName, delQuote);
+//						if (i == quoteList.size() - 1) {
+//							// 判断当前分钟有没有行情数据，如果没有的话，将这条数据保存到FuturesQuoteLast中
+//							Long count = quoteService.countByTimeGreaterThanEqual(commodityNo, contractNo, currentMin);
+//							if (count <= 0) {
+//								FuturesQuoteLast quoteLast = convertToQuoteLast(quote);
+//								quoteLast.setId(null);
+//								quoteLastService.addFuturesQuoteLast(quoteLast);
+//							}
+//						}
+//					}
 				}
 			}
 		}

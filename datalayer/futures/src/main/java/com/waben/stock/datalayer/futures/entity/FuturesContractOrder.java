@@ -28,7 +28,7 @@ public class FuturesContractOrder {
 	private Long id;
 	/** 发布人ID */
 	private Long publisherId;
-	/** 对应的合约ID */
+	/** 对应的合约 */
 	private FuturesContract contract;
 	/** 品种编号 */
 	private String commodityNo;
