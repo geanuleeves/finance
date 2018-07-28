@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
@@ -29,6 +31,8 @@ public class FuturesContractOrder {
 	/** 发布人ID */
 	private Long publisherId;
 	/** 对应的合约 */
+	@ManyToOne
+	@JoinColumn(name = "contract_id")
 	private FuturesContract contract;
 	/** 品种编号 */
 	private String commodityNo;
