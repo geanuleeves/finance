@@ -9,7 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -54,6 +53,11 @@ public class FuturesCommissionAudit {
 	 * 账户余额
 	 */
 	private BigDecimal balance;
+
+	/**
+	 * 订单ID
+	 */
+	private String orderId;
 
 	/**
 	 * 返佣金额对象
@@ -135,6 +139,14 @@ public class FuturesCommissionAudit {
 
 	public void setBalance(BigDecimal balance) {
 		this.balance = balance;
+	}
+
+	public String getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(String orderId) {
+		this.orderId = orderId;
 	}
 
 }

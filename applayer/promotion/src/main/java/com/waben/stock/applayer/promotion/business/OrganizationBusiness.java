@@ -223,4 +223,12 @@ public class OrganizationBusiness {
 		throw new ServiceException(response.getCode());
 	}
 
+	public BigDecimal getSumRatio(Long orgId) {
+		Response<BigDecimal> response = reference.getSumRatio(orgId);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
 }

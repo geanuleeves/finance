@@ -292,4 +292,9 @@ public class OrganizationController implements OrganizationInterface {
 		return new Response<>(organizationService.getListByPublisherId(treeCode));
 	}
 
+	@Override
+	public Response<BigDecimal> getSumRatio(@PathVariable Long orgId) {
+		return new Response<>(organizationService.getSumRatio(orgId));
+	}
+
 }
