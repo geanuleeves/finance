@@ -155,10 +155,8 @@ public class FuturesOrderService {
 	@Autowired
 	private QuoteContainer allQuote;
 
-	@Autowired
 	private MonitorPublisherFuturesOrderConsumer monitorPublisher;
 
-	@Autowired
 	private MonitorSingleFuturesOrderConsumer monitorOrder;
 
 	@Autowired
