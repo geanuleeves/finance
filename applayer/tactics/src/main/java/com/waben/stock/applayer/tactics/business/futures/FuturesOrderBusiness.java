@@ -217,23 +217,23 @@ public class FuturesOrderBusiness {
 				// 订单结算状态为 已取消或委托失败时 不计算用户盈亏
 				if (orderMarket.getState() != FuturesOrderState.BuyingCanceled
 						&& orderMarket.getState() != FuturesOrderState.BuyingFailure) {
-					if (orderMarket.getPublisherProfitOrLoss() == null && orderMarket.getBuyingPrice() != null) {
-						// 用户买涨盈亏 = （最新价 - 买入价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
-						if (orderMarket.getOrderType() == FuturesOrderType.BuyUp) {
-							orderMarket.setPublisherProfitOrLoss(market.getLastPrice()
-									.subtract(orderMarket.getBuyingPrice())
-									.divide(contract.getMinWave() == null ? BigDecimal.ZERO : contract.getMinWave())
-									.multiply(contract.getPerWaveMoney()).multiply(rate.getRate())
-									.multiply(orderMarket.getTotalQuantity()));
-						} else {
-							// 用户买跌盈亏 = （买入价 - 最新价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
-							orderMarket.setPublisherProfitOrLoss(orderMarket.getBuyingPrice()
-									.subtract(market.getLastPrice())
-									.divide(contract.getMinWave() == null ? BigDecimal.ZERO : contract.getMinWave())
-									.multiply(contract.getPerWaveMoney()).multiply(rate.getRate())
-									.multiply(orderMarket.getTotalQuantity()));
-						}
-					}
+//					if (orderMarket.getPublisherProfitOrLoss() == null && orderMarket.getBuyingPrice() != null) {
+//						// 用户买涨盈亏 = （最新价 - 买入价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
+//						if (orderMarket.getOrderType() == FuturesOrderType.BuyUp) {
+//							orderMarket.setPublisherProfitOrLoss(market.getLastPrice()
+//									.subtract(orderMarket.getBuyingPrice())
+//									.divide(contract.getMinWave() == null ? BigDecimal.ZERO : contract.getMinWave())
+//									.multiply(contract.getPerWaveMoney()).multiply(rate.getRate())
+//									.multiply(orderMarket.getTotalQuantity()));
+//						} else {
+//							// 用户买跌盈亏 = （买入价 - 最新价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
+//							orderMarket.setPublisherProfitOrLoss(orderMarket.getBuyingPrice()
+//									.subtract(market.getLastPrice())
+//									.divide(contract.getMinWave() == null ? BigDecimal.ZERO : contract.getMinWave())
+//									.multiply(contract.getPerWaveMoney()).multiply(rate.getRate())
+//									.multiply(orderMarket.getTotalQuantity()));
+//						}
+//					}
 				}
 			}
 		}
@@ -290,7 +290,7 @@ public class FuturesOrderBusiness {
 				// FuturesContractDto contract =
 				// getFuturesByContractId(unwindOrder.getContractId());
 				TransactionDynamicsDto unwind = new TransactionDynamicsDto();
-				unwind.setPublisherProfitOrLoss(unwindOrder.getPublisherProfitOrLoss());
+				// unwind.setPublisherProfitOrLoss(unwindOrder.getPublisherProfitOrLoss());
 				unwind.setContractId(unwindOrder.getContractId());
 				unwind.setContractNo(unwindOrder.getContractNo());
 				unwind.setContractName(unwindOrder.getCommodityName());
@@ -426,18 +426,18 @@ public class FuturesOrderBusiness {
 
 		for (FuturesOrderDto market : pageOrder.getContent()) {
 			// 获取汇率信息
-			if (market.getUnwindPointType() == 2) {
-				FuturesCurrencyRateDto rate = rateMap.get(market.getCommodityCurrency());
-				if (rate != null) {
-					BigDecimal perUnitUnwindPoint = market.getPerUnitUnwindPoint() == null ? BigDecimal.ZERO
-							: market.getPerUnitUnwindPoint();
-					totalIncome = totalIncome.add(market.getReserveFund()
-							.subtract(perUnitUnwindPoint.multiply(market.getTotalQuantity()).multiply(rate.getRate())));
-				}
-			} else {
-				totalIncome = totalIncome.add(market.getReserveFund().multiply(
-						new BigDecimal(100).subtract(market.getPerUnitUnwindPoint()).divide(new BigDecimal(100))));
-			}
+//			if (market.getUnwindPointType() == 2) {
+//				FuturesCurrencyRateDto rate = rateMap.get(market.getCommodityCurrency());
+//				if (rate != null) {
+//					BigDecimal perUnitUnwindPoint = market.getPerUnitUnwindPoint() == null ? BigDecimal.ZERO
+//							: market.getPerUnitUnwindPoint();
+//					totalIncome = totalIncome.add(market.getReserveFund()
+//							.subtract(perUnitUnwindPoint.multiply(market.getTotalQuantity()).multiply(rate.getRate())));
+//				}
+//			} else {
+//				totalIncome = totalIncome.add(market.getReserveFund().multiply(
+//						new BigDecimal(100).subtract(market.getPerUnitUnwindPoint()).divide(new BigDecimal(100))));
+//			}
 		}
 
 		return totalIncome;

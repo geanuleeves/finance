@@ -16,6 +16,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -42,7 +43,7 @@ import com.waben.stock.futuresgateway.yisheng.util.StringUtil;
 
 @Service
 public class ImportDayK {
-	
+
 	Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
@@ -53,19 +54,19 @@ public class ImportDayK {
 
 	@Autowired
 	private FuturesQuoteMinuteKDao minuteKDao;
-	
+
 	@Autowired
 	private FuturesQuoteMinuteKMultipleDao minuteKMultipleDao;
 
 	@Autowired
 	private FuturesQuoteMinuteKService minuteKService;
-	
+
 	@Autowired
 	private FuturesCommodityDao commodityDao;
 
 	@Autowired
 	private FuturesQuoteMinuteKGroupService minuteKGroupServcie;
-	
+
 	@Autowired
 	private RabbitmqProducer producer;
 
@@ -211,7 +212,8 @@ public class ImportDayK {
 									MongoFuturesQuoteMinuteK oldMinuteK = minuteKDao
 											.retrieveByCommodityNoAndContractNoAndTime(commodityNo, contractNo, time);
 									if (oldMinuteK != null) {
-										minuteKDao.deleteFuturesQuoteMinuteKById(commodityNo, contractNo, oldMinuteK.getId());
+										minuteKDao.deleteFuturesQuoteMinuteKById(commodityNo, contractNo,
+												oldMinuteK.getId());
 									}
 									minuteKDao.createFuturesQuoteMinuteK(minuteK);
 								}
@@ -232,7 +234,7 @@ public class ImportDayK {
 			}
 		}
 	}
-	
+
 	public void importMainMultipleMinuteline(String multipleMinutekImportDir) {
 		File baseDir = new File(multipleMinutekImportDir);
 		File[] dirArr = baseDir.listFiles();
@@ -249,8 +251,10 @@ public class ImportDayK {
 							String line = null;
 							while ((line = reader.readLine()) != null) {
 								String[] splitData = line.split(",");
-								String contractNo = dataFile.getName().substring(0, dataFile.getName().length() - 4).split("_")[0];
-								Integer mins = Integer.parseInt(dataFile.getName().substring(0, dataFile.getName().length() - 4).split("_")[1]);
+								String contractNo = dataFile.getName().substring(0, dataFile.getName().length() - 4)
+										.split("_")[0];
+								Integer mins = Integer.parseInt(
+										dataFile.getName().substring(0, dataFile.getName().length() - 4).split("_")[1]);
 								Date time = minSdf.parse(splitData[0].trim());
 								String openPrice = !StringUtil.isEmpty(splitData[1].trim()) ? splitData[1].trim()
 										: null;
@@ -279,7 +283,8 @@ public class ImportDayK {
 									MongoFuturesQuoteMinuteKMultiple oldMinuteKMultiple = minuteKMultipleDao
 											.retrieveByCommodityNoAndContractNoAndTime(commodityNo, contractNo, time);
 									if (oldMinuteKMultiple != null) {
-										minuteKMultipleDao.deleteFuturesQuoteMinuteKMultipleById(commodityNo, contractNo, oldMinuteKMultiple.getId());
+										minuteKMultipleDao.deleteFuturesQuoteMinuteKMultipleById(commodityNo,
+												contractNo, oldMinuteKMultiple.getId());
 									}
 									minuteKMultipleDao.createFuturesQuoteMinuteKMultiple(minuteKMultiple);
 								}
@@ -485,7 +490,7 @@ public class ImportDayK {
 
 	public void computeMainMinuteKGroup(Date startTime) {
 		Date date = new Date();
-		while(date.getTime() >= startTime.getTime()) {
+		while (date.getTime() >= startTime.getTime()) {
 			computeMinuteKGroup(date);
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(date);
@@ -573,33 +578,54 @@ public class ImportDayK {
 	}
 
 	public void moveMinuteKToMongo() {
-		List<FuturesQuoteMinuteK> dbList = minuteKDao.listDbMinuteK();
-		List<FuturesQuoteMinuteKGroup> groupList = minuteKGroupServcie.list();
 		// 迁移FuturesQuoteMinuteK
-		if(dbList != null && dbList.size() > 0) {
-			for(FuturesQuoteMinuteK minuteK : dbList) {
-				MongoFuturesQuoteMinuteK check = minuteKDao.retrieveByCommodityNoAndContractNoAndTime(minuteK.getCommodityNo(), minuteK.getContractNo(), minuteK.getTime());
-				if(check == null) {
-					MongoFuturesQuoteMinuteK mongoMinuteK = CopyBeanUtils.copyBeanProperties(MongoFuturesQuoteMinuteK.class, minuteK, false);
-					minuteKDao.createFuturesQuoteMinuteK(mongoMinuteK);
-				}
-			}
-		}
-		// 迁移FuturesQuoteMinuteKGroup
-		if(groupList != null && groupList.size() > 0) {
-			for(FuturesQuoteMinuteKGroup group : groupList) {
-				String groupData = group.getGroupData();
-				List<MongoFuturesQuoteMinuteK> dataList = JacksonUtil.decode(groupData,
-						JacksonUtil.getGenericType(ArrayList.class, MongoFuturesQuoteMinuteK.class));
-				for (MongoFuturesQuoteMinuteK data : dataList) {
-					if (data.getOpenPrice() != null && data.getOpenPrice().compareTo(BigDecimal.ZERO) > 0) {
-						MongoFuturesQuoteMinuteK check = minuteKDao.retrieveByCommodityNoAndContractNoAndTime(data.getCommodityNo(), data.getContractNo(), data.getTime());
-						if(check == null) {
-							minuteKDao.createFuturesQuoteMinuteK(data);
+		int page = 0;
+		while (true) {
+			Page<FuturesQuoteMinuteK> pageData = minuteKDao.pageDbMinuteK(page, 1000);
+			if (pageData.getContent().size() == 0) {
+				break;
+			} else {
+				List<FuturesQuoteMinuteK> dbList = pageData.getContent();
+				if (dbList != null && dbList.size() > 0) {
+					for (FuturesQuoteMinuteK minuteK : dbList) {
+						MongoFuturesQuoteMinuteK check = minuteKDao.retrieveByCommodityNoAndContractNoAndTime(
+								minuteK.getCommodityNo(), minuteK.getContractNo(), minuteK.getTime());
+						if (check == null) {
+							MongoFuturesQuoteMinuteK mongoMinuteK = CopyBeanUtils
+									.copyBeanProperties(MongoFuturesQuoteMinuteK.class, minuteK, false);
+							minuteKDao.createFuturesQuoteMinuteK(mongoMinuteK);
 						}
 					}
 				}
 			}
+			page++;
+		}
+		// 迁移FuturesQuoteMinuteKGroup
+		page = 0;
+		while (true) {
+			Page<FuturesQuoteMinuteKGroup> pageData = minuteKGroupServcie.futuresQuoteMinuteKGroups(page, 100);
+			if (pageData.getContent().size() == 0) {
+				break;
+			} else {
+				List<FuturesQuoteMinuteKGroup> groupList = pageData.getContent();
+				if (groupList != null && groupList.size() > 0) {
+					for (FuturesQuoteMinuteKGroup group : groupList) {
+						String groupData = group.getGroupData();
+						List<MongoFuturesQuoteMinuteK> dataList = JacksonUtil.decode(groupData,
+								JacksonUtil.getGenericType(ArrayList.class, MongoFuturesQuoteMinuteK.class));
+						for (MongoFuturesQuoteMinuteK data : dataList) {
+							if (data.getOpenPrice() != null && data.getOpenPrice().compareTo(BigDecimal.ZERO) > 0) {
+								MongoFuturesQuoteMinuteK check = minuteKDao.retrieveByCommodityNoAndContractNoAndTime(
+										data.getCommodityNo(), data.getContractNo(), data.getTime());
+								if (check == null) {
+									minuteKDao.createFuturesQuoteMinuteK(data);
+								}
+							}
+						}
+					}
+				}
+			}
+			page++;
 		}
 	}
 

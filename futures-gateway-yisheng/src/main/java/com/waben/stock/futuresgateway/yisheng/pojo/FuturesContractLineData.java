@@ -1,6 +1,7 @@
 package com.waben.stock.futuresgateway.yisheng.pojo;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -8,6 +9,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FuturesContractLineData implements Comparable<FuturesContractLineData> {
 
+	/**
+	 * 小数点精确位数
+	 */
+	private Integer scale;
 	/** 品种编号 */
 	private String commodityNo;
 	/** 合约编号 */
@@ -62,6 +67,9 @@ public class FuturesContractLineData implements Comparable<FuturesContractLineDa
 	}
 
 	public BigDecimal getOpenPrice() {
+		if(scale != null && openPrice != null) {
+			return openPrice.setScale(scale, RoundingMode.HALF_UP);
+		}
 		return openPrice;
 	}
 
@@ -70,6 +78,9 @@ public class FuturesContractLineData implements Comparable<FuturesContractLineDa
 	}
 
 	public BigDecimal getHighPrice() {
+		if(scale != null && highPrice != null) {
+			return highPrice.setScale(scale, RoundingMode.HALF_UP);
+		}
 		return highPrice;
 	}
 
@@ -78,6 +89,9 @@ public class FuturesContractLineData implements Comparable<FuturesContractLineDa
 	}
 
 	public BigDecimal getLowPrice() {
+		if(scale != null && lowPrice != null) {
+			return lowPrice.setScale(scale, RoundingMode.HALF_UP);
+		}
 		return lowPrice;
 	}
 
@@ -86,6 +100,9 @@ public class FuturesContractLineData implements Comparable<FuturesContractLineDa
 	}
 
 	public BigDecimal getClosePrice() {
+		if(scale != null && closePrice != null) {
+			return closePrice.setScale(scale, RoundingMode.HALF_UP);
+		}
 		return closePrice;
 	}
 
@@ -112,6 +129,14 @@ public class FuturesContractLineData implements Comparable<FuturesContractLineDa
 	@Override
 	public int compareTo(FuturesContractLineData o) {
 		return timeStr.compareTo(o.getTimeStr());
+	}
+
+	public Integer getScale() {
+		return scale;
+	}
+
+	public void setScale(Integer scale) {
+		this.scale = scale;
 	}
 
 }

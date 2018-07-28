@@ -403,43 +403,25 @@ public class FuturesMarketService {
 			}
 		}
 		// 获取主力合约的分K数据（main）
-		List<FuturesQuoteMinuteKGroup> mainMinuteKGroupList = minuteKGroupDao
+		List<MongoFuturesQuoteMinuteK> minuteKList = minuteKDao
 				.retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(commodityNo, "main",
 						startTime, betweenTime);
-		if (mainMinuteKGroupList == null) {
-			mainMinuteKGroupList = new ArrayList<>();
+		if (minuteKList == null) {
+			minuteKList = new ArrayList<>();
 		}
 		// 查询分时数据（constractNo）
-		List<MongoFuturesQuoteMinuteK> minuteKList = minuteKDao
+		List<MongoFuturesQuoteMinuteK> realMinuteKList = minuteKDao
 				.retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(commodityNo, contractNo,
-						startTime, endTime);
-		// 查询小时数据（constractNo）
-		List<FuturesQuoteMinuteKGroup> minuteKGoupList = minuteKGroupDao
-				.retrieveByCommodityNoAndContractNoAndTimeGreaterThanEqualAndTimeLessThan(commodityNo, contractNo,
-						startTime, endTime);
+						betweenTime, endTime);
+		minuteKList.addAll(realMinuteKList);
 		// 统计
 		List<FuturesContractLineData> result = new ArrayList<>();
-		for (FuturesQuoteMinuteKGroup minuteKGoup : mainMinuteKGroupList) {
-			List<FuturesContractLineData> dataList = JacksonUtil.decode(minuteKGoup.getGroupData(),
-					JacksonUtil.getGenericType(ArrayList.class, FuturesContractLineData.class));
-			for (FuturesContractLineData data : dataList) {
-				if (data.getOpenPrice() != null && data.getOpenPrice().compareTo(BigDecimal.ZERO) > 0) {
-					result.add(data);
-				}
-			}
-		}
+		Integer scale = EsEngine.commodityScaleMap.get(commodityNo);
 		for (MongoFuturesQuoteMinuteK minuteK : minuteKList) {
 			if (minuteK.getOpenPrice() != null && minuteK.getOpenPrice().compareTo(BigDecimal.ZERO) > 0) {
-				result.add(CopyBeanUtils.copyBeanProperties(FuturesContractLineData.class, minuteK, false));
-			}
-		}
-		for (FuturesQuoteMinuteKGroup minuteKGoup : minuteKGoupList) {
-			List<FuturesContractLineData> dataList = JacksonUtil.decode(minuteKGoup.getGroupData(),
-					JacksonUtil.getGenericType(ArrayList.class, FuturesContractLineData.class));
-			for (FuturesContractLineData data : dataList) {
-				if (data.getOpenPrice() != null && data.getOpenPrice().compareTo(BigDecimal.ZERO) > 0) {
-					result.add(data);
-				}
+				FuturesContractLineData lineData = CopyBeanUtils.copyBeanProperties(FuturesContractLineData.class, minuteK, false);
+				lineData.setScale(scale);
+				result.add(lineData);
 			}
 		}
 		// 排序

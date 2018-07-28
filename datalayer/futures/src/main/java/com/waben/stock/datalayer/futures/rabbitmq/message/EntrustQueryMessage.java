@@ -12,9 +12,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class EntrustQueryMessage {
 
 	/**
-	 * 订单ID
+	 * 交易委托ID
 	 */
-	private Long orderId;
+	private Long entrustId;
 	/**
 	 * 委托类型
 	 * <ul>
@@ -24,10 +24,6 @@ public class EntrustQueryMessage {
 	 * </ul>
 	 */
 	private Integer entrustType;
-	/**
-	 * 网关交易订单ID
-	 */
-	private Long gatewayOrderId;
 	/**
 	 * 当前消息消费次数
 	 */
@@ -43,12 +39,12 @@ public class EntrustQueryMessage {
 	public EntrustQueryMessage() {
 	}
 
-	public Long getOrderId() {
-		return orderId;
+	public Long getEntrustId() {
+		return entrustId;
 	}
 
-	public void setOrderId(Long orderId) {
-		this.orderId = orderId;
+	public void setEntrustId(Long entrustId) {
+		this.entrustId = entrustId;
 	}
 
 	public Integer getEntrustType() {
@@ -57,14 +53,6 @@ public class EntrustQueryMessage {
 
 	public void setEntrustType(Integer entrustType) {
 		this.entrustType = entrustType;
-	}
-
-	public Long getGatewayOrderId() {
-		return gatewayOrderId;
-	}
-
-	public void setGatewayOrderId(Long gatewayOrderId) {
-		this.gatewayOrderId = gatewayOrderId;
 	}
 
 	public int getConsumeCount() {
