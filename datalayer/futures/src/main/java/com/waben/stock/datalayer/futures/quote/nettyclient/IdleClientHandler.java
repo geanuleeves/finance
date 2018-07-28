@@ -1,21 +1,19 @@
 package com.waben.stock.datalayer.futures.quote.nettyclient;
 
-import java.util.concurrent.TimeUnit;
-
 import org.springframework.stereotype.Component;
 
 import com.google.protobuf.Message;
 import com.waben.stock.datalayer.futures.quote.protobuf.Command.CommandType;
 import com.waben.stock.datalayer.futures.quote.protobuf.Message.MessageBase;
 
-import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.EventLoop;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 
 @Component
+@ChannelHandler.Sharable
 public class IdleClientHandler extends SimpleChannelInboundHandler<Message> {
 
 	private NettyClient nettyClient;
@@ -33,10 +31,10 @@ public class IdleClientHandler extends SimpleChannelInboundHandler<Message> {
 				type = "read idle";
 			} else if (event.state() == IdleState.WRITER_IDLE) {
 				type = "write idle";
+				sendPingMsg(ctx);
 			} else if (event.state() == IdleState.ALL_IDLE) {
 				type = "all idle";
 			}
-			sendPingMsg(ctx);
 		} else {
 			super.userEventTriggered(ctx, evt);
 		}
