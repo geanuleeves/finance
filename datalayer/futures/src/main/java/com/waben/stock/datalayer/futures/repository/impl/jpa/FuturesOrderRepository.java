@@ -104,14 +104,6 @@ public interface FuturesOrderRepository extends CustomJpaRepository<FuturesOrder
 	 */
 	List<FuturesOrder> findByPublisherIdAndState(Long publisherId, FuturesOrderState state);
 
-	/**
-	 * 根据反手源订单ID获取订单
-	 * 
-	 * @param backhandSourceOrderId
-	 *            反手源订单ID
-	 * @return 订单
-	 */
-//	List<FuturesOrder> findByBackhandSourceOrderId(Long backhandSourceOrderId);
 
 	FuturesOrder findByIdAndPublisherId(Long orderId, Long publisherId);
 
