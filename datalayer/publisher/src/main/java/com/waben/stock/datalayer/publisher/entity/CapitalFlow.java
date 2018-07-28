@@ -48,6 +48,14 @@ public class CapitalFlow {
 	@Column(name = "available_balance")
 	private BigDecimal availableBalance;
 	/**
+	 * 冻结资金
+	 * <p>
+	 * 产生该流水之后的冻结资金
+	 * </p>
+	 */
+	@Column(name = "frozen_capital")
+	private BigDecimal frozenCapital;
+	/**
 	 * 流水类型
 	 */
 	@Column(name = "type")
@@ -188,6 +196,14 @@ public class CapitalFlow {
 
 	public void setAvailableBalance(BigDecimal availableBalance) {
 		this.availableBalance = availableBalance;
+	}
+
+	public BigDecimal getFrozenCapital() {
+		return frozenCapital;
+	}
+
+	public void setFrozenCapital(BigDecimal frozenCapital) {
+		this.frozenCapital = frozenCapital;
 	}
 
 }

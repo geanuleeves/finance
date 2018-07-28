@@ -18,7 +18,7 @@ import com.waben.stock.interfaces.enums.CapitalFlowType;
 public interface CapitalFlowDao extends BaseDao<CapitalFlow, Long> {
 
 	CapitalFlow create(Publisher publisher, CapitalFlowType type, BigDecimal amount, Date occurrenceTime,
-			CapitalFlowExtendType extendType, Long extendId, BigDecimal availableBalance);
+			CapitalFlowExtendType extendType, Long extendId, BigDecimal availableBalance, BigDecimal frozenCapital);
 
 	List<CapitalFlow> retriveByPublisherIdAndType(Long publisherId, CapitalFlowType flowType);
 

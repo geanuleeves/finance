@@ -20,8 +20,8 @@ public class FuturesContractOrderBusiness {
 	@Qualifier("futuresContractOrderInterface")
 	private FuturesContractOrderInterface reference;
 	
-	public FuturesContractOrderDto fetchByContractId(Long contractId) {
-		Response<FuturesContractOrderDto> response = reference.fetchByContractId(contractId);
+	public FuturesContractOrderDto fetchByContractIdAndPublisherId(Long contractId, Long publisherId) {
+		Response<FuturesContractOrderDto> response = reference.fetchByContractIdAndPublisherId(contractId, publisherId);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}

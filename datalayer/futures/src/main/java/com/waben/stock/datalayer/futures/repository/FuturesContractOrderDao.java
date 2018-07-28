@@ -9,6 +9,6 @@ import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
  */
 public interface FuturesContractOrderDao extends BaseDao<FuturesContractOrder, Long> {
 
-	FuturesContractOrder retrieveByContract(FuturesContract contract);
+	FuturesContractOrder retrieveByContractAndPublisherId(FuturesContract contract, Long publisherId);
 	
 }

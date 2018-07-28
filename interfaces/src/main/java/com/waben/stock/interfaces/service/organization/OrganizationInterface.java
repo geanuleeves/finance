@@ -265,4 +265,14 @@ public interface OrganizationInterface {
 	@RequestMapping(value = "/list/publisherid", method = RequestMethod.GET)
 	Response<List<Long>> getListByPublisherId(@RequestParam("treeCode") String treeCode);
 
+	/**
+	 * 获取当前代理商可设比例
+	 * 
+	 * @param orgId
+	 *            代理商ID
+	 * @return 当前代理商可设比例
+	 */
+	@RequestMapping(value = "/sum/ratio/{orgId}", method = RequestMethod.GET)
+	Response<BigDecimal> getSumRatio(@PathVariable("orgId") Long orgId);
+
 }

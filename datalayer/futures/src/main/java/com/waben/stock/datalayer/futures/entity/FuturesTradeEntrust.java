@@ -8,6 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesOrderTypeConverter;
@@ -34,6 +36,8 @@ public class FuturesTradeEntrust {
 	/** 用户ID */
 	private Long publisherId;
 	/** 对应的合约ID */
+	@ManyToOne
+	@JoinColumn(name = "contract_id")
 	private FuturesContract contract;
 	/** 品种编号 */
 	private String commodityNo;

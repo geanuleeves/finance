@@ -108,11 +108,12 @@ public class FuturesTradeBusiness {
 	}
 
 	public FuturesOrderDto buy(FuturesOrderDto orderDto) {
-		Response<FuturesOrderDto> response = futuresOrderInterface.addOrder(orderDto);
-		if ("200".equals(response.getCode())) {
-			return response.getResult();
-		}
-		throw new ServiceException(response.getCode());
+		return null;
+//		Response<FuturesOrderDto> response = futuresOrderInterface.addOrder(orderDto);
+//		if ("200".equals(response.getCode())) {
+//			return response.getResult();
+//		}
+//		throw new ServiceException(response.getCode());
 	}
 
 	public PageInfo<FuturesOrderDto> pageOrder(FuturesOrderQuery orderQuery) {

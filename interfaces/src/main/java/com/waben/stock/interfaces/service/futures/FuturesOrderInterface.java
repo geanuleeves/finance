@@ -15,6 +15,7 @@ import com.waben.stock.interfaces.dto.futures.FuturesOvernightRecordDto;
 import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
 
@@ -45,14 +46,14 @@ public interface FuturesOrderInterface {
 	Response<PageInfo<FuturesOrderDto>> pagesOrder(@RequestBody FuturesOrderQuery orderQuery);
 
 	/**
-	 * 添加期货订单
+	 * 期货下单
 	 * 
-	 * @param futuresOrderDto
-	 *            订单数据
+	 * @param orderParam
+	 *            下单参数
 	 * @return 期货订单
 	 */
-	@RequestMapping(value = "/addOrder", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	Response<FuturesOrderDto> addOrder(@RequestBody FuturesOrderDto futuresOrderDto);
+	@RequestMapping(value = "/placeOrder", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	Response<FuturesOrderDto> placeOrder(@RequestBody PlaceOrderParam orderParam);
 
 	/**
 	 * 取消订单

@@ -21,6 +21,7 @@ import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
 import com.waben.stock.interfaces.service.futures.FuturesOrderInterface;
@@ -50,13 +51,11 @@ public class FuturesOrderController implements FuturesOrderInterface {
 	}
 
 	@Override
-	public Response<FuturesOrderDto> addOrder(@RequestBody FuturesOrderDto futuresOrderDto) {
-		logger.info("发布人{}期货下单{}，手数{}!", futuresOrderDto.getPublisherId(), futuresOrderDto.getContractId(),
-				futuresOrderDto.getTotalQuantity());
-		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesOrderDto.class,
-				futuresOrderService.save(CopyBeanUtils.copyBeanProperties(FuturesOrder.class, futuresOrderDto, false),
-						futuresOrderDto.getContractId()),
-				false));
+	public Response<FuturesOrderDto> placeOrder(@RequestBody PlaceOrderParam orderParam) {
+		logger.info("发布人{}期货下单{}，手数{}!", orderParam.getPublisherId(), orderParam.getContractId(),
+				orderParam.getTotalQuantity());
+		return new Response<>(
+				CopyBeanUtils.copyBeanProperties(FuturesOrderDto.class, futuresOrderService.placeOrder(orderParam), false));
 	}
 
 	@Override

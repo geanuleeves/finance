@@ -1,14 +1,69 @@
 package com.waben.stock.datalayer.futures.service;
 
-import com.waben.stock.datalayer.futures.business.*;
-import com.waben.stock.datalayer.futures.entity.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
+import com.waben.stock.datalayer.futures.business.CapitalFlowBusiness;
+import com.waben.stock.datalayer.futures.business.OrganizationBusiness;
+import com.waben.stock.datalayer.futures.business.OutsideMessageBusiness;
+import com.waben.stock.datalayer.futures.business.ProfileBusiness;
+import com.waben.stock.datalayer.futures.business.PublisherBusiness;
+import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
+import com.waben.stock.datalayer.futures.entity.FuturesContract;
+import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
+import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
+import com.waben.stock.datalayer.futures.entity.FuturesHoliday;
+import com.waben.stock.datalayer.futures.entity.FuturesOrder;
+import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
+import com.waben.stock.datalayer.futures.entity.FuturesStopLossOrProfit;
+import com.waben.stock.datalayer.futures.entity.FuturesTradeAction;
+import com.waben.stock.datalayer.futures.entity.FuturesTradeEntrust;
+import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesOrderStateConverter;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControlTypeConverter;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.EntrustQueryConsumer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorPublisherFuturesOrderConsumer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorSingleFuturesOrderConsumer;
-import com.waben.stock.datalayer.futures.repository.*;
+import com.waben.stock.datalayer.futures.repository.DynamicQuerySqlDao;
+import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
+import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
+import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
+import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
+import com.waben.stock.datalayer.futures.repository.FuturesOvernightRecordDao;
+import com.waben.stock.datalayer.futures.repository.FuturesStopLossOrProfitDao;
+import com.waben.stock.datalayer.futures.repository.FuturesTradeActionDao;
+import com.waben.stock.datalayer.futures.repository.FuturesTradeEntrustDao;
 import com.waben.stock.datalayer.futures.repository.impl.MethodDesc;
 import com.waben.stock.interfaces.commonapi.retrivefutures.TradeFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
@@ -22,32 +77,25 @@ import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
 import com.waben.stock.interfaces.dto.publisher.FrozenCapitalDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
-import com.waben.stock.interfaces.enums.*;
+import com.waben.stock.interfaces.enums.CapitalFlowExtendType;
+import com.waben.stock.interfaces.enums.CapitalFlowType;
+import com.waben.stock.interfaces.enums.FuturesActionType;
+import com.waben.stock.interfaces.enums.FuturesOrderState;
+import com.waben.stock.interfaces.enums.FuturesOrderType;
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
+import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
+import com.waben.stock.interfaces.enums.FuturesTradeLimitType;
+import com.waben.stock.interfaces.enums.FuturesTradePriceType;
+import com.waben.stock.interfaces.enums.FuturesWindControlType;
+import com.waben.stock.interfaces.enums.OutsideMessageType;
+import com.waben.stock.interfaces.enums.ResourceType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.message.OutsideMessage;
+import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
 import com.waben.stock.interfaces.util.StringUtil;
 import com.waben.stock.interfaces.util.UniqueCodeGenerator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.criteria.*;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.RoundingMode;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  * 期货订单 service
@@ -67,6 +115,15 @@ public class FuturesOrderService {
 
     @Autowired
     private FuturesContractDao contractDao;
+    
+    @Autowired
+	private FuturesContractOrderDao contractOrderDao;
+
+	@Autowired
+	private FuturesTradeEntrustDao tradeEntrustDao;
+
+	@Autowired
+	private FuturesTradeActionDao tradeActionDao;
 
     @Autowired
     private FuturesCommodityDao commodityDao;
@@ -504,6 +561,179 @@ public class FuturesOrderService {
         entrueQuery.entrustQuery(order.getId(), 1);
         return order;
     }
+    
+	public FuturesOrder placeOrder(PlaceOrderParam orderParam) {
+		// step 1 : 检查网关是否正常
+		boolean isConnected = TradeFuturesOverHttp.checkConnection(profileBusiness.isProd());
+		if (!isConnected) {
+			throw new ServiceException(ExceptionConstant.FUTURESAPI_NOTCONNECTED_EXCEPTION);
+		}
+		// step 2 : 再一次确认余额是否充足
+		CapitalAccountDto capitalAccount = accountBusiness.fetchByPublisherId(orderParam.getPublisherId());
+		BigDecimal totalFee = orderParam.getServiceFee().add(orderParam.getReserveFund());
+		if (totalFee.compareTo(capitalAccount.getAvailableBalance()) > 0) {
+			throw new ServiceException(ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION);
+		}
+		// step 3 : 更新合约订单信息
+		Long contractId = orderParam.getContractId();
+		FuturesOrderType orderType = orderParam.getOrderType();
+		BigDecimal totalQuantity = orderParam.getTotalQuantity();
+		FuturesContract contract = contractDao.retrieve(contractId);
+		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract,
+				orderParam.getPublisherId());
+		if (contractOrder != null) {
+			if (orderType == FuturesOrderType.BuyUp) {
+				contractOrder.setBuyUpTotalQuantity(contractOrder.getBuyUpTotalQuantity().add(totalQuantity));
+			} else {
+				contractOrder.setBuyFallTotalQuantity(contractOrder.getBuyFallTotalQuantity().add(totalQuantity));
+			}
+			contractOrder.setReserveFund(contractOrder.getReserveFund().add(orderParam.getReserveFund()));
+			if (orderParam.getLimitLossType() != null && orderParam.getLimitLossType() > 0
+					&& orderParam.getPerUnitLimitLossAmount() != null
+					&& orderParam.getPerUnitLimitLossAmount().compareTo(BigDecimal.ZERO) > 0) {
+				orderParam.setLimitLossType(orderParam.getLimitLossType());
+				orderParam.setPerUnitLimitLossAmount(orderParam.getPerUnitLimitLossAmount());
+			}
+			if (orderParam.getLimitProfitType() != null && orderParam.getLimitProfitType() > 0
+					&& orderParam.getPerUnitLimitProfitAmount() != null
+					&& orderParam.getPerUnitLimitProfitAmount().compareTo(BigDecimal.ZERO) > 0) {
+				orderParam.setLimitProfitType(orderParam.getLimitProfitType());
+				orderParam.setPerUnitLimitProfitAmount(orderParam.getPerUnitLimitProfitAmount());
+			}
+			contractOrder.setUpdateTime(new Date());
+			contractOrderDao.update(contractOrder);
+		} else {
+			contractOrder = new FuturesContractOrder();
+			contractOrder.setBuyFallQuantity(BigDecimal.ZERO);
+			contractOrder.setBuyUpQuantity(BigDecimal.ZERO);
+			if (orderType == FuturesOrderType.BuyUp) {
+				contractOrder.setBuyUpTotalQuantity(totalQuantity);
+			} else {
+				contractOrder.setBuyFallTotalQuantity(totalQuantity);
+			}
+			contractOrder.setContract(contract);
+			contractOrder.setCommodityNo(contract.getCommodity().getSymbol());
+			contractOrder.setContractNo(contract.getContractNo());
+			contractOrder.setLightQuantity(BigDecimal.ZERO);
+			contractOrder.setPublisherId(orderParam.getPublisherId());
+			contractOrder.setReserveFund(orderParam.getReserveFund());
+			if (orderParam.getLimitLossType() != null && orderParam.getLimitLossType() > 0
+					&& orderParam.getPerUnitLimitLossAmount() != null
+					&& orderParam.getPerUnitLimitLossAmount().compareTo(BigDecimal.ZERO) > 0) {
+				orderParam.setLimitLossType(orderParam.getLimitLossType());
+				orderParam.setPerUnitLimitLossAmount(orderParam.getPerUnitLimitLossAmount());
+			}
+			if (orderParam.getLimitProfitType() != null && orderParam.getLimitProfitType() > 0
+					&& orderParam.getPerUnitLimitProfitAmount() != null
+					&& orderParam.getPerUnitLimitProfitAmount().compareTo(BigDecimal.ZERO) > 0) {
+				orderParam.setLimitProfitType(orderParam.getLimitProfitType());
+				orderParam.setPerUnitLimitProfitAmount(orderParam.getPerUnitLimitProfitAmount());
+			}
+			contractOrder.setUpdateTime(new Date());
+			contractOrderDao.create(contractOrder);
+		}
+		// step 4 : 创建订单信息
+		Date date = new Date();
+		FuturesOrder order = new FuturesOrder();
+		order.setCloseAvgFillPrice(BigDecimal.ZERO);
+		order.setCloseFilled(BigDecimal.ZERO);
+		order.setCloseRemaining(BigDecimal.ZERO);
+		order.setCloseTotalFillCost(BigDecimal.ZERO);
+		order.setCommodityCurrency(orderParam.getCommodityCurrency());
+		order.setCommodityName(orderParam.getCommodityName());
+		order.setCommoditySymbol(orderParam.getCommoditySymbol());
+		order.setContract(contract);
+		order.setContractNo(orderParam.getContractNo());
+		order.setContractOrder(contractOrder);
+		order.setIsTest(orderParam.getIsTest());
+		order.setOpenAvgFillPrice(BigDecimal.ZERO);
+		order.setOpenFilled(BigDecimal.ZERO);
+		order.setOpenRemaining(orderParam.getTotalQuantity());
+		order.setOpenTotalFillCost(BigDecimal.ZERO);
+		order.setOpenwindServiceFee(orderParam.getOpenwindServiceFee());
+		order.setOrderType(orderParam.getOrderType());
+		order.setPostTime(new Date());
+		order.setPublisherId(orderParam.getPublisherId());
+		order.setReserveFund(orderParam.getReserveFund());
+		order.setServiceFee(orderParam.getServiceFee());
+		order.setState(FuturesOrderState.BuyingEntrust);
+		order.setTotalQuantity(orderParam.getTotalQuantity());
+		order.setTradeNo(UniqueCodeGenerator.generateTradeNo());
+		order.setUnwindServiceFee(orderParam.getUnwindServiceFee());
+		order.setUpdateTime(date);
+		orderDao.create(order);
+		// step 5 : 创建委托记录
+		FuturesTradeEntrust tradeEntrust = new FuturesTradeEntrust();
+		tradeEntrust.setCommodityNo(orderParam.getCommoditySymbol());
+		tradeEntrust.setContract(contract);
+		tradeEntrust.setContractNo(orderParam.getContractNo());
+		if (orderParam.getTradePriceType() == FuturesTradePriceType.MKT) {
+			orderParam.setEntrustPrice(
+					allQuote.getLastPrice(orderParam.getCommoditySymbol(), orderParam.getContractNo()));
+		}
+		tradeEntrust.setEntrustPrice(orderParam.getEntrustPrice());
+		tradeEntrust.setEntrustTime(new Date());
+		tradeEntrust.setOrderType(orderParam.getOrderType());
+		tradeEntrust.setPriceType(orderParam.getTradePriceType());
+		tradeEntrust.setPublisherId(orderParam.getPublisherId());
+		tradeEntrust.setQuantity(orderParam.getTotalQuantity());
+		tradeEntrust.setRemaining(orderParam.getTotalQuantity());
+		tradeEntrust.setFilled(BigDecimal.ZERO);
+		tradeEntrust.setAvgFillPrice(BigDecimal.ZERO);
+		tradeEntrust.setTotalFillCost(BigDecimal.ZERO);
+		tradeEntrust.setState(FuturesTradeEntrustState.Queuing);
+		tradeEntrust.setTradeActionType(FuturesTradeActionType.OPEN);
+		tradeEntrust.setTradePrice(BigDecimal.ZERO);
+		tradeEntrust.setUpdateTime(date);
+		tradeEntrustDao.create(tradeEntrust);
+		// step 6 : 创建开仓记录
+		FuturesTradeAction tradeAction = new FuturesTradeAction();
+		tradeAction.setAvgFillPrice(BigDecimal.ZERO);
+		tradeAction.setCurrencyProfitOrLoss(BigDecimal.ZERO);
+		tradeAction.setEntrustTime(date);
+		tradeAction.setFilled(BigDecimal.ZERO);
+		tradeAction.setOrder(order);
+		tradeAction.setPlatformProfitOrLoss(BigDecimal.ZERO);
+		tradeAction.setProfitOrLoss(BigDecimal.ZERO);
+		tradeAction.setPublisherId(orderParam.getPublisherId());
+		tradeAction.setPublisherProfitOrLoss(BigDecimal.ZERO);
+		tradeAction.setQuantity(orderParam.getTotalQuantity());
+		tradeAction.setRemaining(orderParam.getTotalQuantity());
+		tradeAction.setSettlementRate(BigDecimal.ZERO);
+		tradeAction.setSort(1);
+		tradeAction.setState(FuturesTradeEntrustState.Queuing);
+		tradeAction.setTotalFillCost(BigDecimal.ZERO);
+		tradeAction.setTradeActionType(FuturesTradeActionType.OPEN);
+		tradeAction.setTradeEntrust(tradeEntrust);
+		tradeAction.setTradePrice(BigDecimal.ZERO);
+		tradeAction.setUpdateTime(date);
+		tradeActionDao.create(tradeAction);
+		// step 7 : 扣去金额、冻结保证金
+		try {
+			accountBusiness.futuresOrderServiceFeeAndReserveFund(order.getPublisherId(), order.getId(),
+					order.getServiceFee(), order.getReserveFund());
+		} catch (ServiceException ex) {
+			if (ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION.equals(ex.getType())) {
+				throw ex;
+			} else {
+				// 再一次确认是否已经扣款
+				try {
+					FrozenCapitalDto frozen = accountBusiness.futuresOrderFetchFrozenCapital(order.getPublisherId(),
+							order.getId());
+					if (frozen == null) {
+						throw ex;
+					}
+				} catch (ServiceException frozenEx) {
+					throw ex;
+				}
+			}
+		}
+		// step 8 : 站外消息推送
+		sendOutsideMessage(order);
+		// step 9 : 放入委托查询队列（开仓）
+		entrueQuery.entrustQuery(order.getId(), 1);
+		return order;
+	}
 
     /**
      * 禁止开仓
@@ -596,101 +826,101 @@ public class FuturesOrderService {
     }
 
     private void sendOutsideMessage(FuturesOrder order) {
-        try {
-            FuturesOrderState state = order.getState();
-            Map<String, String> extras = new HashMap<>();
-            OutsideMessage message = new OutsideMessage();
-            message.setPublisherId(order.getPublisherId());
-            message.setTitle("期货订单通知");
-            extras.put("title", message.getTitle());
-            extras.put("publisherId", String.valueOf(order.getPublisherId()));
-            extras.put("resourceType", ResourceType.FUTURESORDER.getIndex());
-            extras.put("resourceId", String.valueOf(order.getId()));
-            message.setExtras(extras);
-            switch (state) {
-                case BuyingFailure:
-                    message.setContent(String.format("您购买的“%s”委托买入失败，已退款到您的账户", order.getCommodityName()));
-                    extras.put("content",
-                            String.format("您购买的“<span id=\"futures\">%s</span>”委托买入失败，已退款到您的账户", order.getCommodityName()));
-                    extras.put("type", OutsideMessageType.Futures_BuyingFailure.getIndex());
-                    break;
-                case BuyingCanceled:
-                    message.setContent(String.format("您所购买的“%s”已取消委托，已退款到您的账户", order.getCommodityName()));
-                    extras.put("content",
-                            String.format("您所购买的“<span id=\"futures\">%s</span>”已取消委托，已退款到您的账户", order.getCommodityName()));
-                    extras.put("type", OutsideMessageType.Futures_BuyingCanceled.getIndex());
-                    break;
-                case Position:
-                    if (order.getBuyingPriceType() == FuturesTradePriceType.MKT) {
-                        message.setContent(String.format("您购买的“%s”已开仓成功，进入“持仓中”状态", order.getCommodityName()));
-                        extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”已开仓成功，进入“持仓中”状态",
-                                order.getCommodityName()));
-                        extras.put("type", OutsideMessageType.Futures_Position.getIndex());
-                        break;
-                    } else {
-                        message.setContent(String.format("您委托指定价购买“%s”已开仓成功，进入“持仓中”状态", order.getCommodityName()));
-                        extras.put("content", String.format("您委托指定价购买“<span id=\"futures\">%s</span>”已开仓成功，进入“持仓中”状态",
-                                order.getCommodityName()));
-                        extras.put("type", OutsideMessageType.Futures_EntrustPosition.getIndex());
-                        break;
-                    }
-                case Unwind:
-                    FuturesWindControlType windControlType = order.getWindControlType();
-                    if (windControlType != null && windControlType == FuturesWindControlType.DayUnwind) {
-                        // 日内平仓
-                        message.setContent(String.format("您购买的“%s”因余额不足无法持仓过夜系统已强制平仓，已进入结算状态", order.getCommodityName()));
-                        extras.put("content",
-                                String.format("您购买的“<span id=\"futures\">%s</span>”因余额不足无法持仓过夜系统已强制平仓，已进入结算状态",
-                                        order.getCommodityName()));
-                        extras.put("type", OutsideMessageType.Futures_DayUnwind.getIndex());
-                        break;
-                    } else if (windControlType != null && windControlType == FuturesWindControlType.UserApplyUnwind) {
-                        // 用户申请平仓
-                        message.setContent(String.format("您购买的“%s”手动平仓，已进入结算状态", order.getCommodityName()));
-                        extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”手动平仓，已进入结算状态",
-                                order.getCommodityName()));
-                        extras.put("type", OutsideMessageType.Futures_ApplyUnwind.getIndex());
-                        break;
-                    } else if (windControlType != null && windControlType == FuturesWindControlType.ReachProfitPoint) {
-                        // 达到止盈点
-                        message.setContent(String.format("您购买的“%s”达到止盈平仓，已进入结算状态", order.getCommodityName()));
-                        extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”达到止盈平仓，已进入结算状态",
-                                order.getCommodityName()));
-                        extras.put("type", OutsideMessageType.Futures_ReachProfitPoint.getIndex());
-                        break;
-                    } else if (windControlType != null && windControlType == FuturesWindControlType.ReachLossPoint) {
-                        // 达到止损点
-                        message.setContent(String.format("您购买的“%s”达到止损平仓，已进入结算状态", order.getCommodityName()));
-                        extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”达到止损平仓，已进入结算状态",
-                                order.getCommodityName()));
-                        extras.put("type", OutsideMessageType.Futures_ReachLossPoint.getIndex());
-                        break;
-                    } else if (windControlType != null
-                            && windControlType == FuturesWindControlType.ReachContractExpiration) {
-                        // 合约到期平仓
-                        message.setContent(String.format("您购买的“%s”因合约到期系统强制平仓，已进入结算状态", order.getCommodityName()));
-                        extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”因合约到期系统强制平仓，已进入结算状态",
-                                order.getCommodityName()));
-                        extras.put("type", OutsideMessageType.Futures_ReachContractExpiration.getIndex());
-                        break;
-                    } else if (windControlType != null && windControlType == FuturesWindControlType.ReachStrongPoint) {
-                        // 达到强平点
-                        message.setContent(String.format("您购买的“%s”因达到系统强平风控金额，已强制平仓，已进入结算状态", order.getCommodityName()));
-                        extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”因达到系统强平风控金额，已强制平仓，已进入结算状态",
-                                order.getCommodityName()));
-                        extras.put("type", OutsideMessageType.Futures_ReachStrongPoint.getIndex());
-                        break;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            if (message.getContent() != null) {
-                outsideMessageBusiness.send(message);
-            }
-        } catch (Exception ex) {
-            logger.error("发送期货订单通知失败，{}_{}_{}", order.getId(), order.getState(), ex.getMessage());
-        }
+//        try {
+//            FuturesOrderState state = order.getState();
+//            Map<String, String> extras = new HashMap<>();
+//            OutsideMessage message = new OutsideMessage();
+//            message.setPublisherId(order.getPublisherId());
+//            message.setTitle("期货订单通知");
+//            extras.put("title", message.getTitle());
+//            extras.put("publisherId", String.valueOf(order.getPublisherId()));
+//            extras.put("resourceType", ResourceType.FUTURESORDER.getIndex());
+//            extras.put("resourceId", String.valueOf(order.getId()));
+//            message.setExtras(extras);
+//            switch (state) {
+//                case BuyingFailure:
+//                    message.setContent(String.format("您购买的“%s”委托买入失败，已退款到您的账户", order.getCommodityName()));
+//                    extras.put("content",
+//                            String.format("您购买的“<span id=\"futures\">%s</span>”委托买入失败，已退款到您的账户", order.getCommodityName()));
+//                    extras.put("type", OutsideMessageType.Futures_BuyingFailure.getIndex());
+//                    break;
+//                case BuyingCanceled:
+//                    message.setContent(String.format("您所购买的“%s”已取消委托，已退款到您的账户", order.getCommodityName()));
+//                    extras.put("content",
+//                            String.format("您所购买的“<span id=\"futures\">%s</span>”已取消委托，已退款到您的账户", order.getCommodityName()));
+//                    extras.put("type", OutsideMessageType.Futures_BuyingCanceled.getIndex());
+//                    break;
+//                case Position:
+//                    if (order.getBuyingPriceType() == FuturesTradePriceType.MKT) {
+//                        message.setContent(String.format("您购买的“%s”已开仓成功，进入“持仓中”状态", order.getCommodityName()));
+//                        extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”已开仓成功，进入“持仓中”状态",
+//                                order.getCommodityName()));
+//                        extras.put("type", OutsideMessageType.Futures_Position.getIndex());
+//                        break;
+//                    } else {
+//                        message.setContent(String.format("您委托指定价购买“%s”已开仓成功，进入“持仓中”状态", order.getCommodityName()));
+//                        extras.put("content", String.format("您委托指定价购买“<span id=\"futures\">%s</span>”已开仓成功，进入“持仓中”状态",
+//                                order.getCommodityName()));
+//                        extras.put("type", OutsideMessageType.Futures_EntrustPosition.getIndex());
+//                        break;
+//                    }
+//                case Unwind:
+//                    FuturesWindControlType windControlType = order.getWindControlType();
+//                    if (windControlType != null && windControlType == FuturesWindControlType.DayUnwind) {
+//                        // 日内平仓
+//                        message.setContent(String.format("您购买的“%s”因余额不足无法持仓过夜系统已强制平仓，已进入结算状态", order.getCommodityName()));
+//                        extras.put("content",
+//                                String.format("您购买的“<span id=\"futures\">%s</span>”因余额不足无法持仓过夜系统已强制平仓，已进入结算状态",
+//                                        order.getCommodityName()));
+//                        extras.put("type", OutsideMessageType.Futures_DayUnwind.getIndex());
+//                        break;
+//                    } else if (windControlType != null && windControlType == FuturesWindControlType.UserApplyUnwind) {
+//                        // 用户申请平仓
+//                        message.setContent(String.format("您购买的“%s”手动平仓，已进入结算状态", order.getCommodityName()));
+//                        extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”手动平仓，已进入结算状态",
+//                                order.getCommodityName()));
+//                        extras.put("type", OutsideMessageType.Futures_ApplyUnwind.getIndex());
+//                        break;
+//                    } else if (windControlType != null && windControlType == FuturesWindControlType.ReachProfitPoint) {
+//                        // 达到止盈点
+//                        message.setContent(String.format("您购买的“%s”达到止盈平仓，已进入结算状态", order.getCommodityName()));
+//                        extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”达到止盈平仓，已进入结算状态",
+//                                order.getCommodityName()));
+//                        extras.put("type", OutsideMessageType.Futures_ReachProfitPoint.getIndex());
+//                        break;
+//                    } else if (windControlType != null && windControlType == FuturesWindControlType.ReachLossPoint) {
+//                        // 达到止损点
+//                        message.setContent(String.format("您购买的“%s”达到止损平仓，已进入结算状态", order.getCommodityName()));
+//                        extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”达到止损平仓，已进入结算状态",
+//                                order.getCommodityName()));
+//                        extras.put("type", OutsideMessageType.Futures_ReachLossPoint.getIndex());
+//                        break;
+//                    } else if (windControlType != null
+//                            && windControlType == FuturesWindControlType.ReachContractExpiration) {
+//                        // 合约到期平仓
+//                        message.setContent(String.format("您购买的“%s”因合约到期系统强制平仓，已进入结算状态", order.getCommodityName()));
+//                        extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”因合约到期系统强制平仓，已进入结算状态",
+//                                order.getCommodityName()));
+//                        extras.put("type", OutsideMessageType.Futures_ReachContractExpiration.getIndex());
+//                        break;
+//                    } else if (windControlType != null && windControlType == FuturesWindControlType.ReachStrongPoint) {
+//                        // 达到强平点
+//                        message.setContent(String.format("您购买的“%s”因达到系统强平风控金额，已强制平仓，已进入结算状态", order.getCommodityName()));
+//                        extras.put("content", String.format("您购买的“<span id=\"futures\">%s</span>”因达到系统强平风控金额，已强制平仓，已进入结算状态",
+//                                order.getCommodityName()));
+//                        extras.put("type", OutsideMessageType.Futures_ReachStrongPoint.getIndex());
+//                        break;
+//                    }
+//                    break;
+//                default:
+//                    break;
+//            }
+//            if (message.getContent() != null) {
+//                outsideMessageBusiness.send(message);
+//            }
+//        } catch (Exception ex) {
+//            logger.error("发送期货订单通知失败，{}_{}_{}", order.getId(), order.getState(), ex.getMessage());
+//        }
     }
 
     public Integer countOrderType(Long contractId, FuturesOrderType orderType) {
@@ -719,11 +949,11 @@ public class FuturesOrderService {
             order.setState(FuturesOrderState.Position);
             order.setUpdateTime(new Date());
             orderDao.update(order);
-            if (order.getWindControlType() != null
-                    && order.getWindControlType() == FuturesWindControlType.ReachStrongPoint) {
-                // 市价卖出
-                this.sellingEntrust(order, FuturesWindControlType.ReachStrongPoint, FuturesTradePriceType.MKT, null);
-            }
+//            if (order.getWindControlType() != null
+//                    && order.getWindControlType() == FuturesWindControlType.ReachStrongPoint) {
+//                // 市价卖出
+//                this.sellingEntrust(order, FuturesWindControlType.ReachStrongPoint, FuturesTradePriceType.MKT, null);
+//            }
         } else {
             // 撤单退款
             accountBusiness.futuresOrderRevoke(order.getPublisherId(), order.getId(), order.getServiceFee());
@@ -789,8 +1019,8 @@ public class FuturesOrderService {
         }
         // 修改订单状态
         Date date = new Date();
-        order.setBuyingPrice(buyingPrice);
-        order.setBuyingTime(date);
+//        order.setBuyingPrice(buyingPrice);
+//        order.setBuyingTime(date);
         order.setState(FuturesOrderState.Position);
         order.setUpdateTime(date);
         orderDao.update(order);
@@ -828,8 +1058,8 @@ public class FuturesOrderService {
         }
         // 修改订单状态
         Date date = new Date();
-        order.setBuyingPrice(buyingPrice);
-        order.setBuyingTime(date);
+//        order.setBuyingPrice(buyingPrice);
+//        order.setBuyingTime(date);
         order.setOpenFilled(filled);
         order.setOpenRemaining(remaining);
         order.setOpenAvgFillPrice(avgFillPrice);
@@ -907,67 +1137,67 @@ public class FuturesOrderService {
      */
     public FuturesOrder unwindOrder(Long id, BigDecimal sellingPrice, FuturesWindControlType windControlType) {
         FuturesOrder order = orderDao.retrieve(id);
-        if (order.getState() == FuturesOrderState.Unwind) {
-            return order;
-        }
-        if (!(order.getState() == FuturesOrderState.Position || order.getState() == FuturesOrderState.SellingEntrust
-                || order.getState() == FuturesOrderState.PartUnwind)) {
-            logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
-            throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
-        }
-        // 盈亏（交易所货币）
-        BigDecimal currencyProfitOrLoss = computeProfitOrLoss(order.getOrderType(), order.getTotalQuantity(),
-                order.getBuyingPrice(), sellingPrice, order.getContract().getCommodity().getMinWave(),
-                order.getContract().getCommodity().getPerWaveMoney());
-        // 盈亏（人民币）
-        BigDecimal rate = rateService.findByCurrency(order.getCommodityCurrency()).getRate();
-        BigDecimal profitOrLoss = currencyProfitOrLoss.multiply(rate).setScale(2, RoundingMode.DOWN);
-        // 给用户结算
-        CapitalAccountDto account = accountBusiness.futuresOrderSettlement(order.getPublisherId(), order.getId(),
-                profitOrLoss);
-        // 发布人盈亏（人民币）、平台盈亏（人民币）
-        BigDecimal publisherProfitOrLoss = BigDecimal.ZERO;
-        BigDecimal platformProfitOrLoss = BigDecimal.ZERO;
-        if (profitOrLoss.compareTo(BigDecimal.ZERO) > 0) {
-            publisherProfitOrLoss = profitOrLoss;
-        } else if (profitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
-            publisherProfitOrLoss = account.getRealProfitOrLoss();
-            if (profitOrLoss.abs().compareTo(publisherProfitOrLoss.abs()) > 0) {
-                platformProfitOrLoss = profitOrLoss.abs().subtract(publisherProfitOrLoss.abs())
-                        .multiply(new BigDecimal(-1));
-            }
-        }
-        // 修改订单状态
-        Date date = new Date();
-        order.setCurrencyProfitOrLoss(currencyProfitOrLoss);
-        order.setProfitOrLoss(profitOrLoss);
-        order.setPublisherProfitOrLoss(publisherProfitOrLoss);
-        order.setPlatformProfitOrLoss(platformProfitOrLoss);
-        order.setSettlementRate(rate);
-        order.setSellingPrice(sellingPrice);
-        order.setSellingTime(date);
-        if (windControlType != null) {
-            order.setWindControlType(windControlType);
-        }
-        order.setState(FuturesOrderState.Unwind);
-        order.setUpdateTime(date);
-        orderDao.update(order);
-        // unwindReturnOvernightReserveFund(order);
-        logger.info("代理分成自动平仓外, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
-        // 给代理商分成结算
-        if (order.getIsTest() == null || order.getIsTest() == false) {
-            logger.info("代理分成自动平仓内, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
-            // 递延费
-            BigDecimal deferredFee = overnightService.getSUMOvernightRecord(order.getId());
-            if (deferredFee == null) {
-                deferredFee = BigDecimal.ZERO;
-            }
-            orgBusiness.futuresRatioSettlement(order.getPublisherId(), order.getContract().getCommodityId(),
-                    order.getId(), order.getTradeNo(), order.getTotalQuantity(), order.getServiceFee(),
-                    publisherProfitOrLoss, deferredFee);
-        }
-        // 站外消息推送
-        sendOutsideMessage(order);
+//        if (order.getState() == FuturesOrderState.Unwind) {
+//            return order;
+//        }
+//        if (!(order.getState() == FuturesOrderState.Position || order.getState() == FuturesOrderState.SellingEntrust
+//                || order.getState() == FuturesOrderState.PartUnwind)) {
+//            logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
+//            throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
+//        }
+//        // 盈亏（交易所货币）
+//        BigDecimal currencyProfitOrLoss = computeProfitOrLoss(order.getOrderType(), order.getTotalQuantity(),
+//                order.getBuyingPrice(), sellingPrice, order.getContract().getCommodity().getMinWave(),
+//                order.getContract().getCommodity().getPerWaveMoney());
+//        // 盈亏（人民币）
+//        BigDecimal rate = rateService.findByCurrency(order.getCommodityCurrency()).getRate();
+//        BigDecimal profitOrLoss = currencyProfitOrLoss.multiply(rate).setScale(2, RoundingMode.DOWN);
+//        // 给用户结算
+//        CapitalAccountDto account = accountBusiness.futuresOrderSettlement(order.getPublisherId(), order.getId(),
+//                profitOrLoss);
+//        // 发布人盈亏（人民币）、平台盈亏（人民币）
+//        BigDecimal publisherProfitOrLoss = BigDecimal.ZERO;
+//        BigDecimal platformProfitOrLoss = BigDecimal.ZERO;
+//        if (profitOrLoss.compareTo(BigDecimal.ZERO) > 0) {
+//            publisherProfitOrLoss = profitOrLoss;
+//        } else if (profitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+//            publisherProfitOrLoss = account.getRealProfitOrLoss();
+//            if (profitOrLoss.abs().compareTo(publisherProfitOrLoss.abs()) > 0) {
+//                platformProfitOrLoss = profitOrLoss.abs().subtract(publisherProfitOrLoss.abs())
+//                        .multiply(new BigDecimal(-1));
+//            }
+//        }
+//        // 修改订单状态
+//        Date date = new Date();
+//        order.setCurrencyProfitOrLoss(currencyProfitOrLoss);
+//        order.setProfitOrLoss(profitOrLoss);
+//        order.setPublisherProfitOrLoss(publisherProfitOrLoss);
+//        order.setPlatformProfitOrLoss(platformProfitOrLoss);
+//        order.setSettlementRate(rate);
+//        order.setSellingPrice(sellingPrice);
+//        order.setSellingTime(date);
+//        if (windControlType != null) {
+//            order.setWindControlType(windControlType);
+//        }
+//        order.setState(FuturesOrderState.Unwind);
+//        order.setUpdateTime(date);
+//        orderDao.update(order);
+//        // unwindReturnOvernightReserveFund(order);
+//        logger.info("代理分成自动平仓外, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
+//        // 给代理商分成结算
+//        if (order.getIsTest() == null || order.getIsTest() == false) {
+//            logger.info("代理分成自动平仓内, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
+//            // 递延费
+//            BigDecimal deferredFee = overnightService.getSUMOvernightRecord(order.getId());
+//            if (deferredFee == null) {
+//                deferredFee = BigDecimal.ZERO;
+//            }
+//            orgBusiness.futuresRatioSettlement(order.getPublisherId(), order.getContract().getCommodityId(),
+//                    order.getId(), order.getTradeNo(), order.getTotalQuantity(), order.getServiceFee(),
+//                    publisherProfitOrLoss, deferredFee);
+//        }
+//        // 站外消息推送
+//        sendOutsideMessage(order);
         return order;
     }
 
@@ -981,72 +1211,72 @@ public class FuturesOrderService {
     public FuturesOrder unwindOrder(Long id, BigDecimal filled, BigDecimal remaining, BigDecimal avgFillPrice,
                                     BigDecimal totalFillCost, BigDecimal sellingPrice) {
         FuturesOrder order = orderDao.retrieve(id);
-        if (order.getState() == FuturesOrderState.Unwind) {
-            return order;
-        }
-        if (!(order.getState() == FuturesOrderState.Position || order.getState() == FuturesOrderState.SellingEntrust
-                || order.getState() == FuturesOrderState.PartUnwind)) {
-            logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
-            throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
-        }
-        // 盈亏（交易所货币）
-        BigDecimal currencyProfitOrLoss = computeProfitOrLoss(order.getOrderType(), order.getTotalQuantity(),
-                order.getBuyingPrice(), sellingPrice, order.getContract().getCommodity().getMinWave(),
-                order.getContract().getCommodity().getPerWaveMoney());
-        // 盈亏（人民币）
-        BigDecimal rate = rateService.findByCurrency(order.getCommodityCurrency()).getRate();
-        BigDecimal profitOrLoss = currencyProfitOrLoss.multiply(rate).setScale(2, RoundingMode.DOWN);
-        // 给用户结算
-        CapitalAccountDto account = accountBusiness.futuresOrderSettlement(order.getPublisherId(), order.getId(),
-                profitOrLoss);
-        // 发布人盈亏（人民币）、平台盈亏（人民币）
-        BigDecimal publisherProfitOrLoss = BigDecimal.ZERO;
-        BigDecimal platformProfitOrLoss = BigDecimal.ZERO;
-        if (profitOrLoss.compareTo(BigDecimal.ZERO) > 0) {
-            publisherProfitOrLoss = profitOrLoss;
-        } else if (profitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
-            publisherProfitOrLoss = account.getRealProfitOrLoss();
-            if (publisherProfitOrLoss == null) {
-                publisherProfitOrLoss = profitOrLoss;
-            }
-            if (profitOrLoss.abs().compareTo(publisherProfitOrLoss.abs()) > 0) {
-                platformProfitOrLoss = profitOrLoss.abs().subtract(publisherProfitOrLoss.abs())
-                        .multiply(new BigDecimal(-1));
-            }
-        }
-        // 修改订单状态
-        Date date = new Date();
-        order.setCloseFilled(filled);
-        order.setCloseRemaining(remaining);
-        order.setCloseAvgFillPrice(avgFillPrice);
-        order.setCloseTotalFillCost(totalFillCost);
-        order.setCurrencyProfitOrLoss(currencyProfitOrLoss);
-        order.setProfitOrLoss(profitOrLoss);
-        order.setPublisherProfitOrLoss(publisherProfitOrLoss);
-        order.setPlatformProfitOrLoss(platformProfitOrLoss);
-        order.setSettlementRate(rate);
-        order.setSellingPrice(sellingPrice);
-        order.setSellingTime(date);
-        order.setState(FuturesOrderState.Unwind);
-        order.setUpdateTime(date);
-        orderDao.update(order);
-        // unwindReturnOvernightReserveFund(order);
-        logger.info("代理分成手动平仓外, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
-        // 给代理商分成结算
-        if (order.getIsTest() == null || order.getIsTest() == false) {
-            logger.info("代理分成手动平仓内, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
-            // 递延费
-            BigDecimal deferredFee = overnightService.getSUMOvernightRecord(order.getId());
-            if (deferredFee == null) {
-                deferredFee = BigDecimal.ZERO;
-            }
-            orgBusiness.futuresRatioSettlement(order.getPublisherId(), order.getContract().getCommodityId(),
-                    order.getId(), order.getTradeNo(), order.getTotalQuantity(), order.getServiceFee(),
-                    publisherProfitOrLoss, deferredFee);
-        }
-
-        // 站外消息推送
-        sendOutsideMessage(order);
+//        if (order.getState() == FuturesOrderState.Unwind) {
+//            return order;
+//        }
+//        if (!(order.getState() == FuturesOrderState.Position || order.getState() == FuturesOrderState.SellingEntrust
+//                || order.getState() == FuturesOrderState.PartUnwind)) {
+//            logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
+//            throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
+//        }
+//        // 盈亏（交易所货币）
+//        BigDecimal currencyProfitOrLoss = computeProfitOrLoss(order.getOrderType(), order.getTotalQuantity(),
+//                order.getBuyingPrice(), sellingPrice, order.getContract().getCommodity().getMinWave(),
+//                order.getContract().getCommodity().getPerWaveMoney());
+//        // 盈亏（人民币）
+//        BigDecimal rate = rateService.findByCurrency(order.getCommodityCurrency()).getRate();
+//        BigDecimal profitOrLoss = currencyProfitOrLoss.multiply(rate).setScale(2, RoundingMode.DOWN);
+//        // 给用户结算
+//        CapitalAccountDto account = accountBusiness.futuresOrderSettlement(order.getPublisherId(), order.getId(),
+//                profitOrLoss);
+//        // 发布人盈亏（人民币）、平台盈亏（人民币）
+//        BigDecimal publisherProfitOrLoss = BigDecimal.ZERO;
+//        BigDecimal platformProfitOrLoss = BigDecimal.ZERO;
+//        if (profitOrLoss.compareTo(BigDecimal.ZERO) > 0) {
+//            publisherProfitOrLoss = profitOrLoss;
+//        } else if (profitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+//            publisherProfitOrLoss = account.getRealProfitOrLoss();
+//            if (publisherProfitOrLoss == null) {
+//                publisherProfitOrLoss = profitOrLoss;
+//            }
+//            if (profitOrLoss.abs().compareTo(publisherProfitOrLoss.abs()) > 0) {
+//                platformProfitOrLoss = profitOrLoss.abs().subtract(publisherProfitOrLoss.abs())
+//                        .multiply(new BigDecimal(-1));
+//            }
+//        }
+//        // 修改订单状态
+//        Date date = new Date();
+//        order.setCloseFilled(filled);
+//        order.setCloseRemaining(remaining);
+//        order.setCloseAvgFillPrice(avgFillPrice);
+//        order.setCloseTotalFillCost(totalFillCost);
+//        order.setCurrencyProfitOrLoss(currencyProfitOrLoss);
+//        order.setProfitOrLoss(profitOrLoss);
+//        order.setPublisherProfitOrLoss(publisherProfitOrLoss);
+//        order.setPlatformProfitOrLoss(platformProfitOrLoss);
+//        order.setSettlementRate(rate);
+//        order.setSellingPrice(sellingPrice);
+//        order.setSellingTime(date);
+//        order.setState(FuturesOrderState.Unwind);
+//        order.setUpdateTime(date);
+//        orderDao.update(order);
+//        // unwindReturnOvernightReserveFund(order);
+//        logger.info("代理分成手动平仓外, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
+//        // 给代理商分成结算
+//        if (order.getIsTest() == null || order.getIsTest() == false) {
+//            logger.info("代理分成手动平仓内, tradeNo:{}, state:{}", order.getTradeNo(), order.getState());
+//            // 递延费
+//            BigDecimal deferredFee = overnightService.getSUMOvernightRecord(order.getId());
+//            if (deferredFee == null) {
+//                deferredFee = BigDecimal.ZERO;
+//            }
+//            orgBusiness.futuresRatioSettlement(order.getPublisherId(), order.getContract().getCommodityId(),
+//                    order.getId(), order.getTradeNo(), order.getTotalQuantity(), order.getServiceFee(),
+//                    publisherProfitOrLoss, deferredFee);
+//        }
+//
+//        // 站外消息推送
+//        sendOutsideMessage(order);
         return order;
     }
 
@@ -1162,58 +1392,58 @@ public class FuturesOrderService {
     public FuturesOrder sellingEntrust(FuturesOrder order, FuturesWindControlType windControlType,
                                        FuturesTradePriceType priceType, BigDecimal entrustPrice) {
         // step 1 : 检查网关是否正常
-        boolean isConnected = TradeFuturesOverHttp.checkConnection(profileBusiness.isProd());
-        if (!isConnected) {
-            throw new ServiceException(ExceptionConstant.FUTURESAPI_NOTCONNECTED_EXCEPTION);
-        }
-        // step 2 : 检查订单状态是否正确
-        if (order.getState() != FuturesOrderState.Position) {
-            logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
-            throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
-        }
-        // 修改订单状态
-        order.setWindControlType(windControlType);
-        order.setState(FuturesOrderState.SellingEntrust);
-        Date date = new Date();
-        order.setUpdateTime(date);
-        order.setSellingEntrustTime(date);
-        order.setSellingPriceType(priceType);
-        if (entrustPrice == null && priceType == FuturesTradePriceType.MKT) {
-            BigDecimal lastPrice = allQuote.getLastPrice(order.getCommoditySymbol(), order.getContractNo());
-            if (lastPrice != null && lastPrice.compareTo(BigDecimal.ZERO) > 0) {
-                entrustPrice = lastPrice;
-            }
-        }
-        order.setSellingEntrustPrice(entrustPrice);
-        order = orderDao.update(order);
-        // 委托卖出
-        // FuturesActionType action = order.getOrderType() ==
-        // FuturesOrderType.BuyUp ? FuturesActionType.SELL
-        // : FuturesActionType.BUY;
-        // Integer orderType = priceType == FuturesTradePriceType.MKT ? 1 : 2;
-        // //
-        // 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
-        // BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
-        // if (("CN".equals(order.getCommoditySymbol()) ||
-        // "HSI".equals(order.getCommoditySymbol())
-        // || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
-        // orderType = 2;
-        // }
-        // FuturesGatewayOrder gatewayOrder =
-        // TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain,
-        // order.getCommoditySymbol(), order.getContractNo(), order.getId(),
-        // action, order.getTotalQuantity(),
-        // orderType, gatewayBuyingEntrustPrice);
-        // order.setCloseGatewayOrderId(gatewayOrder.getId());
-        // TODO 委托下单异常情况处理，此处默认为所有的委托都能成功
-        // 消息推送
-        sendOutsideMessage(order);
-        // 放入委托查询队列（平仓）
-        if (windControlType == FuturesWindControlType.BackhandUnwind) {
-            entrueQuery.entrustQuery(order.getId(), 3);
-        } else {
-            entrueQuery.entrustQuery(order.getId(), 2);
-        }
+//        boolean isConnected = TradeFuturesOverHttp.checkConnection(profileBusiness.isProd());
+//        if (!isConnected) {
+//            throw new ServiceException(ExceptionConstant.FUTURESAPI_NOTCONNECTED_EXCEPTION);
+//        }
+//        // step 2 : 检查订单状态是否正确
+//        if (order.getState() != FuturesOrderState.Position) {
+//            logger.error("state not match, orderId:{}, state:{}", order.getId(), order.getState());
+//            throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
+//        }
+//        // 修改订单状态
+//        order.setWindControlType(windControlType);
+//        order.setState(FuturesOrderState.SellingEntrust);
+//        Date date = new Date();
+//        order.setUpdateTime(date);
+//        order.setSellingEntrustTime(date);
+//        order.setSellingPriceType(priceType);
+//        if (entrustPrice == null && priceType == FuturesTradePriceType.MKT) {
+//            BigDecimal lastPrice = allQuote.getLastPrice(order.getCommoditySymbol(), order.getContractNo());
+//            if (lastPrice != null && lastPrice.compareTo(BigDecimal.ZERO) > 0) {
+//                entrustPrice = lastPrice;
+//            }
+//        }
+//        order.setSellingEntrustPrice(entrustPrice);
+//        order = orderDao.update(order);
+//        // 委托卖出
+//        // FuturesActionType action = order.getOrderType() ==
+//        // FuturesOrderType.BuyUp ? FuturesActionType.SELL
+//        // : FuturesActionType.BUY;
+//        // Integer orderType = priceType == FuturesTradePriceType.MKT ? 1 : 2;
+//        // //
+//        // 如果恒生指数或者小恒生，需做特殊处理，这两个只能以先定价下单，恒指和小恒指买涨在最新市价基础上增加3个点（按最波动点位来）。买跌减3个点
+//        // BigDecimal gatewayBuyingEntrustPrice = order.getBuyingEntrustPrice();
+//        // if (("CN".equals(order.getCommoditySymbol()) ||
+//        // "HSI".equals(order.getCommoditySymbol())
+//        // || "MHI".equals(order.getCommoditySymbol())) && orderType == 1) {
+//        // orderType = 2;
+//        // }
+//        // FuturesGatewayOrder gatewayOrder =
+//        // TradeFuturesOverHttp.placeOrder(profileBusiness.isProd(), domain,
+//        // order.getCommoditySymbol(), order.getContractNo(), order.getId(),
+//        // action, order.getTotalQuantity(),
+//        // orderType, gatewayBuyingEntrustPrice);
+//        // order.setCloseGatewayOrderId(gatewayOrder.getId());
+//        // TODO 委托下单异常情况处理，此处默认为所有的委托都能成功
+//        // 消息推送
+//        sendOutsideMessage(order);
+//        // 放入委托查询队列（平仓）
+//        if (windControlType == FuturesWindControlType.BackhandUnwind) {
+//            entrueQuery.entrustQuery(order.getId(), 3);
+//        } else {
+//            entrueQuery.entrustQuery(order.getId(), 2);
+//        }
         return order;
     }
 
@@ -1231,80 +1461,80 @@ public class FuturesOrderService {
         }
         // step 1 : 检查余额是否充足
         CapitalAccountDto account = accountBusiness.fetchByPublisherId(order.getPublisherId());
-        BigDecimal deferredFee = order.getOvernightPerUnitDeferredFee().multiply(order.getTotalQuantity());
-        // BigDecimal reserveFund =
-        // order.getOvernightPerUnitReserveFund().multiply(order.getTotalQuantity());
-        BigDecimal reserveFund = BigDecimal.ZERO;
-        // BigDecimal totalFee = deferredFee.add(reserveFund);
-        BigDecimal totalFee = deferredFee;
-        if (account.getAvailableBalance().compareTo(totalFee) < 0) {
-            // step 1.1 : 余额不足，强制平仓
-            return sellingEntrust(order, FuturesWindControlType.DayUnwind, FuturesTradePriceType.MKT, null);
-        } else {
-            // step 2 : 保存隔夜记录
-            FuturesOvernightRecord overnightRecord = new FuturesOvernightRecord();
-            overnightRecord.setOrder(order);
-            overnightRecord.setOvernightDeferredFee(deferredFee);
-            overnightRecord.setOvernightReserveFund(reserveFund);
-            overnightRecord.setPublisherId(order.getPublisherId());
-            overnightRecord.setReduceTime(new Date());
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(retriveExchangeTime(new Date(), timeZoneGap));
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.SECOND, 0);
-            cal.set(Calendar.MILLISECOND, 0);
-            overnightRecord.setDeferredTime(cal.getTime());
-            overnightRecord = recordDao.create(overnightRecord);
-            // step 4 : 修改订单状态
-            order.setWindControlType(FuturesWindControlType.OvernightPosition);
-            order.setUpdateTime(new Date());
-            orderDao.update(order);
-            // step 5 : 扣除隔夜递延费、冻结隔夜保证金
-            if (deferredFee.compareTo(BigDecimal.ZERO) > 0 || reserveFund.compareTo(BigDecimal.ZERO) > 0) {
-                try {
-                    accountBusiness.futuresOrderOvernight(order.getPublisherId(), overnightRecord.getId(), deferredFee,
-                            reserveFund);
-                    // 给渠道推广机构结算
-                    // if (order.getIsTest() == null || order.getIsTest() ==
-                    // false) {
-                    // orgBusiness.futuresDeferredSettlement(order.getPublisherId(),
-                    // order.getContract().getCommodity().getId(),
-                    // order.getId(), order.getTradeNo(),
-                    // order.getTotalQuantity(),
-                    // order.getOvernightPerUnitDeferredFee());
-                    // }
-                } catch (ServiceException ex) {
-                    if (ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION.equals(ex.getType())) {
-                        // step 1.1 : 余额不足，强制平仓
-                        order = sellingEntrust(order, FuturesWindControlType.DayUnwind, FuturesTradePriceType.MKT,
-                                null);
-                        orderDao.delete(overnightRecord.getId());
-                    } else {
-                        // 再一次确认是否已经扣款
-                        try {
-                            List<CapitalFlowDto> list = flowBusiness.fetchByExtendTypeAndExtendId(
-                                    CapitalFlowExtendType.FUTURESOVERNIGHTRECORD, overnightRecord.getId());
-                            if (list == null || list.size() == 0) {
-                                throw ex;
-                            } else {
-                                // 给渠道推广机构结算
-                                // if (order.getIsTest() == null ||
-                                // order.getIsTest() == false) {
-                                // orgBusiness.futuresDeferredSettlement(order.getPublisherId(),
-                                // order.getContract().getCommodity().getId(),
-                                // overnightRecord.getId(),
-                                // order.getTradeNo(), order.getTotalQuantity(),
-                                // order.getOvernightPerUnitDeferredFee());
-                                // }
-                            }
-                        } catch (ServiceException frozenEx) {
-                            throw ex;
-                        }
-                    }
-                }
-            }
-        }
+//        BigDecimal deferredFee = order.getOvernightPerUnitDeferredFee().multiply(order.getTotalQuantity());
+//        // BigDecimal reserveFund =
+//        // order.getOvernightPerUnitReserveFund().multiply(order.getTotalQuantity());
+//        BigDecimal reserveFund = BigDecimal.ZERO;
+//        // BigDecimal totalFee = deferredFee.add(reserveFund);
+//        BigDecimal totalFee = deferredFee;
+//        if (account.getAvailableBalance().compareTo(totalFee) < 0) {
+//            // step 1.1 : 余额不足，强制平仓
+//            return sellingEntrust(order, FuturesWindControlType.DayUnwind, FuturesTradePriceType.MKT, null);
+//        } else {
+//            // step 2 : 保存隔夜记录
+//            FuturesOvernightRecord overnightRecord = new FuturesOvernightRecord();
+//            overnightRecord.setOrder(order);
+//            overnightRecord.setOvernightDeferredFee(deferredFee);
+//            overnightRecord.setOvernightReserveFund(reserveFund);
+//            overnightRecord.setPublisherId(order.getPublisherId());
+//            overnightRecord.setReduceTime(new Date());
+//            Calendar cal = Calendar.getInstance();
+//            cal.setTime(retriveExchangeTime(new Date(), timeZoneGap));
+//            cal.set(Calendar.HOUR_OF_DAY, 0);
+//            cal.set(Calendar.MINUTE, 0);
+//            cal.set(Calendar.SECOND, 0);
+//            cal.set(Calendar.MILLISECOND, 0);
+//            overnightRecord.setDeferredTime(cal.getTime());
+//            overnightRecord = recordDao.create(overnightRecord);
+//            // step 4 : 修改订单状态
+//            order.setWindControlType(FuturesWindControlType.OvernightPosition);
+//            order.setUpdateTime(new Date());
+//            orderDao.update(order);
+//            // step 5 : 扣除隔夜递延费、冻结隔夜保证金
+//            if (deferredFee.compareTo(BigDecimal.ZERO) > 0 || reserveFund.compareTo(BigDecimal.ZERO) > 0) {
+//                try {
+//                    accountBusiness.futuresOrderOvernight(order.getPublisherId(), overnightRecord.getId(), deferredFee,
+//                            reserveFund);
+//                    // 给渠道推广机构结算
+//                    // if (order.getIsTest() == null || order.getIsTest() ==
+//                    // false) {
+//                    // orgBusiness.futuresDeferredSettlement(order.getPublisherId(),
+//                    // order.getContract().getCommodity().getId(),
+//                    // order.getId(), order.getTradeNo(),
+//                    // order.getTotalQuantity(),
+//                    // order.getOvernightPerUnitDeferredFee());
+//                    // }
+//                } catch (ServiceException ex) {
+//                    if (ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION.equals(ex.getType())) {
+//                        // step 1.1 : 余额不足，强制平仓
+//                        order = sellingEntrust(order, FuturesWindControlType.DayUnwind, FuturesTradePriceType.MKT,
+//                                null);
+//                        orderDao.delete(overnightRecord.getId());
+//                    } else {
+//                        // 再一次确认是否已经扣款
+//                        try {
+//                            List<CapitalFlowDto> list = flowBusiness.fetchByExtendTypeAndExtendId(
+//                                    CapitalFlowExtendType.FUTURESOVERNIGHTRECORD, overnightRecord.getId());
+//                            if (list == null || list.size() == 0) {
+//                                throw ex;
+//                            } else {
+//                                // 给渠道推广机构结算
+//                                // if (order.getIsTest() == null ||
+//                                // order.getIsTest() == false) {
+//                                // orgBusiness.futuresDeferredSettlement(order.getPublisherId(),
+//                                // order.getContract().getCommodity().getId(),
+//                                // overnightRecord.getId(),
+//                                // order.getTradeNo(), order.getTotalQuantity(),
+//                                // order.getOvernightPerUnitDeferredFee());
+//                                // }
+//                            }
+//                        } catch (ServiceException frozenEx) {
+//                            throw ex;
+//                        }
+//                    }
+//                }
+//            }
+//        }
         return order;
     }
 
@@ -1433,73 +1663,74 @@ public class FuturesOrderService {
 
     public FuturesOrder backhandPlaceOrder(Long orderId) {
         FuturesOrder order = orderDao.retrieve(orderId);
-        if (order.getState() != FuturesOrderState.Unwind) {
-            throw new ServiceException(ExceptionConstant.BACKHANDSOURCEORDER_NOTUNWIND_EXCEPTION);
-        }
-        List<FuturesOrder> checkOrder = orderDao.retrieveByBackhandSourceOrderId(orderId);
-        if (checkOrder != null && checkOrder.size() > 0) {
-            throw new ServiceException(ExceptionConstant.FUTURESORDER_ALREADYBACKHAND_EXCEPTION);
-        }
-        // 反手下单
-        FuturesOrder backhandOrder = new FuturesOrder();
-        backhandOrder.setBackhandSourceOrderId(orderId);
-        FuturesContract contract = order.getContract();
-        FuturesCommodity commodity = contract.getCommodity();
-        Long commodityId = commodity.getId();
-        commodity.setId(null);
-        wrapperAgentPrice(order.getPublisherId(), commodityId, commodity);
-        // 计算服务费和保证金
-        BigDecimal serviceFee = order.getTotalQuantity().multiply(
-                contract.getCommodity().getOpenwindServiceFee().add(contract.getCommodity().getUnwindServiceFee()));
-        // 获取运营后台设置的止损止盈
-        backhandOrder.setStopLossOrProfitId(order.getStopLossOrProfitId());
-        FuturesStopLossOrProfit lossOrProfit = stopLossOrProfitDao.retrieve(order.getStopLossOrProfitId());
-        BigDecimal reserveFund = order.getReserveFund();
-        if (lossOrProfit != null) {
-            FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
-            reserveFund = order.getTotalQuantity().multiply(lossOrProfit.getReserveFund().multiply(rate.getRate()));
-            backhandOrder.setPerUnitUnwindPoint(lossOrProfit.getStrongLevelingAmount());
-            backhandOrder.setUnwindPointType(2);
-        } else {
-            backhandOrder.setPerUnitUnwindPoint(order.getPerUnitUnwindPoint());
-            backhandOrder.setUnwindPointType(2);
-        }
-        backhandOrder.setLimitLossType(order.getLimitLossType());
-        backhandOrder.setPerUnitLimitLossAmount(order.getPerUnitLimitLossAmount());
-        backhandOrder.setLimitProfitType(order.getLimitProfitType());
-        backhandOrder.setPerUnitLimitProfitAmount(order.getPerUnitLimitProfitAmount());
-        backhandOrder.setStopLossOrProfitId(order.getStopLossOrProfitId());
-        // 初始化部分订单信息
-        backhandOrder.setPublisherId(order.getPublisherId());
-        backhandOrder.setOrderType(
-                order.getOrderType() == FuturesOrderType.BuyUp ? FuturesOrderType.BuyFall : FuturesOrderType.BuyUp);
-        backhandOrder.setTotalQuantity(order.getTotalQuantity());
-        backhandOrder.setReserveFund(reserveFund);
-        backhandOrder.setServiceFee(serviceFee);
-        backhandOrder.setCommoditySymbol(commodity.getSymbol());
-        backhandOrder.setCommodityName(commodity.getName());
-        backhandOrder.setCommodityCurrency(commodity.getCurrency());
-        backhandOrder.setContractNo(contract.getContractNo());
-        backhandOrder.setOpenwindServiceFee(commodity.getOpenwindServiceFee());
-        backhandOrder.setUnwindServiceFee(commodity.getUnwindServiceFee());
-        backhandOrder.setUnwindPointType(commodity.getUnwindPointType());
-        backhandOrder.setOvernightPerUnitReserveFund(commodity.getOvernightPerUnitReserveFund());
-        backhandOrder.setOvernightPerUnitDeferredFee(commodity.getOvernightPerUnitDeferredFee());
-        backhandOrder.setBuyingPriceType(FuturesTradePriceType.MKT);
-        // 获取是否为测试单
-        PublisherDto publisher = publisherBusiness.findById(order.getPublisherId());
-        backhandOrder.setIsTest(publisher.getIsTest());
-        // 请求下单
-        try {
-            return save(backhandOrder, contract.getId());
-        } catch (ServiceException ex) {
-            if (!ex.getType().equals(ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION)) {
-                throw ex;
-            } else {
-                logger.error("余额不足，反手失败，orderId:{}", orderId);
-                return null;
-            }
-        }
+        return order;
+//        if (order.getState() != FuturesOrderState.Unwind) {
+//            throw new ServiceException(ExceptionConstant.BACKHANDSOURCEORDER_NOTUNWIND_EXCEPTION);
+//        }
+//        List<FuturesOrder> checkOrder = orderDao.retrieveByBackhandSourceOrderId(orderId);
+//        if (checkOrder != null && checkOrder.size() > 0) {
+//            throw new ServiceException(ExceptionConstant.FUTURESORDER_ALREADYBACKHAND_EXCEPTION);
+//        }
+//        // 反手下单
+//        FuturesOrder backhandOrder = new FuturesOrder();
+//        backhandOrder.setBackhandSourceOrderId(orderId);
+//        FuturesContract contract = order.getContract();
+//        FuturesCommodity commodity = contract.getCommodity();
+//        Long commodityId = commodity.getId();
+//        commodity.setId(null);
+//        wrapperAgentPrice(order.getPublisherId(), commodityId, commodity);
+//        // 计算服务费和保证金
+//        BigDecimal serviceFee = order.getTotalQuantity().multiply(
+//                contract.getCommodity().getOpenwindServiceFee().add(contract.getCommodity().getUnwindServiceFee()));
+//        // 获取运营后台设置的止损止盈
+//        backhandOrder.setStopLossOrProfitId(order.getStopLossOrProfitId());
+//        FuturesStopLossOrProfit lossOrProfit = stopLossOrProfitDao.retrieve(order.getStopLossOrProfitId());
+//        BigDecimal reserveFund = order.getReserveFund();
+//        if (lossOrProfit != null) {
+//            FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
+//            reserveFund = order.getTotalQuantity().multiply(lossOrProfit.getReserveFund().multiply(rate.getRate()));
+//            backhandOrder.setPerUnitUnwindPoint(lossOrProfit.getStrongLevelingAmount());
+//            backhandOrder.setUnwindPointType(2);
+//        } else {
+//            backhandOrder.setPerUnitUnwindPoint(order.getPerUnitUnwindPoint());
+//            backhandOrder.setUnwindPointType(2);
+//        }
+//        backhandOrder.setLimitLossType(order.getLimitLossType());
+//        backhandOrder.setPerUnitLimitLossAmount(order.getPerUnitLimitLossAmount());
+//        backhandOrder.setLimitProfitType(order.getLimitProfitType());
+//        backhandOrder.setPerUnitLimitProfitAmount(order.getPerUnitLimitProfitAmount());
+//        backhandOrder.setStopLossOrProfitId(order.getStopLossOrProfitId());
+//        // 初始化部分订单信息
+//        backhandOrder.setPublisherId(order.getPublisherId());
+//        backhandOrder.setOrderType(
+//                order.getOrderType() == FuturesOrderType.BuyUp ? FuturesOrderType.BuyFall : FuturesOrderType.BuyUp);
+//        backhandOrder.setTotalQuantity(order.getTotalQuantity());
+//        backhandOrder.setReserveFund(reserveFund);
+//        backhandOrder.setServiceFee(serviceFee);
+//        backhandOrder.setCommoditySymbol(commodity.getSymbol());
+//        backhandOrder.setCommodityName(commodity.getName());
+//        backhandOrder.setCommodityCurrency(commodity.getCurrency());
+//        backhandOrder.setContractNo(contract.getContractNo());
+//        backhandOrder.setOpenwindServiceFee(commodity.getOpenwindServiceFee());
+//        backhandOrder.setUnwindServiceFee(commodity.getUnwindServiceFee());
+//        backhandOrder.setUnwindPointType(commodity.getUnwindPointType());
+//        backhandOrder.setOvernightPerUnitReserveFund(commodity.getOvernightPerUnitReserveFund());
+//        backhandOrder.setOvernightPerUnitDeferredFee(commodity.getOvernightPerUnitDeferredFee());
+//        backhandOrder.setBuyingPriceType(FuturesTradePriceType.MKT);
+//        // 获取是否为测试单
+//        PublisherDto publisher = publisherBusiness.findById(order.getPublisherId());
+//        backhandOrder.setIsTest(publisher.getIsTest());
+//        // 请求下单
+//        try {
+//            return save(backhandOrder, contract.getId());
+//        } catch (ServiceException ex) {
+//            if (!ex.getType().equals(ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION)) {
+//                throw ex;
+//            } else {
+//                logger.error("余额不足，反手失败，orderId:{}", orderId);
+//                return null;
+//            }
+//        }
     }
 
     public FuturesOrder backhandUnwind(Long orderId, Long publisherId) {
@@ -1523,16 +1754,16 @@ public class FuturesOrderService {
         FuturesCommodity commodity = contract.getCommodity();
         FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
         // 获取运营后台设置的止损止盈
-        FuturesStopLossOrProfit lossOrProfit = stopLossOrProfitDao.retrieve(order.getStopLossOrProfitId());
+//        FuturesStopLossOrProfit lossOrProfit = stopLossOrProfitDao.retrieve(order.getStopLossOrProfitId());
         BigDecimal totalFee = BigDecimal.ZERO;
-        if (lossOrProfit != null) {
-            totalFee = order.getTotalQuantity().multiply(lossOrProfit.getReserveFund().multiply(rate.getRate())
-                    .add(commodity.getOpenwindServiceFee()).add(commodity.getUnwindServiceFee()));
-        } else {
-            totalFee = order.getTotalQuantity()
-                    .multiply(commodity.getOpenwindServiceFee().add(commodity.getUnwindServiceFee()))
-                    .add(order.getReserveFund());
-        }
+//        if (lossOrProfit != null) {
+//            totalFee = order.getTotalQuantity().multiply(lossOrProfit.getReserveFund().multiply(rate.getRate())
+//                    .add(commodity.getOpenwindServiceFee()).add(commodity.getUnwindServiceFee()));
+//        } else {
+//            totalFee = order.getTotalQuantity()
+//                    .multiply(commodity.getOpenwindServiceFee().add(commodity.getUnwindServiceFee()))
+//                    .add(order.getReserveFund());
+//        }
         CapitalAccountDto account = accountBusiness.fetchByPublisherId(order.getPublisherId());
         if (account.getAvailableBalance().compareTo(totalFee) < 0) {
             throw new ServiceException(ExceptionConstant.FUTURESORDER_BACKHAND_BALANCENOTENOUGH_EXCEPTION);
@@ -1768,7 +1999,8 @@ public class FuturesOrderService {
     }
 
     public BigDecimal getProfitOrLoss(FuturesOrder order, BigDecimal lastPrice) {
-        BigDecimal buyingPrice = order.getBuyingPrice();
+//        BigDecimal buyingPrice = order.getBuyingPrice();
+    	BigDecimal buyingPrice = BigDecimal.ZERO;
         // 货币汇率
         FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
         // 计算浮动盈亏
@@ -1788,7 +2020,8 @@ public class FuturesOrderService {
     }
 
     public BigDecimal getProfitOrLossCurrency(FuturesOrder order, BigDecimal lastPrice) {
-        BigDecimal buyingPrice = order.getBuyingPrice();
+//        BigDecimal buyingPrice = order.getBuyingPrice();
+    	BigDecimal buyingPrice = BigDecimal.ZERO;
         // 计算浮动盈亏
         if (lastPrice != null) {
             if (order.getOrderType() == FuturesOrderType.BuyUp) {
@@ -1808,26 +2041,26 @@ public class FuturesOrderService {
     public BigDecimal getStrongMoney(FuturesOrder order) {
         FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
         // 合约设置
-        Integer unwindPointType = order.getUnwindPointType();
-        BigDecimal perUnitUnwindPoint = order.getPerUnitUnwindPoint();
-        if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 1) {
-            if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(new BigDecimal(100)) < 0
-                    && perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
-                return order.getReserveFund()
-                        .multiply(new BigDecimal(100).subtract(perUnitUnwindPoint).divide(new BigDecimal(100)));
-            }
-        } else if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 2) {
-            if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(BigDecimal.ZERO) >= 0
-                    && perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
-                BigDecimal strongMoney = order.getReserveFund().subtract(perUnitUnwindPoint
-                        .multiply(order.getTotalQuantity()).multiply(rate.getRate()).setScale(2, RoundingMode.DOWN));
-                if (strongMoney.compareTo(BigDecimal.ZERO) <= 0) {
-                    return order.getReserveFund();
-                } else {
-                    return strongMoney;
-                }
-            }
-        }
+//        Integer unwindPointType = order.getUnwindPointType();
+//        BigDecimal perUnitUnwindPoint = order.getPerUnitUnwindPoint();
+//        if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 1) {
+//            if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(new BigDecimal(100)) < 0
+//                    && perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
+//                return order.getReserveFund()
+//                        .multiply(new BigDecimal(100).subtract(perUnitUnwindPoint).divide(new BigDecimal(100)));
+//            }
+//        } else if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 2) {
+//            if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(BigDecimal.ZERO) >= 0
+//                    && perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
+//                BigDecimal strongMoney = order.getReserveFund().subtract(perUnitUnwindPoint
+//                        .multiply(order.getTotalQuantity()).multiply(rate.getRate()).setScale(2, RoundingMode.DOWN));
+//                if (strongMoney.compareTo(BigDecimal.ZERO) <= 0) {
+//                    return order.getReserveFund();
+//                } else {
+//                    return strongMoney;
+//                }
+//            }
+//        }
         return order.getReserveFund();
     }
 

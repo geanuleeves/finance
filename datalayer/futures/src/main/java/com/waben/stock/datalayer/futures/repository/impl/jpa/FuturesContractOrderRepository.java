@@ -10,6 +10,6 @@ import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
  */
 public interface FuturesContractOrderRepository extends CustomJpaRepository<FuturesContractOrder, Long> {
 
-	FuturesContractOrder findByContract(FuturesContract contract);
-	
+	FuturesContractOrder findByContractAndPublisherId(FuturesContract contract, Long publisherId);
+
 }

@@ -87,7 +87,7 @@ public class ExceptionConstant {
 	public static final String PERMISSION_NOT_FOUND_EXCEPTION = "3005";
 
 	// 点买服务、股票异常
-	// 账户可用余额不足
+	// 账户余额不足
 	public static final String AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION = "6001";
 	// 买入或者卖出前需进行锁定操作
 	public static final String BUYRECORD_ISNOTLOCK_EXCEPTION = "6002";
@@ -345,7 +345,7 @@ public class ExceptionConstant {
 	public static final String UNWINDORDER_CANNOTCANCEL_EXCEPTION = "13039";
 	// 不在可提现时间内
 	public static final String ISNOT_EXIST_PUTFORWARDTIME_EXCEPTION = "13040";
-	// 持仓亏损，导致余额不足
+	// 持仓亏损，导致余额可用不足
 	public static final String HOLDINGLOSS_LEADTO_NOTENOUGH_EXCEPTION = "13041";
 	// 该合约已过期
 	public static final String CONTRACT_DOESNOT_OVERDUE_EXIST_EXCEPTION = "13042";
