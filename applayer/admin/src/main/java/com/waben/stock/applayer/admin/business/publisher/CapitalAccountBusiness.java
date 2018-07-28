@@ -69,7 +69,7 @@ public class CapitalAccountBusiness {
 				List<FuturesOrderMarketDto> list = business.pageOrderMarket(orderQuery).getContent();
 				BigDecimal totalIncome = new BigDecimal(0);
 				for (FuturesOrderMarketDto futuresOrderMarketDto : list) {
-					totalIncome = totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss());
+//					totalIncome = totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss());
 				}
 				dto.setDaySettledProfit(totalIncome.setScale(2, RoundingMode.DOWN));
 				
@@ -78,7 +78,7 @@ public class CapitalAccountBusiness {
 				List<FuturesOrderMarketDto> listp = business.pageOrderMarket(orderQuery).getContent();
 				BigDecimal totalIncomep = new BigDecimal(0);
 				for (FuturesOrderMarketDto futuresOrderMarketDto : listp) {
-					totalIncomep = totalIncomep.add(futuresOrderMarketDto.getPublisherProfitOrLoss());
+//					totalIncomep = totalIncomep.add(futuresOrderMarketDto.getPublisherProfitOrLoss());
 				}
 				dto.setDayHoldingProfit(totalIncomep.setScale(2, RoundingMode.DOWN));
 				if(dto.getDayHoldingProfit().signum()==-1){

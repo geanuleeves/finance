@@ -99,9 +99,6 @@ public class FuturesOrderService {
     private OutsideMessageBusiness outsideMessageBusiness;
 
     @Autowired
-    private FuturesTradeLimitService futuresTradeLimitService;
-
-    @Autowired
     private QuoteContainer allQuote;
 
     @Autowired
@@ -498,8 +495,8 @@ public class FuturesOrderService {
         // TODO 委托下单异常情况处理，此处默认为所有的委托都能成功
         // step 7 : 更新订单状态
         order.setState(FuturesOrderState.BuyingEntrust);
-        order.setOpenGatewayOrderId(-1L);
-        order.setBuyingEntrustTime(date);
+//        order.setOpenGatewayOrderId(-1L);
+//        order.setBuyingEntrustTime(date);
         order = orderDao.update(order);
         // step 8 : 站外消息推送
         sendOutsideMessage(order);
@@ -1737,16 +1734,16 @@ public class FuturesOrderService {
         if (lossOrProfit == null) {
             throw new ServiceException(ExceptionConstant.SETTING_STOP_LOSS_EXCEPTION);
         }
-        order.setPerUnitUnwindPoint(lossOrProfit.getStrongLevelingAmount());
+//        order.setPerUnitUnwindPoint(lossOrProfit.getStrongLevelingAmount());
 
         // if (limitProfitType != null && perUnitLimitProfitAmount != null) {
-        order.setLimitProfitType(limitProfitType);
-        order.setPerUnitLimitProfitAmount(perUnitLimitProfitAmount);
+//        order.setLimitProfitType(limitProfitType);
+//        order.setPerUnitLimitProfitAmount(perUnitLimitProfitAmount);
         // }
         // if (limitLossType != null && perUnitLimitLossAmount != null) {
-        order.setLimitLossType(limitLossType);
-        order.setPerUnitLimitLossAmount(perUnitLimitLossAmount);
-        order.setStopLossOrProfitId(stopLossOrProfitId);
+//        order.setLimitLossType(limitLossType);
+//        order.setPerUnitLimitLossAmount(perUnitLimitLossAmount);
+//        order.setStopLossOrProfitId(stopLossOrProfitId);
         // }
         orderDao.update(order);
         return order;
