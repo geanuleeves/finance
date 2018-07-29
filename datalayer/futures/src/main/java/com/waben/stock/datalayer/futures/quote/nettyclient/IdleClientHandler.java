@@ -31,7 +31,7 @@ public class IdleClientHandler extends SimpleChannelInboundHandler<Message> {
 				type = "read idle";
 			} else if (event.state() == IdleState.WRITER_IDLE) {
 				type = "write idle";
-				ctx.close();
+				sendPingMsg(ctx);
 			} else if (event.state() == IdleState.ALL_IDLE) {
 				type = "all idle";
 			}
