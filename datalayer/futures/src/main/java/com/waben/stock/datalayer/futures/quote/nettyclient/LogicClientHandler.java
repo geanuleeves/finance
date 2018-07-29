@@ -8,10 +8,12 @@ import com.waben.stock.datalayer.futures.quote.protobuf.Command.CommandType;
 import com.waben.stock.datalayer.futures.quote.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase;
 import com.waben.stock.datalayer.futures.quote.protobuf.Message.MessageBase;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 @Component
+@ChannelHandler.Sharable
 public class LogicClientHandler extends SimpleChannelInboundHandler<MessageBase> {
 
 	@Autowired
@@ -32,7 +34,7 @@ public class LogicClientHandler extends SimpleChannelInboundHandler<MessageBase>
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		System.out.println("连接断开 ");
-		nettyClient.doConnect();
+		ctx.close();
 	}
 
 	@Override
