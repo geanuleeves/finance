@@ -67,10 +67,14 @@ public class EsTradeWrapper extends TradeApiAdapter {
 	 */
 	@PostConstruct
 	public void init() {
-		api = new TradeApi(tradeAuthCode, "", true);
-		api.setHostAddress(tradeIp, tradePort);
-		api.setApiListener(this);
-		connect();
+		try {
+			api = new TradeApi(tradeAuthCode, "", true);
+			api.setHostAddress(tradeIp, tradePort);
+			api.setApiListener(this);
+			connect();
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 
 	/**
