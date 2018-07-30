@@ -64,7 +64,7 @@ public interface FuturesTradeActionInterface {
 	 * @param query
 	 * @return
 	 */
-	@RequestMapping(value = "/pages", method = RequestMethod.GET)
-	Response<PageInfo<FuturesTradeActionViewDto>> pagesAdmin(@RequestBody FuturesTradeActionQuery query);
+	@RequestMapping(value = "/pages", method = RequestMethod.POST, consumes = "application/json")
+	Response<PageInfo<FuturesTradeActionViewDto>> pages(@RequestBody FuturesTradeActionQuery query);
 
 }

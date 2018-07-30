@@ -69,7 +69,7 @@ public class FuturesTradeActionController implements FuturesTradeActionInterface
     }
 
     @Override
-    public Response<PageInfo<FuturesTradeActionViewDto>> pagesAdmin(FuturesTradeActionQuery query) {
+    public Response<PageInfo<FuturesTradeActionViewDto>> pages(FuturesTradeActionQuery query) {
         Page<FuturesTradeAction> page = futuresTradeActionService.pages(query);
         PageInfo<FuturesTradeActionViewDto> result = PageToPageInfo.pageToPageInfo(page, FuturesTradeActionViewDto.class);
         if (result != null && result.getContent() != null) {

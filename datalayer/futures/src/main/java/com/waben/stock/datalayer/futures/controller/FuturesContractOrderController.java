@@ -100,7 +100,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
     }
 
     @Override
-    public Response<PageInfo<FuturesContractOrderViewDto>> pagesAdmin(FuturesContractOrderQuery query) {
+    public Response<PageInfo<FuturesContractOrderViewDto>> pages(FuturesContractOrderQuery query) {
         Page<FuturesContractOrder> page = futuresContractOrderService.pages(query);
         PageInfo<FuturesContractOrderViewDto> result = PageToPageInfo.pageToPageInfo(page, FuturesContractOrderViewDto.class);
         List<FuturesContractOrderViewDto> futuresContractOrderViewDtos = new ArrayList<>();
@@ -132,10 +132,11 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                             FuturesOrderType.BuyUp.getIndex());
                     buyDto.setAvgFillPrice(avgUpFillPrice);
                     buyDto.setAvgFillPriceNow(lastPrice);
-                    //浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格
+                    //浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
                     BigDecimal buyReserveFund = new BigDecimal(0);
                     if (futuresCommodity != null) {
-                        buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice).divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney()));
+                        buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice).divide(futuresCommodity.getMinWave())
+                                .multiply(futuresCommodity.getPerWaveMoney()).multiply(futuresContractOrder.getBuyUpQuantity()));
                         buyDto.setServiceFee(futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee()));
                         if (futuresContractOrder.getBuyUpQuantity().compareTo(futuresContractOrder.getBuyFallQuantity()) > 0) {
                             buyDto.setReserveFund(futuresCommodity.getPerUnitReserveFund().multiply(futuresContractOrder.getBuyUpQuantity()));
@@ -156,9 +157,10 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                             FuturesOrderType.BuyFall.getIndex());
                     sellDto.setAvgFillPrice(avgFallFillPrice);
                     sellDto.setAvgFillPriceNow(lastPrice);
-                    //浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格
+                    //浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
                     if (futuresCommodity != null) {
-                        sellDto.setFloatingProfitAndLoss(lastPrice.subtract(avgFallFillPrice).divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney()));
+                        sellDto.setFloatingProfitAndLoss(lastPrice.subtract(avgFallFillPrice).divide(futuresCommodity.getMinWave())
+                                .multiply(futuresCommodity.getPerWaveMoney().multiply(futuresContractOrder.getBuyFallQuantity())));
                         sellDto.setServiceFee(futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee()));
                         if (futuresContractOrder.getBuyFallQuantity().compareTo(futuresContractOrder.getBuyUpQuantity()) > 0) {
                             sellDto.setReserveFund(futuresCommodity.getPerUnitReserveFund().multiply(futuresContractOrder.getBuyUpQuantity()));

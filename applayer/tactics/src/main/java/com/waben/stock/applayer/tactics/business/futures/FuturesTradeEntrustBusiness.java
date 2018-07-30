@@ -1,15 +1,16 @@
 package com.waben.stock.applayer.tactics.business.futures;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeEntrustQuery;
 import com.waben.stock.interfaces.service.futures.FuturesTradeEntrustInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 /**
  * @author chenk 2018/7/27
@@ -17,6 +18,7 @@ import com.waben.stock.interfaces.service.futures.FuturesTradeEntrustInterface;
 @Service
 public class FuturesTradeEntrustBusiness {
 
+    Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     @Qualifier("futuresTradeEntrustInterface")
@@ -31,7 +33,7 @@ public class FuturesTradeEntrustBusiness {
 	}
 
     public PageInfo<FuturesTradeEntrustDto> pages(FuturesTradeEntrustQuery query) {
-        Response<PageInfo<FuturesTradeEntrustDto>> response = reference.pagesAdmin(query);
+        Response<PageInfo<FuturesTradeEntrustDto>> response = reference.pages(query);
         if ("200".equals(response.getCode())) {
             return response.getResult();
         }

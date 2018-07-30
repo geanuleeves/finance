@@ -174,4 +174,12 @@ public interface FuturesOrderInterface {
 	@RequestMapping(value = "/count/{publisherId}", method = RequestMethod.GET)
 	Response<Integer> countByPublisherId(@PathVariable("publisherId") Long publisherId);
 
+	/**
+	 * 获取持仓订单的浮动盈亏累计
+	 *
+	 * @return 浮动盈亏
+	 */
+	@RequestMapping(value = "/totalProfitOrLoss/{publisherId}", method = RequestMethod.GET)
+	Response<BigDecimal> getTotalFloatingProfitAndLoss(@PathVariable Long publisherId);
+
 }
