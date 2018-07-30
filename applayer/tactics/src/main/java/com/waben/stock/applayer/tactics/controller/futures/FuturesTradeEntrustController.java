@@ -1,27 +1,21 @@
 package com.waben.stock.applayer.tactics.controller.futures;
 
-import java.util.Date;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.waben.stock.applayer.tactics.business.futures.FuturesTradeEntrustBusiness;
 import com.waben.stock.applayer.tactics.security.SecurityUtil;
 import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeEntrustQuery;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 /**
  * @author chenk 2018/7/27
@@ -42,7 +36,7 @@ public class FuturesTradeEntrustController {
 		return new Response<>(futuresTradeEntrustBusiness.cancelEntrust(entrustId, SecurityUtil.getUserId()));
 	}
 
-    @PostMapping("/pages")
+    @GetMapping("/pages")
     @ApiOperation(value = "交易委托列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "entrustNo", value = "委托编号", dataType = "string", paramType = "query", required = false),
