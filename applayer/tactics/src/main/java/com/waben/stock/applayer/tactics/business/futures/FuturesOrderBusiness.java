@@ -23,6 +23,7 @@ import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCurrencyRateDto;
 import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
 import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
+import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
 import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
 import com.waben.stock.interfaces.dto.manage.AnalogDataDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
@@ -109,16 +110,8 @@ public class FuturesOrderBusiness {
 		throw new ServiceException(response.getCode());
 	}
 
-	public FuturesOrderDto cancelOrder(Long orderId, Long publisherId) {
-		Response<FuturesOrderDto> response = futuresOrderInterface.cancelOrder(orderId, publisherId);
-		if ("200".equals(response.getCode())) {
-			return response.getResult();
-		}
-		throw new ServiceException(response.getCode());
-	}
-
-	public FuturesOrderDto placeOrder(PlaceOrderParam orderParam) {
-		Response<FuturesOrderDto> response = futuresOrderInterface.placeOrder(orderParam);
+	public FuturesTradeEntrustDto placeOrder(PlaceOrderParam orderParam) {
+		Response<FuturesTradeEntrustDto> response = futuresOrderInterface.placeOrder(orderParam);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}
@@ -393,6 +386,14 @@ public class FuturesOrderBusiness {
 
 	public BigDecimal getUnsettledProfitOrLoss(Long publisherId) {
 		Response<BigDecimal> response = futuresOrderInterface.getUnsettledProfitOrLoss(publisherId);
+		if (response.getCode().equals("200")) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public BigDecimal getTotalFloatingProfitAndLoss(Long publisherId) {
+		Response<BigDecimal> response = futuresOrderInterface.getTotalFloatingProfitAndLoss(publisherId);
 		if (response.getCode().equals("200")) {
 			return response.getResult();
 		}

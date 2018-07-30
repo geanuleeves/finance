@@ -182,7 +182,7 @@ public class CapitalAccountController implements CapitalAccountInterface {
 
 	@Override
 	public Response<CapitalAccountDto> modifyAccount(@PathVariable Long staff, @PathVariable Long id,
-			@PathVariable BigDecimal availableBalance,@PathVariable String remarket) {
+			@PathVariable BigDecimal availableBalance, @PathVariable String remarket) {
 		CapitalAccount result = capitalAccountService.revisionAccount(staff, id, availableBalance, remarket);
 		CapitalAccountDto response = CopyBeanUtils.copyBeanProperties(CapitalAccountDto.class, result, false);
 		return new Response<>(response);
@@ -237,6 +237,13 @@ public class CapitalAccountController implements CapitalAccountInterface {
 			@PathVariable BigDecimal serviceFee) {
 		return new Response<>(CopyBeanUtils.copyBeanProperties(CapitalAccountDto.class,
 				capitalAccountService.futuresOrderRevoke(publisherId, orderId, serviceFee), false));
+	}
+
+	@Override
+	public Response<CapitalAccountDto> futuresReturnReserveFund(@PathVariable Long publisherId,
+			@PathVariable Long contractOrderId, @PathVariable BigDecimal reserveFund) {
+		return new Response<>(CopyBeanUtils.copyBeanProperties(CapitalAccountDto.class,
+				capitalAccountService.futuresReturnReserveFund(publisherId, contractOrderId, reserveFund), false));
 	}
 
 }

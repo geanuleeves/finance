@@ -28,7 +28,7 @@ public class FuturesTradeEntrustController {
     private FuturesTradeEntrustBusiness futuresTradeEntrustBusiness;
 
     @GetMapping("/pages")
-    @ApiOperation(value = "期货合约列表")
+    @ApiOperation(value = "交易委托列表")
     public Response<PageInfo<FuturesTradeEntrustDto>> pages(int page, int size) {
         FuturesTradeEntrustQuery query = new FuturesTradeEntrustQuery(page, size);
         return new Response<>(futuresTradeEntrustBusiness.pages(query));

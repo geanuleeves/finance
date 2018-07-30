@@ -74,7 +74,7 @@ public class FuturesContractOrder {
 	 */
 	private Integer buyFallLimitProfitType;
 	/** 卖-止盈金额（用户设置） */
-	private BigDecimal buyFallLerUnitLimitProfitAmount;
+	private BigDecimal buyFallPerUnitLimitProfitAmount;
 	/**
 	 * 卖-触发止损类型（用户设置）
 	 * <ul>
@@ -208,12 +208,12 @@ public class FuturesContractOrder {
 		this.buyFallLimitProfitType = buyFallLimitProfitType;
 	}
 
-	public BigDecimal getBuyFallLerUnitLimitProfitAmount() {
-		return buyFallLerUnitLimitProfitAmount;
+	public BigDecimal getBuyFallPerUnitLimitProfitAmount() {
+		return buyFallPerUnitLimitProfitAmount;
 	}
 
-	public void setBuyFallLerUnitLimitProfitAmount(BigDecimal buyFallLerUnitLimitProfitAmount) {
-		this.buyFallLerUnitLimitProfitAmount = buyFallLerUnitLimitProfitAmount;
+	public void setBuyFallPerUnitLimitProfitAmount(BigDecimal buyFallPerUnitLimitProfitAmount) {
+		this.buyFallPerUnitLimitProfitAmount = buyFallPerUnitLimitProfitAmount;
 	}
 
 	public Integer getBuyFallLimitLossType() {

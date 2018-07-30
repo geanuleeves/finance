@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author chenk 2018/7/27
  */
 @RestController
-@RequestMapping("/futures_trade_entrust")
+@RequestMapping("/futures_trade_action")
 @Api(description = "订单交易开平仓记录")
 public class FuturesTradeActionController {
 
@@ -28,7 +28,7 @@ public class FuturesTradeActionController {
     private FuturesTradeActionBusiness futuresTradeActionBusiness;
 
     @GetMapping("/pages")
-    @ApiOperation(value = "期货合约列表")
+    @ApiOperation(value = "订单交易开平仓记录列表")
     public Response<PageInfo<FuturesTradeActionViewDto>> pages(int page, int size) {
         FuturesTradeActionQuery query = new FuturesTradeActionQuery(page, size);
         return new Response<>(futuresTradeActionBusiness.pages(query));

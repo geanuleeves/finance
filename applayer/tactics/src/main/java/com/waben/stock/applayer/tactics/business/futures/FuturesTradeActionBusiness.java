@@ -26,7 +26,7 @@ public class FuturesTradeActionBusiness {
     private FuturesTradeActionInterface reference;
 
     public PageInfo<FuturesTradeActionViewDto> pages(FuturesTradeActionQuery query) {
-        Response<PageInfo<FuturesTradeActionViewDto>> response = reference.pagesAdmin(query);
+        Response<PageInfo<FuturesTradeActionViewDto>> response = reference.pages(query);
         if ("200".equals(response.getCode())) {
             return response.getResult();
         }

@@ -1281,4 +1281,46 @@ public class OrganizationService {
 		return sumRatio;
 	}
 
+	public Integer addAgentJYTPartition(BigDecimal ratio, BigDecimal platformRatio, Long orgId, Long id) {
+		Organization org = organizationDao.retrieve(orgId);
+		Organization orgParent = org.getParent();
+		List<BenefitConfig> orgParentList = benefitConfigDao.retrieveByOrgAndResourceType(orgParent, 3);
+		// 剩余可设置比例
+		if (orgParent.getLevel() == 1) {
+			if ((ratio.add(platformRatio)).compareTo(new BigDecimal(100)) > 0) {
+				// 分成比例已满额
+				throw new ServiceException(ExceptionConstant.THE_PROPORTION_ISFULL_EXCEPTION);
+			}
+		} else {
+			if (orgParentList != null && orgParentList.size() > 0) {
+				BenefitConfig config = orgParentList.get(0);
+				if (config.getRatio() == null) {
+					// 上级未设置分成比例
+					throw new ServiceException(ExceptionConstant.PROPORTION_SUPERIOR_NOTSET_PROPORTION_EXCEPTION);
+				}
+				if (ratio.compareTo(config.getRatio()) > 0) {
+					// 分成比例不能大于上级
+					throw new ServiceException(ExceptionConstant.THE_PROPORTION_CANNOTBE_LARGER_SUPERIOR_EXCEPTION);
+				}
+			} else {
+				// 上级未设置分成比例
+				throw new ServiceException(ExceptionConstant.PROPORTION_SUPERIOR_NOTSET_PROPORTION_EXCEPTION);
+			}
+		}
+
+		BenefitConfig config = new BenefitConfig();
+		config.setId(id);
+		config.setOrg(org);
+		config.setPlatformRatio(platformRatio);
+		config.setRatio(ratio);
+		config.setResourceType(3);
+		config.setType(BenefitConfigType.FuturesComprehensiveFee);
+		if (id != null) {
+			config = benefitConfigDao.update(config);
+		} else {
+			config = benefitConfigDao.create(config);
+		}
+		return config.getId() == null ? 1 : config.getId().intValue();
+	}
+
 }

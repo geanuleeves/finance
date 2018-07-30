@@ -1,14 +1,20 @@
 package com.waben.stock.datalayer.futures.service;
 
-import com.waben.stock.datalayer.futures.business.OutsideMessageBusiness;
-import com.waben.stock.datalayer.futures.entity.*;
-import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
-import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
-import com.waben.stock.datalayer.futures.repository.FuturesTradeActionDao;
-import com.waben.stock.datalayer.futures.repository.FuturesTradeEntrustDao;
-import com.waben.stock.interfaces.enums.*;
-import com.waben.stock.interfaces.pojo.message.OutsideMessage;
-import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeEntrustQuery;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +26,30 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import javax.persistence.criteria.*;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.*;
+import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
+import com.waben.stock.datalayer.futures.business.OutsideMessageBusiness;
+import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
+import com.waben.stock.datalayer.futures.entity.FuturesContract;
+import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
+import com.waben.stock.datalayer.futures.entity.FuturesOrder;
+import com.waben.stock.datalayer.futures.entity.FuturesTradeAction;
+import com.waben.stock.datalayer.futures.entity.FuturesTradeEntrust;
+import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
+import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
+import com.waben.stock.datalayer.futures.repository.FuturesTradeActionDao;
+import com.waben.stock.datalayer.futures.repository.FuturesTradeEntrustDao;
+import com.waben.stock.interfaces.constants.ExceptionConstant;
+import com.waben.stock.interfaces.enums.FuturesOrderState;
+import com.waben.stock.interfaces.enums.FuturesOrderType;
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
+import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
+import com.waben.stock.interfaces.enums.FuturesTradePriceType;
+import com.waben.stock.interfaces.enums.FuturesWindControlType;
+import com.waben.stock.interfaces.enums.OutsideMessageType;
+import com.waben.stock.interfaces.enums.ResourceType;
+import com.waben.stock.interfaces.exception.ServiceException;
+import com.waben.stock.interfaces.pojo.message.OutsideMessage;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeEntrustQuery;
 
 /**
  * 交易委托
@@ -48,6 +74,9 @@ public class FuturesTradeEntrustService {
 	private FuturesOrderDao orderDao;
 
 	@Autowired
+	private CapitalAccountBusiness accountBusiness;
+
+	@Autowired
 	private OutsideMessageBusiness outsideMessageBusiness;
 
 	@Autowired
@@ -69,14 +98,61 @@ public class FuturesTradeEntrustService {
 		dao.delete(id);
 	}
 
+	@Transactional
 	public FuturesTradeEntrust cancelEntrust(Long id, Long publisherId) {
-		// TODO 取消委托
-		return null;
-	}
-
-	public FuturesTradeEntrust canceledEntrust(Long id) {
-		// TODO 已取消委托
-		return null;
+		FuturesTradeEntrust entrust = dao.retrieve(id);
+		if (FuturesTradeEntrustState.Queuing != entrust.getState()) {
+			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
+		}
+		// step 1 : 更新委托状态
+		entrust.setState(FuturesTradeEntrustState.Canceled);
+		entrust.setUpdateTime(new Date());
+		// step 2 : 更新开平仓记录和订单状态
+		List<FuturesTradeAction> actionList = actionDao.retrieveByTradeEntrust(entrust);
+		for(FuturesTradeAction action : actionList) {
+			// step 2.1 : 更新开平仓记录状态
+			action.setState(FuturesTradeEntrustState.Canceled);
+			action.setUpdateTime(new Date());
+			// step 2.2 : 更新订单状态
+			FuturesOrder order = action.getOrder();
+			order.setCloseRemaining(order.getCloseRemaining().subtract(action.getRemaining()));
+			if(entrust.getTradeActionType() == FuturesTradeActionType.OPEN) {
+				order.setState(FuturesOrderState.BuyingCanceled);
+			} else {
+				if(order.getCloseRemaining().compareTo(BigDecimal.ZERO) > 0 || order.getCloseFilled().compareTo(BigDecimal.ZERO) > 0) {
+					order.setState(FuturesOrderState.PartUnwind);
+				} else {
+					order.setState(FuturesOrderState.Unwind);
+				}
+			}
+			order.setUpdateTime(new Date());
+			orderDao.update(order);
+			// step 2.3 : 退回交易综合费
+			if(entrust.getTradeActionType() == FuturesTradeActionType.OPEN) {
+				BigDecimal returnServiceFee = action.getOrder().getServiceFee();
+				accountBusiness.futuresOrderRevoke(publisherId, order.getId(), returnServiceFee);
+			}
+		}
+		// step 3 : 更新合约订单状态
+		FuturesContract contract = entrust.getContract();
+		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract, publisherId);
+		if(entrust.getTradeActionType() == FuturesTradeActionType.OPEN) {
+			BigDecimal expectReverseFund = BigDecimal.ZERO;
+			if(entrust.getOrderType() == FuturesOrderType.BuyUp) {
+				contractOrder.setBuyUpTotalQuantity(contractOrder.getBuyUpTotalQuantity().subtract(entrust.getRemaining()));
+				expectReverseFund = contract.getCommodity().getPerUnitReserveFund().multiply(contractOrder.getBuyUpTotalQuantity());
+			} else {
+				contractOrder.setBuyFallTotalQuantity(contractOrder.getBuyFallTotalQuantity().subtract(entrust.getRemaining()));
+				expectReverseFund = contract.getCommodity().getPerUnitReserveFund().multiply(contractOrder.getBuyFallTotalQuantity());
+			}
+			// step 4 : 退款保证金，计算需要退款的保证金
+			BigDecimal returnReverseFund = BigDecimal.ZERO;
+			if(contractOrder.getReserveFund().compareTo(expectReverseFund) > 0) {
+				returnReverseFund = contractOrder.getReserveFund().subtract(expectReverseFund);
+			}
+			accountBusiness.futuresReturnReserveFund(publisherId, contractOrder.getId(), returnReverseFund);
+		}
+		return entrust;
 	}
 
 	@Transactional
@@ -101,8 +177,8 @@ public class FuturesTradeEntrustService {
 			}
 			// step 1.1 : 计算当前成交的数量
 			BigDecimal currentFilled = action.getRemaining();
-			if (currentFilled.compareTo(remaining) > 0) {
-				currentFilled = remaining;
+			if (currentFilled.compareTo(filled) > 0) {
+				currentFilled = filled;
 			}
 			remaining = remaining.subtract(currentFilled);
 			// step 1.2 : 更新开平仓记录
