@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.waben.stock.applayer.admin.business.ProfileBusiness;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
@@ -19,6 +18,8 @@ import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCurrencyRateDto;
+import com.waben.stock.interfaces.dto.futures.FuturesTradeActionDto;
+import com.waben.stock.interfaces.dto.futures.FuturesTradeActionViewDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
 import com.waben.stock.interfaces.dto.publisher.RealNameDto;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
@@ -26,8 +27,10 @@ import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeActionQuery;
 import com.waben.stock.interfaces.service.futures.FuturesContractInterface;
 import com.waben.stock.interfaces.service.futures.FuturesCurrencyRateInterface;
+import com.waben.stock.interfaces.service.futures.FuturesTradeActionInterface;
 import com.waben.stock.interfaces.service.futures.FuturesTradeInterface;
 import com.waben.stock.interfaces.service.publisher.PublisherInterface;
 import com.waben.stock.interfaces.service.publisher.RealNameInterface;
@@ -60,8 +63,27 @@ public class FuturesOrderBusiness {
 	
 	@Autowired
 	private ProfileBusiness profileBusiness;
+	
+	@Autowired
+	@Qualifier("futuresTradeActionInterface")
+	private FuturesTradeActionInterface actionReference;
 
 	Logger logger = LoggerFactory.getLogger(getClass());
+	
+	public PageInfo<FuturesTradeActionViewDto> pageTradeAdmin(FuturesTradeAdminQuery query){
+		List<Long> publisherIds = queryPublishIds(query);
+		if(publisherIds==null){
+			return new PageInfo<FuturesTradeActionViewDto>();
+		}else{
+			query.setPublisherIds(publisherIds);
+		}
+		Response<PageInfo<FuturesTradeActionViewDto>> response = actionReference.pagesTradeAdmin(query);
+		if ("200".equals(response.getCode())) {
+
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
 
 	public Response<FuturesOrderCountDto> countOrderState(FuturesTradeAdminQuery query) {
 		query.setPage(0);

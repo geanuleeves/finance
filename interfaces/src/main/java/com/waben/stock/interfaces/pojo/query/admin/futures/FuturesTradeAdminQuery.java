@@ -49,6 +49,8 @@ public class FuturesTradeAdminQuery extends PageAndSortQuery {
 	private String treeCode;
 
 	private Long orgId;
+	
+	private String tradeActionType;
 
 	/**
 	 * 定单类型，1、市价，2、限价
@@ -212,6 +214,14 @@ public class FuturesTradeAdminQuery extends PageAndSortQuery {
 
 	public void setIsTest(Boolean isTest) {
 		this.isTest = isTest;
+	}
+
+	public String getTradeActionType() {
+		return tradeActionType;
+	}
+
+	public void setTradeActionType(String tradeActionType) {
+		this.tradeActionType = tradeActionType;
 	}
 
 }
