@@ -8,6 +8,7 @@ import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeEntrustQuery;
 import com.waben.stock.interfaces.service.futures.FuturesTradeEntrustInterface;
 
 /**
