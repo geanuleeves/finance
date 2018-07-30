@@ -30,7 +30,7 @@ public class FuturesContractOrder {
 	private Long id;
 	/** 发布人ID */
 	private Long publisherId;
-	/** 对应的合约ID */
+	/** 对应的合约 */
 	@ManyToOne
 	@JoinColumn(name = "contract_id")
 	private FuturesContract contract;

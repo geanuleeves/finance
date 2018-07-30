@@ -104,7 +104,6 @@ public interface FuturesOrderRepository extends CustomJpaRepository<FuturesOrder
 	 */
 	List<FuturesOrder> findByPublisherIdAndState(Long publisherId, FuturesOrderState state);
 
-
 	FuturesOrder findByIdAndPublisherId(Long orderId, Long publisherId);
 
 	@Query(value = "select count(*) from f_futures_order t where t.state in(1,2,5,6,7,8) and t.publisher_id = ?1", nativeQuery = true)
