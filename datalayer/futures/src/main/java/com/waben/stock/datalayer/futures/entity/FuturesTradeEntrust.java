@@ -1,14 +1,27 @@
 package com.waben.stock.datalayer.futures.entity;
 
-import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesOrderTypeConverter;
-import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesTradeActionTypeConverter;
-import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesTradePriceTypeConverter;
-import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControlTypeConverter;
-import com.waben.stock.interfaces.enums.*;
-
-import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
+
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesOrderTypeConverter;
+import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesTradeActionTypeConverter;
+import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesTradeEntrustStateConverter;
+import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesTradePriceTypeConverter;
+import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControlTypeConverter;
+import com.waben.stock.interfaces.enums.FuturesOrderType;
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
+import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
+import com.waben.stock.interfaces.enums.FuturesTradePriceType;
+import com.waben.stock.interfaces.enums.FuturesWindControlType;
 
 /**
  * 交易委托
@@ -54,6 +67,7 @@ public class FuturesTradeEntrust {
 	/** 委托数量 */
 	private BigDecimal quantity;
 	/** 委托状态 */
+	@Convert(converter = FuturesTradeEntrustStateConverter.class)
 	private FuturesTradeEntrustState state;
 	/** 已成交量 */
 	private BigDecimal filled;

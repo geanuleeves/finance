@@ -20,6 +20,7 @@ import com.waben.stock.interfaces.dto.futures.FuturesOvernightRecordDto;
 import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
 import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
+import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
@@ -54,8 +55,8 @@ public class FuturesOrderController implements FuturesOrderInterface {
 	public Response<FuturesTradeEntrustDto> placeOrder(@RequestBody PlaceOrderParam orderParam) {
 		logger.info("发布人{}期货下单{}，手数{}!", orderParam.getPublisherId(), orderParam.getContractId(),
 				orderParam.getTotalQuantity());
-		return new Response<>(
-				CopyBeanUtils.copyBeanProperties(FuturesTradeEntrustDto.class, futuresOrderService.placeOrder(orderParam), false));
+		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesTradeEntrustDto.class,
+				futuresOrderService.placeOrder(orderParam), false));
 	}
 
 	@Override
@@ -76,8 +77,10 @@ public class FuturesOrderController implements FuturesOrderInterface {
 	}
 
 	@Override
-	public Response<FuturesOrderDto> applyUnwind(@PathVariable Long id, String sellingPriceTypeIndex,
-			BigDecimal sellingEntrustPrice, Long publisherId) {
+	public Response<Void> applyUnwind(@PathVariable Long contractId, String orderTypeIndex,
+			String sellingPriceTypeIndex, BigDecimal sellingEntrustPrice, Long publisherId) {
+		futuresOrderService.applyUnwind(contractId, FuturesOrderType.getByIndex(orderTypeIndex),
+				FuturesTradePriceType.getByIndex(sellingPriceTypeIndex), sellingEntrustPrice, publisherId);
 		return new Response<>();
 	}
 
@@ -125,6 +128,16 @@ public class FuturesOrderController implements FuturesOrderInterface {
 	@Override
 	public Response<Integer> countByPublisherId(@PathVariable Long publisherId) {
 		return new Response<>(futuresOrderService.countByPublisherId(publisherId));
+	}
+
+	@Override
+	public Response<Void> settingProfitAndLossLimit(@PathVariable Long publisherId, @PathVariable Long contractId,
+			String orderTypeIndex, Integer limitProfitType, BigDecimal perUnitLimitProfitAmount, Integer limitLossType,
+			BigDecimal perUnitLimitLossAmount) {
+		futuresOrderService.settingProfitAndLossLimit(publisherId, contractId,
+				FuturesOrderType.getByIndex(orderTypeIndex), limitProfitType, perUnitLimitProfitAmount, limitLossType,
+				perUnitLimitLossAmount);
+		return new Response<>();
 	}
 
 }

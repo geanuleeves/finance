@@ -1,5 +1,6 @@
 package com.waben.stock.datalayer.futures.repository.impl;
 
+import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
 import com.waben.stock.datalayer.futures.repository.impl.jpa.FuturesOrderRepository;
@@ -9,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
@@ -141,6 +144,12 @@ public class FuturesOrderDaoImpl implements FuturesOrderDao {
 	@Override
 	public BigDecimal getAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
 		return repository.getAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
+	}
+
+	@Override
+	public List<FuturesOrder> retrieveByContractOrder(FuturesContractOrder contractOrder) {
+		Sort sort = new Sort(new Sort.Order(Direction.ASC, "openTradeTime"));
+		return repository.findByContractOrder(contractOrder, sort);
 	}
 
 }

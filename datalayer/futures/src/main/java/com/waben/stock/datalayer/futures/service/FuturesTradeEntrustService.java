@@ -101,12 +101,16 @@ public class FuturesTradeEntrustService {
 	@Transactional
 	public FuturesTradeEntrust cancelEntrust(Long id, Long publisherId) {
 		FuturesTradeEntrust entrust = dao.retrieve(id);
+		if(entrust == null) {
+			throw new ServiceException(ExceptionConstant.DATANOTFOUND_EXCEPTION);
+		}
 		if (FuturesTradeEntrustState.Queuing != entrust.getState()) {
 			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
 		}
 		// step 1 : 更新委托状态
 		entrust.setState(FuturesTradeEntrustState.Canceled);
 		entrust.setUpdateTime(new Date());
+		dao.update(entrust);
 		// step 2 : 更新开平仓记录和订单状态
 		List<FuturesTradeAction> actionList = actionDao.retrieveByTradeEntrust(entrust);
 		for(FuturesTradeAction action : actionList) {
@@ -145,6 +149,7 @@ public class FuturesTradeEntrustService {
 				contractOrder.setBuyFallTotalQuantity(contractOrder.getBuyFallTotalQuantity().subtract(entrust.getRemaining()));
 				expectReverseFund = contract.getCommodity().getPerUnitReserveFund().multiply(contractOrder.getBuyFallTotalQuantity());
 			}
+			contractOrderDao.update(contractOrder);
 			// step 4 : 退款保证金，计算需要退款的保证金
 			BigDecimal returnReverseFund = BigDecimal.ZERO;
 			if(contractOrder.getReserveFund().compareTo(expectReverseFund) > 0) {
@@ -218,6 +223,7 @@ public class FuturesTradeEntrustService {
 					order.setState(FuturesOrderState.PartPosition);
 				} else {
 					order.setState(FuturesOrderState.Position);
+					order.setOpenTradeTime(date);
 				}
 			} else {
 				order.setCloseFilled(order.getCloseFilled().add(currentFilled));
@@ -239,6 +245,7 @@ public class FuturesTradeEntrustService {
 			if (orderType == FuturesOrderType.BuyUp && actionType == FuturesTradeActionType.OPEN) {
 				contractOrder.setBuyUpQuantity(contractOrder.getBuyUpQuantity().add(currentFilled));
 				contractOrder.setLightQuantity(contractOrder.getLightQuantity().add(currentFilled));
+				contractOrder.setBuyUpCanUnwindQuantity(contractOrder.getBuyUpCanUnwindQuantity().add(currentFilled));
 			} else if (orderType == FuturesOrderType.BuyUp && actionType == FuturesTradeActionType.CLOSE) {
 				contractOrder.setBuyUpTotalQuantity(contractOrder.getBuyUpTotalQuantity().subtract(currentFilled));
 				contractOrder.setBuyUpQuantity(contractOrder.getBuyUpQuantity().subtract(currentFilled));
@@ -246,6 +253,7 @@ public class FuturesTradeEntrustService {
 			} else if (orderType == FuturesOrderType.BuyFall && actionType == FuturesTradeActionType.OPEN) {
 				contractOrder.setBuyFallQuantity(contractOrder.getBuyFallQuantity().add(currentFilled));
 				contractOrder.setLightQuantity(contractOrder.getLightQuantity().subtract(currentFilled));
+				contractOrder.setBuyFallCanUnwindQuantity(contractOrder.getBuyFallCanUnwindQuantity().add(currentFilled));
 			} else if (orderType == FuturesOrderType.BuyFall && actionType == FuturesTradeActionType.CLOSE) {
 				contractOrder.setBuyFallTotalQuantity(contractOrder.getBuyFallTotalQuantity().subtract(currentFilled));
 				contractOrder.setBuyFallQuantity(contractOrder.getBuyFallQuantity().subtract(currentFilled));

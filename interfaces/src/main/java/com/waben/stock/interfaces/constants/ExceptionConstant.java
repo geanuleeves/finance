@@ -366,5 +366,7 @@ public class ExceptionConstant {
 	public static final String THE_STATE_ISNOT_AUDITED_EXCEPTION = "13049";
 	// 提现失败
 	public static final String WITHDRAWALS_ADMIN_EXCEPTION = "13050";
+	// 可平仓数量不足
+	public static final String UNWINDQUANTITY_NOTENOUGH_EXCEPTION = "13051";
 
 }

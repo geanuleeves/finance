@@ -1,13 +1,16 @@
 package com.waben.stock.datalayer.futures.repository;
 
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.springframework.web.bind.annotation.PathVariable;
+
+import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
-import feign.Param;
-import org.springframework.web.bind.annotation.PathVariable;
 
-import java.math.BigDecimal;
-import java.util.List;
+import feign.Param;
 
 /**
  * 期货订单 Dao
@@ -150,13 +153,24 @@ public interface FuturesOrderDao extends BaseDao<FuturesOrder, Long> {
 
 	/**
 	 * 已成交部分均价
-	 * @param publisherId 用户ID
-	 * @param contractNo 合约编号
-	 * @param commodityNo 产品编号
-	 * @return
+	 * 
+	 * @param publisherId
+	 *            用户ID
+	 * @param contractNo
+	 *            合约编号
+	 * @param commodityNo
+	 *            产品编号
+	 * @return 已成交部分均价
 	 */
 	BigDecimal getAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType);
 
-
+	/**
+	 * 根据合约订单获取订单列表
+	 * 
+	 * @param contractOrder
+	 *            合约订单
+	 * @return 订单列表
+	 */
+	List<FuturesOrder> retrieveByContractOrder(FuturesContractOrder contractOrder);
 
 }

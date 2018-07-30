@@ -35,10 +35,14 @@ public class FuturesContractOrder {
 	private BigDecimal buyUpTotalQuantity;
 	/** 买涨手数（成功） */
 	private BigDecimal buyUpQuantity;
+	/** 买涨可平仓手数 */
+	private BigDecimal buyUpCanUnwindQuantity;
 	/** 买跌手数（总，包括买入委托中的） */
 	private BigDecimal buyFallTotalQuantity;
 	/** 买跌手数（成功） */
 	private BigDecimal buyFallQuantity;
+	/** 买涨可平仓手数 */
+	private BigDecimal buyFallCanUnwindQuantity;
 	/** 净手数 */
 	private BigDecimal lightQuantity;
 	/** 保证金 */
@@ -246,6 +250,22 @@ public class FuturesContractOrder {
 
 	public void setBuyFallTotalQuantity(BigDecimal buyFallTotalQuantity) {
 		this.buyFallTotalQuantity = buyFallTotalQuantity;
+	}
+
+	public BigDecimal getBuyUpCanUnwindQuantity() {
+		return buyUpCanUnwindQuantity;
+	}
+
+	public void setBuyUpCanUnwindQuantity(BigDecimal buyUpCanUnwindQuantity) {
+		this.buyUpCanUnwindQuantity = buyUpCanUnwindQuantity;
+	}
+
+	public BigDecimal getBuyFallCanUnwindQuantity() {
+		return buyFallCanUnwindQuantity;
+	}
+
+	public void setBuyFallCanUnwindQuantity(BigDecimal buyFallCanUnwindQuantity) {
+		this.buyFallCanUnwindQuantity = buyFallCanUnwindQuantity;
 	}
 
 }

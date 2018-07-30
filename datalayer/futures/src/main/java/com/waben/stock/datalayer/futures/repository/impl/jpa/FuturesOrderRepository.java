@@ -1,8 +1,11 @@
 package com.waben.stock.datalayer.futures.repository.impl.jpa;
 
+import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -121,5 +124,7 @@ public interface FuturesOrderRepository extends CustomJpaRepository<FuturesOrder
 			"WHERE t.publisherId = ?1 AND contract.contractNo = ?2 AND commodity.symbol = ?3 " +
 			"AND t.orderType = ?4", nativeQuery = true)
 	BigDecimal getAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType);
+
+	List<FuturesOrder> findByContractOrder(FuturesContractOrder contractOrder, Sort sort);
 
 }

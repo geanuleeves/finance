@@ -1,5 +1,6 @@
 package com.waben.stock.datalayer.futures.repository.impl;
 
+import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeAction;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeEntrust;
 import com.waben.stock.datalayer.futures.repository.FuturesTradeActionDao;
@@ -78,6 +79,11 @@ public class FuturesTradeActionDaoImpl implements FuturesTradeActionDao {
 	@Override
 	public Integer findFilledNow(Long publisherId, String commodityNo, String contractNo, String tradeActionType) {
 		return repository.findFilledNow(publisherId, commodityNo, contractNo, tradeActionType);
+	}
+
+	@Override
+	public List<FuturesTradeAction> retrieveByOrder(FuturesOrder order) {
+		return repository.findByOrder(order);
 	}
 
 }
