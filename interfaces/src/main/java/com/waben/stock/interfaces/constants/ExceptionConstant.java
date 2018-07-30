@@ -259,10 +259,10 @@ public class ExceptionConstant {
 	// 上传文件
 	// 上传图片失败
 	public static final String FAILED_TO_UPLOAD_PICTURES = "12001";
-	//文件下载失败
+	// 文件下载失败
 	public static final String FAILED_TO_DOWLOAD_PICTURES = "12002";
-	//文件没有找到
-	public static final String FILE_ISNOT_FOUND= "12003";
+	// 文件没有找到
+	public static final String FILE_ISNOT_FOUND = "12003";
 
 	// 期货
 	// 期货订单状态不匹配，不支持该操作
@@ -366,5 +366,7 @@ public class ExceptionConstant {
 	public static final String THE_STATE_ISNOT_AUDITED_EXCEPTION = "13049";
 	// 提现失败
 	public static final String WITHDRAWALS_ADMIN_EXCEPTION = "13050";
+	// 分成比例不能大于上级
+	public static final String THE_PROPORTION_CANNOTBE_LARGER_SUPERIOR_EXCEPTION = "13051";
 
 }
