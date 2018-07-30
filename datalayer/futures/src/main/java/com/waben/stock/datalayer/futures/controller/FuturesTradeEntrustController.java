@@ -99,6 +99,5 @@ public class FuturesTradeEntrustController implements FuturesTradeEntrustInterfa
         }
         return new Response<>(result);
     }
->>>>>>> c92eaf967978f1bac7d0e05c3579e59335ec0f03
 
 }
