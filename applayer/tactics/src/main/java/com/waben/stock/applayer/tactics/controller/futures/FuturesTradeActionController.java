@@ -28,7 +28,7 @@ public class FuturesTradeActionController {
     private FuturesTradeActionBusiness futuresTradeActionBusiness;
 
     @GetMapping("/pages")
-    @ApiOperation(value = "期货合约列表")
+    @ApiOperation(value = "订单交易开平仓记录列表")
     public Response<PageInfo<FuturesTradeActionViewDto>> pages(int page, int size) {
         FuturesTradeActionQuery query = new FuturesTradeActionQuery(page, size);
         return new Response<>(futuresTradeActionBusiness.pages(query));
