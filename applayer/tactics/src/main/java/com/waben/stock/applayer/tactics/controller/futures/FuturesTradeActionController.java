@@ -33,7 +33,7 @@ public class FuturesTradeActionController {
     @Autowired
     private FuturesTradeActionBusiness futuresTradeActionBusiness;
 
-    @PostMapping("/pages/{publisherId}")
+    @PostMapping("/pages")
     @ApiOperation(value = "订单交易开平仓记录列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "orderId", value = "对应的订单", dataType = "long", paramType = "query", required = false),
