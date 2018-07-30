@@ -161,4 +161,8 @@ public class FuturesCommodityService {
 		return lossOrProfitDao.retrieve(id);
 	}
 
+	public FuturesCommodity retrieveByCommodityNo(String commodityNo) {
+		return dao.retrieveByCommodityNo(commodityNo);
+	}
+
 }

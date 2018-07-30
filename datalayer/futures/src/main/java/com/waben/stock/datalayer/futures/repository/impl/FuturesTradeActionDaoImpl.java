@@ -1,7 +1,10 @@
 package com.waben.stock.datalayer.futures.repository.impl;
 
-import java.util.List;
-
+import com.waben.stock.datalayer.futures.entity.FuturesTradeAction;
+import com.waben.stock.datalayer.futures.entity.FuturesTradeEntrust;
+import com.waben.stock.datalayer.futures.repository.FuturesTradeActionDao;
+import com.waben.stock.datalayer.futures.repository.impl.jpa.FuturesTradeActionRepository;
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,11 +14,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
-import com.waben.stock.datalayer.futures.entity.FuturesTradeAction;
-import com.waben.stock.datalayer.futures.entity.FuturesTradeEntrust;
-import com.waben.stock.datalayer.futures.repository.FuturesTradeActionDao;
-import com.waben.stock.datalayer.futures.repository.impl.jpa.FuturesTradeActionRepository;
-import com.waben.stock.interfaces.enums.FuturesTradeActionType;
+import java.util.List;
 
 /**
  * 订单交易开平仓记录
@@ -74,6 +73,11 @@ public class FuturesTradeActionDaoImpl implements FuturesTradeActionDao {
 			FuturesTradeActionType tradeActionType) {
 		Sort sort = new Sort(new Sort.Order(Direction.ASC, "sort"));
 		return repository.findByTradeEntrustAndTradeActionType(tradeEntrust, tradeActionType, sort);
+	}
+
+	@Override
+	public Integer findFilledNow(Long publisherId, String commodityNo, String contractNo, String tradeActionType) {
+		return repository.findFilledNow(publisherId, commodityNo, contractNo, tradeActionType);
 	}
 
 }

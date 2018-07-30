@@ -1775,4 +1775,15 @@ public class FuturesOrderService {
 		return orderDao.countByPublisherId(publisherId);
 	}
 
+	/**
+	 * 已成交部分均价
+	 * @param publisherId 用户ID
+	 * @param contractNo 合约编号
+	 * @param commodityNo 产品编号
+	 * @return
+	 */
+	public BigDecimal getAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
+		return orderDao.getAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
+	}
+
 }

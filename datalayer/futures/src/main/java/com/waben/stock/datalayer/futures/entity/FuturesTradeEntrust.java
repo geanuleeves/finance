@@ -1,26 +1,14 @@
 package com.waben.stock.datalayer.futures.entity;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesOrderTypeConverter;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesTradeActionTypeConverter;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesTradePriceTypeConverter;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControlTypeConverter;
-import com.waben.stock.interfaces.enums.FuturesOrderType;
-import com.waben.stock.interfaces.enums.FuturesTradeActionType;
-import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
-import com.waben.stock.interfaces.enums.FuturesTradePriceType;
-import com.waben.stock.interfaces.enums.FuturesWindControlType;
+import com.waben.stock.interfaces.enums.*;
+
+import javax.persistence.*;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 交易委托
@@ -37,6 +25,8 @@ public class FuturesTradeEntrust {
 	private Long id;
 	/** 用户ID */
 	private Long publisherId;
+	/** 委托编号 */
+	private String entrustNo;
 	/** 对应的合约 */
 	@ManyToOne
 	@JoinColumn(name = "contract_id")
@@ -240,4 +230,11 @@ public class FuturesTradeEntrust {
 		this.windControlType = windControlType;
 	}
 
+	public String getEntrustNo() {
+		return entrustNo;
+	}
+
+	public void setEntrustNo(String entrustNo) {
+		this.entrustNo = entrustNo;
+	}
 }

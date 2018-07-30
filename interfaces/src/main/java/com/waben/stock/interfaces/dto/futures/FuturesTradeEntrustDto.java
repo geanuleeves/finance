@@ -1,20 +1,22 @@
 package com.waben.stock.interfaces.dto.futures;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.enums.FuturesTradeActionType;
 import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
-
 import io.swagger.annotations.ApiModelProperty;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FuturesTradeEntrustDto {
 
 	private Long id;
+	/** 委托编号 */
+	@ApiModelProperty(value = "委托编号")
+	private String entrustNo;
 	/** 用户ID */
 	@ApiModelProperty(value = "用户ID")
 	private Long publisherId;
@@ -66,6 +68,11 @@ public class FuturesTradeEntrustDto {
 	/** 更新时间 */
 	@ApiModelProperty(value = "更新时间")
 	private Date updateTime;
+	/** 合约名称 */
+	@ApiModelProperty(value = "合约名称 */")
+	private String contractName;
+	/** 交易类型（买/卖）*/
+	private FuturesTradeActionType tradeType;
 
 	public Long getId() {
 		return id;
@@ -211,4 +218,27 @@ public class FuturesTradeEntrustDto {
 		this.updateTime = updateTime;
 	}
 
+	public String getEntrustNo() {
+		return entrustNo;
+	}
+
+	public void setEntrustNo(String entrustNo) {
+		this.entrustNo = entrustNo;
+	}
+
+	public String getContractName() {
+		return contractName;
+	}
+
+	public void setContractName(String contractName) {
+		this.contractName = contractName;
+	}
+
+	public FuturesTradeActionType getTradeType() {
+		return tradeType;
+	}
+
+	public void setTradeType(FuturesTradeActionType tradeType) {
+		this.tradeType = tradeType;
+	}
 }
