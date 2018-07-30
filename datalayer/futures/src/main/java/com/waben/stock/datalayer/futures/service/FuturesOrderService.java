@@ -489,14 +489,24 @@ public class FuturesOrderService {
 			if (orderParam.getLimitLossType() != null && orderParam.getLimitLossType() > 0
 					&& orderParam.getPerUnitLimitLossAmount() != null
 					&& orderParam.getPerUnitLimitLossAmount().compareTo(BigDecimal.ZERO) > 0) {
-				contractOrder.setLimitLossType(orderParam.getLimitLossType());
-				contractOrder.setPerUnitLimitLossAmount(orderParam.getPerUnitLimitLossAmount());
+				if(orderParam.getOrderType() == FuturesOrderType.BuyUp) {
+					contractOrder.setBuyUpLimitLossType(orderParam.getLimitLossType());
+					contractOrder.setBuyUpPerUnitLimitLossAmount(orderParam.getPerUnitLimitLossAmount());
+				} else {
+					contractOrder.setBuyFallLimitLossType(orderParam.getLimitLossType());
+					contractOrder.setBuyFallPerUnitLimitLossAmount(orderParam.getPerUnitLimitLossAmount());
+				}
 			}
 			if (orderParam.getLimitProfitType() != null && orderParam.getLimitProfitType() > 0
 					&& orderParam.getPerUnitLimitProfitAmount() != null
 					&& orderParam.getPerUnitLimitProfitAmount().compareTo(BigDecimal.ZERO) > 0) {
-				contractOrder.setLimitProfitType(orderParam.getLimitProfitType());
-				contractOrder.setPerUnitLimitProfitAmount(orderParam.getPerUnitLimitProfitAmount());
+				if(orderParam.getOrderType() == FuturesOrderType.BuyUp) {
+					contractOrder.setBuyUpLimitProfitType(orderParam.getLimitProfitType());
+					contractOrder.setBuyUpPerUnitLimitProfitAmount(orderParam.getPerUnitLimitProfitAmount());
+				} else {
+					contractOrder.setBuyFallLimitProfitType(orderParam.getLimitProfitType());
+					contractOrder.setBuyFallPerUnitLimitProfitAmount(orderParam.getPerUnitLimitProfitAmount());
+				}
 			}
 			contractOrder.setUpdateTime(new Date());
 			contractOrderDao.update(contractOrder);
