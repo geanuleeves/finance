@@ -182,5 +182,12 @@ public interface FuturesOrderInterface {
 			@RequestParam("perUnitLimitProfitAmount") BigDecimal perUnitLimitProfitAmount,
 			@RequestParam("limitLossType") Integer limitLossType,
 			@RequestParam("perUnitLimitLossAmount") BigDecimal perUnitLimitLossAmount);
+	/**
+	 * 获取持仓订单的浮动盈亏累计
+	 *
+	 * @return 浮动盈亏
+	 */
+	@RequestMapping(value = "/totalProfitOrLoss/{publisherId}", method = RequestMethod.GET)
+	Response<BigDecimal> getTotalFloatingProfitAndLoss(@PathVariable Long publisherId);
 
 }

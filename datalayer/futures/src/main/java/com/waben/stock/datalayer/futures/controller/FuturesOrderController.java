@@ -1,7 +1,23 @@
 package com.waben.stock.datalayer.futures.controller;
 
-import java.math.BigDecimal;
-
+import com.waben.stock.datalayer.futures.entity.*;
+import com.waben.stock.datalayer.futures.quote.QuoteContainer;
+import com.waben.stock.datalayer.futures.service.FuturesCommodityService;
+import com.waben.stock.datalayer.futures.service.FuturesContractOrderService;
+import com.waben.stock.datalayer.futures.service.FuturesOrderService;
+import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
+import com.waben.stock.interfaces.dto.futures.*;
+import com.waben.stock.interfaces.enums.FuturesOrderType;
+import com.waben.stock.interfaces.enums.FuturesTradePriceType;
+import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
+import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesContractOrderQuery;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
+import com.waben.stock.interfaces.service.futures.FuturesOrderInterface;
+import com.waben.stock.interfaces.util.CopyBeanUtils;
+import com.waben.stock.interfaces.util.PageToPageInfo;
+import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,25 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.waben.stock.datalayer.futures.entity.FuturesOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
-import com.waben.stock.datalayer.futures.service.FuturesOrderService;
-import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
-import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
-import com.waben.stock.interfaces.dto.futures.FuturesOvernightRecordDto;
-import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
-import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
-import com.waben.stock.interfaces.enums.FuturesOrderType;
-import com.waben.stock.interfaces.enums.FuturesTradePriceType;
-import com.waben.stock.interfaces.pojo.Response;
-import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
-import com.waben.stock.interfaces.pojo.query.PageInfo;
-import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
-import com.waben.stock.interfaces.service.futures.FuturesOrderInterface;
-import com.waben.stock.interfaces.util.CopyBeanUtils;
-import com.waben.stock.interfaces.util.PageToPageInfo;
-
-import io.swagger.annotations.Api;
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/order")
@@ -43,6 +41,16 @@ public class FuturesOrderController implements FuturesOrderInterface {
 
 	@Autowired
 	private FuturesOvernightRecordService recordService;
+
+	@Autowired
+	private QuoteContainer quoteContainer;
+
+	@Autowired
+	private FuturesCommodityService futuresCommodityService;
+
+	@Autowired
+	private FuturesContractOrderService futuresContractOrderService;
+
 
 	@Override
 	public Response<PageInfo<FuturesOrderDto>> pagesOrder(@RequestBody FuturesOrderQuery orderQuery) {
@@ -138,6 +146,42 @@ public class FuturesOrderController implements FuturesOrderInterface {
 				FuturesOrderType.getByIndex(orderTypeIndex), limitProfitType, perUnitLimitProfitAmount, limitLossType,
 				perUnitLimitLossAmount);
 		return new Response<>();
+	}
+
+	public Response<BigDecimal> getTotalFloatingProfitAndLoss(@PathVariable Long publisherId) {
+		FuturesContractOrderQuery futuresContractOrderQuery = new FuturesContractOrderQuery();
+		futuresContractOrderQuery.setPublisherId(publisherId);
+		Page<FuturesContractOrder> page = futuresContractOrderService.pages(futuresContractOrderQuery);
+		PageInfo<FuturesContractOrderViewDto> result = PageToPageInfo.pageToPageInfo(page, FuturesContractOrderViewDto.class);
+		BigDecimal totalFloatingProfitAndLoss = new BigDecimal(0);
+		if (result != null && result.getContent() != null) {
+			for (int i = 0; i < result.getContent().size(); i++) {
+				FuturesContractOrder futuresContractOrder = page.getContent().get(i);
+				FuturesCommodity futuresCommodity = futuresCommodityService.retrieveByCommodityNo(
+						futuresContractOrder.getCommodityNo());
+				//已成交部分最新均价
+				BigDecimal lastPrice = quoteContainer.getLastPrice(futuresContractOrder.getCommodityNo(),
+						futuresContractOrder.getContractNo());
+				if (futuresCommodity != null) {
+					//成交价格-买涨
+					BigDecimal avgUpFillPrice = futuresOrderService.getAvgFillPrice(futuresContractOrder.getPublisherId(),
+							futuresContractOrder.getContractNo(), futuresContractOrder.getCommodityNo(),
+							FuturesOrderType.BuyUp.getIndex());
+					//成交价格-买跌
+					BigDecimal avgFallFillPrice = futuresOrderService.getAvgFillPrice(futuresContractOrder.getPublisherId(),
+							futuresContractOrder.getContractNo(), futuresContractOrder.getCommodityNo(),
+							FuturesOrderType.BuyFall.getIndex());
+					//买涨浮动盈亏
+					BigDecimal buyUpFloatingProfitAndLoss = lastPrice.subtract(avgUpFillPrice).divide(futuresCommodity.getMinWave())
+							.multiply(futuresCommodity.getPerWaveMoney()).multiply(futuresContractOrder.getBuyUpQuantity());
+					//买跌浮动盈亏
+					BigDecimal buyFallFloatingProfitAndLoss = lastPrice.subtract(avgFallFillPrice).divide(futuresCommodity.getMinWave())
+							.multiply(futuresCommodity.getPerWaveMoney()).multiply(futuresContractOrder.getBuyFallQuantity());
+					totalFloatingProfitAndLoss.add(buyUpFloatingProfitAndLoss).add(buyFallFloatingProfitAndLoss);
+				}
+			}
+		}
+		return new Response<>(totalFloatingProfitAndLoss);
 	}
 
 }

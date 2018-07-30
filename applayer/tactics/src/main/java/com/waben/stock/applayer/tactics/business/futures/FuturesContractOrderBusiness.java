@@ -32,7 +32,7 @@ public class FuturesContractOrderBusiness {
 	}
 
 	public PageInfo<FuturesContractOrderViewDto> pages(FuturesContractOrderQuery query) {
-		Response<PageInfo<FuturesContractOrderViewDto>> response = reference.pagesAdmin(query);
+		Response<PageInfo<FuturesContractOrderViewDto>> response = reference.pages(query);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}

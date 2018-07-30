@@ -84,7 +84,7 @@ public class OrganizationSettlementService {
 		if (checkFlowList == null || checkFlowList.size() == 0) {
 			logger.info("参与结算返佣金额未结算前日志, tradeNo{},serviceFee:{},orderCloseFee:{},deferredFee:{}", tradeNo, serviceFee,
 					orderCloseFee, deferredFee);
-			futuresOrderRatioSettlement(publisherId, BenefitConfigType.FuturesComprehensiveFee,
+			futuresOrderRatioJYTSettlement(publisherId, BenefitConfigType.FuturesComprehensiveFee,
 					OrganizationAccountFlowType.FuturesComprehensiveFeeAssign, comprehensiveFee, benefitResourceId,
 					futuresOrderId, tradeNo);
 		}
@@ -629,6 +629,60 @@ public class OrganizationSettlementService {
 						ratio = ratio.add(computeRatio);
 						accountService.futureBenefit(config.getOrg(), amount, childFee, flowType, flowResourceType,
 								flowResourceId, tradeNo);
+					}
+				}
+			}
+		}
+		accountService.futureBenefit(null, amount, amount, flowType, flowResourceType, flowResourceId, tradeNo);
+	}
+
+	public void futuresOrderRatioJYTSettlement(Long publisherId, BenefitConfigType benefitConfigType,
+			OrganizationAccountFlowType flowType, BigDecimal amount, Long benefitResourceId, Long flowResourceId,
+			String tradeNo) {
+		logger.info("参与结算返佣金额进入结算方法, tradeNo{}", tradeNo);
+		ResourceType flowResourceType = ResourceType.FUTURESORDER;
+		Integer benefitResourceType = 3;
+		List<Organization> orgTreeList = getPublisherOrgTreeList(publisherId);
+		if (orgTreeList != null) {
+			List<BenefitConfig> benefitConfigList = getFuturesRakeBackBenefitConfigList(orgTreeList, benefitConfigType,
+					benefitResourceType);
+			if (benefitConfigList != null && benefitConfigList.size() > 0) {
+				BigDecimal currentServiceFee = amount;
+				for (int i = 0; i < benefitConfigList.size(); i++) {
+					BenefitConfig config = benefitConfigList.get(i);
+					// 一级下面的客户
+					if (benefitConfigList.size() == 1 && config.getOrg().getLevel() == 1) {
+						accountService.futureBenefit(config.getOrg(), amount, currentServiceFee, flowType,
+								flowResourceType, flowResourceId, tradeNo);
+						break;
+					}
+					BigDecimal ratio = config.getRatio();
+					// 给当前用户的代理结算
+					if (i == benefitConfigList.size() - 1) {
+						BigDecimal childServiceFee = currentServiceFee.multiply(ratio.divide(new BigDecimal("100")))
+								.setScale(2, RoundingMode.DOWN);
+						accountService.futureBenefit(config.getOrg(), amount, childServiceFee, flowType,
+								flowResourceType, flowResourceId, tradeNo);
+					} else {
+						BigDecimal percentage = BigDecimal.ZERO;
+						BenefitConfig childConfig = benefitConfigList.get(i + 1);
+						BigDecimal childRatio = childConfig.getRatio();
+						if (childRatio.compareTo(BigDecimal.ZERO) == 0) {
+							BigDecimal childServiceFee = currentServiceFee.multiply(ratio.divide(new BigDecimal("100")))
+									.setScale(2, RoundingMode.DOWN);
+							accountService.futureBenefit(config.getOrg(), amount, childServiceFee, flowType,
+									flowResourceType, flowResourceId, tradeNo);
+							break;
+						}
+						if (config.getOrg().getLevel() == 1) {
+							percentage = new BigDecimal("100").subtract(childRatio).divide(new BigDecimal("100"));
+						} else {
+							percentage = ratio.subtract(childRatio).divide(new BigDecimal("100"));
+						}
+						BigDecimal childServiceFee = currentServiceFee.multiply(percentage).setScale(2,
+								RoundingMode.DOWN);
+						accountService.futureBenefit(config.getOrg(), amount, childServiceFee, flowType,
+								flowResourceType, flowResourceId, tradeNo);
 					}
 				}
 			}

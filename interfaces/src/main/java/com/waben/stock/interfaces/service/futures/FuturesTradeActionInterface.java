@@ -4,6 +4,7 @@ import com.waben.stock.interfaces.dto.futures.FuturesTradeActionDto;
 import com.waben.stock.interfaces.dto.futures.FuturesTradeActionViewDto;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeActionQuery;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -64,7 +65,16 @@ public interface FuturesTradeActionInterface {
 	 * @param query
 	 * @return
 	 */
-	@RequestMapping(value = "/pages", method = RequestMethod.GET)
-	Response<PageInfo<FuturesTradeActionViewDto>> pagesAdmin(@RequestBody FuturesTradeActionQuery query);
+	@RequestMapping(value = "/pages", method = RequestMethod.POST, consumes = "application/json")
+	Response<PageInfo<FuturesTradeActionViewDto>> pages(@RequestBody FuturesTradeActionQuery query);
+	
+	/**
+	 * 运营后台根据条件查询合约订单
+	 * @param query
+	 * @return
+	 */
+	@RequestMapping(value = "/pagesTradeAdmin", method = RequestMethod.POST, consumes = "application/json")
+	Response<PageInfo<FuturesTradeActionViewDto>> pagesTradeAdmin(@RequestBody FuturesTradeAdminQuery query);
+	
 
 }

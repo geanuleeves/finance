@@ -206,6 +206,7 @@ public class ExceptionMap {
 		exceptionMap.put(ExceptionConstant.THE_STATE_ISNOT_AUDITED_EXCEPTION, "该记录已审核");
 		exceptionMap.put(ExceptionConstant.WITHDRAWALS_ADMIN_EXCEPTION, "提现失败，请联系管理员");
 		exceptionMap.put(ExceptionConstant.UNWINDQUANTITY_NOTENOUGH_EXCEPTION, "可平仓数量不足");
+		exceptionMap.put(ExceptionConstant.THE_PROPORTION_CANNOTBE_LARGER_SUPERIOR_EXCEPTION, "分成比例不能大于上级");
 
 	}
 }
