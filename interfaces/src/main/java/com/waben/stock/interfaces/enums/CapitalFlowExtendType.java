@@ -23,7 +23,9 @@ public enum CapitalFlowExtendType implements CommonalityEnum {
 
 	FUTURESRECORD("6", "期货订单记录"),
 
-	FUTURESOVERNIGHTRECORD("7", "期货订单过夜记录");
+	FUTURESOVERNIGHTRECORD("7", "期货订单过夜记录"),
+	
+	FUTURESCONTRACTORDER("8", "期货合约订单");
 
 	private String index;
 	private String type;

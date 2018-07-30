@@ -30,6 +30,7 @@ import com.waben.stock.applayer.tactics.business.PublisherBusiness;
 import com.waben.stock.applayer.tactics.business.futures.FuturesContractBusiness;
 import com.waben.stock.applayer.tactics.business.futures.FuturesContractOrderBusiness;
 import com.waben.stock.applayer.tactics.business.futures.FuturesOrderBusiness;
+import com.waben.stock.applayer.tactics.business.futures.FuturesTradeEntrustBusiness;
 import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderBuysellDto;
 import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderDayGainLossDto;
 import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderMarketDto;
@@ -41,6 +42,7 @@ import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractOrderDto;
 import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
+import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
 import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
@@ -80,6 +82,9 @@ public class FuturesOrderController {
 	private FuturesOrderBusiness futuresOrderBusiness;
 
 	@Autowired
+	private FuturesTradeEntrustBusiness entrustBusiness;
+
+	@Autowired
 	private FuturesContractBusiness futuresContractBusiness;
 
 	@Autowired
@@ -96,7 +101,7 @@ public class FuturesOrderController {
 
 	@PostMapping("/buy")
 	@ApiOperation(value = "买涨买跌下单")
-	public Response<FuturesOrderDto> placeOrder(FuturesOrderBuysellDto param) {
+	public Response<FuturesTradeEntrustDto> placeOrder(FuturesOrderBuysellDto param) {
 		logger.info("调用接口发布人{}期货下单{}，手数{}!", SecurityUtil.getUserId(), param.getContractId(), param.getTotalQuantity());
 		// step 1 : 检查合约信息
 		FuturesContractDto contract = futuresContractBusiness.findByContractId(param.getContractId());
@@ -133,7 +138,8 @@ public class FuturesOrderController {
 		// step 4 : 检查下单数量
 		BigDecimal perNum = contract.getPerOrderLimit();
 		BigDecimal userMaxNum = contract.getUserTotalLimit();
-		FuturesContractOrderDto contractOrder = contractOrderBusiness.fetchByContractIdAndPublisherId(param.getContractId(), SecurityUtil.getUserId());
+		FuturesContractOrderDto contractOrder = contractOrderBusiness
+				.fetchByContractIdAndPublisherId(param.getContractId(), SecurityUtil.getUserId());
 		BigDecimal buyUpNum = BigDecimal.ZERO;
 		BigDecimal buyFallNum = BigDecimal.ZERO;
 		BigDecimal alreadyReserveFund = BigDecimal.ZERO;
@@ -203,10 +209,10 @@ public class FuturesOrderController {
 		return new Response<>(futuresOrderBusiness.placeOrder(orderParam));
 	}
 
-	@PostMapping("/cancelOrder/{orderId}")
-	@ApiOperation(value = "用户取消订单委托")
-	public Response<FuturesOrderDto> cancelOrder(@PathVariable Long orderId) {
-		return new Response<>(futuresOrderBusiness.cancelOrder(orderId, SecurityUtil.getUserId()));
+	@PostMapping("/cancelEntrust/{entrustId}")
+	@ApiOperation(value = "用户取消委托", notes = "entrustId为委托Id")
+	public Response<FuturesTradeEntrustDto> cancelEntrust(@PathVariable Long entrustId) {
+		return new Response<>(entrustBusiness.cancelEntrust(entrustId, SecurityUtil.getUserId()));
 	}
 
 	@PostMapping("/applyUnwind/{orderId}")
@@ -362,8 +368,10 @@ public class FuturesOrderController {
 		BigDecimal rate = BigDecimal.ZERO;
 		String sign = "";
 		for (FuturesOrderMarketDto futuresOrderMarketDto : list) {
-//			totalIncome = totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss() == null ? new BigDecimal(0)
-//					: futuresOrderMarketDto.getPublisherProfitOrLoss());
+			// totalIncome =
+			// totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss()
+			// == null ? new BigDecimal(0)
+			// : futuresOrderMarketDto.getPublisherProfitOrLoss());
 		}
 		if (list != null && list.size() > 0) {
 			sign = list.get(0).getCurrencySign();
@@ -396,8 +404,10 @@ public class FuturesOrderController {
 		BigDecimal rate = BigDecimal.ZERO;
 		String sign = "";
 		for (FuturesOrderMarketDto futuresOrderMarketDto : list) {
-//			totalIncome = totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss() == null ? new BigDecimal(0)
-//					: futuresOrderMarketDto.getPublisherProfitOrLoss());
+			// totalIncome =
+			// totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss()
+			// == null ? new BigDecimal(0)
+			// : futuresOrderMarketDto.getPublisherProfitOrLoss());
 		}
 		if (list != null && list.size() > 0) {
 			sign = list.get(0).getCurrencySign();
@@ -437,8 +447,10 @@ public class FuturesOrderController {
 		String sign = "";
 		BigDecimal rate = BigDecimal.ZERO;
 		for (FuturesOrderMarketDto futuresOrderMarketDto : list) {
-//			totalIncome = totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss() == null ? new BigDecimal(0)
-//					: futuresOrderMarketDto.getPublisherProfitOrLoss());
+			// totalIncome =
+			// totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss()
+			// == null ? new BigDecimal(0)
+			// : futuresOrderMarketDto.getPublisherProfitOrLoss());
 		}
 		if (list != null && list.size() > 0) {
 			sign = list.get(0).getCurrencySign();
@@ -504,7 +516,8 @@ public class FuturesOrderController {
 		List<FuturesOrderMarketDto> list = futuresOrderBusiness.pageOrderMarket(orderQuery).getContent();
 		BigDecimal totalIncome = new BigDecimal(0);
 		for (FuturesOrderMarketDto futuresOrderMarketDto : list) {
-//			totalIncome = totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss());
+			// totalIncome =
+			// totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss());
 		}
 		return new Response<>(totalIncome.setScale(2, RoundingMode.DOWN));
 	}
@@ -522,7 +535,8 @@ public class FuturesOrderController {
 		List<FuturesOrderMarketDto> list = futuresOrderBusiness.pageOrderMarket(orderQuery).getContent();
 		BigDecimal totalIncome = new BigDecimal(0);
 		for (FuturesOrderMarketDto futuresOrderMarketDto : list) {
-//			totalIncome = totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss());
+			// totalIncome =
+			// totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss());
 		}
 		return new Response<>(totalIncome.setScale(2, RoundingMode.DOWN));
 	}
@@ -547,7 +561,8 @@ public class FuturesOrderController {
 		List<FuturesOrderMarketDto> list = futuresOrderBusiness.pageOrderMarket(orderQuery).getContent();
 		BigDecimal totalIncome = new BigDecimal(0);
 		for (FuturesOrderMarketDto futuresOrderMarketDto : list) {
-//			totalIncome = totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss());
+			// totalIncome =
+			// totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss());
 		}
 		gainLoss.setUnwindProFee(totalIncome.setScale(2, RoundingMode.DOWN));
 
@@ -562,8 +577,11 @@ public class FuturesOrderController {
 				.getContent();
 		BigDecimal positionTotalIncome = new BigDecimal(0);
 		for (FuturesOrderMarketDto futuresOrderMarketDto : positionList) {
-//			positionTotalIncome = positionTotalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss() == null
-//					? new BigDecimal(0) : futuresOrderMarketDto.getPublisherProfitOrLoss());
+			// positionTotalIncome =
+			// positionTotalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss()
+			// == null
+			// ? new BigDecimal(0) :
+			// futuresOrderMarketDto.getPublisherProfitOrLoss());
 		}
 		gainLoss.setPositionFee(positionTotalIncome.setScale(2, RoundingMode.DOWN));
 
@@ -661,33 +679,41 @@ public class FuturesOrderController {
 				business = "卖";
 			}
 			String buyPrice = "";
-//			if (trade.getBuyingPriceType() == FuturesTradePriceType.MKT) {
-//				buyPrice = String.valueOf(trade.getBuyingPrice());
-//			} else {
-//				buyPrice = String.valueOf(trade.getBuyingEntrustPrice());
-//			}
-//			String sellPrice = "";
-//			if (trade.getBuyingPriceType() == FuturesTradePriceType.MKT) {
-//				sellPrice = String.valueOf(trade.getSellingPrice());
-//			} else {
-//				sellPrice = String.valueOf(trade.getSellingEntrustPrice());
-//			}
+			// if (trade.getBuyingPriceType() == FuturesTradePriceType.MKT) {
+			// buyPrice = String.valueOf(trade.getBuyingPrice());
+			// } else {
+			// buyPrice = String.valueOf(trade.getBuyingEntrustPrice());
+			// }
+			// String sellPrice = "";
+			// if (trade.getBuyingPriceType() == FuturesTradePriceType.MKT) {
+			// sellPrice = String.valueOf(trade.getSellingPrice());
+			// } else {
+			// sellPrice = String.valueOf(trade.getSellingEntrustPrice());
+			// }
 			data.add(trade.getTradeNo() == null ? "" : trade.getTradeNo());
 			data.add(trade.getCommodityName() == null ? "" : trade.getCommodityName());
 			data.add(trade.getExchangeName() == null ? "" : trade.getExchangeName());
 			data.add(business);
 			data.add(trade.getState() == null ? "" : trade.getState().getType());
 			data.add(String.valueOf(trade.getTotalQuantity() == null ? "" : trade.getTotalQuantity().intValue() + "手"));
-//			data.add(trade.getBuyingTime() == null ? "" : exprotSdf.format(trade.getBuyingTime()));
-//			data.add(buyPrice);
-//			data.add(String.valueOf(trade.getPublisherProfitOrLoss() == null ? "" : trade.getPublisherProfitOrLoss()));
-//			data.add(String.valueOf(trade.getOpenwindServiceFee() == null ? "" : trade.getOpenwindServiceFee()));
-//			data.add(String.valueOf(trade.getReserveFund() == null ? "" : trade.getReserveFund()));
-//			data.add(trade.getSellingTime() == null ? "" : exprotSdf.format(trade.getSellingTime()));
-//			data.add(sellPrice);
-//			data.add(String.valueOf(trade.getPublisherProfitOrLoss() == null ? "" : trade.getPublisherProfitOrLoss()));
-//			data.add(String.valueOf(trade.getUnwindServiceFee() == null ? "" : trade.getUnwindServiceFee()));
-//			data.add(trade.getWindControlType() == null ? "" : trade.getWindControlType().getType());
+			// data.add(trade.getBuyingTime() == null ? "" :
+			// exprotSdf.format(trade.getBuyingTime()));
+			// data.add(buyPrice);
+			// data.add(String.valueOf(trade.getPublisherProfitOrLoss() == null
+			// ? "" : trade.getPublisherProfitOrLoss()));
+			// data.add(String.valueOf(trade.getOpenwindServiceFee() == null ?
+			// "" : trade.getOpenwindServiceFee()));
+			// data.add(String.valueOf(trade.getReserveFund() == null ? "" :
+			// trade.getReserveFund()));
+			// data.add(trade.getSellingTime() == null ? "" :
+			// exprotSdf.format(trade.getSellingTime()));
+			// data.add(sellPrice);
+			// data.add(String.valueOf(trade.getPublisherProfitOrLoss() == null
+			// ? "" : trade.getPublisherProfitOrLoss()));
+			// data.add(String.valueOf(trade.getUnwindServiceFee() == null ? ""
+			// : trade.getUnwindServiceFee()));
+			// data.add(trade.getWindControlType() == null ? "" :
+			// trade.getWindControlType().getType());
 			result.add(data);
 		}
 		return result;

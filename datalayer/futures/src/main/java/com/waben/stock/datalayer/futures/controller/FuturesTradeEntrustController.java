@@ -25,45 +25,48 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(description = "交易委托接口列表")
 public class FuturesTradeEntrustController implements FuturesTradeEntrustInterface {
 
-    Logger logger = LoggerFactory.getLogger(getClass());
+	Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    private FuturesTradeEntrustService futuresTradeEntrustService;
+	@Autowired
+	private FuturesTradeEntrustService futuresTradeEntrustService;
 
-    @Override
-    public Response<FuturesTradeEntrustDto> fetchById(@PathVariable Long id) {
-        return new Response<>(
-                CopyBeanUtils.copyBeanProperties(FuturesTradeEntrustDto.class, futuresTradeEntrustService.findById(id), false));
-    }
+	@Override
+	public Response<FuturesTradeEntrustDto> fetchById(@PathVariable Long id) {
+		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesTradeEntrustDto.class,
+				futuresTradeEntrustService.findById(id), false));
+	}
 
-    @Override
-    public Response<FuturesTradeEntrustDto> save(@RequestBody FuturesTradeEntrustDto dto) {
-        FuturesTradeEntrust futuresTradeEntrust = CopyBeanUtils.copyBeanProperties(
-                FuturesTradeEntrust.class, dto, false);
-        FuturesTradeEntrust result = futuresTradeEntrustService.save(futuresTradeEntrust);
-        FuturesTradeEntrustDto response = CopyBeanUtils.copyBeanProperties(result, new FuturesTradeEntrustDto(),
-                false);
-        return new Response<>(response);
-    }
+	@Override
+	public Response<FuturesTradeEntrustDto> save(@RequestBody FuturesTradeEntrustDto dto) {
+		FuturesTradeEntrust futuresTradeEntrust = CopyBeanUtils.copyBeanProperties(FuturesTradeEntrust.class, dto,
+				false);
+		FuturesTradeEntrust result = futuresTradeEntrustService.save(futuresTradeEntrust);
+		FuturesTradeEntrustDto response = CopyBeanUtils.copyBeanProperties(result, new FuturesTradeEntrustDto(), false);
+		return new Response<>(response);
+	}
 
-    @Override
-    public Response<FuturesTradeEntrustDto> modify(FuturesTradeEntrustDto dto) {
-        FuturesTradeEntrust futuresTradeEntrust = CopyBeanUtils.copyBeanProperties(FuturesTradeEntrust.class, dto, false);
-        FuturesTradeEntrust result = futuresTradeEntrustService.modify(futuresTradeEntrust);
-        FuturesTradeEntrustDto resultDto = CopyBeanUtils.copyBeanProperties(result, new FuturesTradeEntrustDto(),
-                false);
-        return new Response<>(resultDto);
-    }
+	@Override
+	public Response<FuturesTradeEntrustDto> modify(FuturesTradeEntrustDto dto) {
+		FuturesTradeEntrust futuresTradeEntrust = CopyBeanUtils.copyBeanProperties(FuturesTradeEntrust.class, dto,
+				false);
+		FuturesTradeEntrust result = futuresTradeEntrustService.modify(futuresTradeEntrust);
+		FuturesTradeEntrustDto resultDto = CopyBeanUtils.copyBeanProperties(result, new FuturesTradeEntrustDto(),
+				false);
+		return new Response<>(resultDto);
+	}
 
-    @Override
-    public Response<String> delete(Long id) {
-        futuresTradeEntrustService.delete(id);
-        Response<String> res = new Response<String>();
-        res.setCode("200");
-        res.setMessage("响应成功");
-        res.setResult("1");
-        return res;
-    }
+	@Override
+	public Response<String> delete(Long id) {
+		futuresTradeEntrustService.delete(id);
+		Response<String> res = new Response<String>();
+		res.setResult("success");
+		return res;
+	}
 
+	@Override
+	public Response<FuturesTradeEntrustDto> cancelEntrust(@PathVariable Long id, Long publisherId) {
+		return new Response<>(CopyBeanUtils.copyBeanProperties(FuturesTradeEntrustDto.class,
+				futuresTradeEntrustService.cancelEntrust(id, publisherId), false));
+	}
 
 }

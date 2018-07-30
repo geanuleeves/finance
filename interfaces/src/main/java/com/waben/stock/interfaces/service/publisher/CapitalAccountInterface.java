@@ -215,4 +215,19 @@ public interface CapitalAccountInterface {
 	Response<CapitalAccountDto> futuresOrderRevoke(@PathVariable("publisherId") Long publisherId,
 			@PathVariable("orderId") Long orderId, @PathVariable("serviceFee") BigDecimal serviceFee);
 
+	/**
+	 * 期货退回履约保证金
+	 * 
+	 * @param publisherId
+	 *            用户ID
+	 * @param contractOrderId
+	 *            合约订单ID
+	 * @param reserveFund
+	 *            保证金
+	 * @return 资金账号对象
+	 */
+	@RequestMapping(value = "/{publisherId}/{contractOrderId}/futures/returnReserveFund/{reserveFund}", method = RequestMethod.POST)
+	Response<CapitalAccountDto> futuresReturnReserveFund(@PathVariable("publisherId") Long publisherId,
+			@PathVariable("contractOrderId") Long contractOrderId, @PathVariable("reserveFund") BigDecimal reserveFund);
+
 }

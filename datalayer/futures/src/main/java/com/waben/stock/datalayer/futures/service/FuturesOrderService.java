@@ -35,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
 import com.waben.stock.datalayer.futures.business.CapitalFlowBusiness;
 import com.waben.stock.datalayer.futures.business.OrganizationBusiness;
-import com.waben.stock.datalayer.futures.business.OutsideMessageBusiness;
 import com.waben.stock.datalayer.futures.business.ProfileBusiness;
 import com.waben.stock.datalayer.futures.business.PublisherBusiness;
 import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
@@ -45,7 +44,6 @@ import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.entity.FuturesHoliday;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
-import com.waben.stock.datalayer.futures.entity.FuturesStopLossOrProfit;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeAction;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeEntrust;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
@@ -76,7 +74,6 @@ import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
 import com.waben.stock.interfaces.dto.publisher.FrozenCapitalDto;
-import com.waben.stock.interfaces.dto.publisher.PublisherDto;
 import com.waben.stock.interfaces.enums.CapitalFlowExtendType;
 import com.waben.stock.interfaces.enums.CapitalFlowType;
 import com.waben.stock.interfaces.enums.FuturesActionType;
@@ -87,10 +84,7 @@ import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
 import com.waben.stock.interfaces.enums.FuturesTradeLimitType;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.enums.FuturesWindControlType;
-import com.waben.stock.interfaces.enums.OutsideMessageType;
-import com.waben.stock.interfaces.enums.ResourceType;
 import com.waben.stock.interfaces.exception.ServiceException;
-import com.waben.stock.interfaces.pojo.message.OutsideMessage;
 import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
@@ -466,7 +460,7 @@ public class FuturesOrderService {
 	}
 
 	@Transactional
-	public FuturesOrder placeOrder(PlaceOrderParam orderParam) {
+	public FuturesTradeEntrust placeOrder(PlaceOrderParam orderParam) {
 		// step 1 : 检查网关是否正常
 		boolean isConnected = TradeFuturesOverHttp.checkConnection(profileBusiness.isProd());
 		if (!isConnected) {
@@ -495,14 +489,14 @@ public class FuturesOrderService {
 			if (orderParam.getLimitLossType() != null && orderParam.getLimitLossType() > 0
 					&& orderParam.getPerUnitLimitLossAmount() != null
 					&& orderParam.getPerUnitLimitLossAmount().compareTo(BigDecimal.ZERO) > 0) {
-				orderParam.setLimitLossType(orderParam.getLimitLossType());
-				orderParam.setPerUnitLimitLossAmount(orderParam.getPerUnitLimitLossAmount());
+				contractOrder.setLimitLossType(orderParam.getLimitLossType());
+				contractOrder.setPerUnitLimitLossAmount(orderParam.getPerUnitLimitLossAmount());
 			}
 			if (orderParam.getLimitProfitType() != null && orderParam.getLimitProfitType() > 0
 					&& orderParam.getPerUnitLimitProfitAmount() != null
 					&& orderParam.getPerUnitLimitProfitAmount().compareTo(BigDecimal.ZERO) > 0) {
-				orderParam.setLimitProfitType(orderParam.getLimitProfitType());
-				orderParam.setPerUnitLimitProfitAmount(orderParam.getPerUnitLimitProfitAmount());
+				contractOrder.setLimitProfitType(orderParam.getLimitProfitType());
+				contractOrder.setPerUnitLimitProfitAmount(orderParam.getPerUnitLimitProfitAmount());
 			}
 			contractOrder.setUpdateTime(new Date());
 			contractOrderDao.update(contractOrder);
@@ -636,7 +630,7 @@ public class FuturesOrderService {
 		}
 		// step 8 : 放入委托查询队列（开仓）
 		entrueQuery.entrustQuery(tradeEntrust.getId(), 1);
-		return order;
+		return tradeEntrust;
 	}
 
 	/**

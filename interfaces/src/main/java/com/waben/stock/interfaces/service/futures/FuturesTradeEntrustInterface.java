@@ -1,12 +1,14 @@
 package com.waben.stock.interfaces.service.futures;
 
-import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
-import com.waben.stock.interfaces.pojo.Response;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
+import com.waben.stock.interfaces.pojo.Response;
 
 /**
  * 交易委托
@@ -55,5 +57,18 @@ public interface FuturesTradeEntrustInterface {
 	 */
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
 	Response<String> delete(@PathVariable("id") Long id);
+
+	/**
+	 * 取消交易委托
+	 * 
+	 * @param id
+	 *            委托ID
+	 * @param publisherId
+	 *            发布人ID
+	 * @return 委托
+	 */
+	@RequestMapping(value = "/cancelEntrust/{id}", method = RequestMethod.GET)
+	Response<FuturesTradeEntrustDto> cancelEntrust(@PathVariable(name = "id") Long id,
+			@RequestParam("publisherId") Long publisherId);
 
 }

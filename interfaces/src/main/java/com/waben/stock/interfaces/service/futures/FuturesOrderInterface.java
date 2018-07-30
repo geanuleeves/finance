@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
 import com.waben.stock.interfaces.dto.futures.FuturesOvernightRecordDto;
+import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
 import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.pojo.Response;
@@ -53,7 +54,7 @@ public interface FuturesOrderInterface {
 	 * @return 期货订单
 	 */
 	@RequestMapping(value = "/placeOrder", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	Response<FuturesOrderDto> placeOrder(@RequestBody PlaceOrderParam orderParam);
+	Response<FuturesTradeEntrustDto> placeOrder(@RequestBody PlaceOrderParam orderParam);
 
 	/**
 	 * 取消订单
