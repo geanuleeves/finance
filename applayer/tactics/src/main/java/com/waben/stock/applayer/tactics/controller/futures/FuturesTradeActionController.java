@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author chenk 2018/7/27
  */
 @RestController
-@RequestMapping("/futures_trade_entrust")
+@RequestMapping("/futures_trade_action")
 @Api(description = "订单交易开平仓记录")
 public class FuturesTradeActionController {
 
