@@ -108,11 +108,12 @@ public class FuturesTradeBusiness {
 	}
 
 	public FuturesOrderDto buy(FuturesOrderDto orderDto) {
-		Response<FuturesOrderDto> response = futuresOrderInterface.addOrder(orderDto);
-		if ("200".equals(response.getCode())) {
-			return response.getResult();
-		}
-		throw new ServiceException(response.getCode());
+		return null;
+//		Response<FuturesOrderDto> response = futuresOrderInterface.addOrder(orderDto);
+//		if ("200".equals(response.getCode())) {
+//			return response.getResult();
+//		}
+//		throw new ServiceException(response.getCode());
 	}
 
 	public PageInfo<FuturesOrderDto> pageOrder(FuturesOrderQuery orderQuery) {
@@ -205,26 +206,26 @@ public class FuturesTradeBusiness {
 
 				orderMarket.setLastPrice(market.getLastPrice());
 				// 订单结算状态为 已取消或委托失败时 不计算用户盈亏
-				if (orderMarket.getState() != FuturesOrderState.BuyingCanceled
-						&& orderMarket.getState() != FuturesOrderState.BuyingFailure) {
-					if (orderMarket.getPublisherProfitOrLoss() == null && orderMarket.getBuyingPrice() != null) {
-						// 用户买涨盈亏 = （最新价 - 买入价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
-						if (orderMarket.getOrderType() == FuturesOrderType.BuyUp) {
-							orderMarket.setPublisherProfitOrLoss(market.getLastPrice()
-									.subtract(orderMarket.getBuyingPrice())
-									.divide(contract.getMinWave() == null ? BigDecimal.ZERO : contract.getMinWave())
-									.multiply(contract.getPerWaveMoney()).multiply(rate.getRate())
-									.multiply(orderMarket.getTotalQuantity()));
-						} else {
-							// 用户买跌盈亏 = （买入价 - 最新价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
-							orderMarket.setPublisherProfitOrLoss(orderMarket.getBuyingPrice()
-									.subtract(market.getLastPrice())
-									.divide(contract.getMinWave() == null ? BigDecimal.ZERO : contract.getMinWave())
-									.multiply(contract.getPerWaveMoney()).multiply(rate.getRate())
-									.multiply(orderMarket.getTotalQuantity()));
-						}
-					}
-				}
+//				if (orderMarket.getState() != FuturesOrderState.BuyingCanceled
+//						&& orderMarket.getState() != FuturesOrderState.BuyingFailure) {
+//					if (orderMarket.getPublisherProfitOrLoss() == null && orderMarket.getBuyingPrice() != null) {
+//						// 用户买涨盈亏 = （最新价 - 买入价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
+//						if (orderMarket.getOrderType() == FuturesOrderType.BuyUp) {
+//							orderMarket.setPublisherProfitOrLoss(market.getLastPrice()
+//									.subtract(orderMarket.getBuyingPrice())
+//									.divide(contract.getMinWave() == null ? BigDecimal.ZERO : contract.getMinWave())
+//									.multiply(contract.getPerWaveMoney()).multiply(rate.getRate())
+//									.multiply(orderMarket.getTotalQuantity()));
+//						} else {
+//							// 用户买跌盈亏 = （买入价 - 最新价） / 最小波动点 * 波动一次盈亏金额 * 汇率 *手数
+//							orderMarket.setPublisherProfitOrLoss(orderMarket.getBuyingPrice()
+//									.subtract(market.getLastPrice())
+//									.divide(contract.getMinWave() == null ? BigDecimal.ZERO : contract.getMinWave())
+//									.multiply(contract.getPerWaveMoney()).multiply(rate.getRate())
+//									.multiply(orderMarket.getTotalQuantity()));
+//						}
+//					}
+//				}
 			}
 		}
 		return orderList;
