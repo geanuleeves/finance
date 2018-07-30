@@ -28,7 +28,7 @@ public class FuturesContractOrderController {
     private FuturesContractOrderBusiness futuresContractOrderBusiness;
 
     @GetMapping("/pages")
-    @ApiOperation(value = "期货合约列表")
+    @ApiOperation(value = "合约订单列表")
     public Response<PageInfo<FuturesContractOrderViewDto>> pages(int page, int size) {
         FuturesContractOrderQuery query = new FuturesContractOrderQuery(page, size);
         return new Response<>(futuresContractOrderBusiness.pages(query));
