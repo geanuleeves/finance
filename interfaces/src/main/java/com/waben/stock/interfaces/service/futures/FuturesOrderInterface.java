@@ -188,6 +188,6 @@ public interface FuturesOrderInterface {
 	 * @return 浮动盈亏
 	 */
 	@RequestMapping(value = "/totalProfitOrLoss/{publisherId}", method = RequestMethod.GET)
-	Response<BigDecimal> getTotalFloatingProfitAndLoss(@PathVariable Long publisherId);
+	Response<BigDecimal> getTotalFloatingProfitAndLoss(@PathVariable("publisherId") Long publisherId);
 
 }
