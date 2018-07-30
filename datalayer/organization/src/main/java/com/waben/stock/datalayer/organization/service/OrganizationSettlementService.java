@@ -700,8 +700,10 @@ public class OrganizationSettlementService {
 						BenefitConfig childConfig = benefitConfigList.get(i + 1);
 						BigDecimal childRatio = childConfig.getRatio();
 						if (childRatio.compareTo(BigDecimal.ZERO) == 0) {
-							accountService.futureBenefit(benefitConfigList.get(0).getOrg(), amount, currentServiceFee,
-									flowType, flowResourceType, flowResourceId, tradeNo);
+							BigDecimal childServiceFee = currentServiceFee.multiply(ratio.divide(new BigDecimal("100")))
+									.setScale(2, RoundingMode.DOWN);
+							accountService.futureBenefit(config.getOrg(), amount, childServiceFee, flowType,
+									flowResourceType, flowResourceId, tradeNo);
 							break;
 						}
 						if (config.getOrg().getLevel() == 1) {
