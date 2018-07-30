@@ -194,13 +194,22 @@ public class FuturesOrderController {
 	}
 
 	@PostMapping("/applyUnwind/{contractId}")
-	@ApiOperation(value = "快捷平仓")
+	@ApiOperation(value = "市价平仓")
 	public Response<String> applyUnwind(@PathVariable Long contractId,
 			@RequestParam(required = true) FuturesOrderType orderType,
 			@RequestParam(required = true) FuturesTradePriceType sellingPriceType, BigDecimal sellingEntrustPrice) {
 		futuresOrderBusiness.applyUnwind(contractId, orderType, sellingPriceType, sellingEntrustPrice,
 				SecurityUtil.getUserId());
 		return new Response<>("success");
+	}
+	
+	@PostMapping("/applyUnwindAll")
+	@ApiOperation(value = "用户申请一键平仓所有订单")
+	public Response<String> applyUnwindAll() {
+		futuresOrderBusiness.applyUnwindAll(SecurityUtil.getUserId());
+		Response<String> result = new Response<>();
+		result.setResult("success");
+		return result;
 	}
 
 	@PostMapping("/settingProfitAndLossLimit/{contractId}")
@@ -221,15 +230,6 @@ public class FuturesOrderController {
 		return result;
 	}
 	
-	@PostMapping("/applyUnwindAll")
-	@ApiOperation(value = "用户申请一键平仓所有订单")
-	public Response<String> applyUnwindAll() {
-		futuresOrderBusiness.applyUnwindAll(SecurityUtil.getUserId());
-		Response<String> result = new Response<>();
-		result.setResult("success");
-		return result;
-	}
-
 	/******************************************** 分割线 ************************************************/
 
 	@PostMapping("/backhandUnwind/{orderId}")

@@ -39,9 +39,9 @@ public interface FuturesTradeActionRepository extends CustomJpaRepository<Future
 	 */
 	@Query(value = "SELECT sum(actions.filled) FROM f_futures_trade_action actions "
 			+ "LEFT JOIN f_futures_trade_entrust entrust ON entrust.id = trade_entrust_id "
-			+ "WHERE actions.publisherId = ?1 AND entrust.commodityNo = ?2 "
-			+ "AND entrust.contractNo = ?3 and DATEDIFF(actions.tradeTime,NOW())=0 "
-			+ "AND actions.tradeActionType = ?6 AND (actions.status = '4' OR actions.status = '5') "
+			+ "WHERE actions.publisher_id = ?1 AND entrust.commodity_no = ?2 "
+			+ "AND entrust.contract_no = ?3 and DATEDIFF(actions.trade_time,NOW())=0 "
+			+ "AND actions.trade_action_type = ?4 AND (actions.state = '4' OR actions.state = '5') "
 			+ "ORDER BY sort ASC ", nativeQuery = true)
 	Integer findFilledNow(Long publisherId, String commodityNo, String contractNo, String tradeActionType);
 

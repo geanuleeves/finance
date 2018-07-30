@@ -94,6 +94,7 @@ public class FuturesOrderController implements FuturesOrderInterface {
 
 	@Override
 	public Response<Void> applyUnwindAll(@PathVariable Long publisherId) {
+		futuresOrderService.applyUnwindAll(publisherId);
 		return new Response<>();
 	}
 

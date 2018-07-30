@@ -1,5 +1,7 @@
 package com.waben.stock.datalayer.futures.repository.impl.jpa;
 
+import java.util.List;
+
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
 
@@ -11,5 +13,7 @@ import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
 public interface FuturesContractOrderRepository extends CustomJpaRepository<FuturesContractOrder, Long> {
 
 	FuturesContractOrder findByContractAndPublisherId(FuturesContract contract, Long publisherId);
+
+	List<FuturesContractOrder> findByPublisherId(Long publisherId);
 
 }
