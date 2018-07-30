@@ -100,7 +100,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
     }
 
     @Override
-    public Response<PageInfo<FuturesContractOrderViewDto>> pages(FuturesContractOrderQuery query) {
+    public Response<PageInfo<FuturesContractOrderViewDto>> pages(@RequestBody FuturesContractOrderQuery query) {
         Page<FuturesContractOrder> page = futuresContractOrderService.pages(query);
         PageInfo<FuturesContractOrderViewDto> result = PageToPageInfo.pageToPageInfo(page, FuturesContractOrderViewDto.class);
         List<FuturesContractOrderViewDto> futuresContractOrderViewDtos = new ArrayList<>();
