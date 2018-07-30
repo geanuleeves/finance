@@ -214,6 +214,8 @@ public class FuturesOrderController {
 	public Response<FuturesTradeEntrustDto> cancelEntrust(@PathVariable Long entrustId) {
 		return new Response<>(entrustBusiness.cancelEntrust(entrustId, SecurityUtil.getUserId()));
 	}
+	
+	/********************************************分割线************************************************/
 
 	@PostMapping("/applyUnwind/{orderId}")
 	@ApiOperation(value = "用户申请平仓")
