@@ -13,7 +13,7 @@ import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,7 +31,7 @@ public class FuturesContractOrderController {
     @Autowired
     private FuturesContractOrderBusiness futuresContractOrderBusiness;
 
-    @PostMapping("/pages")
+    @GetMapping("/pages")
     @ApiOperation(value = "合约订单列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "contractId", value = "对应的合约ID", dataType = "long", paramType = "query", required = false),
