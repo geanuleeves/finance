@@ -1,8 +1,10 @@
 package com.waben.stock.datalayer.futures.repository.impl;
 
-import java.math.BigDecimal;
-import java.util.List;
-
+import com.waben.stock.datalayer.futures.entity.FuturesOrder;
+import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
+import com.waben.stock.datalayer.futures.repository.impl.jpa.FuturesOrderRepository;
+import com.waben.stock.interfaces.enums.FuturesOrderState;
+import com.waben.stock.interfaces.enums.FuturesOrderType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,11 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
-import com.waben.stock.datalayer.futures.entity.FuturesOrder;
-import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
-import com.waben.stock.datalayer.futures.repository.impl.jpa.FuturesOrderRepository;
-import com.waben.stock.interfaces.enums.FuturesOrderState;
-import com.waben.stock.interfaces.enums.FuturesOrderType;
+import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 期货订单 Impl
@@ -137,6 +136,11 @@ public class FuturesOrderDaoImpl implements FuturesOrderDao {
 	@Override
 	public Integer countByPublisherId(Long publisherId) {
 		return repository.countByPublisherId(publisherId);
+	}
+
+	@Override
+	public BigDecimal getAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
+		return repository.getAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
 	}
 
 }

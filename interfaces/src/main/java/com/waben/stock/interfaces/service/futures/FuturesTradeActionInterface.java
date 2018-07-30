@@ -1,7 +1,10 @@
 package com.waben.stock.interfaces.service.futures;
 
 import com.waben.stock.interfaces.dto.futures.FuturesTradeActionDto;
+import com.waben.stock.interfaces.dto.futures.FuturesTradeActionViewDto;
 import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeActionQuery;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -55,5 +58,13 @@ public interface FuturesTradeActionInterface {
 	 */
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
 	Response<String> delete(@PathVariable("id") Long id);
+
+	/**
+	 * 根据条件查询合约订单
+	 * @param query
+	 * @return
+	 */
+	@RequestMapping(value = "/pages", method = RequestMethod.GET)
+	Response<PageInfo<FuturesTradeActionViewDto>> pagesAdmin(@RequestBody FuturesTradeActionQuery query);
 
 }

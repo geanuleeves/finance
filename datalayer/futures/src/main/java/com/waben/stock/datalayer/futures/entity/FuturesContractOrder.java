@@ -1,15 +1,8 @@
 package com.waben.stock.datalayer.futures.entity;
 
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 
 /**
  * 合约订单
@@ -50,26 +43,48 @@ public class FuturesContractOrder {
 	private BigDecimal lightQuantity;
 	/** 保证金 */
 	private BigDecimal reserveFund;
+
 	/**
-	 * 触发止盈类型（用户设置）
+	 * 买-触发止盈类型（用户设置）
 	 * <ul>
 	 * <li>1 价格</li>
 	 * <li>2 金额</li>
 	 * </ul>
 	 */
-	private Integer limitProfitType;
-	/** 止盈金额（用户设置） */
-	private BigDecimal perUnitLimitProfitAmount;
+	private Integer buyUpLimitProfitType;
+	/** 买-止盈金额（用户设置） */
+	private BigDecimal buyUpPerUnitLimitProfitAmount;
 	/**
-	 * 触发止损类型（用户设置）
+	 * 买-触发止损类型（用户设置）
 	 * <ul>
 	 * <li>1 价格</li>
 	 * <li>2 金额</li>
 	 * </ul>
 	 */
-	private Integer limitLossType;
-	/** 止损金额（用户设置） */
-	private BigDecimal perUnitLimitLossAmount;
+	private Integer buyUpLimitLossType;
+	/** 买-止损金额（用户设置） */
+	private BigDecimal buyUpPerUnitLimitLossAmount;
+
+	/**
+	 * 卖-触发止盈类型（用户设置）
+	 * <ul>
+	 * <li>1 价格</li>
+	 * <li>2 金额</li>
+	 * </ul>
+	 */
+	private Integer buyFallLimitProfitType;
+	/** 卖-止盈金额（用户设置） */
+	private BigDecimal buyFallLerUnitLimitProfitAmount;
+	/**
+	 * 卖-触发止损类型（用户设置）
+	 * <ul>
+	 * <li>1 价格</li>
+	 * <li>2 金额</li>
+	 * </ul>
+	 */
+	private Integer buyFallLimitLossType;
+	/** 卖-止损金额（用户设置） */
+	private BigDecimal buyFallPerUnitLimitLossAmount;
 	/** 更新时间 */
 	private Date updateTime;
 
@@ -153,36 +168,68 @@ public class FuturesContractOrder {
 		this.updateTime = updateTime;
 	}
 
-	public Integer getLimitProfitType() {
-		return limitProfitType;
+	public Integer getBuyUpLimitProfitType() {
+		return buyUpLimitProfitType;
 	}
 
-	public void setLimitProfitType(Integer limitProfitType) {
-		this.limitProfitType = limitProfitType;
+	public void setBuyUpLimitProfitType(Integer buyUpLimitProfitType) {
+		this.buyUpLimitProfitType = buyUpLimitProfitType;
 	}
 
-	public BigDecimal getPerUnitLimitProfitAmount() {
-		return perUnitLimitProfitAmount;
+	public BigDecimal getBuyUpPerUnitLimitProfitAmount() {
+		return buyUpPerUnitLimitProfitAmount;
 	}
 
-	public void setPerUnitLimitProfitAmount(BigDecimal perUnitLimitProfitAmount) {
-		this.perUnitLimitProfitAmount = perUnitLimitProfitAmount;
+	public void setBuyUpPerUnitLimitProfitAmount(BigDecimal buyUpPerUnitLimitProfitAmount) {
+		this.buyUpPerUnitLimitProfitAmount = buyUpPerUnitLimitProfitAmount;
 	}
 
-	public Integer getLimitLossType() {
-		return limitLossType;
+	public Integer getBuyUpLimitLossType() {
+		return buyUpLimitLossType;
 	}
 
-	public void setLimitLossType(Integer limitLossType) {
-		this.limitLossType = limitLossType;
+	public void setBuyUpLimitLossType(Integer buyUpLimitLossType) {
+		this.buyUpLimitLossType = buyUpLimitLossType;
 	}
 
-	public BigDecimal getPerUnitLimitLossAmount() {
-		return perUnitLimitLossAmount;
+	public BigDecimal getBuyUpPerUnitLimitLossAmount() {
+		return buyUpPerUnitLimitLossAmount;
 	}
 
-	public void setPerUnitLimitLossAmount(BigDecimal perUnitLimitLossAmount) {
-		this.perUnitLimitLossAmount = perUnitLimitLossAmount;
+	public void setBuyUpPerUnitLimitLossAmount(BigDecimal buyUpPerUnitLimitLossAmount) {
+		this.buyUpPerUnitLimitLossAmount = buyUpPerUnitLimitLossAmount;
+	}
+
+	public Integer getBuyFallLimitProfitType() {
+		return buyFallLimitProfitType;
+	}
+
+	public void setBuyFallLimitProfitType(Integer buyFallLimitProfitType) {
+		this.buyFallLimitProfitType = buyFallLimitProfitType;
+	}
+
+	public BigDecimal getBuyFallLerUnitLimitProfitAmount() {
+		return buyFallLerUnitLimitProfitAmount;
+	}
+
+	public void setBuyFallLerUnitLimitProfitAmount(BigDecimal buyFallLerUnitLimitProfitAmount) {
+		this.buyFallLerUnitLimitProfitAmount = buyFallLerUnitLimitProfitAmount;
+	}
+
+	public Integer getBuyFallLimitLossType() {
+		return buyFallLimitLossType;
+	}
+
+	public void setBuyFallLimitLossType(Integer buyFallLimitLossType) {
+		this.buyFallLimitLossType = buyFallLimitLossType;
+	}
+
+	public BigDecimal getBuyFallPerUnitLimitLossAmount() {
+		return buyFallPerUnitLimitLossAmount;
+	}
+
+	public void setBuyFallPerUnitLimitLossAmount(BigDecimal buyFallPerUnitLimitLossAmount) {
+		this.buyFallPerUnitLimitLossAmount = buyFallPerUnitLimitLossAmount;
 	}
 
 	public BigDecimal getBuyUpTotalQuantity() {
