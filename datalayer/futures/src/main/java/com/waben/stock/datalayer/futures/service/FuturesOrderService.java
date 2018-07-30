@@ -512,8 +512,10 @@ public class FuturesOrderService {
 			contractOrder.setBuyUpQuantity(BigDecimal.ZERO);
 			if (orderType == FuturesOrderType.BuyUp) {
 				contractOrder.setBuyUpTotalQuantity(totalQuantity);
+				contractOrder.setBuyFallTotalQuantity(BigDecimal.ZERO);
 			} else {
 				contractOrder.setBuyFallTotalQuantity(totalQuantity);
+				contractOrder.setBuyUpTotalQuantity(BigDecimal.ZERO);
 			}
 			contractOrder.setContract(contract);
 			contractOrder.setCommodityNo(contract.getCommodity().getSymbol());
