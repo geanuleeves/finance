@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
 import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.query.PageInfo;
 
 /**
  * 交易委托
@@ -70,5 +71,13 @@ public interface FuturesTradeEntrustInterface {
 	@RequestMapping(value = "/cancelEntrust/{id}", method = RequestMethod.GET)
 	Response<FuturesTradeEntrustDto> cancelEntrust(@PathVariable(name = "id") Long id,
 			@RequestParam("publisherId") Long publisherId);
+	
+	/**
+	 * 根据条件查询交易委托
+	 * @param query
+	 * @return
+	 */
+	@RequestMapping(value = "/pages", method = RequestMethod.GET)
+	Response<PageInfo<FuturesTradeEntrustDto>> pagesAdmin(@RequestBody FuturesTradeEntrustQuery query);
 
 }

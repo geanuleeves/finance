@@ -2,16 +2,29 @@ package com.waben.stock.datalayer.futures.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
 import com.waben.stock.datalayer.futures.business.OutsideMessageBusiness;
@@ -36,6 +49,7 @@ import com.waben.stock.interfaces.enums.OutsideMessageType;
 import com.waben.stock.interfaces.enums.ResourceType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.message.OutsideMessage;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeEntrustQuery;
 
 /**
  * 交易委托
@@ -64,6 +78,9 @@ public class FuturesTradeEntrustService {
 
 	@Autowired
 	private OutsideMessageBusiness outsideMessageBusiness;
+
+	@Autowired
+	private FuturesTradeEntrustDao futuresTradeEntrustDao;
 
 	public FuturesTradeEntrust findById(Long id) {
 		return dao.retrieve(id);
@@ -385,6 +402,77 @@ public class FuturesTradeEntrustService {
 			avgFillPrice = divideArr[0].multiply(minWave);
 		}
 		return avgFillPrice;
+	}
+
+	public Page<FuturesTradeEntrust> pages(final FuturesTradeEntrustQuery query) {
+		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
+		Page<FuturesTradeEntrust> page = futuresTradeEntrustDao.page(new Specification<FuturesTradeEntrust>() {
+			@Override
+			public Predicate toPredicate(Root<FuturesTradeEntrust> root, CriteriaQuery<?> criteriaQuery,
+										 CriteriaBuilder criteriaBuilder) {
+				List<Predicate> predicateList = new ArrayList<Predicate>();
+
+				//委托编号
+				if (!StringUtils.isEmpty(query.getEntrustNo())) {
+					predicateList.add(criteriaBuilder.equal(root.get("entrustNo").as(String.class), query.getEntrustNo()));
+				}
+
+				//用户ID
+				if (query.getPublisherId() != null && query.getPublisherId() != 0) {
+					predicateList.add(criteriaBuilder.equal(root.get("publisherId").as(Long.class), query.getPublisherId()));
+				}
+				//联合查询合约
+				Join<FuturesTradeEntrust, FuturesContract> contractJoin = root.join("contract", JoinType.LEFT);
+				if (query.getContractId() != null && query.getContractId() != 0) {
+					Predicate contractId = criteriaBuilder.equal(contractJoin.get("id").as(Long.class),
+							query.getContractId());
+					predicateList.add(criteriaBuilder.and(contractId));
+				}
+				//品种编号
+				if (!StringUtils.isEmpty(query.getCommodityNo())) {
+					predicateList.add(criteriaBuilder.equal(root.get("commodityNo").as(String.class), query.getCommodityNo()));
+				}
+				//合约编号
+				if (!StringUtils.isEmpty(query.getContractNo())) {
+					predicateList.add(criteriaBuilder.equal(root.get("contractNo").as(String.class), query.getContractNo()));
+				}
+				//订单类型
+				if (!StringUtils.isEmpty(query.getOrderType())) {
+					predicateList.add(criteriaBuilder.equal(root.get("orderType").as(String.class), query.getOrderType()));
+				}
+				//委托时间
+				if (query.getEntrustTime() != null) {
+					Predicate entrustTime = criteriaBuilder.greaterThanOrEqualTo(root.get("entrustTime").as(Date.class),
+							query.getEntrustTime());
+					predicateList.add(criteriaBuilder.and(entrustTime));
+				}
+				//价格类型
+				if (!StringUtils.isEmpty(query.getPriceType())) {
+					predicateList.add(criteriaBuilder.equal(root.get("priceType").as(String.class), query.getPriceType()));
+				}
+				//交易开平仓 类型
+				if (!StringUtils.isEmpty(query.getTradeActionType())) {
+					predicateList.add(criteriaBuilder.equal(root.get("tradeActionType").as(String.class), query.getTradeActionType()));
+				}
+				//委托状态
+				if (!StringUtils.isEmpty(query.getState())) {
+					predicateList.add(criteriaBuilder.equal(root.get("state").as(String.class), query.getState()));
+				}
+				//交易成功时间
+				if (query.getTradeTime() != null) {
+					Predicate tradeTime = criteriaBuilder.greaterThanOrEqualTo(root.get("tradeTime").as(Date.class),
+							query.getTradeTime());
+					predicateList.add(criteriaBuilder.and(tradeTime));
+				}
+				if (predicateList.size() > 0) {
+					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
+				}
+				//以委托时间排序
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("entrustTime").as(Date.class)));
+				return criteriaQuery.getRestriction();
+			}
+		}, pageable);
+		return page;
 	}
 
 }
