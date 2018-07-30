@@ -1,12 +1,18 @@
 package com.waben.stock.interfaces.dto.futures;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.waben.stock.interfaces.enums.FuturesOrderType;
-import io.swagger.annotations.ApiModelProperty;
-
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.waben.stock.interfaces.enums.FuturesOrderType;
+
+import io.swagger.annotations.ApiModelProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FuturesContractOrderViewDto implements Serializable,Cloneable {
