@@ -70,13 +70,6 @@ public class FuturesContractOrderService {
                 if (query.getPublisherId() != null && query.getPublisherId() != 0) {
                     predicateList.add(criteriaBuilder.equal(root.get("publisherId").as(Long.class), query.getPublisherId()));
                 }
-                //联合查询合约
-                Join<FuturesContractOrder, FuturesContract> contractJoin = root.join("contract", JoinType.LEFT);
-                if (query.getContractId() != null && query.getContractId() != 0) {
-                    Predicate contractId = criteriaBuilder.equal(contractJoin.get("id").as(Long.class),
-                            query.getContractId());
-                    predicateList.add(criteriaBuilder.and(contractId));
-                }
                 //品种编号
                 if (!StringUtils.isEmpty(query.getCommodityNo())) {
                     predicateList.add(criteriaBuilder.equal(root.get("commodityNo").as(String.class), query.getCommodityNo()));
