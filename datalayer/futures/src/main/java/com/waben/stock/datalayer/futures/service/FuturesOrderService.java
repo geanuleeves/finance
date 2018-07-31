@@ -384,10 +384,10 @@ public class FuturesOrderService {
 					predicateList.add(root.get("state").in(query.getStates()));
 				}
 				// 盈利了的交易
-				if (query.isOnlyProfit()) {
-					predicateList.add(criteriaBuilder.gt(root.get("publisherProfitOrLoss").as(BigDecimal.class),
-							new BigDecimal(0)));
-				}
+//				if (query.isOnlyProfit()) {
+//					predicateList.add(criteriaBuilder.gt(root.get("publisherProfitOrLoss").as(BigDecimal.class),
+//							new BigDecimal(0)));
+//				}
 				// 交易动态过滤已到期数据
 				if (query.isExpire()) {
 					Join<FuturesOrder, FuturesContract> contractJoin = root.join("contract", JoinType.LEFT);
@@ -403,13 +403,13 @@ public class FuturesOrderService {
 				}
 				// 起始日期
 				if (query.getStartBuyingTime() != null) {
-					Predicate stateTime = criteriaBuilder.greaterThanOrEqualTo(root.get("buyingTime").as(Date.class),
+					Predicate stateTime = criteriaBuilder.greaterThanOrEqualTo(root.get("openTradeTime").as(Date.class),
 							query.getStartBuyingTime());
 					predicateList.add(criteriaBuilder.and(stateTime));
 				}
 				// 结束日期
 				if (query.getEndBuyingTime() != null) {
-					Predicate endTime = criteriaBuilder.lessThan(root.get("buyingTime").as(Date.class),
+					Predicate endTime = criteriaBuilder.lessThan(root.get("openTradeTime").as(Date.class),
 							query.getEndBuyingTime());
 					predicateList.add(criteriaBuilder.and(endTime));
 				}
@@ -441,12 +441,12 @@ public class FuturesOrderService {
 						orderList.add(criteriaBuilder.desc(root.get("updateTime").as(Date.class)));
 						criteriaQuery.orderBy(orderList);
 					} else if (orderStateArrToString(query.getStates()).equals(orderStateArrToString(wtStates))) {
-						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingEntrustTime").as(Date.class)));
+						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("postTime").as(Date.class)));
 					} else if (orderStateArrToString(query.getStates()).equals(orderStateArrToString(positionStates))) {
-						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingTime").as(Date.class)));
+						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("openTradeTime").as(Date.class)));
 					} else if (orderStateArrToString(query.getStates())
 							.equals(orderStateArrToString(monitorPositionStates))) {
-						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("buyingTime").as(Date.class)));
+						criteriaQuery.orderBy(criteriaBuilder.desc(root.get("openTradeTime").as(Date.class)));
 					}
 				}
 				return criteriaQuery.getRestriction();
