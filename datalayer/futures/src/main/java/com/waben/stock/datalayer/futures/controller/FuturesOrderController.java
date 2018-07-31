@@ -51,7 +51,6 @@ public class FuturesOrderController implements FuturesOrderInterface {
 	@Autowired
 	private FuturesContractOrderService futuresContractOrderService;
 
-
 	@Override
 	public Response<PageInfo<FuturesOrderDto>> pagesOrder(@RequestBody FuturesOrderQuery orderQuery) {
 		Page<FuturesOrder> page = futuresOrderService.pagesOrder(orderQuery);
@@ -99,7 +98,17 @@ public class FuturesOrderController implements FuturesOrderInterface {
 	}
 
 	@Override
-	public Response<FuturesOrderDto> backhandUnwind(@PathVariable Long id, Long publisherId) {
+	public Response<Void> backhandUnwind(@PathVariable Long contractId, String orderTypeIndex,
+			String sellingPriceTypeIndex, BigDecimal sellingEntrustPrice, Long publisherId) {
+		// TODO
+		return new Response<>();
+	}
+
+	@Override
+	public Response<Void> balanceUnwind(@PathVariable Long contractId, String orderTypeIndex,
+			String sellingPriceTypeIndex, BigDecimal sellingEntrustPrice, Long publisherId, BigDecimal quantity) {
+		futuresOrderService.balanceUnwind(contractId, FuturesOrderType.getByIndex(orderTypeIndex),
+				FuturesTradePriceType.getByIndex(sellingPriceTypeIndex), sellingEntrustPrice, publisherId, quantity);
 		return new Response<>();
 	}
 
@@ -153,31 +162,34 @@ public class FuturesOrderController implements FuturesOrderInterface {
 		FuturesContractOrderQuery futuresContractOrderQuery = new FuturesContractOrderQuery();
 		futuresContractOrderQuery.setPublisherId(publisherId);
 		Page<FuturesContractOrder> page = futuresContractOrderService.pages(futuresContractOrderQuery);
-		PageInfo<FuturesContractOrderViewDto> result = PageToPageInfo.pageToPageInfo(page, FuturesContractOrderViewDto.class);
+		PageInfo<FuturesContractOrderViewDto> result = PageToPageInfo.pageToPageInfo(page,
+				FuturesContractOrderViewDto.class);
 		BigDecimal totalFloatingProfitAndLoss = new BigDecimal(0);
 		if (result != null && result.getContent() != null) {
 			for (int i = 0; i < result.getContent().size(); i++) {
 				FuturesContractOrder futuresContractOrder = page.getContent().get(i);
-				FuturesCommodity futuresCommodity = futuresCommodityService.retrieveByCommodityNo(
-						futuresContractOrder.getCommodityNo());
-				//已成交部分最新均价
+				FuturesCommodity futuresCommodity = futuresCommodityService
+						.retrieveByCommodityNo(futuresContractOrder.getCommodityNo());
+				// 已成交部分最新均价
 				BigDecimal lastPrice = quoteContainer.getLastPrice(futuresContractOrder.getCommodityNo(),
 						futuresContractOrder.getContractNo());
 				if (futuresCommodity != null) {
-					//成交价格-买涨
-					BigDecimal avgUpFillPrice = futuresOrderService.getAvgFillPrice(futuresContractOrder.getPublisherId(),
-							futuresContractOrder.getContractNo(), futuresContractOrder.getCommodityNo(),
-							FuturesOrderType.BuyUp.getIndex());
-					//成交价格-买跌
-					BigDecimal avgFallFillPrice = futuresOrderService.getAvgFillPrice(futuresContractOrder.getPublisherId(),
-							futuresContractOrder.getContractNo(), futuresContractOrder.getCommodityNo(),
-							FuturesOrderType.BuyFall.getIndex());
-					//买涨浮动盈亏
-					BigDecimal buyUpFloatingProfitAndLoss = lastPrice.subtract(avgUpFillPrice).divide(futuresCommodity.getMinWave())
-							.multiply(futuresCommodity.getPerWaveMoney()).multiply(futuresContractOrder.getBuyUpQuantity());
-					//买跌浮动盈亏
-					BigDecimal buyFallFloatingProfitAndLoss = lastPrice.subtract(avgFallFillPrice).divide(futuresCommodity.getMinWave())
-							.multiply(futuresCommodity.getPerWaveMoney()).multiply(futuresContractOrder.getBuyFallQuantity());
+					// 成交价格-买涨
+					BigDecimal avgUpFillPrice = futuresOrderService.getAvgFillPrice(
+							futuresContractOrder.getPublisherId(), futuresContractOrder.getContractNo(),
+							futuresContractOrder.getCommodityNo(), FuturesOrderType.BuyUp.getIndex());
+					// 成交价格-买跌
+					BigDecimal avgFallFillPrice = futuresOrderService.getAvgFillPrice(
+							futuresContractOrder.getPublisherId(), futuresContractOrder.getContractNo(),
+							futuresContractOrder.getCommodityNo(), FuturesOrderType.BuyFall.getIndex());
+					// 买涨浮动盈亏
+					BigDecimal buyUpFloatingProfitAndLoss = lastPrice.subtract(avgUpFillPrice)
+							.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
+							.multiply(futuresContractOrder.getBuyUpQuantity());
+					// 买跌浮动盈亏
+					BigDecimal buyFallFloatingProfitAndLoss = lastPrice.subtract(avgFallFillPrice)
+							.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
+							.multiply(futuresContractOrder.getBuyFallQuantity());
 					totalFloatingProfitAndLoss.add(buyUpFloatingProfitAndLoss).add(buyFallFloatingProfitAndLoss);
 				}
 			}
