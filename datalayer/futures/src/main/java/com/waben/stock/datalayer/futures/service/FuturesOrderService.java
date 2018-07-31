@@ -794,19 +794,46 @@ public class FuturesOrderService {
 
 	public void applyUnwindAll(Long publisherId) {
 		List<FuturesContractOrder> contractOrderList = contractOrderDao.retrieveByPublisherId(publisherId);
-		if(contractOrderList != null && contractOrderList.size() > 0) {
-			for(FuturesContractOrder contractOrder : contractOrderList) {
+		if (contractOrderList != null && contractOrderList.size() > 0) {
+			for (FuturesContractOrder contractOrder : contractOrderList) {
 				FuturesContract contract = contractOrder.getContract();
 				BigDecimal buyUpQuantity = contractOrder.getBuyUpCanUnwindQuantity();
 				BigDecimal buyFallQuantity = contractOrder.getBuyFallCanUnwindQuantity();
-				if(buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
-					doUnwind(contract, contractOrder, FuturesOrderType.BuyUp, buyUpQuantity, FuturesTradePriceType.MKT, null, publisherId);
+				if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
+					doUnwind(contract, contractOrder, FuturesOrderType.BuyUp, buyUpQuantity, FuturesTradePriceType.MKT,
+							null, publisherId);
 				}
-				if(buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
-					doUnwind(contract, contractOrder, FuturesOrderType.BuyFall, buyFallQuantity, FuturesTradePriceType.MKT, null, publisherId);
+				if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
+					doUnwind(contract, contractOrder, FuturesOrderType.BuyFall, buyFallQuantity,
+							FuturesTradePriceType.MKT, null, publisherId);
 				}
 			}
 		}
+	}
+
+	public void balanceUnwind(Long contractId, FuturesOrderType orderType, FuturesTradePriceType sellingPriceType,
+			BigDecimal sellingEntrustPrice, Long publisherId, BigDecimal quantity) {
+		FuturesContract contract = contractDao.retrieve(contractId);
+		if (contract == null) {
+			throw new ServiceException(ExceptionConstant.DATANOTFOUND_EXCEPTION);
+		}
+		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract, publisherId);
+		if (contractOrder == null) {
+			return;
+		}
+		BigDecimal canQuantity = BigDecimal.ZERO;
+		if (orderType == FuturesOrderType.BuyUp) {
+			canQuantity = contractOrder.getBuyUpCanUnwindQuantity();
+		} else {
+			canQuantity = contractOrder.getBuyFallCanUnwindQuantity();
+		}
+		if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
+			return;
+		}
+		if (canQuantity.compareTo(quantity) < 0) {
+			throw new ServiceException(ExceptionConstant.UNWINDQUANTITY_NOTENOUGH_EXCEPTION);
+		}
+		doUnwind(contract, contractOrder, orderType, quantity, FuturesTradePriceType.MKT, null, publisherId);
 	}
 
 	public void settingProfitAndLossLimit(Long publisherId, Long contractId, FuturesOrderType orderType,

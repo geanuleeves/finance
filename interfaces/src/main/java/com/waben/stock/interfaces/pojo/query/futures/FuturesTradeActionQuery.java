@@ -1,9 +1,10 @@
 package com.waben.stock.interfaces.pojo.query.futures;
 
-import com.waben.stock.interfaces.pojo.query.PageAndSortQuery;
-import io.swagger.annotations.ApiModelProperty;
-
 import java.util.Date;
+
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
+import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
+import com.waben.stock.interfaces.pojo.query.PageAndSortQuery;
 
 /**
  * 订单交易开平仓记录
@@ -12,112 +13,75 @@ import java.util.Date;
  */
 public class FuturesTradeActionQuery extends PageAndSortQuery {
 
-    @ApiModelProperty(value = "用户ID")
-    private Long publisherId;
+	/** 发布人ID */
+	private Long publisherId;
+	/** 名称（品种名称+合约编号模糊查询） */
+	private String name;
+	/** 交易成交时间-查询开始时间 */
+	private Date startTime;
+	/** 交易成交时间-查询结束时间 */
+	private Date endTime;
+	/** 开平仓类型 */
+	private FuturesTradeActionType tradeActionType;
+	/** 成交状态 */
+	private FuturesTradeEntrustState[] states;
 
-    @ApiModelProperty(value = "对应的订单")
-    private Long orderId;
+	public FuturesTradeActionQuery() {
+		super();
+	}
 
-    @ApiModelProperty(value = "对应的委托")
-    private Long tradeEntrustId;
+	public FuturesTradeActionQuery(int page, int size) {
+		super();
+		super.setPage(page);
+		super.setSize(size);
+	}
 
-    @ApiModelProperty(value = "委托时间")
-    private Date entrustTime;
+	public String getName() {
+		return name;
+	}
 
-    @ApiModelProperty(value = "交易开平仓 类型")
-    private String tradeActionType;
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    @ApiModelProperty(value = "风控类型")
-    private String windControlType;
+	public Date getStartTime() {
+		return startTime;
+	}
 
-    @ApiModelProperty(value = "委托状态")
-    private String state;
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
 
-    @ApiModelProperty(value = "交易成功时间")
-    private Date tradeTime;
+	public Date getEndTime() {
+		return endTime;
+	}
 
-    @ApiModelProperty(value = "结算时间")
-    private Date settlementTime;
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
 
-    public FuturesTradeActionQuery() {
-        super();
-    }
+	public FuturesTradeActionType getTradeActionType() {
+		return tradeActionType;
+	}
 
-    public FuturesTradeActionQuery(int page, int size) {
-        super();
-        super.setPage(page);
-        super.setSize(size);
-    }
+	public void setTradeActionType(FuturesTradeActionType tradeActionType) {
+		this.tradeActionType = tradeActionType;
+	}
 
-    public Long getPublisherId() {
-        return publisherId;
-    }
+	public Long getPublisherId() {
+		return publisherId;
+	}
 
-    public void setPublisherId(Long publisherId) {
-        this.publisherId = publisherId;
-    }
+	public void setPublisherId(Long publisherId) {
+		this.publisherId = publisherId;
+	}
 
-    public Long getOrderId() {
-        return orderId;
-    }
+	public FuturesTradeEntrustState[] getStates() {
+		return states;
+	}
 
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
-    }
+	public void setStates(FuturesTradeEntrustState[] states) {
+		this.states = states;
+	}
 
-    public Long getTradeEntrustId() {
-        return tradeEntrustId;
-    }
-
-    public void setTradeEntrustId(Long tradeEntrustId) {
-        this.tradeEntrustId = tradeEntrustId;
-    }
-
-    public Date getEntrustTime() {
-        return entrustTime;
-    }
-
-    public void setEntrustTime(Date entrustTime) {
-        this.entrustTime = entrustTime;
-    }
-
-    public String getTradeActionType() {
-        return tradeActionType;
-    }
-
-    public void setTradeActionType(String tradeActionType) {
-        this.tradeActionType = tradeActionType;
-    }
-
-    public String getWindControlType() {
-        return windControlType;
-    }
-
-    public void setWindControlType(String windControlType) {
-        this.windControlType = windControlType;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public Date getTradeTime() {
-        return tradeTime;
-    }
-
-    public void setTradeTime(Date tradeTime) {
-        this.tradeTime = tradeTime;
-    }
-
-    public Date getSettlementTime() {
-        return settlementTime;
-    }
-
-    public void setSettlementTime(Date settlementTime) {
-        this.settlementTime = settlementTime;
-    }
 }

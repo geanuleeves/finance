@@ -2,7 +2,9 @@ package com.waben.stock.datalayer.futures.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -43,11 +45,22 @@ public class FuturesCurrencyRateService {
 		currencyRateDao.delete(id);
 
 	}
-	
-	public FuturesCurrencyRate queryByName(String currency){
+
+	public Map<String, FuturesCurrencyRate> getRateMap() {
+		Map<String, FuturesCurrencyRate> result = new HashMap<>();
+		List<FuturesCurrencyRate> rateList = currencyRateDao.list();
+		if (rateList != null && rateList.size() > 0) {
+			for (FuturesCurrencyRate rate : rateList) {
+				result.put(rate.getCurrency(), rate);
+			}
+		}
+		return result;
+	}
+
+	public FuturesCurrencyRate queryByName(String currency) {
 		List<FuturesCurrencyRate> list = currencyRateDao.retrieveByCurrency(currency);
-		//retrieveByCurrencyName(currencyName);
-		if(list.size()>0){
+		// retrieveByCurrencyName(currencyName);
+		if (list.size() > 0) {
 			return list.get(0);
 		}
 		return null;

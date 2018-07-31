@@ -75,6 +75,20 @@ public class FuturesTradeActionDto {
 	@ApiModelProperty(value = "更新时间")
 	private Date updateTime;
 
+	/***************** 以下字段为额外数据 ********************/
+	/** 合约ID */
+	@ApiModelProperty(value = "合约ID")
+	private Long contractId;
+	/** 品种名称 */
+	@ApiModelProperty(value = "品种名称")
+	private String commodityName;
+	/** 品种编号 */
+	@ApiModelProperty(value = "品种编号")
+	private String commodityNo;
+	/** 合约编号 */
+	@ApiModelProperty(value = "合约编号")
+	private String contractNo;
+
 	public Long getId() {
 		return id;
 	}
@@ -241,6 +255,38 @@ public class FuturesTradeActionDto {
 
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
+	}
+
+	public Long getContractId() {
+		return contractId;
+	}
+
+	public void setContractId(Long contractId) {
+		this.contractId = contractId;
+	}
+
+	public String getCommodityName() {
+		return commodityName;
+	}
+
+	public void setCommodityName(String commodityName) {
+		this.commodityName = commodityName;
+	}
+
+	public String getCommodityNo() {
+		return commodityNo;
+	}
+
+	public void setCommodityNo(String commodityNo) {
+		this.commodityNo = commodityNo;
+	}
+
+	public String getContractNo() {
+		return contractNo;
+	}
+
+	public void setContractNo(String contractNo) {
+		this.contractNo = contractNo;
 	}
 
 }

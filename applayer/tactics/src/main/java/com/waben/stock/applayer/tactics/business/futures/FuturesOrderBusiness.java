@@ -94,10 +94,22 @@ public class FuturesOrderBusiness {
 		throw new ServiceException(response.getCode());
 	}
 
-	public FuturesOrderDto backhandUnwind(Long orderId, Long publisherId) {
-		Response<FuturesOrderDto> response = futuresOrderInterface.backhandUnwind(orderId, publisherId);
+	public void backhandUnwind(Long contractId, FuturesOrderType orderType, FuturesTradePriceType sellingPriceType,
+			BigDecimal sellingEntrustPrice, Long publisherId) {
+		Response<Void> response = futuresOrderInterface.backhandUnwind(contractId, orderType.getIndex(),
+				sellingPriceType.getIndex(), sellingEntrustPrice, publisherId);
 		if ("200".equals(response.getCode())) {
-			return response.getResult();
+			return;
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public void balanceUnwind(Long contractId, FuturesOrderType orderType, FuturesTradePriceType sellingPriceType,
+			BigDecimal sellingEntrustPrice, Long publisherId, BigDecimal quantity) {
+		Response<Void> response = futuresOrderInterface.balanceUnwind(contractId, orderType.getIndex(),
+				sellingPriceType.getIndex(), sellingEntrustPrice, publisherId, quantity);
+		if ("200".equals(response.getCode())) {
+			return;
 		}
 		throw new ServiceException(response.getCode());
 	}

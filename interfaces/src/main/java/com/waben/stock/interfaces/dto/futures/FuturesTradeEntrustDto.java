@@ -1,25 +1,27 @@
 package com.waben.stock.interfaces.dto.futures;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.enums.FuturesTradeActionType;
 import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
-import io.swagger.annotations.ApiModelProperty;
+import com.waben.stock.interfaces.enums.FuturesWindControlType;
 
-import java.math.BigDecimal;
-import java.util.Date;
+import io.swagger.annotations.ApiModelProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FuturesTradeEntrustDto {
 
 	private Long id;
-	/** 委托编号 */
-	@ApiModelProperty(value = "委托编号")
-	private String entrustNo;
 	/** 用户ID */
 	@ApiModelProperty(value = "用户ID")
 	private Long publisherId;
+	/** 委托编号 */
+	@ApiModelProperty(value = "委托编号")
+	private String entrustNo;
 	/** 品种编号 */
 	@ApiModelProperty(value = "品种编号")
 	private String commodityNo;
@@ -30,7 +32,7 @@ public class FuturesTradeEntrustDto {
 	@ApiModelProperty(value = "订单交易类型")
 	private FuturesOrderType orderType;
 	/** 委托时间 */
-	@ApiModelProperty(value = "委托时间")
+	@ApiModelProperty(value = "委托时间 ")
 	private Date entrustTime;
 	/** 价格类型 */
 	@ApiModelProperty(value = "价格类型")
@@ -41,9 +43,18 @@ public class FuturesTradeEntrustDto {
 	/** 交易开平仓 类型 */
 	@ApiModelProperty(value = "交易开平仓 类型")
 	private FuturesTradeActionType tradeActionType;
+	/** 风控类型 */
+	@ApiModelProperty(value = "风控类型")
+	private FuturesWindControlType windControlType;
 	/** 委托数量 */
 	@ApiModelProperty(value = "委托数量")
 	private BigDecimal quantity;
+	/** 保证金（人民币） */
+	@ApiModelProperty(value = "保证金（人民币）")
+	private BigDecimal reserveFund;
+	/** 退回保证金（人民币） */
+	@ApiModelProperty(value = "退回保证金（人民币）")
+	private BigDecimal returnReserveFund;
 	/** 委托状态 */
 	@ApiModelProperty(value = "委托状态")
 	private FuturesTradeEntrustState state;
@@ -68,11 +79,32 @@ public class FuturesTradeEntrustDto {
 	/** 更新时间 */
 	@ApiModelProperty(value = "更新时间")
 	private Date updateTime;
-	/** 合约名称 */
-	@ApiModelProperty(value = "合约名称 */")
-	private String contractName;
-	/** 交易类型（买/卖）*/
-	private FuturesTradeActionType tradeType;
+
+	/***************** 以下字段为额外数据 ********************/
+	/** 合约ID */
+	@ApiModelProperty(value = "合约id")
+	private Long contractId;
+	/** 品种名称 */
+	@ApiModelProperty(value = "品种名称 ")
+	private String commodityName;
+	/** 当前价 */
+	@ApiModelProperty(value = "当前价")
+	private BigDecimal lastPrice;
+	/** 最小波动 */
+	@ApiModelProperty(value = "最小波动")
+	private BigDecimal minWave;
+	/** 最小浮动价格 */
+	@ApiModelProperty(value = "最小浮动价格")
+	private BigDecimal perWaveMoney;
+	/** 汇率 */
+	@ApiModelProperty(value = "汇率")
+	private BigDecimal rate;
+	/** 货币标识 */
+	@ApiModelProperty(value = "货币标识")
+	private String currencySign;
+	/** 货币缩写 */
+	@ApiModelProperty(value = "货币缩写")
+	private String currency;
 
 	public Long getId() {
 		return id;
@@ -88,6 +120,14 @@ public class FuturesTradeEntrustDto {
 
 	public void setPublisherId(Long publisherId) {
 		this.publisherId = publisherId;
+	}
+
+	public String getEntrustNo() {
+		return entrustNo;
+	}
+
+	public void setEntrustNo(String entrustNo) {
+		this.entrustNo = entrustNo;
 	}
 
 	public String getCommodityNo() {
@@ -146,12 +186,36 @@ public class FuturesTradeEntrustDto {
 		this.tradeActionType = tradeActionType;
 	}
 
+	public FuturesWindControlType getWindControlType() {
+		return windControlType;
+	}
+
+	public void setWindControlType(FuturesWindControlType windControlType) {
+		this.windControlType = windControlType;
+	}
+
 	public BigDecimal getQuantity() {
 		return quantity;
 	}
 
 	public void setQuantity(BigDecimal quantity) {
 		this.quantity = quantity;
+	}
+
+	public BigDecimal getReserveFund() {
+		return reserveFund;
+	}
+
+	public void setReserveFund(BigDecimal reserveFund) {
+		this.reserveFund = reserveFund;
+	}
+
+	public BigDecimal getReturnReserveFund() {
+		return returnReserveFund;
+	}
+
+	public void setReturnReserveFund(BigDecimal returnReserveFund) {
+		this.returnReserveFund = returnReserveFund;
 	}
 
 	public FuturesTradeEntrustState getState() {
@@ -218,27 +282,71 @@ public class FuturesTradeEntrustDto {
 		this.updateTime = updateTime;
 	}
 
-	public String getEntrustNo() {
-		return entrustNo;
+	public Long getContractId() {
+		return contractId;
 	}
 
-	public void setEntrustNo(String entrustNo) {
-		this.entrustNo = entrustNo;
+	public void setContractId(Long contractId) {
+		this.contractId = contractId;
 	}
 
-	public String getContractName() {
-		return contractName;
+	public String getCommodityName() {
+		return commodityName;
 	}
 
-	public void setContractName(String contractName) {
-		this.contractName = contractName;
+	public void setCommodityName(String commodityName) {
+		this.commodityName = commodityName;
 	}
 
-	public FuturesTradeActionType getTradeType() {
-		return tradeType;
+	public BigDecimal getLastPrice() {
+		return lastPrice;
 	}
 
-	public void setTradeType(FuturesTradeActionType tradeType) {
-		this.tradeType = tradeType;
+	public void setLastPrice(BigDecimal lastPrice) {
+		this.lastPrice = lastPrice;
 	}
+
+	public BigDecimal getMinWave() {
+		if(minWave != null) {
+			return minWave.stripTrailingZeros();
+		}
+		return minWave;
+	}
+
+	public void setMinWave(BigDecimal minWave) {
+		this.minWave = minWave;
+	}
+
+	public BigDecimal getRate() {
+		return rate;
+	}
+
+	public void setRate(BigDecimal rate) {
+		this.rate = rate;
+	}
+
+	public String getCurrencySign() {
+		return currencySign;
+	}
+
+	public void setCurrencySign(String currencySign) {
+		this.currencySign = currencySign;
+	}
+
+	public BigDecimal getPerWaveMoney() {
+		return perWaveMoney;
+	}
+
+	public void setPerWaveMoney(BigDecimal perWaveMoney) {
+		this.perWaveMoney = perWaveMoney;
+	}
+
+	public String getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
+
 }
