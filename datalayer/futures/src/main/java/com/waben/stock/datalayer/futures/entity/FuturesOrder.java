@@ -64,6 +64,8 @@ public class FuturesOrder {
 	private BigDecimal reserveFund;
 	/** 服务费（人民币） */
 	private BigDecimal serviceFee;
+	/** 发布人盈亏（人民币） */
+	private BigDecimal publisherProfitOrLoss;
 	/** 对应的合约 */
 	@ManyToOne
 	@JoinColumn(name = "contract_id")
@@ -362,6 +364,14 @@ public class FuturesOrder {
 
 	public void setOpenTradeTime(Date openTradeTime) {
 		this.openTradeTime = openTradeTime;
+	}
+
+	public BigDecimal getPublisherProfitOrLoss() {
+		return publisherProfitOrLoss;
+	}
+
+	public void setPublisherProfitOrLoss(BigDecimal publisherProfitOrLoss) {
+		this.publisherProfitOrLoss = publisherProfitOrLoss;
 	}
 
 }

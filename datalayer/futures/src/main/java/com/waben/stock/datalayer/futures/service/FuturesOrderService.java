@@ -58,8 +58,6 @@ import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
 import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
-import com.waben.stock.datalayer.futures.repository.FuturesOvernightRecordDao;
-import com.waben.stock.datalayer.futures.repository.FuturesStopLossOrProfitDao;
 import com.waben.stock.datalayer.futures.repository.FuturesTradeActionDao;
 import com.waben.stock.datalayer.futures.repository.FuturesTradeEntrustDao;
 import com.waben.stock.datalayer.futures.repository.impl.MethodDesc;
@@ -125,16 +123,10 @@ public class FuturesOrderService {
 	private FuturesCommodityDao commodityDao;
 
 	@Autowired
-	private FuturesStopLossOrProfitDao stopLossOrProfitDao;
-
-	@Autowired
 	private FuturesOvernightRecordService overnightService;
 
 	@Autowired
 	private FuturesCurrencyRateService rateService;
-
-	@Autowired
-	private FuturesOvernightRecordDao recordDao;
 
 	@Autowired
 	private CapitalAccountBusiness accountBusiness;
