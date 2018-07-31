@@ -64,4 +64,9 @@ public class FuturesContractOrderDaoImpl implements FuturesContractOrderDao {
 		return repository.findByContractAndPublisherId(contract, publisherId);
 	}
 
+	@Override
+	public List<FuturesContractOrder> retrieveByPublisherId(Long publisherId) {
+		return repository.findByPublisherId(publisherId);
+	}
+
 }

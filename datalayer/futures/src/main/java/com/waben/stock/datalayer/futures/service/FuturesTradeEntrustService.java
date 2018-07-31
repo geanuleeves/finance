@@ -101,12 +101,16 @@ public class FuturesTradeEntrustService {
 	@Transactional
 	public FuturesTradeEntrust cancelEntrust(Long id, Long publisherId) {
 		FuturesTradeEntrust entrust = dao.retrieve(id);
+		if(entrust == null) {
+			throw new ServiceException(ExceptionConstant.DATANOTFOUND_EXCEPTION);
+		}
 		if (FuturesTradeEntrustState.Queuing != entrust.getState()) {
 			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
 		}
 		// step 1 : 更新委托状态
 		entrust.setState(FuturesTradeEntrustState.Canceled);
 		entrust.setUpdateTime(new Date());
+		dao.update(entrust);
 		// step 2 : 更新开平仓记录和订单状态
 		List<FuturesTradeAction> actionList = actionDao.retrieveByTradeEntrust(entrust);
 		for(FuturesTradeAction action : actionList) {
@@ -137,20 +141,22 @@ public class FuturesTradeEntrustService {
 		FuturesContract contract = entrust.getContract();
 		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract, publisherId);
 		if(entrust.getTradeActionType() == FuturesTradeActionType.OPEN) {
-			BigDecimal expectReverseFund = BigDecimal.ZERO;
+			BigDecimal expectReserveFund = BigDecimal.ZERO;
 			if(entrust.getOrderType() == FuturesOrderType.BuyUp) {
 				contractOrder.setBuyUpTotalQuantity(contractOrder.getBuyUpTotalQuantity().subtract(entrust.getRemaining()));
-				expectReverseFund = contract.getCommodity().getPerUnitReserveFund().multiply(contractOrder.getBuyUpTotalQuantity());
+				expectReserveFund = contract.getCommodity().getPerUnitReserveFund().multiply(contractOrder.getBuyUpTotalQuantity());
 			} else {
 				contractOrder.setBuyFallTotalQuantity(contractOrder.getBuyFallTotalQuantity().subtract(entrust.getRemaining()));
-				expectReverseFund = contract.getCommodity().getPerUnitReserveFund().multiply(contractOrder.getBuyFallTotalQuantity());
+				expectReserveFund = contract.getCommodity().getPerUnitReserveFund().multiply(contractOrder.getBuyFallTotalQuantity());
 			}
+			contractOrderDao.update(contractOrder);
 			// step 4 : 退款保证金，计算需要退款的保证金
-			BigDecimal returnReverseFund = BigDecimal.ZERO;
-			if(contractOrder.getReserveFund().compareTo(expectReverseFund) > 0) {
-				returnReverseFund = contractOrder.getReserveFund().subtract(expectReverseFund);
+			BigDecimal returnReserveFund = BigDecimal.ZERO;
+			if(contractOrder.getReserveFund().compareTo(expectReserveFund) > 0) {
+				returnReserveFund = contractOrder.getReserveFund().subtract(expectReserveFund);
 			}
-			accountBusiness.futuresReturnReserveFund(publisherId, contractOrder.getId(), returnReverseFund);
+			entrust.setReturnReserveFund(returnReserveFund);
+			accountBusiness.futuresReturnReserveFund(publisherId, contractOrder.getId(), returnReserveFund);
 		}
 		return entrust;
 	}
@@ -218,6 +224,7 @@ public class FuturesTradeEntrustService {
 					order.setState(FuturesOrderState.PartPosition);
 				} else {
 					order.setState(FuturesOrderState.Position);
+					order.setOpenTradeTime(date);
 				}
 			} else {
 				order.setCloseFilled(order.getCloseFilled().add(currentFilled));
@@ -239,6 +246,7 @@ public class FuturesTradeEntrustService {
 			if (orderType == FuturesOrderType.BuyUp && actionType == FuturesTradeActionType.OPEN) {
 				contractOrder.setBuyUpQuantity(contractOrder.getBuyUpQuantity().add(currentFilled));
 				contractOrder.setLightQuantity(contractOrder.getLightQuantity().add(currentFilled));
+				contractOrder.setBuyUpCanUnwindQuantity(contractOrder.getBuyUpCanUnwindQuantity().add(currentFilled));
 			} else if (orderType == FuturesOrderType.BuyUp && actionType == FuturesTradeActionType.CLOSE) {
 				contractOrder.setBuyUpTotalQuantity(contractOrder.getBuyUpTotalQuantity().subtract(currentFilled));
 				contractOrder.setBuyUpQuantity(contractOrder.getBuyUpQuantity().subtract(currentFilled));
@@ -246,6 +254,7 @@ public class FuturesTradeEntrustService {
 			} else if (orderType == FuturesOrderType.BuyFall && actionType == FuturesTradeActionType.OPEN) {
 				contractOrder.setBuyFallQuantity(contractOrder.getBuyFallQuantity().add(currentFilled));
 				contractOrder.setLightQuantity(contractOrder.getLightQuantity().subtract(currentFilled));
+				contractOrder.setBuyFallCanUnwindQuantity(contractOrder.getBuyFallCanUnwindQuantity().add(currentFilled));
 			} else if (orderType == FuturesOrderType.BuyFall && actionType == FuturesTradeActionType.CLOSE) {
 				contractOrder.setBuyFallTotalQuantity(contractOrder.getBuyFallTotalQuantity().subtract(currentFilled));
 				contractOrder.setBuyFallQuantity(contractOrder.getBuyFallQuantity().subtract(currentFilled));
@@ -402,6 +411,77 @@ public class FuturesTradeEntrustService {
 			avgFillPrice = divideArr[0].multiply(minWave);
 		}
 		return avgFillPrice;
+	}
+	
+	public Page<FuturesTradeEntrust> pagesTradeAdmin(final FuturesTradeEntrustQuery query) {
+		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
+		Page<FuturesTradeEntrust> page = futuresTradeEntrustDao.page(new Specification<FuturesTradeEntrust>() {
+			@Override
+			public Predicate toPredicate(Root<FuturesTradeEntrust> root, CriteriaQuery<?> criteriaQuery,
+										 CriteriaBuilder criteriaBuilder) {
+				List<Predicate> predicateList = new ArrayList<Predicate>();
+
+				//委托编号
+				if (!StringUtils.isEmpty(query.getEntrustNo())) {
+					predicateList.add(criteriaBuilder.equal(root.get("entrustNo").as(String.class), query.getEntrustNo()));
+				}
+
+				//用户ID
+				if (query.getPublisherId() != null && query.getPublisherId() != 0) {
+					predicateList.add(criteriaBuilder.equal(root.get("publisherId").as(Long.class), query.getPublisherId()));
+				}
+				//联合查询合约
+				Join<FuturesTradeEntrust, FuturesContract> contractJoin = root.join("contract", JoinType.LEFT);
+				if (query.getContractId() != null && query.getContractId() != 0) {
+					Predicate contractId = criteriaBuilder.equal(contractJoin.get("id").as(Long.class),
+							query.getContractId());
+					predicateList.add(criteriaBuilder.and(contractId));
+				}
+				//品种编号
+				if (!StringUtils.isEmpty(query.getCommodityNo())) {
+					predicateList.add(criteriaBuilder.equal(root.get("commodityNo").as(String.class), query.getCommodityNo()));
+				}
+				//合约编号
+				if (!StringUtils.isEmpty(query.getContractNo())) {
+					predicateList.add(criteriaBuilder.equal(root.get("contractNo").as(String.class), query.getContractNo()));
+				}
+				//订单类型
+				if (!StringUtils.isEmpty(query.getOrderType())) {
+					predicateList.add(criteriaBuilder.equal(root.get("orderType").as(String.class), query.getOrderType()));
+				}
+				//委托时间
+				if (query.getEntrustTime() != null) {
+					Predicate entrustTime = criteriaBuilder.greaterThanOrEqualTo(root.get("entrustTime").as(Date.class),
+							query.getEntrustTime());
+					predicateList.add(criteriaBuilder.and(entrustTime));
+				}
+				//价格类型
+				if (!StringUtils.isEmpty(query.getPriceType())) {
+					predicateList.add(criteriaBuilder.equal(root.get("priceType").as(String.class), query.getPriceType()));
+				}
+				//交易开平仓 类型
+				if (!StringUtils.isEmpty(query.getTradeActionType())) {
+					predicateList.add(criteriaBuilder.equal(root.get("tradeActionType").as(String.class), query.getTradeActionType()));
+				}
+				//委托状态
+				if (!StringUtils.isEmpty(query.getState())) {
+					predicateList.add(criteriaBuilder.equal(root.get("state").as(String.class), query.getState()));
+				}
+				//交易成功时间
+				if (query.getTradeTime() != null) {
+					Predicate tradeTime = criteriaBuilder.greaterThanOrEqualTo(root.get("tradeTime").as(Date.class),
+							query.getTradeTime());
+					predicateList.add(criteriaBuilder.and(tradeTime));
+				}
+				if (predicateList.size() > 0) {
+					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
+				}
+				//以委托时间排序
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("entrustTime").as(Date.class)));
+				return criteriaQuery.getRestriction();
+			}
+		}, pageable);
+		return page;
 	}
 
 	public Page<FuturesTradeEntrust> pages(final FuturesTradeEntrustQuery query) {

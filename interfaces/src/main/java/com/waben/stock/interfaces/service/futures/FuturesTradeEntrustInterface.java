@@ -78,7 +78,7 @@ public interface FuturesTradeEntrustInterface {
 	 * @param query
 	 * @return
 	 */
-	@RequestMapping(value = "/pages", method = RequestMethod.GET)
-	Response<PageInfo<FuturesTradeEntrustDto>> pagesAdmin(@RequestBody FuturesTradeEntrustQuery query);
+	@RequestMapping(value = "/pages", method = RequestMethod.POST, consumes = "application/json")
+	Response<PageInfo<FuturesTradeEntrustDto>> pages(@RequestBody FuturesTradeEntrustQuery query);
 
 }

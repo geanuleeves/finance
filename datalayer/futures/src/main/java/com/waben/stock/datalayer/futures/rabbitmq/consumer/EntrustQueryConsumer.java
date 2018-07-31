@@ -59,7 +59,9 @@ public class EntrustQueryConsumer {
 		try {
 			Long entrustId = messgeObj.getEntrustId();
 			FuturesTradeEntrust tradeEntrust = entrustDao.retrieve(entrustId);
-			if (tradeEntrust == null) {
+			if (tradeEntrust == null || tradeEntrust.getState() == FuturesTradeEntrustState.Canceled
+					|| tradeEntrust.getState() == FuturesTradeEntrustState.Failure
+					|| tradeEntrust.getState() == FuturesTradeEntrustState.Success) {
 				return;
 			}
 			Integer entrustType = messgeObj.getEntrustType();

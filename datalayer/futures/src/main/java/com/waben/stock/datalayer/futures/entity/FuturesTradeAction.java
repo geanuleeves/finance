@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesTradeActionTypeConverter;
+import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesTradeEntrustStateConverter;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControlTypeConverter;
 import com.waben.stock.interfaces.enums.FuturesTradeActionType;
 import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
@@ -55,7 +56,8 @@ public class FuturesTradeAction {
 	private FuturesWindControlType windControlType;
 	/** 委托数量 */
 	private BigDecimal quantity;
-	/** 委托状态 */
+	/** 委托状态(只存在全部成功，不存在部分成功情况) */
+	@Convert(converter = FuturesTradeEntrustStateConverter.class)
 	private FuturesTradeEntrustState state;
 	/** 交易成功时间 */
 	private Date tradeTime;

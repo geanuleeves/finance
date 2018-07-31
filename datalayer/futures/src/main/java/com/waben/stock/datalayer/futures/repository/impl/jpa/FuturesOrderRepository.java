@@ -1,8 +1,11 @@
 package com.waben.stock.datalayer.futures.repository.impl.jpa;
 
+import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -109,17 +112,19 @@ public interface FuturesOrderRepository extends CustomJpaRepository<FuturesOrder
 	Integer countByPublisherId(Long publisherId);
 
 	/**
-	 * 已成交部分均价（开仓）
+	 * 已成交部分均价
 	 * @param publisherId 用户ID
 	 * @param contractNo 合约编号
 	 * @param commodityNo 产品编号
 	 * @return
 	 */
-	@Query(value = "SELECT sum(openTotalFillCost)/sum(openFilled)  FROM f_futures_order t " +
+	@Query(value = "SELECT sum(open_total_fill_cost)/sum(open_filled - close_filled)  FROM f_futures_order t " +
 			"LEFT JOIN f_futures_contract contract ON contract.id = t.contract_id " +
 			"LEFT JOIN f_futures_commodity commodity ON commodity.id = contract.commodity_id " +
-			"WHERE t.publisherId = ?1 AND contract.contractNo = ?2 AND commodity.symbol = ?3 " +
-			"AND t.orderType = ?4", nativeQuery = true)
+			"WHERE t.publisher_id = ?1 AND contract.contract_no = ?2 AND commodity.symbol = ?3 " +
+			"AND t.order_type = ?4 AND t.state IN(5,6,7,8)", nativeQuery = true)
 	BigDecimal getAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType);
+
+	List<FuturesOrder> findByContractOrder(FuturesContractOrder contractOrder, Sort sort);
 
 }

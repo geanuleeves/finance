@@ -24,6 +24,7 @@ import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FutresOrderEntrustDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
+import com.waben.stock.interfaces.dto.futures.FuturesTradeActionViewDto;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
@@ -50,6 +51,12 @@ public class FuturesOrderController {
 	private FuturesOrderBusiness business;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	
+	@GetMapping("/pageTradeAdmin")
+	@ApiOperation(value = "查询期货成交订单")
+	public Response<PageInfo<FuturesTradeActionViewDto>> pageTradeAdmin(FuturesTradeAdminQuery query){
+		return new Response<>(business.pageTradeAdmin(query));
+	}
 
 	@GetMapping("/countOrderState")
 	@ApiOperation(value = "订单总计")

@@ -6,6 +6,7 @@ import com.waben.stock.interfaces.dto.futures.FuturesTradeActionDto;
 import com.waben.stock.interfaces.dto.futures.FuturesTradeActionViewDto;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeActionQuery;
 import com.waben.stock.interfaces.service.futures.FuturesTradeActionInterface;
 import com.waben.stock.interfaces.util.CopyBeanUtils;
@@ -69,7 +70,7 @@ public class FuturesTradeActionController implements FuturesTradeActionInterface
     }
 
     @Override
-    public Response<PageInfo<FuturesTradeActionViewDto>> pagesAdmin(FuturesTradeActionQuery query) {
+    public Response<PageInfo<FuturesTradeActionViewDto>> pages(@RequestBody FuturesTradeActionQuery query) {
         Page<FuturesTradeAction> page = futuresTradeActionService.pages(query);
         PageInfo<FuturesTradeActionViewDto> result = PageToPageInfo.pageToPageInfo(page, FuturesTradeActionViewDto.class);
         if (result != null && result.getContent() != null) {
@@ -99,5 +100,37 @@ public class FuturesTradeActionController implements FuturesTradeActionInterface
         }
         return new Response<>(result);
     }
+
+	@Override
+	public Response<PageInfo<FuturesTradeActionViewDto>> pagesTradeAdmin(@RequestBody FuturesTradeAdminQuery query) {
+		Page<FuturesTradeAction> page = futuresTradeActionService.pagesAdmin(query);
+		PageInfo<FuturesTradeActionViewDto> result = PageToPageInfo.pageToPageInfo(page, FuturesTradeActionViewDto.class);
+        if (result != null && result.getContent() != null) {
+            for (int i = 0; i < result.getContent().size(); i++) {
+                FuturesTradeAction futuresTradeAction = page.getContent().get(i);
+                //合约名称
+                result.getContent().get(i).setContractName(futuresTradeAction.getOrder().getContract().getContractName());
+                //订单类型
+                result.getContent().get(i).setOrderType(futuresTradeAction.getOrder().getOrderType());
+                //成交手数
+                result.getContent().get(i).setFilled(futuresTradeAction.getFilled());
+                //成交价格
+                result.getContent().get(i).setAvgFillPrice(futuresTradeAction.getAvgFillPrice());
+                //成交盈亏（交易所货币）
+                result.getContent().get(i).setCurrencyProfitOrLoss(futuresTradeAction.getCurrencyProfitOrLoss());
+                //成交盈亏（人民币）
+                result.getContent().get(i).setPublisherProfitOrLoss(futuresTradeAction.getPublisherProfitOrLoss());
+                //成交编号
+                result.getContent().get(i).setOrderNo(futuresTradeAction.getOrder().getTradeNo());
+                //成交时间
+                result.getContent().get(i).setTradeTime(futuresTradeAction.getTradeTime());
+                //订单类型
+                result.getContent().get(i).setFuturesTradePriceType(futuresTradeAction.getTradeEntrust().getPriceType());
+                //备注
+                result.getContent().get(i).setRemark(futuresTradeAction.getTradeEntrust().getWindControlType());
+            }
+        }
+        return new Response<>(result);
+	}
 
 }

@@ -13,9 +13,6 @@ public class FuturesContractOrderQuery extends PageAndSortQuery {
     @ApiModelProperty(value = "发布人ID")
     private Long publisherId;
 
-    @ApiModelProperty(value = "对应的合约ID")
-    private Long contractId;
-
     @ApiModelProperty(value = "品种编号")
     private String commodityNo;
 
@@ -38,14 +35,6 @@ public class FuturesContractOrderQuery extends PageAndSortQuery {
 
     public void setPublisherId(Long publisherId) {
         this.publisherId = publisherId;
-    }
-
-    public Long getContractId() {
-        return contractId;
-    }
-
-    public void setContractId(Long contractId) {
-        this.contractId = contractId;
     }
 
     public String getCommodityNo() {
