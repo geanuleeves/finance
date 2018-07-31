@@ -22,6 +22,7 @@ import com.waben.stock.interfaces.dto.admin.futures.FuturesHoldPositionAgentDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeActionAgentDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCurrencyRateDto;
 import com.waben.stock.interfaces.dto.organization.FuturesFowDto;
@@ -38,6 +39,7 @@ import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuer
 import com.waben.stock.interfaces.pojo.query.organization.FuturesFowQuery;
 import com.waben.stock.interfaces.service.futures.FuturesContractInterface;
 import com.waben.stock.interfaces.service.futures.FuturesCurrencyRateInterface;
+import com.waben.stock.interfaces.service.futures.FuturesTradeEntrustInterface;
 import com.waben.stock.interfaces.service.futures.FuturesTradeInterface;
 import com.waben.stock.interfaces.service.organization.OrganizationInterface;
 import com.waben.stock.interfaces.service.organization.OrganizationPublisherInterface;
@@ -71,6 +73,9 @@ public class FuturesTradeBusiness {
 	@Autowired
 	@Qualifier("futuresCurrencyRateInterface")
 	private FuturesCurrencyRateInterface futuresCurrencyRateInterface;
+
+	@Autowired
+	private FuturesTradeEntrustInterface entrustReference;
 
 	@Autowired
 	private ProfileBusiness profileBusiness;
@@ -475,6 +480,14 @@ public class FuturesTradeBusiness {
 
 	public PageInfo<FuturesHoldPositionAgentDto> pagesHoldingOrderAgent(FuturesTradeAdminQuery query) {
 		Response<PageInfo<FuturesHoldPositionAgentDto>> response = reference.pagesAgentAdmin(query);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public PageInfo<FuturesTradeDto> pageTradeEnturs(FuturesTradeAdminQuery query) {
+		Response<PageInfo<FuturesTradeDto>> response = entrustReference.pagesEntrust(query);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}

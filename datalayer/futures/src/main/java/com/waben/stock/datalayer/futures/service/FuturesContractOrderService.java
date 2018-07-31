@@ -4,6 +4,7 @@ import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
 import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
+import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesContractOrderQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,6 +86,22 @@ public class FuturesContractOrderService {
         }, pageable);
         return page;
     }
+    
+    public Page<FuturesContractOrder> pages(final FuturesTradeAdminQuery query) {
+		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
+		Page<FuturesContractOrder> page = futuresContractOrderDao.page(new Specification<FuturesContractOrder>() {
+			@Override
+			public Predicate toPredicate(Root<FuturesContractOrder> root, CriteriaQuery<?> criteriaQuery,
+					CriteriaBuilder criteriaBuilder) {
+				List<Predicate> predicateList = new ArrayList<Predicate>();
+				
+				// 以更新时间排序
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("updateTime").as(Date.class)));
+				return criteriaQuery.getRestriction();
+			}
+		}, pageable);
+		return page;
+	}
 
 
 }

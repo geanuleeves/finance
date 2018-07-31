@@ -22,10 +22,11 @@ import com.waben.stock.applayer.admin.business.futures.FuturesOrderBusiness;
 import com.waben.stock.applayer.admin.util.PoiUtil;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FutresOrderEntrustDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesHoldPositionAgentDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeActionAgentDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeDto;
-import com.waben.stock.interfaces.dto.futures.FuturesTradeActionViewDto;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
@@ -55,7 +56,7 @@ public class FuturesOrderController {
 	
 	@GetMapping("/pageTradeAdmin")
 	@ApiOperation(value = "查询期货成交订单")
-	public Response<PageInfo<FuturesTradeActionViewDto>> pageTradeAdmin(FuturesTradeAdminQuery query){
+	public Response<PageInfo<FuturesTradeActionAgentDto>> pageTradeAdmin(FuturesTradeAdminQuery query){
 		return new Response<>(business.pageTradeAdmin(query));
 	}
 
@@ -69,6 +70,12 @@ public class FuturesOrderController {
 	@ApiOperation(value = "查询期货成交订单")
 	public Response<PageInfo<FuturesOrderAdminDto>> pages(FuturesTradeAdminQuery query) {
 		return new Response<>(business.adminPagesByQuery(query));
+	}
+	
+	@GetMapping("/pagesHoldingOrderAgent")
+	@ApiOperation(value = "查询期货持仓列表")
+	public Response<PageInfo<FuturesHoldPositionAgentDto>> pagesHoldingOrderAgent(FuturesTradeAdminQuery query) {
+		return new Response<>(business.pagesHoldingOrderAgent(query));
 	}
 
 	@GetMapping("/pagesOrderEntust")

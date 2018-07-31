@@ -1,11 +1,14 @@
 package com.waben.stock.interfaces.service.futures;
 
+import com.waben.stock.interfaces.dto.admin.futures.FuturesHoldPositionAgentDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractOrderDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractOrderViewDto;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesContractOrderQuery;
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -76,5 +79,13 @@ public interface FuturesContractOrderInterface {
 	 */
 	@RequestMapping(value = "/pages", method = RequestMethod.POST, consumes = "application/json")
 	Response<PageInfo<FuturesContractOrderViewDto>> pages(@RequestBody FuturesContractOrderQuery query);
+	
+	/**
+	 * 运营后台持仓列表查询
+	 * @param query
+	 * @return
+	 */
+	@RequestMapping(value = "/pages/agent/position", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	Response<PageInfo<FuturesHoldPositionAgentDto>> pagesAgentAdmin(@RequestBody FuturesTradeAdminQuery query);
 
 }

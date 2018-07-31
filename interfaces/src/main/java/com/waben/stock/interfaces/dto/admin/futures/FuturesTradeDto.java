@@ -49,15 +49,15 @@ public class FuturesTradeDto {
 	/**
 	 * 交易方向
 	 */
-	private String orderType;
+	private Integer orderType;
 	
 	/**
 	 * 委托状态
 	 */
-	private String state;
+	private Integer state;
 	
 	/** 交易开平仓 类型 */
-	private String tradeActionType;
+	private Integer tradeActionType;
 	
 	/** 委托价格 */
 	private BigDecimal entrustPrice;
@@ -93,7 +93,10 @@ public class FuturesTradeDto {
 	private String windControlType;
 	
 	/** 价格类型 */
-	private String priceType;
+	private Integer priceType;
+	
+	/** 退回保证金（人民币） */
+	private BigDecimal returnReserveFund;
 	
 	/** 是否为测试单 */
 	private Boolean isTest;
@@ -162,27 +165,27 @@ public class FuturesTradeDto {
 		this.contractNo = contractNo;
 	}
 
-	public String getOrderType() {
+	public Integer getOrderType() {
 		return orderType;
 	}
 
-	public void setOrderType(String orderType) {
+	public void setOrderType(Integer orderType) {
 		this.orderType = orderType;
 	}
 
-	public String getState() {
+	public Integer getState() {
 		return state;
 	}
 
-	public void setState(String state) {
+	public void setState(Integer state) {
 		this.state = state;
 	}
 
-	public String getTradeActionType() {
+	public Integer getTradeActionType() {
 		return tradeActionType;
 	}
 
-	public void setTradeActionType(String tradeActionType) {
+	public void setTradeActionType(Integer tradeActionType) {
 		this.tradeActionType = tradeActionType;
 	}
 
@@ -274,12 +277,20 @@ public class FuturesTradeDto {
 		this.windControlType = windControlType;
 	}
 
-	public String getPriceType() {
+	public Integer getPriceType() {
 		return priceType;
 	}
 
-	public void setPriceType(String priceType) {
+	public void setPriceType(Integer priceType) {
 		this.priceType = priceType;
+	}
+
+	public BigDecimal getReturnReserveFund() {
+		return returnReserveFund;
+	}
+
+	public void setReturnReserveFund(BigDecimal returnReserveFund) {
+		this.returnReserveFund = returnReserveFund;
 	}
 
 	public Boolean getIsTest() {
