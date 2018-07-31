@@ -128,14 +128,18 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
             for (int i = 0; i < result.getContent().size(); i++) {
                 FuturesContractOrderViewDto futuresContractOrderViewDto = result.getContent().get(i);
                 FuturesContractOrder futuresContractOrder = page.getContent().get(i);
-                //合约名称
-                futuresContractOrderViewDto.setContractName(futuresContractOrder.getContract().getContractName());
                 //合约id
                 futuresContractOrderViewDto.setContractId(futuresContractOrder.getContract().getId());
                 //拷贝两份出来
                 try {
                     FuturesCommodity futuresCommodity = futuresCommodityService.retrieveByCommodityNo(
                             futuresContractOrder.getCommodityNo());
+                    //合约名称
+                    futuresContractOrderViewDto.setCommodityName(futuresCommodity != null ? futuresCommodity.getName() : "");
+                    futuresContractOrderViewDto.setUnwindPointType(futuresCommodity != null ?
+                            futuresCommodity.getUnwindPointType() : 0);
+                    futuresContractOrderViewDto.setPerUnitUnwindPoint(futuresCommodity != null ?
+                            futuresCommodity.getPerUnitUnwindPoint() : new BigDecimal(0));
                     //已成交部分最新均价
                     BigDecimal lastPrice = quoteContainer.getLastPrice(futuresContractOrder.getCommodityNo(),
                             futuresContractOrder.getContractNo());
@@ -237,7 +241,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 				FuturesHoldPositionAgentDto futuresContractOrderViewDto = result.getContent().get(i);
 				FuturesContractOrder futuresContractOrder = page.getContent().get(i);
 				// 合约名称
-				futuresContractOrderViewDto.setContractName(futuresContractOrder.getContract().getContractName());
+				//futuresContractOrderViewDto.setContractName(futuresContractOrder.getContract().getContractName());
 				// 拷贝两份出来
 				try {
 					FuturesCommodity futuresCommodity = futuresCommodityService
