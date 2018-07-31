@@ -30,6 +30,10 @@ public class FuturesTradeActionViewDto extends FuturesTradeActionDto {
     @ApiModelProperty(value = "订单类型")
     private FuturesTradePriceType futuresTradePriceType;
 
+    /** 合约id */
+    @ApiModelProperty(value = "合约id")
+    private Long contractId;
+
 
     public String getContractName() {
         return contractName;
@@ -69,5 +73,13 @@ public class FuturesTradeActionViewDto extends FuturesTradeActionDto {
 
     public void setFuturesTradePriceType(FuturesTradePriceType futuresTradePriceType) {
         this.futuresTradePriceType = futuresTradePriceType;
+    }
+
+    public Long getContractId() {
+        return contractId;
+    }
+
+    public void setContractId(Long contractId) {
+        this.contractId = contractId;
     }
 }

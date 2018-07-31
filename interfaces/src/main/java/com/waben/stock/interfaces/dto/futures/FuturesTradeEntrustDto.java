@@ -69,10 +69,14 @@ public class FuturesTradeEntrustDto {
 	@ApiModelProperty(value = "更新时间")
 	private Date updateTime;
 	/** 合约名称 */
-	@ApiModelProperty(value = "合约名称 */")
+	@ApiModelProperty(value = "合约名称")
 	private String contractName;
 	/** 交易类型（买/卖）*/
+	@ApiModelProperty(value = "交易类型（买/卖）")
 	private FuturesTradeActionType tradeType;
+	/** 合约id */
+	@ApiModelProperty(value = "合约id")
+	private Long contractId;
 
 	public Long getId() {
 		return id;
@@ -240,5 +244,13 @@ public class FuturesTradeEntrustDto {
 
 	public void setTradeType(FuturesTradeActionType tradeType) {
 		this.tradeType = tradeType;
+	}
+
+	public Long getContractId() {
+		return contractId;
+	}
+
+	public void setContractId(Long contractId) {
+		this.contractId = contractId;
 	}
 }
