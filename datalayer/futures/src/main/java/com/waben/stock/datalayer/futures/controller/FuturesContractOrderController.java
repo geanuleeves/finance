@@ -2,11 +2,9 @@ package com.waben.stock.datalayer.futures.controller;
 
 import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
+import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
-import com.waben.stock.datalayer.futures.service.FuturesCommodityService;
-import com.waben.stock.datalayer.futures.service.FuturesContractOrderService;
-import com.waben.stock.datalayer.futures.service.FuturesOrderService;
-import com.waben.stock.datalayer.futures.service.FuturesTradeActionService;
+import com.waben.stock.datalayer.futures.service.*;
 import com.waben.stock.interfaces.dto.futures.FuturesContractOrderDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractOrderViewDto;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
@@ -57,6 +55,9 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 
     @Autowired
     private FuturesCommodityService futuresCommodityService;
+
+    @Autowired
+    private FuturesCurrencyRateService rateService;
 
 
     @Override
@@ -110,6 +111,8 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                 FuturesContractOrder futuresContractOrder = page.getContent().get(i);
                 //合约名称
                 futuresContractOrderViewDto.setContractName(futuresContractOrder.getContract().getContractName());
+                //合约id
+                futuresContractOrderViewDto.setContractId(futuresContractOrder.getContract().getId());
                 //拷贝两份出来
                 try {
                     FuturesCommodity futuresCommodity = futuresCommodityService.retrieveByCommodityNo(
@@ -119,8 +122,9 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                             futuresContractOrder.getContractNo());
                     //买涨
                     FuturesContractOrderViewDto buyDto = futuresContractOrderViewDto.deepClone();
+                    //订单类型
                     buyDto.setOrderType(FuturesOrderType.BuyUp);
-                    //已持仓
+                    //买涨手数
                     buyDto.setBuyUpQuantity(futuresContractOrder.getBuyUpQuantity());
                     //今持仓
                     Integer findUpFilledNow = futuresTradeActionService.findFilledNow(futuresContractOrder.getPublisherId(),
@@ -135,7 +139,18 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                                 futuresContractOrder.getContractNo(), futuresContractOrder.getCommodityNo(),
                                 FuturesOrderType.BuyUp.getIndex());
                         buyDto.setAvgFillPrice(avgUpFillPrice);
+                        //最新价
                         buyDto.setAvgFillPriceNow(lastPrice);
+
+                        buyDto.setLastPrice(lastPrice);
+                        //最小波动
+                        buyDto.setMinWave(futuresCommodity.getMinWave());
+                        //最小波动价格
+                        buyDto.setPerWaveMoney(futuresCommodity.getPerWaveMoney());
+                        // 查询汇率
+                        FuturesCurrencyRate rate = rateService.findByCurrency(futuresCommodity.getCurrency());
+                        buyDto.setRate(rate.getRate());
+                        buyDto.setCurrencySign(rate.getCurrencySign());
                         buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice).divide(futuresCommodity.getMinWave())
                                 .multiply(futuresCommodity.getPerWaveMoney()).multiply(futuresContractOrder.getBuyUpQuantity()));
                         buyDto.setServiceFee(futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee()));
@@ -161,6 +176,15 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                                 FuturesOrderType.BuyFall.getIndex());
                         sellDto.setAvgFillPrice(avgFallFillPrice);
                         sellDto.setAvgFillPriceNow(lastPrice);
+                        sellDto.setLastPrice(lastPrice);
+                        //最小波动
+                        sellDto.setMinWave(futuresCommodity.getMinWave());
+                        //最小波动价格
+                        sellDto.setPerWaveMoney(futuresCommodity.getPerWaveMoney());
+                        // 查询汇率
+                        FuturesCurrencyRate rate = rateService.findByCurrency(futuresCommodity.getCurrency());
+                        sellDto.setRate(rate.getRate());
+                        sellDto.setCurrencySign(rate.getCurrencySign());
                         sellDto.setFloatingProfitAndLoss(lastPrice.subtract(avgFallFillPrice).divide(futuresCommodity.getMinWave())
                                 .multiply(futuresCommodity.getPerWaveMoney().multiply(futuresContractOrder.getBuyFallQuantity())));
                         sellDto.setServiceFee(futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee()));

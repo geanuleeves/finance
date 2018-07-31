@@ -5,6 +5,8 @@ import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.enums.FuturesWindControlType;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.math.BigDecimal;
+
 /**
  * @author chenk 2018/7/30
  */
@@ -29,6 +31,32 @@ public class FuturesTradeActionViewDto extends FuturesTradeActionDto {
     /** 订单类型 */
     @ApiModelProperty(value = "订单类型")
     private FuturesTradePriceType futuresTradePriceType;
+
+    /** 合约id */
+    @ApiModelProperty(value = "合约id")
+    private Long contractId;
+
+    /** 保证金 :累计*/
+    @ApiModelProperty(value = "保证金")
+    private BigDecimal reserveFund;
+
+    /** 当前价*/
+    @ApiModelProperty(value = "当前价")
+    private BigDecimal lastPrice;
+
+    /** 最小波动*/
+    @ApiModelProperty(value = "最小波动")
+    private BigDecimal minWave;
+
+    /** 汇率*/
+    @ApiModelProperty(value = "汇率")
+    private BigDecimal rate;
+
+    /** 货币标识*/
+    @ApiModelProperty(value = "货币标识")
+    private BigDecimal currencySign;
+
+
 
 
     public String getContractName() {
@@ -69,5 +97,13 @@ public class FuturesTradeActionViewDto extends FuturesTradeActionDto {
 
     public void setFuturesTradePriceType(FuturesTradePriceType futuresTradePriceType) {
         this.futuresTradePriceType = futuresTradePriceType;
+    }
+
+    public Long getContractId() {
+        return contractId;
+    }
+
+    public void setContractId(Long contractId) {
+        this.contractId = contractId;
     }
 }

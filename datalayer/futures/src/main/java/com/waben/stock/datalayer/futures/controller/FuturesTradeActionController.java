@@ -76,10 +76,18 @@ public class FuturesTradeActionController implements FuturesTradeActionInterface
         if (result != null && result.getContent() != null) {
             for (int i = 0; i < result.getContent().size(); i++) {
                 FuturesTradeAction futuresTradeAction = page.getContent().get(i);
-                //合约名称
-                result.getContent().get(i).setContractName(futuresTradeAction.getOrder().getContract().getContractName());
-                //订单类型
-                result.getContent().get(i).setOrderType(futuresTradeAction.getOrder().getOrderType());
+                if (futuresTradeAction.getOrder() != null) {
+                    //订单类型
+                    result.getContent().get(i).setOrderType(futuresTradeAction.getOrder().getOrderType());
+                    //成交编号
+                    result.getContent().get(i).setOrderNo(futuresTradeAction.getOrder().getTradeNo());
+                    if (futuresTradeAction.getOrder().getContract() != null) {
+                        //合约名称
+                        result.getContent().get(i).setContractName(futuresTradeAction.getOrder().getContract().getContractName());
+                        //合约id
+                        result.getContent().get(i).setContractId(futuresTradeAction.getOrder().getContract().getId());
+                    }
+                }
                 //成交手数
                 result.getContent().get(i).setFilled(futuresTradeAction.getFilled());
                 //成交价格
@@ -88,14 +96,14 @@ public class FuturesTradeActionController implements FuturesTradeActionInterface
                 result.getContent().get(i).setCurrencyProfitOrLoss(futuresTradeAction.getCurrencyProfitOrLoss());
                 //成交盈亏（人民币）
                 result.getContent().get(i).setPublisherProfitOrLoss(futuresTradeAction.getPublisherProfitOrLoss());
-                //成交编号
-                result.getContent().get(i).setOrderNo(futuresTradeAction.getOrder().getTradeNo());
                 //成交时间
                 result.getContent().get(i).setTradeTime(futuresTradeAction.getTradeTime());
-                //订单类型
-                result.getContent().get(i).setFuturesTradePriceType(futuresTradeAction.getTradeEntrust().getPriceType());
-                //备注
-                result.getContent().get(i).setRemark(futuresTradeAction.getTradeEntrust().getWindControlType());
+                if (futuresTradeAction.getTradeEntrust() != null) {
+                    //订单类型
+                    result.getContent().get(i).setFuturesTradePriceType(futuresTradeAction.getTradeEntrust().getPriceType());
+                    //备注
+                    result.getContent().get(i).setRemark(futuresTradeAction.getTradeEntrust().getWindControlType());
+                }
             }
         }
         return new Response<>(result);

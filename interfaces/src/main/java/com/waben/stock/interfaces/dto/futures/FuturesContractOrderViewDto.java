@@ -103,6 +103,31 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 	@ApiModelProperty(value = "保证金")
 	private BigDecimal reserveFund;
 
+	/** 当前价*/
+	@ApiModelProperty(value = "当前价")
+	private BigDecimal lastPrice;
+
+	/** 最小波动*/
+	@ApiModelProperty(value = "最小波动")
+	private BigDecimal minWave;
+
+	/** 汇率*/
+	@ApiModelProperty(value = "汇率")
+	private BigDecimal rate;
+
+	/** 货币标识*/
+	@ApiModelProperty(value = "货币标识")
+	private String currencySign;
+
+	/** 最小浮动价格*/
+	@ApiModelProperty(value = "最小浮动价格")
+	private BigDecimal perWaveMoney;
+
+	/** 合约id*/
+	@ApiModelProperty(value = "合约id")
+	private Long contractId;
+
+
 	public Long getId() {
 		return id;
 	}
@@ -277,6 +302,54 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 
 	public void setReserveFund(BigDecimal reserveFund) {
 		this.reserveFund = reserveFund;
+	}
+
+	public BigDecimal getLastPrice() {
+		return lastPrice;
+	}
+
+	public void setLastPrice(BigDecimal lastPrice) {
+		this.lastPrice = lastPrice;
+	}
+
+	public BigDecimal getMinWave() {
+		return minWave;
+	}
+
+	public void setMinWave(BigDecimal minWave) {
+		this.minWave = minWave;
+	}
+
+	public BigDecimal getRate() {
+		return rate;
+	}
+
+	public void setRate(BigDecimal rate) {
+		this.rate = rate;
+	}
+
+	public String getCurrencySign() {
+		return currencySign;
+	}
+
+	public void setCurrencySign(String currencySign) {
+		this.currencySign = currencySign;
+	}
+
+	public BigDecimal getPerWaveMoney() {
+		return perWaveMoney;
+	}
+
+	public void setPerWaveMoney(BigDecimal perWaveMoney) {
+		this.perWaveMoney = perWaveMoney;
+	}
+
+	public Long getContractId() {
+		return contractId;
+	}
+
+	public void setContractId(Long contractId) {
+		this.contractId = contractId;
 	}
 
 	/**

@@ -86,7 +86,11 @@ public class FuturesTradeEntrustController implements FuturesTradeEntrustInterfa
             for (int i = 0; i < result.getContent().size(); i++) {
                 FuturesTradeEntrust futuresTradeEntrust = page.getContent().get(i);
                 //合约名称
-                result.getContent().get(i).setContractName(futuresTradeEntrust.getContract().getContractName());
+				if (futuresTradeEntrust.getContract() != null) {
+					result.getContent().get(i).setContractId(futuresTradeEntrust.getContract().getId());
+					//合约名称
+					result.getContent().get(i).setContractName(futuresTradeEntrust.getContract().getContractName());
+				}
                 // 1:买涨,2:买跌
                 String orderType = futuresTradeEntrust.getOrderType().getIndex();
                 //1:开仓,2:平仓
