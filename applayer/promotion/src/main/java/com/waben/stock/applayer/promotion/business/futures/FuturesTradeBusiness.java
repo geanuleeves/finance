@@ -18,6 +18,7 @@ import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractM
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.AgentOrderRecordDto;
 import com.waben.stock.interfaces.dto.admin.futures.FutresOrderEntrustDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesHoldPositionAgentDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeActionAgentDto;
@@ -466,6 +467,14 @@ public class FuturesTradeBusiness {
 
 	public PageInfo<FuturesTradeActionAgentDto> pagesOrderAgentDealRecord(FuturesTradeAdminQuery query) {
 		Response<PageInfo<FuturesTradeActionAgentDto>> response = reference.pagesOrderAgentDealRecord(query);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public PageInfo<FuturesHoldPositionAgentDto> pagesHoldingOrderAgent(FuturesTradeAdminQuery query) {
+		Response<PageInfo<FuturesHoldPositionAgentDto>> response = reference.pagesAgentAdmin(query);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}

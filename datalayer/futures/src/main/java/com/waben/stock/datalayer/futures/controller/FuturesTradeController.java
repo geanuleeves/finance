@@ -317,7 +317,6 @@ public class FuturesTradeController implements FuturesTradeInterface {
 					buyDto.setAvgFillPrice(avgUpFillPrice);
 					buyDto.setAvgFillPriceNow(lastPrice);
 					// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格
-					BigDecimal buyReserveFund = new BigDecimal(0);
 					if (futuresCommodity != null) {
 						buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice)
 								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney()));

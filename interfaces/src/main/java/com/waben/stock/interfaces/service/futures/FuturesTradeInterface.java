@@ -57,6 +57,6 @@ public interface FuturesTradeInterface {
 	@RequestMapping(value = "/pages/order/agent/deal/record", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	Response<PageInfo<FuturesTradeActionAgentDto>> pagesOrderAgentDealRecord(@RequestBody FuturesTradeAdminQuery query);
 
-	@RequestMapping(value = "/pages/agent/position", method = RequestMethod.GET)
+	@RequestMapping(value = "/pages/agent/position", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	Response<PageInfo<FuturesHoldPositionAgentDto>> pagesAgentAdmin(@RequestBody FuturesTradeAdminQuery query);
 }
