@@ -1,16 +1,5 @@
 package com.waben.stock.datalayer.futures.controller;
 
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeEntrust;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
@@ -25,8 +14,17 @@ import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeEntrustQuery;
 import com.waben.stock.interfaces.service.futures.FuturesTradeEntrustInterface;
 import com.waben.stock.interfaces.util.CopyBeanUtils;
 import com.waben.stock.interfaces.util.PageToPageInfo;
-
 import io.swagger.annotations.Api;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 /**
  * 交易委托

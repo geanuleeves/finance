@@ -1,16 +1,14 @@
 package com.waben.stock.datalayer.futures.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
+import com.waben.stock.datalayer.futures.entity.FuturesOrder;
+import com.waben.stock.datalayer.futures.entity.FuturesTradeAction;
+import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesOrderStateConverter;
+import com.waben.stock.datalayer.futures.repository.FuturesTradeActionDao;
+import com.waben.stock.interfaces.enums.FuturesOrderState;
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
+import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
+import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeActionQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +19,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import com.waben.stock.datalayer.futures.entity.FuturesOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesTradeAction;
-import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesOrderStateConverter;
-import com.waben.stock.datalayer.futures.repository.FuturesTradeActionDao;
-import com.waben.stock.interfaces.enums.FuturesOrderState;
-import com.waben.stock.interfaces.enums.FuturesTradeActionType;
-import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
-import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
-import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeActionQuery;
+import javax.persistence.criteria.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 订单交易开平仓记录
@@ -207,6 +200,49 @@ public class FuturesTradeActionService {
 		}, pageable);
 		return page;
 	}
+
+	public Page<FuturesTradeAction> pagesPhone(final FuturesTradeActionQuery query) {
+		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
+		Page<FuturesTradeAction> page = futuresTradeActionDao.page(new Specification<FuturesTradeAction>() {
+			@Override
+			public Predicate toPredicate(Root<FuturesTradeAction> root, CriteriaQuery<?> criteriaQuery,
+										 CriteriaBuilder criteriaBuilder) {
+				List<Predicate> predicateList = new ArrayList<Predicate>();
+				// 用户ID
+				if (query.getPublisherId() != null && query.getPublisherId() != 0) {
+					predicateList
+							.add(criteriaBuilder.equal(root.get("publisherId").as(Long.class), query.getPublisherId()));
+				}
+				Predicate predicate1 = criteriaBuilder.and(criteriaBuilder.equal(root.get("tradeActionType").
+								as(FuturesTradeActionType.class), FuturesTradeActionType.OPEN),
+						criteriaBuilder.in(root.get("state").in(new FuturesTradeEntrustState[]{FuturesTradeEntrustState.Canceled,
+								FuturesTradeEntrustState.Failure})));
+				Predicate predicate2 = criteriaBuilder.and(criteriaBuilder.equal(root.get("tradeActionType").
+								as(FuturesTradeActionType.class), FuturesTradeActionType.CLOSE),
+						criteriaBuilder.in(root.get("state").in(new FuturesTradeEntrustState[]{FuturesTradeEntrustState.PartSuccess,
+								FuturesTradeEntrustState.Success})));
+				predicateList.add(criteriaBuilder.or(predicate1, predicate2));
+
+				if (query.getStartTime() != null) {
+					predicateList.add(criteriaBuilder.greaterThanOrEqualTo(root.get("tradeTime").as(Date.class),
+							query.getStartTime()));
+				}
+				if (query.getEndTime() != null) {
+					predicateList
+							.add(criteriaBuilder.lessThan(root.get("tradeTime").as(Date.class), query.getEndTime()));
+				}
+				if (predicateList.size() > 0) {
+					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
+				}
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("tradeTime").as(Date.class)),
+						criteriaBuilder.desc(root.get("entrustTime").as(Date.class)));
+				return criteriaQuery.getRestriction();
+			}
+		}, pageable);
+		return page;
+	}
+
+
 
 	/**
 	 * 查询今持仓

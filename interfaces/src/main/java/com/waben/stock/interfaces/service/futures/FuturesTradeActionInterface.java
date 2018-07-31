@@ -75,6 +75,13 @@ public interface FuturesTradeActionInterface {
 	 */
 	@RequestMapping(value = "/pagesTradeAdmin", method = RequestMethod.POST, consumes = "application/json")
 	Response<PageInfo<FuturesTradeActionViewDto>> pagesTradeAdmin(@RequestBody FuturesTradeAdminQuery query);
-	
+
+	/**
+	 * 移动端合约订单
+	 * @param query
+	 * @return
+	 */
+	@RequestMapping(value = "/pages_phone", method = RequestMethod.POST, consumes = "application/json")
+	public Response<PageInfo<FuturesTradeActionViewDto>> pagesPhone(@RequestBody FuturesTradeActionQuery query);
 
 }

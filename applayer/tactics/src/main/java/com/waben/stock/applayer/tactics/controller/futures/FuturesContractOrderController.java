@@ -37,9 +37,11 @@ public class FuturesContractOrderController {
             @ApiImplicitParam(name = "commodityNo", value = "品种编号", dataType = "string", paramType = "query", required = false),
             @ApiImplicitParam(name = "contractNo", value = "对应的合约ID", dataType = "string", paramType = "query", required = false)
     })
-    public Response<PageInfo<FuturesContractOrderViewDto>> pages(@RequestParam(required = false)String commodityNo,
+    public Response<PageInfo<FuturesContractOrderViewDto>> pages(int page, int size, @RequestParam(required = false)String commodityNo,
                                                                  @RequestParam(required = false)String contractNo) {
         FuturesContractOrderQuery query = new FuturesContractOrderQuery();
+        query.setPage(page);
+        query.setSize(size);
         query.setPublisherId(SecurityUtil.getUserId());
         query.setCommodityNo(commodityNo);
         query.setContractNo(contractNo);
