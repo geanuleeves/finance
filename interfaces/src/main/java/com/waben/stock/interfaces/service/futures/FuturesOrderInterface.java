@@ -31,10 +31,10 @@ public interface FuturesOrderInterface {
 	 * @return 订单
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	Response<FuturesOrderDto> fetchById(@PathVariable("id") Long id);
+	Response<FuturesOrderDto> fetchById(@PathVariable(value = "id") Long id);
 
 	@RequestMapping(value = "/fetchByOvernightId/{id}", method = RequestMethod.GET)
-	Response<FuturesOvernightRecordDto> fetchByOvernightId(@PathVariable("id") Long id);
+	Response<FuturesOvernightRecordDto> fetchByOvernightId(@PathVariable(value = "id") Long id);
 
 	/**
 	 * 查询期货订单数据
@@ -64,7 +64,7 @@ public interface FuturesOrderInterface {
 	 * @return 订单
 	 */
 	@RequestMapping(value = "/cancelOrder/{id}", method = RequestMethod.GET)
-	Response<FuturesOrderDto> cancelOrder(@PathVariable(name = "id") Long id,
+	Response<FuturesOrderDto> cancelOrder(@PathVariable(value =  "id") Long id,
 			@RequestParam("publisherId") Long publisherId);
 
 	/**
@@ -78,6 +78,10 @@ public interface FuturesOrderInterface {
 	 *            委托价格
 	 * @return 订单
 	 */
+	@RequestMapping(value = "/applyUnwind/{id}", method = RequestMethod.PUT)
+	Response<FuturesOrderDto> applyUnwind(@PathVariable(value = "id") Long id);
+	
+	
 	@RequestMapping(value = "/applyUnwind/{contractId}", method = RequestMethod.PUT)
 	Response<Void> applyUnwind(@PathVariable("contractId") Long contractId,
 			@RequestParam("orderTypeIndex") String orderTypeIndex,
@@ -92,7 +96,7 @@ public interface FuturesOrderInterface {
 	 *            用户ID
 	 */
 	@RequestMapping(value = "/applyUnwindAll/{publisherId}", method = RequestMethod.PUT)
-	Response<Void> applyUnwindAll(@PathVariable("publisherId") Long publisherId);
+	Response<Void> applyUnwindAll(@PathVariable(value = "publisherId") Long publisherId);
 
 	/**
 	 * 用户市价反手
@@ -102,7 +106,7 @@ public interface FuturesOrderInterface {
 	 * @return 订单
 	 */
 	@RequestMapping(value = "/backhandUnwind/{id}", method = RequestMethod.PUT)
-	Response<FuturesOrderDto> backhandUnwind(@PathVariable("id") Long id,
+	Response<FuturesOrderDto> backhandUnwind(@PathVariable(value = "id") Long id,
 			@RequestParam("publisherId") Long publisherId);
 
 	/**

@@ -185,4 +185,10 @@ public class FuturesOrderController implements FuturesOrderInterface {
 		return new Response<>(totalFloatingProfitAndLoss);
 	}
 
+	@Override
+	public Response<FuturesOrderDto> applyUnwind(Long id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -58,7 +58,7 @@ public interface FuturesContractInterface {
 	 * @param id
 	 */
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
-	Response<String> deleteContract(@PathVariable("id") Long id);
+	Response<String> deleteContract(@PathVariable(value = "id") Long id);
 
 	/**
 	 * 根据合约ID获取期货合约信息
@@ -67,14 +67,14 @@ public interface FuturesContractInterface {
 	 *            合约ID
 	 * @return 合约信息
 	 */
-	@RequestMapping(value = "/contract/{contractId}", method = RequestMethod.GET)
-	Response<FuturesContractDto> findByContractId(@PathVariable("contractId") Long contractId);
+	@RequestMapping(value = "/contract/{contractId}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	Response<FuturesContractDto> findByContractId(@PathVariable(value = "contractId") Long contractId);
 
 	@RequestMapping(value = "/contract/isEnable", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	Response<String> isCurrent(@RequestParam(value = "id") Long id);
 
 	@RequestMapping(value = "/lists/{commodityId}", method = RequestMethod.GET)
-	Response<List<FuturesContractDto>> listByCommodityId(@PathVariable("commodityId") Long commodityId);
+	Response<List<FuturesContractDto>> listByCommodityId(@PathVariable(value = "commodityId") Long commodityId);
 
 	@RequestMapping(value = "/listAll", method = RequestMethod.GET)
 	Response<List<FuturesContractDto>> list();
