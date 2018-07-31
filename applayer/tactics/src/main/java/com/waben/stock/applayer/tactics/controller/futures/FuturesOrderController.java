@@ -492,39 +492,12 @@ public class FuturesOrderController {
 
 	@GetMapping("/holding/profit")
 	@ApiOperation(value = "获取持仓中总收益")
-	public Response<FuturesOrderProfitDto> holdingProfit(int page, int size) {
-		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
-		FuturesOrderState[] states = { FuturesOrderState.Position };
-		orderQuery.setStates(states);
-		orderQuery.setPage(page);
-		orderQuery.setSize(size);
-		orderQuery.setPublisherId(SecurityUtil.getUserId());
-		List<FuturesOrderMarketDto> list = futuresOrderBusiness.pageOrderMarket(orderQuery).getContent();
-		BigDecimal totalIncome = new BigDecimal(0);
-		BigDecimal rate = BigDecimal.ZERO;
-		String sign = "";
-		for (FuturesOrderMarketDto futuresOrderMarketDto : list) {
-			// totalIncome =
-			// totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss()
-			// == null ? new BigDecimal(0)
-			// : futuresOrderMarketDto.getPublisherProfitOrLoss());
-		}
-		if (list != null && list.size() > 0) {
-			sign = list.get(0).getCurrencySign();
-			rate = list.get(0).getRate();
-		}
-		// 获取用户账户资金
-		CapitalAccountDto capital = capitalAccountBusiness.findByPublisherId(SecurityUtil.getUserId());
+	public Response<FuturesOrderProfitDto> holdingProfit() {
 		FuturesOrderProfitDto result = new FuturesOrderProfitDto();
 		// 获得合计浮动盈亏
 		BigDecimal totalFloatingProfitAndLoss = futuresOrderBusiness
-				.getTotalFloatingProfitAndLoss(SecurityUtil.getUserId());
+					.getTotalFloatingProfitAndLoss(SecurityUtil.getUserId());
 		result.setTotalIncome(totalFloatingProfitAndLoss);
-		// result.setTotalIncome(totalIncome.setScale(2, RoundingMode.DOWN));
-		result.setRate(rate.setScale(2, RoundingMode.DOWN));
-		result.setCurrencySign(sign);
-		result.setTotalBalance(capital.getAvailableBalance()
-				.add(futuresOrderBusiness.totalBalance(0, Integer.MAX_VALUE)).setScale(2, RoundingMode.DOWN));
 		return new Response<>(result);
 	}
 
