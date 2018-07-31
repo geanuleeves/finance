@@ -336,6 +336,9 @@ public class FuturesOrder {
 	}
 
 	public Long getContractId() {
+		if (contract != null) {
+			return contract.getId();
+		}
 		return contractId;
 	}
 

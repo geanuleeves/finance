@@ -120,6 +120,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                     //买涨
                     FuturesContractOrderViewDto buyDto = futuresContractOrderViewDto.deepClone();
                     buyDto.setOrderType(FuturesOrderType.BuyUp);
+                    //已持仓
                     buyDto.setBuyUpQuantity(futuresContractOrder.getBuyUpQuantity());
                     //今持仓
                     Integer findUpFilledNow = futuresTradeActionService.findFilledNow(futuresContractOrder.getPublisherId(),

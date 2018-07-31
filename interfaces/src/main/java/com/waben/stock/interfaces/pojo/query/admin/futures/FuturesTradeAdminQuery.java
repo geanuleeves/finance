@@ -56,9 +56,13 @@ public class FuturesTradeAdminQuery extends PageAndSortQuery {
 	private String priceType;
 
 	private List<Long> publisherIds;
-	
+
 	private Boolean isTest;
-	
+	/**
+	 * 交易开平仓 类型 ，1 开仓，2 平仓
+	 */
+	private Integer tradeActionType;
+
 	/**
 	 * 查询开始时间
 	 */
@@ -212,6 +216,14 @@ public class FuturesTradeAdminQuery extends PageAndSortQuery {
 
 	public void setIsTest(Boolean isTest) {
 		this.isTest = isTest;
+	}
+
+	public Integer getTradeActionType() {
+		return tradeActionType;
+	}
+
+	public void setTradeActionType(Integer tradeActionType) {
+		this.tradeActionType = tradeActionType;
 	}
 
 }
