@@ -72,10 +72,14 @@ public interface FuturesOrderInterface {
 	 * 
 	 * @param contractId
 	 *            合约ID
+	 * @param orderTypeIndex
+	 *            订单类型
 	 * @param sellingPriceTypeIndex
 	 *            期货交易价格 类型
 	 * @param sellingEntrustPrice
 	 *            委托价格
+	 * @param publisherId
+	 *            用户ID
 	 * @return 订单
 	 */
 	@RequestMapping(value = "/applyUnwind/{contractId}", method = RequestMethod.PUT)
@@ -97,13 +101,48 @@ public interface FuturesOrderInterface {
 	/**
 	 * 用户市价反手
 	 * 
-	 * @param orderId
-	 *            订单ID
+	 * @param contractId
+	 *            合约ID
+	 * @param orderTypeIndex
+	 *            订单类型
+	 * @param sellingPriceTypeIndex
+	 *            期货交易价格 类型
+	 * @param sellingEntrustPrice
+	 *            委托价格
+	 * @param publisherId
+	 *            用户ID
 	 * @return 订单
 	 */
-	@RequestMapping(value = "/backhandUnwind/{id}", method = RequestMethod.PUT)
-	Response<FuturesOrderDto> backhandUnwind(@PathVariable("id") Long id,
+	@RequestMapping(value = "/backhandUnwind/{contractId}", method = RequestMethod.PUT)
+	Response<Void> backhandUnwind(@PathVariable("contractId") Long contractId,
+			@RequestParam("orderTypeIndex") String orderTypeIndex,
+			@RequestParam("sellingPriceTypeIndex") String sellingPriceTypeIndex,
+			@RequestParam("sellingEntrustPrice") BigDecimal sellingEntrustPrice,
 			@RequestParam("publisherId") Long publisherId);
+
+	/**
+	 * 买平或者卖平
+	 * 
+	 * @param contractId
+	 *            合约ID
+	 * @param orderTypeIndex
+	 *            订单类型
+	 * @param sellingPriceTypeIndex
+	 *            期货交易价格 类型
+	 * @param sellingEntrustPrice
+	 *            委托价格
+	 * @param publisherId
+	 *            用户ID
+	 * @param quantity
+	 *            数量
+	 * @return 订单
+	 */
+	@RequestMapping(value = "/lockUnwind/{contractId}", method = RequestMethod.PUT)
+	Response<Void> balanceUnwind(@PathVariable("contractId") Long contractId,
+			@RequestParam("orderTypeIndex") String orderTypeIndex,
+			@RequestParam("sellingPriceTypeIndex") String sellingPriceTypeIndex,
+			@RequestParam("sellingEntrustPrice") BigDecimal sellingEntrustPrice,
+			@RequestParam("publisherId") Long publisherId, @RequestParam("quantity") BigDecimal quantity);
 
 	/**
 	 * 获取每个合约的买量 卖量数
@@ -182,6 +221,7 @@ public interface FuturesOrderInterface {
 			@RequestParam("perUnitLimitProfitAmount") BigDecimal perUnitLimitProfitAmount,
 			@RequestParam("limitLossType") Integer limitLossType,
 			@RequestParam("perUnitLimitLossAmount") BigDecimal perUnitLimitLossAmount);
+
 	/**
 	 * 获取持仓订单的浮动盈亏累计
 	 *

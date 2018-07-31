@@ -1,16 +1,48 @@
 package com.waben.stock.applayer.tactics.controller.futures;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.waben.stock.applayer.tactics.business.CapitalAccountBusiness;
 import com.waben.stock.applayer.tactics.business.PublisherBusiness;
 import com.waben.stock.applayer.tactics.business.futures.FuturesContractBusiness;
 import com.waben.stock.applayer.tactics.business.futures.FuturesContractOrderBusiness;
 import com.waben.stock.applayer.tactics.business.futures.FuturesOrderBusiness;
-import com.waben.stock.applayer.tactics.business.futures.FuturesTradeEntrustBusiness;
-import com.waben.stock.applayer.tactics.dto.futures.*;
+import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderBuysellDto;
+import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderDayGainLossDto;
+import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderMarketDto;
+import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderProfitDto;
+import com.waben.stock.applayer.tactics.dto.futures.TransactionDynamicsDto;
 import com.waben.stock.applayer.tactics.security.SecurityUtil;
 import com.waben.stock.applayer.tactics.util.PoiUtil;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
-import com.waben.stock.interfaces.dto.futures.*;
+import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
+import com.waben.stock.interfaces.dto.futures.FuturesContractOrderDto;
+import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
+import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
+import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
@@ -23,28 +55,11 @@ import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesContractQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
 import com.waben.stock.interfaces.util.StringUtil;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 
 /**
  * 期货订单
@@ -66,9 +81,6 @@ public class FuturesOrderController {
 	private FuturesOrderBusiness futuresOrderBusiness;
 
 	@Autowired
-	private FuturesTradeEntrustBusiness entrustBusiness;
-
-	@Autowired
 	private FuturesContractBusiness futuresContractBusiness;
 
 	@Autowired
@@ -80,7 +92,6 @@ public class FuturesOrderController {
 	@Autowired
 	private FuturesOrderBusiness orderBusiness;
 
-	// private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	private SimpleDateFormat exprotSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@PostMapping("/buy")
@@ -132,7 +143,8 @@ public class FuturesOrderController {
 			buyFallNum = contractOrder.getBuyFallTotalQuantity();
 			alreadyReserveFund = contractOrder.getReserveFund();
 		}
-		checkBuyUpAndFullSum(buyUpNum, buyFallNum, perNum, userMaxNum, param, contract);
+		checkBuyUpAndFullSum(buyUpNum, buyFallNum, perNum, userMaxNum, param.getOrderType(), param.getTotalQuantity(),
+				contract);
 		// step 5 : 计算总费用，总保证金=单边最大手数*一手保证金
 		BigDecimal totalFee = new BigDecimal(0);
 		BigDecimal singleEdgeMax = BigDecimal.ZERO;
@@ -196,13 +208,12 @@ public class FuturesOrderController {
 	@PostMapping("/applyUnwind/{contractId}")
 	@ApiOperation(value = "市价平仓")
 	public Response<String> applyUnwind(@PathVariable Long contractId,
-			@RequestParam(required = true) FuturesOrderType orderType,
-			@RequestParam(required = true) FuturesTradePriceType sellingPriceType, BigDecimal sellingEntrustPrice) {
-		futuresOrderBusiness.applyUnwind(contractId, orderType, sellingPriceType, sellingEntrustPrice,
+			@RequestParam(required = true) FuturesOrderType orderType) {
+		futuresOrderBusiness.applyUnwind(contractId, orderType, FuturesTradePriceType.MKT, null,
 				SecurityUtil.getUserId());
 		return new Response<>("success");
 	}
-	
+
 	@PostMapping("/applyUnwindAll")
 	@ApiOperation(value = "用户申请一键平仓所有订单")
 	public Response<String> applyUnwindAll() {
@@ -210,6 +221,129 @@ public class FuturesOrderController {
 		Response<String> result = new Response<>();
 		result.setResult("success");
 		return result;
+	}
+
+	@PostMapping("/backhandUnwind/{contractId}")
+	@ApiOperation(value = "市价反手")
+	public Response<String> backhandUnwind(@PathVariable Long contractId,
+			@RequestParam(required = true) FuturesOrderType orderType) {
+		futuresOrderBusiness.backhandUnwind(contractId, orderType, FuturesTradePriceType.MKT, null,
+				SecurityUtil.getUserId());
+		return new Response<>("success");
+	}
+
+	@PostMapping("/lockUnwind/{contractId}")
+	@ApiOperation(value = "快捷锁仓")
+	public Response<FuturesTradeEntrustDto> lockUnwind(@PathVariable Long contractId,
+			@RequestParam(required = true) FuturesOrderType orderType) {
+		orderType = orderType == FuturesOrderType.BuyUp ? FuturesOrderType.BuyFall : FuturesOrderType.BuyUp;
+		FuturesContractOrderDto contractOrder = contractOrderBusiness.fetchByContractIdAndPublisherId(contractId,
+				SecurityUtil.getUserId());
+		BigDecimal quantity = BigDecimal.ZERO;
+		if (orderType == FuturesOrderType.BuyUp) {
+			quantity = contractOrder.getBuyFallCanUnwindQuantity();
+		} else {
+			quantity = contractOrder.getBuyUpCanUnwindQuantity();
+		}
+		logger.info("调用接口发布人{}期货快捷锁仓{}，手数{}!", SecurityUtil.getUserId(), contractId, quantity);
+		// step 1 : 检查合约信息
+		FuturesContractDto contract = futuresContractBusiness.findByContractId(contractId);
+		if (contract == null) {
+			throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION, "contractId", contractId);
+		}
+		if (contract.getExchangeEnable() != null && !contract.getExchangeEnable()) {
+			throw new ServiceException(ExceptionConstant.EXCHANGE_ISNOT_AVAILABLE_EXCEPTION);
+		}
+		if (contract.getEnable() != null && !contract.getEnable()) {
+			throw new ServiceException(ExceptionConstant.CONTRACT_ABNORMALITY_EXCEPTION);
+		}
+		if (!contract.getIsTradeTime()) {
+			throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
+		}
+		// step 2 : 根据最后交易日和首次通知日判断是否可以下单，可以下单计算公式：MIN（最后交易日，首次通知日）> 当前日期
+		Long checkLastTrade = 0L;
+		if (contract.getFirstNoticeDate() != null) {
+			checkLastTrade = contract.getFirstNoticeDate().getTime();
+		}
+		if (contract.getLastTradingDate() != null) {
+			checkLastTrade = checkLastTrade == 0 ? contract.getLastTradingDate().getTime()
+					: Math.min(checkLastTrade, contract.getLastTradingDate().getTime());
+		}
+		if (checkLastTrade > 0) {
+			Date exchangeTime = contract.getTimeZoneGap() == null ? new Date()
+					: retriveExchangeTime(new Date(), contract.getTimeZoneGap());
+			if (checkLastTrade.compareTo(exchangeTime.getTime()) < 0) {
+				throw new ServiceException(ExceptionConstant.MIN_PLACE_ORDER_EXCEPTION);
+			}
+		}
+		// step 3 : 包装代理商销售价格到合约信息
+		futuresContractBusiness.wrapperAgentPrice(contract);
+		// step 4 : 检查下单数量
+		BigDecimal perNum = contract.getPerOrderLimit();
+		BigDecimal userMaxNum = contract.getUserTotalLimit();
+		BigDecimal buyUpNum = BigDecimal.ZERO;
+		BigDecimal buyFallNum = BigDecimal.ZERO;
+		BigDecimal alreadyReserveFund = BigDecimal.ZERO;
+		if (contractOrder != null) {
+			buyUpNum = contractOrder.getBuyUpTotalQuantity();
+			buyFallNum = contractOrder.getBuyFallTotalQuantity();
+			alreadyReserveFund = contractOrder.getReserveFund();
+		}
+		checkBuyUpAndFullSum(buyUpNum, buyFallNum, perNum, userMaxNum, orderType, quantity, contract);
+		// step 5 : 计算总费用，总保证金=单边最大手数*一手保证金
+		BigDecimal totalFee = new BigDecimal(0);
+		BigDecimal singleEdgeMax = BigDecimal.ZERO;
+		if (orderType == FuturesOrderType.BuyUp) {
+			BigDecimal preBuyUpNum = quantity.add(buyUpNum);
+			singleEdgeMax = preBuyUpNum.compareTo(buyFallNum) >= 0 ? preBuyUpNum : buyFallNum;
+		} else {
+			BigDecimal prebuyFallNum = quantity.add(buyFallNum);
+			singleEdgeMax = prebuyFallNum.compareTo(buyUpNum) >= 0 ? prebuyFallNum : buyUpNum;
+		}
+		BigDecimal totalReserveFund = contract.getPerUnitReserveFund().multiply(singleEdgeMax);
+		BigDecimal reserveFund = totalReserveFund.compareTo(alreadyReserveFund) > 0
+				? totalReserveFund.subtract(alreadyReserveFund) : BigDecimal.ZERO;
+		BigDecimal serviceFee = contract.getOpenwindServiceFee().add(contract.getUnwindServiceFee()).multiply(quantity);
+		totalFee = reserveFund.add(serviceFee);
+		// step 6 : 检查余额
+		CapitalAccountDto capitalAccount = futuresContractBusiness.findByPublisherId(SecurityUtil.getUserId());
+		if (totalFee.compareTo(capitalAccount.getAvailableBalance()) > 0) {
+			throw new ServiceException(ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION);
+		}
+		BigDecimal unsettledProfitOrLoss = futuresOrderBusiness.getUnsettledProfitOrLoss(SecurityUtil.getUserId());
+		if (unsettledProfitOrLoss != null && unsettledProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+			if (totalFee.add(unsettledProfitOrLoss.abs()).compareTo(capitalAccount.getAvailableBalance()) > 0) {
+				throw new ServiceException(ExceptionConstant.HOLDINGLOSS_LEADTO_NOTENOUGH_EXCEPTION);
+			}
+		}
+		// step 7 : 组装请求参数，请求下单
+		PlaceOrderParam orderParam = new PlaceOrderParam();
+		orderParam.setPublisherId(SecurityUtil.getUserId());
+		orderParam.setOrderType(orderType);
+		orderParam.setContractId(contractId);
+		orderParam.setTotalQuantity(quantity);
+		orderParam.setReserveFund(reserveFund);
+		orderParam.setServiceFee(serviceFee);
+		orderParam.setCommoditySymbol(contract.getSymbol());
+		orderParam.setCommodityName((contract.getName()));
+		orderParam.setCommodityCurrency(contract.getCurrency());
+		orderParam.setContractNo(contract.getContractNo());
+		orderParam.setOpenwindServiceFee(contract.getOpenwindServiceFee());
+		orderParam.setUnwindServiceFee(contract.getUnwindServiceFee());
+		orderParam.setTradePriceType(FuturesTradePriceType.MKT);
+		PublisherDto publisher = publisherBusiness.findById(SecurityUtil.getUserId());
+		orderParam.setIsTest(publisher.getIsTest());
+		return new Response<>(futuresOrderBusiness.placeOrder(orderParam));
+	}
+
+	@PostMapping("/balanceUnwind/{contractId}")
+	@ApiOperation(value = "买平或者卖平")
+	public Response<FuturesTradeEntrustDto> balanceUnwind(@PathVariable Long contractId,
+			@RequestParam(required = true) FuturesOrderType orderType,
+			@RequestParam(required = true) BigDecimal quantity) {
+		futuresOrderBusiness.balanceUnwind(contractId, orderType, FuturesTradePriceType.MKT, null,
+				SecurityUtil.getUserId(), quantity);
+		return new Response<>("success");
 	}
 
 	@PostMapping("/settingProfitAndLossLimit/{contractId}")
@@ -229,10 +363,10 @@ public class FuturesOrderController {
 		Response<String> result = new Response<>();
 		return result;
 	}
-	
+
 	/******************************************** 分割线 ************************************************/
 
-	@PostMapping("/backhandUnwind/{orderId}")
+	@PostMapping("/backhandUnwind_bak/{orderId}")
 	@ApiOperation(value = "用户市价反手", hidden = true)
 	public Response<FuturesOrderDto> backhandUnwind(@PathVariable Long orderId) {
 		FuturesOrderDto orderDto = futuresOrderBusiness.fetchByOrderId(orderId);
@@ -267,8 +401,10 @@ public class FuturesOrderController {
 		buysellDto.setOrderType(orderDto.getOrderType());
 		// 判断当前下单手数是否满足条件
 		checkBuyUpAndFullSum(buyUpNum, buyFullNum, contractDto.getPerOrderLimit(), contractDto.getUserTotalLimit(),
-				buysellDto, contractDto);
-		return new Response<>(futuresOrderBusiness.backhandUnwind(orderId, SecurityUtil.getUserId()));
+				buysellDto.getOrderType(), buysellDto.getTotalQuantity(), contractDto);
+		// return new Response<>(futuresOrderBusiness.backhandUnwind(orderId,
+		// SecurityUtil.getUserId()));
+		return new Response<>();
 	}
 
 	@GetMapping("/holding")
@@ -380,11 +516,11 @@ public class FuturesOrderController {
 		// 获取用户账户资金
 		CapitalAccountDto capital = capitalAccountBusiness.findByPublisherId(SecurityUtil.getUserId());
 		FuturesOrderProfitDto result = new FuturesOrderProfitDto();
-		//获得合计浮动盈亏
+		// 获得合计浮动盈亏
 		BigDecimal totalFloatingProfitAndLoss = futuresOrderBusiness
-					.getTotalFloatingProfitAndLoss(SecurityUtil.getUserId());
+				.getTotalFloatingProfitAndLoss(SecurityUtil.getUserId());
 		result.setTotalIncome(totalFloatingProfitAndLoss);
-		//result.setTotalIncome(totalIncome.setScale(2, RoundingMode.DOWN));
+		// result.setTotalIncome(totalIncome.setScale(2, RoundingMode.DOWN));
 		result.setRate(rate.setScale(2, RoundingMode.DOWN));
 		result.setCurrencySign(sign);
 		result.setTotalBalance(capital.getAvailableBalance()
@@ -754,14 +890,14 @@ public class FuturesOrderController {
 	 *            当前合约详情
 	 */
 	public void checkBuyUpAndFullSum(BigDecimal buyUpNum, BigDecimal buyFullNum, BigDecimal perNum,
-			BigDecimal userMaxNum, FuturesOrderBuysellDto buysellDto, FuturesContractDto contractDto) {
-		BigDecimal userNum = buysellDto.getTotalQuantity();
+			BigDecimal userMaxNum, FuturesOrderType orderType, BigDecimal quantity, FuturesContractDto contractDto) {
+		BigDecimal userNum = quantity;
 		BigDecimal buyUpTotal = BigDecimal.ZERO;
 		BigDecimal buyFullTotal = BigDecimal.ZERO;
-		if (buysellDto.getOrderType() == FuturesOrderType.BuyUp) {
-			buyUpTotal = buyUpNum.add(buysellDto.getTotalQuantity());
+		if (orderType == FuturesOrderType.BuyUp) {
+			buyUpTotal = buyUpNum.add(quantity);
 		} else {
-			buyFullTotal = buyFullNum.add(buysellDto.getTotalQuantity());
+			buyFullTotal = buyFullNum.add(quantity);
 		}
 
 		if (contractDto.getBuyUpTotalLimit() != null && buyUpTotal.compareTo(contractDto.getBuyUpTotalLimit()) > 0) {

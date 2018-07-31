@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -18,9 +19,7 @@ import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
 import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
 import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
-import com.waben.stock.interfaces.enums.FuturesOrderState;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
-import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
@@ -32,8 +31,6 @@ import com.waben.stock.interfaces.service.futures.FuturesCurrencyRateInterface;
 import com.waben.stock.interfaces.service.futures.FuturesOrderInterface;
 import com.waben.stock.interfaces.service.publisher.PublisherInterface;
 import com.waben.stock.interfaces.util.CopyBeanUtils;
-
-import ch.qos.logback.classic.Logger;
 
 @Service
 public class FuturesTradeBusiness {
@@ -61,8 +58,6 @@ public class FuturesTradeBusiness {
 	
 	@Autowired
 	private ProfileBusiness profileBusiness;
-	
-
 
 	public Integer sumUserNum(Long contractId, Long publisherId, Integer type) {
 		Response<Integer> response = futuresOrderInterface.sumByListOrderContractIdAndPublisherId(contractId,
@@ -71,49 +66,6 @@ public class FuturesTradeBusiness {
 			return response.getResult();
 		}
 		throw new ServiceException(response.getCode());
-	}
-
-	public FuturesOrderDto applyUnwind(Long orderId, FuturesTradePriceType sellingPriceType,
-			BigDecimal sellingEntrustPrice, Long publisherId) {
-		Response<FuturesOrderDto> response = futuresOrderInterface.applyUnwind(orderId, sellingPriceType.getIndex(),
-				sellingEntrustPrice, publisherId);
-		if ("200".equals(response.getCode())) {
-			return response.getResult();
-		}
-		throw new ServiceException(response.getCode());
-	}
-
-	public FuturesOrderDto backhandUnwind(Long orderId, Long publisherId) {
-		Response<FuturesOrderDto> response = futuresOrderInterface.backhandUnwind(orderId, publisherId);
-		if ("200".equals(response.getCode())) {
-			return response.getResult();
-		}
-		throw new ServiceException(response.getCode());
-	}
-
-	public void applyUnwindAll(Long publisherId) {
-		Response<Void> response = futuresOrderInterface.applyUnwindAll(publisherId);
-		if ("200".equals(response.getCode())) {
-			return;
-		}
-		throw new ServiceException(response.getCode());
-	}
-
-	public FuturesOrderDto cancelOrder(Long orderId, Long publisherId) {
-		Response<FuturesOrderDto> response = futuresOrderInterface.cancelOrder(orderId, publisherId);
-		if ("200".equals(response.getCode())) {
-			return response.getResult();
-		}
-		throw new ServiceException(response.getCode());
-	}
-
-	public FuturesOrderDto buy(FuturesOrderDto orderDto) {
-		return null;
-//		Response<FuturesOrderDto> response = futuresOrderInterface.addOrder(orderDto);
-//		if ("200".equals(response.getCode())) {
-//			return response.getResult();
-//		}
-//		throw new ServiceException(response.getCode());
 	}
 
 	public PageInfo<FuturesOrderDto> pageOrder(FuturesOrderQuery orderQuery) {

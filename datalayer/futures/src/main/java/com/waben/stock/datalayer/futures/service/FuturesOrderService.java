@@ -31,6 +31,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
 import com.waben.stock.datalayer.futures.business.CapitalFlowBusiness;
@@ -68,6 +69,7 @@ import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractM
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.AgentOrderRecordDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeActionAgentDto;
 import com.waben.stock.interfaces.dto.futures.MarketAveragePrice;
 import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
 import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
@@ -87,6 +89,7 @@ import com.waben.stock.interfaces.enums.FuturesWindControlType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesContractOrderQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
 import com.waben.stock.interfaces.util.StringUtil;
 import com.waben.stock.interfaces.util.UniqueCodeGenerator;
@@ -164,6 +167,9 @@ public class FuturesOrderService {
 
 	@Autowired
 	private FuturesTradeLimitService futuresTradeLimitService;
+
+	@Autowired
+	private FuturesContractOrderDao futuresContractOrderDao;
 
 	private SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -788,19 +794,46 @@ public class FuturesOrderService {
 
 	public void applyUnwindAll(Long publisherId) {
 		List<FuturesContractOrder> contractOrderList = contractOrderDao.retrieveByPublisherId(publisherId);
-		if(contractOrderList != null && contractOrderList.size() > 0) {
-			for(FuturesContractOrder contractOrder : contractOrderList) {
+		if (contractOrderList != null && contractOrderList.size() > 0) {
+			for (FuturesContractOrder contractOrder : contractOrderList) {
 				FuturesContract contract = contractOrder.getContract();
 				BigDecimal buyUpQuantity = contractOrder.getBuyUpCanUnwindQuantity();
 				BigDecimal buyFallQuantity = contractOrder.getBuyFallCanUnwindQuantity();
-				if(buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
-					doUnwind(contract, contractOrder, FuturesOrderType.BuyUp, buyUpQuantity, FuturesTradePriceType.MKT, null, publisherId);
+				if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
+					doUnwind(contract, contractOrder, FuturesOrderType.BuyUp, buyUpQuantity, FuturesTradePriceType.MKT,
+							null, publisherId);
 				}
-				if(buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
-					doUnwind(contract, contractOrder, FuturesOrderType.BuyFall, buyFallQuantity, FuturesTradePriceType.MKT, null, publisherId);
+				if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
+					doUnwind(contract, contractOrder, FuturesOrderType.BuyFall, buyFallQuantity,
+							FuturesTradePriceType.MKT, null, publisherId);
 				}
 			}
 		}
+	}
+
+	public void balanceUnwind(Long contractId, FuturesOrderType orderType, FuturesTradePriceType sellingPriceType,
+			BigDecimal sellingEntrustPrice, Long publisherId, BigDecimal quantity) {
+		FuturesContract contract = contractDao.retrieve(contractId);
+		if (contract == null) {
+			throw new ServiceException(ExceptionConstant.DATANOTFOUND_EXCEPTION);
+		}
+		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract, publisherId);
+		if (contractOrder == null) {
+			return;
+		}
+		BigDecimal canQuantity = BigDecimal.ZERO;
+		if (orderType == FuturesOrderType.BuyUp) {
+			canQuantity = contractOrder.getBuyUpCanUnwindQuantity();
+		} else {
+			canQuantity = contractOrder.getBuyFallCanUnwindQuantity();
+		}
+		if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
+			return;
+		}
+		if (canQuantity.compareTo(quantity) < 0) {
+			throw new ServiceException(ExceptionConstant.UNWINDQUANTITY_NOTENOUGH_EXCEPTION);
+		}
+		doUnwind(contract, contractOrder, orderType, quantity, FuturesTradePriceType.MKT, null, publisherId);
 	}
 
 	public void settingProfitAndLossLimit(Long publisherId, Long contractId, FuturesOrderType orderType,
@@ -1982,6 +2015,114 @@ public class FuturesOrderService {
 	 */
 	public BigDecimal getAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
 		return orderDao.getAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
+	}
+
+	public Page<FuturesTradeActionAgentDto> pagesOrderAgentDealRecord(FuturesTradeAdminQuery query) {
+		String publisherNameCondition = "";
+		if (!StringUtil.isEmpty(query.getPublisherName())) {
+			publisherNameCondition = " AND t4.name like '%" + query.getPublisherName().trim() + "%' ";
+		}
+		String publisherPhoneCondition = "";
+		if (query.getPublisherPhone() != null && !"".equals(query.getPublisherPhone())) {
+			publisherPhoneCondition = " AND t5.phone like '%" + query.getPublisherPhone().trim() + "%' ";
+		}
+		String symbol = "";
+		if (!StringUtil.isEmpty(query.getSymbol())) {
+			symbol = " AND t2.commodity_symbol like '%" + query.getSymbol().trim() + "%'";
+		}
+		String commodityName = "";
+		if (!StringUtil.isEmpty(query.getName())) {
+			commodityName = " AND t2.commodity_name like '%" + query.getName().trim() + "%'";
+		}
+		// /交易方向 ,1 买涨，2 买跌
+		String orderType = "";
+		if (!StringUtil.isEmpty(query.getOrderType())) {
+			orderType = " AND t2.order_type =" + query.getOrderType().trim();
+		}
+		// String orderState = "";
+		// if (!StringUtil.isEmpty(query.getOrderState())) {
+		// orderState = " AND t1.state in(" + query.getOrderState().trim() + ")
+		// ";
+		// }
+		// 定单类型，1 市价 ,2 限价
+		String priceType = "";
+		if (!StringUtil.isEmpty(query.getPriceType())) {
+			priceType = " AND t3.price_type =" + query.getPriceType().trim();
+		}
+		String tradeNo = "";
+		if (!StringUtil.isEmpty(query.getTradeNo())) {
+			tradeNo = " AND t2.trade_no LIKE '%" + query.getTradeNo() + "%'";
+		}
+		String windControlType = "";
+		if (!StringUtil.isEmpty(query.getWindControlType())) {
+			windControlType = " AND t1.wind_control_type in(" + query.getWindControlType() + ")";
+		}
+		String treeCode = "";
+		if (query.getTreeCode() != null) {
+			treeCode = " AND t8.tree_code LIKE '%" + query.getTreeCode() + "%'";
+		}
+		String tradeActionType = "";
+		if (query.getTradeActionType() != null) {
+			tradeActionType = " AND t1.trade_action_type in(" + query.getTradeActionType() + ")";
+		}
+
+		String sql = String.format(
+				"SELECT t1.id as action_id, t4.name AS publisher_name, t5.phone AS publisher_phone, t2.commodity_symbol, t2.commodity_name, t2.contract_no, t2.order_type, "
+						+ "t1.trade_action_type, t1.filled, t1.trade_price, t1.publisher_profit_or_loss, t1.action_no, t1.trade_time,t1.state,t3.price_type,t1.wind_control_type, "
+						+ "t2.commodity_currency, t6.id "
+						+ "FROM f_futures_trade_action t1 LEFT JOIN f_futures_order t2 ON t2.id = t1.order_id "
+						+ "LEFT JOIN f_futures_trade_entrust t3 ON t3.id = t1.trade_entrust_id "
+						+ "LEFT JOIN real_name t4 ON t4.resource_id = t1.publisher_id "
+						+ "LEFT JOIN publisher t5 ON t5.id = t1.publisher_id "
+						+ "LEFT JOIN f_futures_contract t6 ON t6.id = t2.contract_id "
+						+ "LEFT JOIN p_organization_publisher t7 ON t7.publisher_id = t1.publisher_id "
+						+ "LEFT JOIN p_organization t8 ON t8.id = t7.org_id"
+						+ " WHERE 1=1 %s %s %s %s %s %s %s %s %s %s ORDER BY t1.trade_time DESC LIMIT "
+						+ query.getPage() * query.getSize() + "," + query.getSize(),
+				publisherNameCondition, publisherPhoneCondition, symbol, commodityName, orderType, priceType, tradeNo,
+				windControlType, treeCode, tradeActionType);
+		String countSql = "select count(*) " + sql.substring(sql.indexOf("FROM"), sql.indexOf("LIMIT"));
+		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
+		setMethodMap.put(new Integer(0), new MethodDesc("setId", new Class<?>[] { Long.class }));
+		setMethodMap.put(new Integer(1), new MethodDesc("setPublisherName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(2), new MethodDesc("setPublisherPhone", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(3), new MethodDesc("setCommoditySymbol", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(4), new MethodDesc("setCommodityName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(5), new MethodDesc("setContractNo", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(6), new MethodDesc("setOrderType", new Class<?>[] { Integer.class }));
+		setMethodMap.put(new Integer(7), new MethodDesc("setTradeActionType", new Class<?>[] { Integer.class }));
+		setMethodMap.put(new Integer(8), new MethodDesc("setFilled", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(9), new MethodDesc("setTradePrice", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(10),
+				new MethodDesc("setPublisherProfitOrLoss", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(11), new MethodDesc("setActionNo", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(12), new MethodDesc("setTradeTime", new Class<?>[] { Date.class }));
+		setMethodMap.put(new Integer(13), new MethodDesc("setState", new Class<?>[] { Integer.class }));
+		setMethodMap.put(new Integer(14), new MethodDesc("setPriceType", new Class<?>[] { Integer.class }));
+		setMethodMap.put(new Integer(15), new MethodDesc("setWindControlType", new Class<?>[] { Integer.class }));
+		setMethodMap.put(new Integer(16), new MethodDesc("setCommodityCurrency", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(17), new MethodDesc("setContractId", new Class<?>[] { Long.class }));
+
+		List<FuturesTradeActionAgentDto> content = sqlDao.execute(FuturesTradeActionAgentDto.class, sql, setMethodMap);
+		BigInteger totalElements = sqlDao.executeComputeSql(countSql);
+		return new PageImpl<>(content, new PageRequest(query.getPage(), query.getSize()),
+				totalElements != null ? totalElements.longValue() : 0);
+	}
+
+	public Page<FuturesContractOrder> pages(final FuturesTradeAdminQuery query) {
+		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
+		Page<FuturesContractOrder> page = futuresContractOrderDao.page(new Specification<FuturesContractOrder>() {
+			@Override
+			public Predicate toPredicate(Root<FuturesContractOrder> root, CriteriaQuery<?> criteriaQuery,
+					CriteriaBuilder criteriaBuilder) {
+				List<Predicate> predicateList = new ArrayList<Predicate>();
+				
+				// 以更新时间排序
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("updateTime").as(Date.class)));
+				return criteriaQuery.getRestriction();
+			}
+		}, pageable);
+		return page;
 	}
 
 }
