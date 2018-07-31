@@ -139,6 +139,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                     //已成交部分最新均价
                     BigDecimal lastPrice = quoteContainer.getLastPrice(futuresContractOrder.getCommodityNo(),
                             futuresContractOrder.getContractNo());
+                    lastPrice = lastPrice == null ? new BigDecimal(0) : lastPrice;
                     //买涨
                     FuturesContractOrderViewDto buyDto = futuresContractOrderViewDto.deepClone();
                     //订单类型
@@ -157,10 +158,11 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                         BigDecimal avgUpFillPrice = futuresOrderService.getAvgFillPrice(futuresContractOrder.getPublisherId(),
                                 futuresContractOrder.getContractNo(), futuresContractOrder.getCommodityNo(),
                                 FuturesOrderType.BuyUp.getIndex());
+                        avgUpFillPrice = avgUpFillPrice == null ? new BigDecimal(0) : avgUpFillPrice;
+
                         buyDto.setAvgFillPrice(avgUpFillPrice);
                         //最新价
                         buyDto.setAvgFillPriceNow(lastPrice);
-
                         buyDto.setLastPrice(lastPrice);
                         //最小波动
                         buyDto.setMinWave(futuresCommodity.getMinWave());
@@ -193,6 +195,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                         BigDecimal avgFallFillPrice = futuresOrderService.getAvgFillPrice(futuresContractOrder.getPublisherId(),
                                 futuresContractOrder.getContractNo(), futuresContractOrder.getCommodityNo(),
                                 FuturesOrderType.BuyFall.getIndex());
+                        avgFallFillPrice = avgFallFillPrice == null ? new BigDecimal(0) : avgFallFillPrice;
                         sellDto.setAvgFillPrice(avgFallFillPrice);
                         sellDto.setAvgFillPriceNow(lastPrice);
                         sellDto.setLastPrice(lastPrice);

@@ -8,8 +8,8 @@ spring:
       server:
         git:
           #uri: http://gitlab.youguwang.com.cn/cmi/config-repo.git
-          uri: https://github.com/luomengan/config-repo.git
-          #uri: https://github.com/chenk3299/finance-config.git
+          #uri: https://github.com/luomengan/config-repo.git
+          uri: https://github.com/chenk3299/finance-config.git
           clone-on-start: true
         encrypt:
           enabled: true
