@@ -1,5 +1,7 @@
 package com.waben.stock.datalayer.futures.controller;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,11 +11,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeEntrust;
+import com.waben.stock.datalayer.futures.quote.QuoteContainer;
+import com.waben.stock.datalayer.futures.service.FuturesCurrencyRateService;
 import com.waben.stock.datalayer.futures.service.FuturesTradeEntrustService;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeDto;
 import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
-import com.waben.stock.interfaces.enums.FuturesTradeActionType;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
@@ -38,6 +42,12 @@ public class FuturesTradeEntrustController implements FuturesTradeEntrustInterfa
 
 	@Autowired
 	private FuturesTradeEntrustService futuresTradeEntrustService;
+
+	@Autowired
+	private FuturesCurrencyRateService rateService;
+
+	@Autowired
+	private QuoteContainer quoteContainer;
 
 	@Override
 	public Response<FuturesTradeEntrustDto> fetchById(@PathVariable Long id) {
@@ -70,43 +80,35 @@ public class FuturesTradeEntrustController implements FuturesTradeEntrustInterfa
 				futuresTradeEntrustService.cancelEntrust(id, publisherId), false));
 	}
 
-    @Override
-    public Response<String> delete(Long id) {
-        futuresTradeEntrustService.delete(id);
-        Response<String> res = new Response<String>();
-        res.setMessage("响应成功");
-        return res;
-    }
+	@Override
+	public Response<String> delete(Long id) {
+		futuresTradeEntrustService.delete(id);
+		Response<String> res = new Response<String>();
+		res.setMessage("响应成功");
+		return res;
+	}
 
-    @Override
-    public Response<PageInfo<FuturesTradeEntrustDto>> pages(@RequestBody FuturesTradeEntrustQuery query) {
-        Page<FuturesTradeEntrust> page = futuresTradeEntrustService.pages(query);
-        PageInfo<FuturesTradeEntrustDto> result = PageToPageInfo.pageToPageInfo(page, FuturesTradeEntrustDto.class);
-        if (result != null && result.getContent() != null) {
-            for (int i = 0; i < result.getContent().size(); i++) {
-                FuturesTradeEntrust futuresTradeEntrust = page.getContent().get(i);
-                //合约名称
-				if (futuresTradeEntrust.getContract() != null) {
-					result.getContent().get(i).setContractId(futuresTradeEntrust.getContract().getId());
-					//合约名称
-					result.getContent().get(i).setContractName(futuresTradeEntrust.getContract().getContractName());
+	@Override
+	public Response<PageInfo<FuturesTradeEntrustDto>> pages(@RequestBody FuturesTradeEntrustQuery query) {
+		Page<FuturesTradeEntrust> page = futuresTradeEntrustService.pages(query);
+		PageInfo<FuturesTradeEntrustDto> result = PageToPageInfo.pageToPageInfo(page, FuturesTradeEntrustDto.class);
+		if (result != null && result.getContent() != null) {
+			// step 1 : 获取汇率map
+			Map<String, FuturesCurrencyRate> rateMap = rateService.getRateMap();
+			// step 2 : 设置一些其他信息
+			for (FuturesTradeEntrustDto dto : result.getContent()) {
+				String commodityNo = dto.getCommodityNo();
+				String contractNo = dto.getContractNo();
+				dto.setLastPrice(quoteContainer.getLastPrice(commodityNo, contractNo));
+				FuturesCurrencyRate rate = rateMap.get(dto.getCurrency());
+				if (rate != null) {
+					dto.setCurrencySign(rate.getCurrencySign());
+					dto.setRate(rate.getRate());
 				}
-                // 1:买涨,2:买跌
-                String orderType = futuresTradeEntrust.getOrderType().getIndex();
-                //1:开仓,2:平仓
-                String tradeActionType = futuresTradeEntrust.getTradeActionType().getIndex();
-                if (("1".equals(orderType) && "1".equals(tradeActionType))
-                        || ("2".equals(orderType) && "2".equals(tradeActionType))) {
-                    //委托类型（买）
-                    result.getContent().get(i).setTradeType(FuturesTradeActionType.OPEN);
-                } else {
-                    //委托类型（卖）
-                    result.getContent().get(i).setTradeType(FuturesTradeActionType.CLOSE);
-                }
-            }
-        }
-        return new Response<>(result);
-    }
+			}
+		}
+		return new Response<>(result);
+	}
 
 	@Override
 	public Response<PageInfo<FuturesTradeDto>> pagesEntrust(FuturesTradeAdminQuery query) {

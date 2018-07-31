@@ -313,6 +313,9 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 	}
 
 	public BigDecimal getMinWave() {
+		if(minWave != null) {
+			return minWave.stripTrailingZeros();
+		}
 		return minWave;
 	}
 

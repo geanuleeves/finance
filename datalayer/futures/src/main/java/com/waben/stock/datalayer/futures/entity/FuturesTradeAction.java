@@ -11,12 +11,15 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesTradeActionTypeConverter;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesTradeEntrustStateConverter;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControlTypeConverter;
+import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.enums.FuturesTradeActionType;
 import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
+import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.enums.FuturesWindControlType;
 
 /**
@@ -85,6 +88,35 @@ public class FuturesTradeAction {
 	private Date settlementTime;
 	/** 更新时间 */
 	private Date updateTime;
+
+	/***************** 分割线，以下字段为非数据库字段 ********************/
+	/** 合约ID */
+	@Transient
+	private Long contractId;
+	/** 品种名称 */
+	@Transient
+	private String commodityName;
+	/** 品种编号 */
+	@Transient
+	private String commodityNo;
+	/** 合约编号 */
+	@Transient
+	private String contractNo;
+	/** 订单交易类型 */
+	@Transient
+	private FuturesOrderType orderType;
+	/** 订单类型 */
+	@Transient
+	private FuturesTradePriceType futuresTradePriceType;
+	/** 最小波动 */
+	@Transient
+	private BigDecimal minWave;
+	/** 最小浮动价格 */
+	@Transient
+	private BigDecimal perWaveMoney;
+	/** 货币缩写 */
+	@Transient
+	private String currency;
 
 	public Long getId() {
 		return id;
@@ -276,6 +308,105 @@ public class FuturesTradeAction {
 
 	public void setWindControlType(FuturesWindControlType windControlType) {
 		this.windControlType = windControlType;
+	}
+
+	public Long getContractId() {
+		if (order != null) {
+			return order.getContractId();
+		}
+		return contractId;
+	}
+
+	public void setContractId(Long contractId) {
+		this.contractId = contractId;
+	}
+
+	public String getCommodityName() {
+		if (order != null) {
+			return order.getCommodityName();
+		}
+		return commodityName;
+	}
+
+	public void setCommodityName(String commodityName) {
+		this.commodityName = commodityName;
+	}
+
+	public String getCommodityNo() {
+		if (order != null) {
+			return order.getCommoditySymbol();
+		}
+		return commodityNo;
+	}
+
+	public void setCommodityNo(String commodityNo) {
+		this.commodityNo = commodityNo;
+	}
+
+	public String getContractNo() {
+		if (order != null) {
+			return order.getContractNo();
+		}
+		return contractNo;
+	}
+
+	public void setContractNo(String contractNo) {
+		this.contractNo = contractNo;
+	}
+
+	public FuturesOrderType getOrderType() {
+		if (order != null) {
+			return order.getOrderType();
+		}
+		return orderType;
+	}
+
+	public void setOrderType(FuturesOrderType orderType) {
+		this.orderType = orderType;
+	}
+
+	public FuturesTradePriceType getFuturesTradePriceType() {
+		if (tradeEntrust != null) {
+			return tradeEntrust.getPriceType();
+		}
+		return futuresTradePriceType;
+	}
+
+	public void setFuturesTradePriceType(FuturesTradePriceType futuresTradePriceType) {
+		this.futuresTradePriceType = futuresTradePriceType;
+	}
+
+	public BigDecimal getMinWave() {
+		if (order.getContract() != null) {
+			return order.getContract().getCommodity().getMinWave();
+		}
+		return minWave;
+	}
+
+	public void setMinWave(BigDecimal minWave) {
+		this.minWave = minWave;
+	}
+
+	public BigDecimal getPerWaveMoney() {
+		if (order.getContract() != null) {
+			return order.getContract().getCommodity().getPerWaveMoney();
+		}
+		return perWaveMoney;
+	}
+
+	public void setPerWaveMoney(BigDecimal perWaveMoney) {
+		this.perWaveMoney = perWaveMoney;
+	}
+
+	public String getCurrency() {
+		if (order.getContract() != null) {
+			return order.getContract().getCommodity().getCurrency();
+		}
+		return currency;
+	}
+
+	public void setCurrency(String currency) {
+		this.currency = currency;
 	}
 
 }

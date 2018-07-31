@@ -1,24 +1,29 @@
 package com.waben.stock.applayer.tactics.controller.futures;
 
-import com.waben.stock.applayer.tactics.business.futures.FuturesTradeActionBusiness;
-import com.waben.stock.applayer.tactics.security.SecurityUtil;
-import com.waben.stock.interfaces.dto.futures.FuturesTradeActionViewDto;
-import com.waben.stock.interfaces.pojo.Response;
-import com.waben.stock.interfaces.pojo.query.PageInfo;
-import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeActionQuery;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
+import com.waben.stock.applayer.tactics.business.futures.FuturesTradeActionBusiness;
+import com.waben.stock.applayer.tactics.security.SecurityUtil;
+import com.waben.stock.interfaces.constants.ExceptionConstant;
+import com.waben.stock.interfaces.dto.futures.FuturesTradeActionViewDto;
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
+import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
+import com.waben.stock.interfaces.exception.ServiceException;
+import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeActionQuery;
+import com.waben.stock.interfaces.util.StringUtil;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * @author chenk 2018/7/27
@@ -28,40 +33,38 @@ import java.util.Date;
 @Api(description = "订单交易开平仓记录")
 public class FuturesTradeActionController {
 
-    Logger logger = LoggerFactory.getLogger(getClass());
+	Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    private FuturesTradeActionBusiness futuresTradeActionBusiness;
+	@Autowired
+	private FuturesTradeActionBusiness futuresTradeActionBusiness;
 
-    @GetMapping("/pages")
-    @ApiOperation(value = "订单交易开平仓记录列表")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "orderId", value = "对应的订单", dataType = "long", paramType = "query", required = false),
-            @ApiImplicitParam(name = "tradeEntrustId", value = "对应的委托", dataType = "long", paramType = "query", required = false),
-            @ApiImplicitParam(name = "entrustTime", value = "委托时间", dataType = "date", paramType = "query", required = false),
-            @ApiImplicitParam(name = "tradeActionType", value = "交易开平仓类型", dataType = "string", paramType = "query", required = false),
-            @ApiImplicitParam(name = "windControlType", value = "风控类型", dataType = "string", paramType = "query", required = false),
-            @ApiImplicitParam(name = "state", value = "委托状态", dataType = "string", paramType = "query", required = false),
-            @ApiImplicitParam(name = "tradeTime", value = "交易成功时间", dataType = "date", paramType = "query", required = false),
-            @ApiImplicitParam(name = "settlementTime", value = "结算时间", dataType = "string", paramType = "query", required = false)
-    })
-    public Response<PageInfo<FuturesTradeActionViewDto>> pages(@RequestParam(required = false) Long orderId,
-                                                               @RequestParam(required = false) Long tradeEntrustId,
-                                                               @RequestParam(required = false) Date entrustTime,
-                                                               @RequestParam(required = false) String tradeActionType,
-                                                               @RequestParam(required = false) String windControlType,
-                                                               @RequestParam(required = false) Date tradeTime,
-                                                               @RequestParam(required = false) Date settlementTime) {
-        FuturesTradeActionQuery query = new FuturesTradeActionQuery();
-        query.setPublisherId(SecurityUtil.getUserId());
-        query.setOrderId(orderId);
-        query.setTradeEntrustId(tradeEntrustId);
-        query.setEntrustTime(entrustTime);
-        query.setTradeActionType(tradeActionType);
-        query.setWindControlType(windControlType);
-        query.setTradeTime(tradeTime);
-        query.setSettlementTime(settlementTime);
-        return new Response<>(futuresTradeActionBusiness.pages(query));
-    }
+	@GetMapping("/pages")
+	@ApiOperation(value = "订单交易开平仓记录列表", notes = "startTime和endTime格式(yyyy-MM-dd HH:mm:ss)")
+	public Response<PageInfo<FuturesTradeActionViewDto>> pages(int page, int size, String name, String startTime,
+			String endTime, FuturesTradeActionType tradeActionType) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		FuturesTradeActionQuery query = new FuturesTradeActionQuery();
+		query.setPage(page);
+		query.setSize(size);
+		query.setPublisherId(SecurityUtil.getUserId());
+		query.setName(name);
+		query.setTradeActionType(tradeActionType);
+		if (!StringUtil.isEmpty(startTime)) {
+			try {
+				query.setStartTime(sdf.parse(startTime));
+			} catch (ParseException e) {
+				throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION);
+			}
+		}
+		if (!StringUtil.isEmpty(endTime)) {
+			try {
+				query.setEndTime(sdf.parse(endTime));
+			} catch (ParseException e) {
+				throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION);
+			}
+		}
+		query.setStates(new FuturesTradeEntrustState[] { FuturesTradeEntrustState.Success });
+		return new Response<>(futuresTradeActionBusiness.pages(query));
+	}
 
 }
