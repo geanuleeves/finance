@@ -591,6 +591,7 @@ public class FuturesOrderService {
 		tradeEntrust.setPublisherId(orderParam.getPublisherId());
 		tradeEntrust.setQuantity(orderParam.getTotalQuantity());
 		tradeEntrust.setRemaining(orderParam.getTotalQuantity());
+		tradeEntrust.setReserveFund(orderParam.getReserveFund());
 		tradeEntrust.setFilled(BigDecimal.ZERO);
 		tradeEntrust.setAvgFillPrice(BigDecimal.ZERO);
 		tradeEntrust.setTotalFillCost(BigDecimal.ZERO);

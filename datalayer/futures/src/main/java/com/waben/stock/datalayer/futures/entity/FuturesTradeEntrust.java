@@ -66,6 +66,10 @@ public class FuturesTradeEntrust {
 	private FuturesWindControlType windControlType;
 	/** 委托数量 */
 	private BigDecimal quantity;
+	/** 保证金（人民币） */
+	private BigDecimal reserveFund;
+	/** 退回保证金（人民币） */
+	private BigDecimal returnReserveFund;
 	/** 委托状态 */
 	@Convert(converter = FuturesTradeEntrustStateConverter.class)
 	private FuturesTradeEntrustState state;
@@ -251,4 +255,21 @@ public class FuturesTradeEntrust {
 	public void setEntrustNo(String entrustNo) {
 		this.entrustNo = entrustNo;
 	}
+
+	public BigDecimal getReserveFund() {
+		return reserveFund;
+	}
+
+	public void setReserveFund(BigDecimal reserveFund) {
+		this.reserveFund = reserveFund;
+	}
+
+	public BigDecimal getReturnReserveFund() {
+		return returnReserveFund;
+	}
+
+	public void setReturnReserveFund(BigDecimal returnReserveFund) {
+		this.returnReserveFund = returnReserveFund;
+	}
+
 }

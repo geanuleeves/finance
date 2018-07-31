@@ -141,21 +141,22 @@ public class FuturesTradeEntrustService {
 		FuturesContract contract = entrust.getContract();
 		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract, publisherId);
 		if(entrust.getTradeActionType() == FuturesTradeActionType.OPEN) {
-			BigDecimal expectReverseFund = BigDecimal.ZERO;
+			BigDecimal expectReserveFund = BigDecimal.ZERO;
 			if(entrust.getOrderType() == FuturesOrderType.BuyUp) {
 				contractOrder.setBuyUpTotalQuantity(contractOrder.getBuyUpTotalQuantity().subtract(entrust.getRemaining()));
-				expectReverseFund = contract.getCommodity().getPerUnitReserveFund().multiply(contractOrder.getBuyUpTotalQuantity());
+				expectReserveFund = contract.getCommodity().getPerUnitReserveFund().multiply(contractOrder.getBuyUpTotalQuantity());
 			} else {
 				contractOrder.setBuyFallTotalQuantity(contractOrder.getBuyFallTotalQuantity().subtract(entrust.getRemaining()));
-				expectReverseFund = contract.getCommodity().getPerUnitReserveFund().multiply(contractOrder.getBuyFallTotalQuantity());
+				expectReserveFund = contract.getCommodity().getPerUnitReserveFund().multiply(contractOrder.getBuyFallTotalQuantity());
 			}
 			contractOrderDao.update(contractOrder);
 			// step 4 : 退款保证金，计算需要退款的保证金
-			BigDecimal returnReverseFund = BigDecimal.ZERO;
-			if(contractOrder.getReserveFund().compareTo(expectReverseFund) > 0) {
-				returnReverseFund = contractOrder.getReserveFund().subtract(expectReverseFund);
+			BigDecimal returnReserveFund = BigDecimal.ZERO;
+			if(contractOrder.getReserveFund().compareTo(expectReserveFund) > 0) {
+				returnReserveFund = contractOrder.getReserveFund().subtract(expectReserveFund);
 			}
-			accountBusiness.futuresReturnReserveFund(publisherId, contractOrder.getId(), returnReverseFund);
+			entrust.setReturnReserveFund(returnReserveFund);
+			accountBusiness.futuresReturnReserveFund(publisherId, contractOrder.getId(), returnReserveFund);
 		}
 		return entrust;
 	}
