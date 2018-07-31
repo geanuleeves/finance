@@ -1,7 +1,9 @@
 package com.waben.stock.datalayer.futures.service;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -34,11 +37,14 @@ import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeAction;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeEntrust;
+import com.waben.stock.datalayer.futures.repository.DynamicQuerySqlDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
 import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
 import com.waben.stock.datalayer.futures.repository.FuturesTradeActionDao;
 import com.waben.stock.datalayer.futures.repository.FuturesTradeEntrustDao;
+import com.waben.stock.datalayer.futures.repository.impl.MethodDesc;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeDto;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.enums.FuturesTradeActionType;
@@ -49,7 +55,9 @@ import com.waben.stock.interfaces.enums.OutsideMessageType;
 import com.waben.stock.interfaces.enums.ResourceType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.message.OutsideMessage;
+import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeEntrustQuery;
+import com.waben.stock.interfaces.util.StringUtil;
 
 /**
  * 交易委托
@@ -61,6 +69,9 @@ public class FuturesTradeEntrustService {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
 
+	@Autowired
+	private DynamicQuerySqlDao sqlDao;
+	
 	@Autowired
 	private FuturesTradeEntrustDao dao;
 
@@ -81,6 +92,8 @@ public class FuturesTradeEntrustService {
 
 	@Autowired
 	private FuturesTradeEntrustDao futuresTradeEntrustDao;
+	
+	private SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	public FuturesTradeEntrust findById(Long id) {
 		return dao.retrieve(id);
@@ -544,6 +557,92 @@ public class FuturesTradeEntrustService {
 			}
 		}, pageable);
 		return page;
+	}
+	
+	public Page<FuturesTradeDto> pageTradeAdmin(FuturesTradeAdminQuery query){
+		
+		String publisherNameCondition = "";
+		if (!StringUtil.isEmpty(query.getPublisherName())) {
+			publisherNameCondition = " and f4.phone like '%" + query.getPublisherPhone() + "%' ";
+		}
+		String publisherPhoneCondition = "";
+		if (!StringUtil.isEmpty(query.getPublisherPhone())) {
+			publisherPhoneCondition = " and f5.name like '%" + query.getPublisherName() + "%' ";
+		}
+		String contractNameCondition = "";
+		if (!StringUtil.isEmpty(query.getName())) {
+			contractNameCondition = " and f3.commodity_name like '%" + query.getName() + "%'";
+		}
+		String contractNoCondition = "";
+		if(!StringUtil.isEmpty(query.getSymbol())){
+			contractNoCondition = " and f1.commodity_no like '%" + query.getSymbol() + "%'";
+		}
+		String orderTypeCondition = "";
+		if (!StringUtil.isEmpty(query.getOrderType())) {
+			orderTypeCondition = " and f1.orderType = " + query.getOrderType().trim();
+		}
+		String tradeActionCondition = "";
+		if(!StringUtil.isEmpty(query.getTradeActionType())){
+			tradeActionCondition = " and f1.trade_action_type =" + query.getTradeActionType().trim();
+		}
+		String tradeNoCondition = "";
+		if(!StringUtil.isEmpty(query.getTradeNo())){
+			tradeNoCondition = " and f1.entrust_no = " + query.getTradeNo().trim();
+		}
+		
+		String orderStateCondition = "";
+		if (!StringUtil.isEmpty(query.getOrderState())) {
+			orderStateCondition = " and f1.state like '%" + query.getOrderState() + "%'";
+		}
+		
+		String startTimeCondition = "";
+		if (query.getStartTime() != null) {
+			startTimeCondition = " and t1.entrust_time>='" + fullSdf.format(query.getStartTime()) + "' ";
+		}
+		String endTimeCondition = "";
+		if (query.getEndTime() != null) {
+			endTimeCondition = " and t1.entrust_time<'" + fullSdf.format(query.getEndTime()) + "' ";
+		}
+		
+		String sql = String.format(" select f1.id, f5.name, f4.phone, f1.commodity_no, f3.commodity_name, f1.contract_no,f1.order_type,"
+	                              +" f1.trade_action_type, f1.filled, f1.quantity, f1.entrust_price, f1.avg_fill_price," 
+								  +" f1.entrust_no, f1.entrust_time, f1.state,f1.total_fill_cost, f1.trade_price,"
+								  +" f1.price_type, f3.is_test "
+								  +" from f_futures_trade_entrust f1"
+								  +" LEFT JOIN f_futures_trade_action f2 on f1.id=f2.trade_entrust_id"
+								  +" LEFT JOIN f_futures_order f3 ON f2.order_id=f3.id"
+								  +" LEFT JOIN publisher f4 ON f1.publisher_id=f4.id"
+								  +" LEFT JOIN real_name f5 ON f5.resource_id = f1.publisher_id"
+								  +" where 1=1 %s %s %s %s %s %s %s %s %s %s  ORDER BY f1.entrust_time DESC"
+								  +" LIMIT " + query.getPage() * query.getSize()+ "," + query.getSize(), 
+								  publisherNameCondition,publisherPhoneCondition,contractNameCondition,contractNoCondition,orderTypeCondition,
+								  tradeActionCondition,tradeNoCondition,orderStateCondition,startTimeCondition,endTimeCondition);
+		String countSql = "select count(*) " + sql.substring(sql.indexOf("from"), sql.indexOf("LIMIT"));
+		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
+		setMethodMap.put(new Integer(0), new MethodDesc("setId", new Class<?>[] { Long.class }));
+		setMethodMap.put(new Integer(1), new MethodDesc("setPublisherName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(2), new MethodDesc("setPublisherPhone", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(3), new MethodDesc("setSymbol", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(4), new MethodDesc("setName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(5), new MethodDesc("setContractNo", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(6), new MethodDesc("setOrderType", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(7), new MethodDesc("setTradeActionType", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(8), new MethodDesc("setFilled", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(9), new MethodDesc("setQuantity", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(10), new MethodDesc("setEntrustPrice", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(11), new MethodDesc("setAvgFillPrice", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(12), new MethodDesc("setEntrustNo", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(13), new MethodDesc("setEntrustTime", new Class<?>[] { Date.class }));
+		setMethodMap.put(new Integer(14), new MethodDesc("setState", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(15), new MethodDesc("setTotalFillCost", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(16), new MethodDesc("setTradePrice", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(17), new MethodDesc("setPriceType", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(18), new MethodDesc("setIsTest", new Class<?>[] { Boolean.class }));
+		
+		List<FuturesTradeDto> content = sqlDao.execute(FuturesTradeDto.class, sql, setMethodMap);
+		BigInteger totalElements = sqlDao.executeComputeSql(countSql);
+		return new PageImpl<>(content, new PageRequest(query.getPage(), query.getSize()),
+				totalElements != null ? totalElements.longValue() : 0);
 	}
 
 }

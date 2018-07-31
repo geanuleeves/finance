@@ -1,6 +1,5 @@
 package com.waben.stock.applayer.admin.business.futures;
 
-<<<<<<< HEAD
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,17 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-=======
->>>>>>> 2ac740eb6de80dba8d7ad34981fa1f5f134c1e5b
 import com.waben.stock.applayer.admin.business.ProfileBusiness;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.dto.admin.futures.FutresOrderEntrustDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCurrencyRateDto;
-import com.waben.stock.interfaces.dto.futures.FuturesTradeActionDto;
 import com.waben.stock.interfaces.dto.futures.FuturesTradeActionViewDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
 import com.waben.stock.interfaces.dto.publisher.RealNameDto;
@@ -30,22 +27,13 @@ import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
-import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeActionQuery;
 import com.waben.stock.interfaces.service.futures.FuturesContractInterface;
 import com.waben.stock.interfaces.service.futures.FuturesCurrencyRateInterface;
 import com.waben.stock.interfaces.service.futures.FuturesTradeActionInterface;
+import com.waben.stock.interfaces.service.futures.FuturesTradeEntrustInterface;
 import com.waben.stock.interfaces.service.futures.FuturesTradeInterface;
 import com.waben.stock.interfaces.service.publisher.PublisherInterface;
 import com.waben.stock.interfaces.service.publisher.RealNameInterface;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 期货交易 Business
@@ -66,7 +54,6 @@ public class FuturesOrderBusiness {
 	private RealNameInterface realnameInterface;
 
 	@Autowired
-	@Qualifier("futuresContractInterface")
 	private FuturesContractInterface futuresContractInterface;
 
 	@Autowired
@@ -79,8 +66,21 @@ public class FuturesOrderBusiness {
 	@Autowired
 	@Qualifier("futuresTradeActionInterface")
 	private FuturesTradeActionInterface actionReference;
+	
+	@Autowired
+	@Qualifier("futuresTradeEntrustInterface")
+	private FuturesTradeEntrustInterface entrusReference;
 
 	Logger logger = LoggerFactory.getLogger(getClass());
+	
+	public PageInfo<FuturesTradeDto> pageTradeEnutrs(FuturesTradeAdminQuery query){
+		Response<PageInfo<FuturesTradeDto>> response = entrusReference.pagesEntrust(query);
+		if ("200".equals(response.getCode())) {
+
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
 	
 	public PageInfo<FuturesTradeActionViewDto> pageTradeAdmin(FuturesTradeAdminQuery query){
 		List<Long> publisherIds = queryPublishIds(query);
