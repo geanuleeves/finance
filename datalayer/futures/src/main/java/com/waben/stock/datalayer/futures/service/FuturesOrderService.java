@@ -2140,7 +2140,16 @@ public class FuturesOrderService {
 			public Predicate toPredicate(Root<FuturesContractOrder> root, CriteriaQuery<?> criteriaQuery,
 					CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
-
+				if (query.getPublisherIds().size() > 0) {
+					predicateList.add(criteriaBuilder.in(root.get("publisherId")).value(query.getPublisherIds()));
+				}
+				if (!StringUtil.isEmpty(query.getSymbol())) {
+					predicateList.add(criteriaBuilder.or(
+							criteriaBuilder.like(root.get("commodityNo").as(String.class),
+									"%" + query.getSymbol() + "%"),
+							criteriaBuilder.like(root.get("commodityName").as(String.class),
+									"%" + query.getName() + "%")));
+				}
 				// 以更新时间排序
 				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("updateTime").as(Date.class)));
 				return criteriaQuery.getRestriction();

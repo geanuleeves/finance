@@ -79,6 +79,9 @@ public class FuturesContractOrderService {
                 if (!StringUtils.isEmpty(query.getContractNo())) {
                     predicateList.add(criteriaBuilder.equal(root.get("contractNo").as(String.class), query.getContractNo()));
                 }
+                if (predicateList.size() > 0) {
+                    criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
+                }
                 //以更新时间排序
                 criteriaQuery.orderBy(criteriaBuilder.desc(root.get("updateTime").as(Date.class)));
                 return criteriaQuery.getRestriction();

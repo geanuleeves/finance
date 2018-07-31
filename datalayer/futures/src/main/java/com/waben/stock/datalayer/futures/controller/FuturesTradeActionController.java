@@ -1,16 +1,5 @@
 package com.waben.stock.datalayer.futures.controller;
 
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeAction;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
@@ -25,8 +14,17 @@ import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeActionQuery;
 import com.waben.stock.interfaces.service.futures.FuturesTradeActionInterface;
 import com.waben.stock.interfaces.util.CopyBeanUtils;
 import com.waben.stock.interfaces.util.PageToPageInfo;
-
 import io.swagger.annotations.Api;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 /**
  * 订单交易开平仓记录
@@ -101,6 +99,30 @@ public class FuturesTradeActionController implements FuturesTradeActionInterface
 		}
 		return new Response<>(result);
 	}
+
+	public Response<PageInfo<FuturesTradeActionViewDto>> pagesPhone(@RequestBody FuturesTradeActionQuery query) {
+		Page<FuturesTradeAction> page = futuresTradeActionService.pagesPhone(query);
+		PageInfo<FuturesTradeActionViewDto> result = PageToPageInfo.pageToPageInfo(page,
+				FuturesTradeActionViewDto.class);
+		if (result != null && result.getContent() != null) {
+			// step 1 : 获取汇率map
+			Map<String, FuturesCurrencyRate> rateMap = rateService.getRateMap();
+			// step 2 : 设置一些其他信息
+			for (FuturesTradeActionViewDto dto : result.getContent()) {
+				String commodityNo = dto.getCommodityNo();
+				String contractNo = dto.getContractNo();
+				dto.setLastPrice(quoteContainer.getLastPrice(commodityNo, contractNo));
+				FuturesCurrencyRate rate = rateMap.get(dto.getCurrency());
+				if (rate != null) {
+					dto.setCurrencySign(rate.getCurrencySign());
+					dto.setRate(rate.getRate());
+				}
+			}
+		}
+		return new Response<>(result);
+	}
+
+
 
 	@Override
 	public Response<PageInfo<FuturesTradeActionViewDto>> pagesTradeAdmin(@RequestBody FuturesTradeAdminQuery query) {

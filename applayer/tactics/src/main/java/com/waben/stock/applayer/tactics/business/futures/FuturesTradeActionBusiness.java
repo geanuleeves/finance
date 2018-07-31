@@ -33,4 +33,13 @@ public class FuturesTradeActionBusiness {
         throw new ServiceException(response.getCode());
     }
 
+    public PageInfo<FuturesTradeActionViewDto> pagesPhone(FuturesTradeActionQuery query) {
+        Response<PageInfo<FuturesTradeActionViewDto>> response = reference.pagesPhone(query);
+        if ("200".equals(response.getCode())) {
+            return response.getResult();
+        }
+        throw new ServiceException(response.getCode());
+    }
+
+
 }
