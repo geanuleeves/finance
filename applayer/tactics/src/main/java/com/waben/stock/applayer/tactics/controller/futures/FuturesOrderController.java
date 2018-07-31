@@ -40,7 +40,6 @@ import com.waben.stock.applayer.tactics.util.PoiUtil;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractOrderDto;
-import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
 import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
 import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
@@ -52,7 +51,6 @@ import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
-import com.waben.stock.interfaces.pojo.query.futures.FuturesContractQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
 import com.waben.stock.interfaces.util.StringUtil;
 
@@ -452,47 +450,6 @@ public class FuturesOrderController {
 	}
 
 	/******************************************** 分割线 ************************************************/
-
-	@PostMapping("/backhandUnwind_bak/{orderId}")
-	@ApiOperation(value = "用户市价反手", hidden = true)
-	public Response<FuturesOrderDto> backhandUnwind(@PathVariable Long orderId) {
-		FuturesOrderDto orderDto = futuresOrderBusiness.fetchByOrderId(orderId);
-		FuturesContractQuery query = new FuturesContractQuery();
-		query.setPage(0);
-		query.setSize(1);
-		query.setContractId(orderDto.getContractId());
-		// 判断该合约是否可用是否在交易中、网关是否支持该合约、合约交易所是否可用、以及是否在交易时间内
-		FuturesContractDto contractDto = futuresContractBusiness.getContractByOne(query);
-		checkedMinPlaceOrder(contractDto);
-		// 用户买涨持仓总额度
-		Integer buyUp = futuresOrderBusiness.sumUserNum(orderDto.getContractId(), SecurityUtil.getUserId(), 1);
-		BigDecimal buyUpNum = buyUp == null ? new BigDecimal(0) : new BigDecimal(buyUp).abs();
-		// 用户买跌持仓总额度
-		Integer buyFull = futuresOrderBusiness.sumUserNum(orderDto.getContractId(), SecurityUtil.getUserId(), 2);
-		BigDecimal buyFullNum = buyFull == null ? new BigDecimal(0) : new BigDecimal(buyFull).abs();
-		if (orderDto.getOrderType() == FuturesOrderType.BuyUp) {
-			if (contractDto.getBuyFullTotalLimit() != null
-					&& buyFullNum.add(orderDto.getTotalQuantity()).compareTo(contractDto.getBuyFullTotalLimit()) > 0) {
-				// 买跌持仓总额度已达上限
-				throw new ServiceException(ExceptionConstant.TOTAL_AMOUNT_BUYFULL_CAPACITY_INSUFFICIENT_EXCEPTION);
-			}
-		} else {
-			if (contractDto.getBuyUpTotalLimit() != null
-					&& buyUpNum.add(orderDto.getTotalQuantity()).compareTo(contractDto.getBuyUpTotalLimit()) > 0) {
-				// 买涨持仓总额度已达上限
-				throw new ServiceException(ExceptionConstant.TOTAL_AMOUNT_BUYUP_CAPACITY_INSUFFICIENT_EXCEPTION);
-			}
-		}
-		FuturesOrderBuysellDto buysellDto = new FuturesOrderBuysellDto();
-		buysellDto.setTotalQuantity(orderDto.getTotalQuantity());
-		buysellDto.setOrderType(orderDto.getOrderType());
-		// 判断当前下单手数是否满足条件
-		checkBuyUpAndFullSum(buyUpNum, buyFullNum, contractDto.getPerOrderLimit(), contractDto.getUserTotalLimit(),
-				buysellDto.getOrderType(), buysellDto.getTotalQuantity(), contractDto);
-		// return new Response<>(futuresOrderBusiness.backhandUnwind(orderId,
-		// SecurityUtil.getUserId()));
-		return new Response<>();
-	}
 
 	@GetMapping("/holding")
 	@ApiOperation(value = "获取持仓中列表", hidden = true)

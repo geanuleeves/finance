@@ -63,6 +63,8 @@ public class PlaceOrderParam {
 	private BigDecimal perUnitLimitLossAmount;
 	/** 是否测试单 */
 	private Boolean isTest;
+	/** 反手源委托ID */
+	private Long backhandEntrustId;
 
 	public String getCommoditySymbol() {
 		return commoditySymbol;
@@ -214,6 +216,14 @@ public class PlaceOrderParam {
 
 	public void setIsTest(Boolean isTest) {
 		this.isTest = isTest;
+	}
+
+	public Long getBackhandEntrustId() {
+		return backhandEntrustId;
+	}
+
+	public void setBackhandEntrustId(Long backhandEntrustId) {
+		this.backhandEntrustId = backhandEntrustId;
 	}
 
 }

@@ -7,16 +7,19 @@ import java.util.List;
 
 /**
  * 交易委托
+ * 
  * @author chenk 2018/7/26
  */
 public interface FuturesTradeEntrustDao extends BaseDao<FuturesTradeEntrust, Long> {
 
-    /**
-     * 判断合约是否在订单中使用
-     *
-     * @param contractId
-     * @return
-     */
-    List<FuturesTradeEntrust> findByPublisherId(@PathVariable("contractId") Long contractId);
+	/**
+	 * 判断合约是否在订单中使用
+	 *
+	 * @param contractId
+	 * @return
+	 */
+	List<FuturesTradeEntrust> findByPublisherId(@PathVariable("contractId") Long contractId);
+
+	List<FuturesTradeEntrust> retrieveByBackhandEntrustId(Long entrustId);
 
 }
