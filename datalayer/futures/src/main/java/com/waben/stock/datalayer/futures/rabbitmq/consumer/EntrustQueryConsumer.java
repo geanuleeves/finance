@@ -50,7 +50,7 @@ public class EntrustQueryConsumer {
 	@Autowired
 	private QuoteContainer quoteContainer;
 
-	 @RabbitHandler
+	@RabbitHandler
 	public void handlerMessage(String message) {
 		if (RandomUtil.getRandomInt(100) % 51 == 0 && RandomUtil.getRandomInt(100) % 51 == 0) {
 			logger.info("消费期货委托查询消息:{}", message);
@@ -138,7 +138,7 @@ public class EntrustQueryConsumer {
 						tradeEntrust.getEntrustPrice());
 			}
 			if (avgPrice.getFilled().compareTo(BigDecimal.ZERO) > 0) {
-				if (avgPrice.getRemaining().compareTo(BigDecimal.ZERO) <= 0) {
+				if (avgPrice.getRemaining().compareTo(BigDecimal.ZERO) == 0) {
 					logger.info("交易委托{}【开仓】成功，买入成功时候的行情为{}", tradeEntrust.getId(),
 							market != null ? JacksonUtil.encode(market) : "");
 					// 持仓中
@@ -153,17 +153,6 @@ public class EntrustQueryConsumer {
 						// TODO 反手开仓
 					}
 					isNeedRetry = false;
-				} else {
-					logger.info("交易委托{}【开仓】部分成功，买入成功时候的行情为{}", tradeEntrust.getId(),
-							market != null ? JacksonUtil.encode(market) : "");
-					// 部分买入成功
-					BigDecimal buyingPrice = avgPrice.getAvgFillPrice();
-					if (openSlipPoint != null && openSlipPoint > 0) {
-						buyingPrice = buyingPrice
-								.add(new BigDecimal(openSlipPoint).multiply(minWave).multiply(reverse));
-					}
-					entrustService.success(tradeEntrust.getId(), avgPrice.getFilled(), avgPrice.getRemaining(),
-							buyingPrice);
 				}
 			}
 		} else {

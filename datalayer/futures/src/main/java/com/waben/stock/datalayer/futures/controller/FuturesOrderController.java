@@ -100,7 +100,8 @@ public class FuturesOrderController implements FuturesOrderInterface {
 	@Override
 	public Response<Void> backhandUnwind(@PathVariable Long contractId, String orderTypeIndex,
 			String sellingPriceTypeIndex, BigDecimal sellingEntrustPrice, Long publisherId) {
-		// TODO
+		futuresOrderService.backhandUnwind(contractId, FuturesOrderType.getByIndex(orderTypeIndex),
+				FuturesTradePriceType.getByIndex(sellingPriceTypeIndex), sellingEntrustPrice, publisherId);
 		return new Response<>();
 	}
 
@@ -196,7 +197,8 @@ public class FuturesOrderController implements FuturesOrderInterface {
 								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
 								.multiply(futuresContractOrder.getBuyFallQuantity());
 					}
-					totalFloatingProfitAndLoss = totalFloatingProfitAndLoss.add(buyUpFloatingProfitAndLoss).add(buyFallFloatingProfitAndLoss);
+					totalFloatingProfitAndLoss = totalFloatingProfitAndLoss.add(buyUpFloatingProfitAndLoss)
+							.add(buyFallFloatingProfitAndLoss);
 				}
 			}
 		}

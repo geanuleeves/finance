@@ -227,6 +227,91 @@ public class FuturesOrderController {
 	@ApiOperation(value = "市价反手")
 	public Response<String> backhandUnwind(@PathVariable Long contractId,
 			@RequestParam(required = true) FuturesOrderType orderType) {
+		FuturesOrderType backhandOrderType = (orderType == FuturesOrderType.BuyUp) ? FuturesOrderType.BuyFall
+				: FuturesOrderType.BuyUp;
+		// step 1 : 检查合约信息
+		FuturesContractDto contract = futuresContractBusiness.findByContractId(contractId);
+		if (contract == null) {
+			throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION, "contractId", contractId);
+		}
+		if (contract.getExchangeEnable() != null && !contract.getExchangeEnable()) {
+			throw new ServiceException(ExceptionConstant.EXCHANGE_ISNOT_AVAILABLE_EXCEPTION);
+		}
+		if (contract.getEnable() != null && !contract.getEnable()) {
+			throw new ServiceException(ExceptionConstant.CONTRACT_ABNORMALITY_EXCEPTION);
+		}
+		if (!contract.getIsTradeTime()) {
+			throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
+		}
+		// step 2 : 根据最后交易日和首次通知日判断是否可以下单，可以下单计算公式：MIN（最后交易日，首次通知日）> 当前日期
+		Long checkLastTrade = 0L;
+		if (contract.getFirstNoticeDate() != null) {
+			checkLastTrade = contract.getFirstNoticeDate().getTime();
+		}
+		if (contract.getLastTradingDate() != null) {
+			checkLastTrade = checkLastTrade == 0 ? contract.getLastTradingDate().getTime()
+					: Math.min(checkLastTrade, contract.getLastTradingDate().getTime());
+		}
+		if (checkLastTrade > 0) {
+			Date exchangeTime = contract.getTimeZoneGap() == null ? new Date()
+					: retriveExchangeTime(new Date(), contract.getTimeZoneGap());
+			if (checkLastTrade.compareTo(exchangeTime.getTime()) < 0) {
+				throw new ServiceException(ExceptionConstant.MIN_PLACE_ORDER_EXCEPTION);
+			}
+		}
+		// step 3 : 包装代理商销售价格到合约信息
+		futuresContractBusiness.wrapperAgentPrice(contract);
+		// step 4 : 检查下单数量
+		BigDecimal perNum = contract.getPerOrderLimit();
+		BigDecimal userMaxNum = contract.getUserTotalLimit();
+		FuturesContractOrderDto contractOrder = contractOrderBusiness.fetchByContractIdAndPublisherId(contractId,
+				SecurityUtil.getUserId());
+		BigDecimal backhandQuantity = BigDecimal.ZERO;
+		if (orderType == FuturesOrderType.BuyUp) {
+			backhandQuantity = contractOrder.getBuyUpCanUnwindQuantity();
+		} else {
+			backhandQuantity = contractOrder.getBuyFallCanUnwindQuantity();
+		}
+		if (backhandQuantity.compareTo(BigDecimal.ZERO) <= 0) {
+			throw new ServiceException(ExceptionConstant.UNWINDQUANTITY_NOTENOUGH_EXCEPTION);
+		}
+		BigDecimal buyUpNum = BigDecimal.ZERO;
+		BigDecimal buyFallNum = BigDecimal.ZERO;
+		BigDecimal alreadyReserveFund = BigDecimal.ZERO;
+		if (contractOrder != null) {
+			buyUpNum = contractOrder.getBuyUpTotalQuantity();
+			buyFallNum = contractOrder.getBuyFallTotalQuantity();
+			alreadyReserveFund = contractOrder.getReserveFund();
+		}
+		checkBuyUpAndFullSum(buyUpNum, buyFallNum, perNum, userMaxNum, backhandOrderType, backhandQuantity, contract);
+		// step 5 : 计算总费用，总保证金=单边最大手数*一手保证金
+		BigDecimal totalFee = new BigDecimal(0);
+		BigDecimal singleEdgeMax = BigDecimal.ZERO;
+		if (backhandOrderType == FuturesOrderType.BuyUp) {
+			BigDecimal preBuyUpNum = backhandQuantity.add(buyUpNum);
+			singleEdgeMax = preBuyUpNum.compareTo(buyFallNum) >= 0 ? preBuyUpNum : buyFallNum;
+		} else {
+			BigDecimal prebuyFallNum = backhandQuantity.add(buyFallNum);
+			singleEdgeMax = prebuyFallNum.compareTo(buyUpNum) >= 0 ? prebuyFallNum : buyUpNum;
+		}
+		BigDecimal totalReserveFund = contract.getPerUnitReserveFund().multiply(singleEdgeMax);
+		BigDecimal reserveFund = totalReserveFund.compareTo(alreadyReserveFund) > 0
+				? totalReserveFund.subtract(alreadyReserveFund) : BigDecimal.ZERO;
+		BigDecimal serviceFee = contract.getOpenwindServiceFee().add(contract.getUnwindServiceFee())
+				.multiply(backhandQuantity);
+		totalFee = reserveFund.add(serviceFee);
+		// step 6 : 检查余额
+		CapitalAccountDto capitalAccount = futuresContractBusiness.findByPublisherId(SecurityUtil.getUserId());
+		if (totalFee.compareTo(capitalAccount.getAvailableBalance()) > 0) {
+			throw new ServiceException(ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION);
+		}
+		BigDecimal unsettledProfitOrLoss = futuresOrderBusiness.getUnsettledProfitOrLoss(SecurityUtil.getUserId());
+		if (unsettledProfitOrLoss != null && unsettledProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+			if (totalFee.add(unsettledProfitOrLoss.abs()).compareTo(capitalAccount.getAvailableBalance()) > 0) {
+				throw new ServiceException(ExceptionConstant.HOLDINGLOSS_LEADTO_NOTENOUGH_EXCEPTION);
+			}
+		}
+		// step 7 : 检查条件成立
 		futuresOrderBusiness.backhandUnwind(contractId, orderType, FuturesTradePriceType.MKT, null,
 				SecurityUtil.getUserId());
 		return new Response<>("success");
@@ -338,12 +423,14 @@ public class FuturesOrderController {
 
 	@PostMapping("/balanceUnwind/{contractId}")
 	@ApiOperation(value = "买平或者卖平")
-	public Response<FuturesTradeEntrustDto> balanceUnwind(@PathVariable Long contractId,
+	public Response<String> balanceUnwind(@PathVariable Long contractId,
 			@RequestParam(required = true) FuturesOrderType orderType,
 			@RequestParam(required = true) BigDecimal quantity) {
 		futuresOrderBusiness.balanceUnwind(contractId, orderType, FuturesTradePriceType.MKT, null,
 				SecurityUtil.getUserId(), quantity);
-		return new Response<>("success");
+		Response<String> result = new Response<>();
+		result.setResult("success");
+		return result;
 	}
 
 	@PostMapping("/settingProfitAndLossLimit/{contractId}")
@@ -496,7 +583,7 @@ public class FuturesOrderController {
 		FuturesOrderProfitDto result = new FuturesOrderProfitDto();
 		// 获得合计浮动盈亏
 		BigDecimal totalFloatingProfitAndLoss = futuresOrderBusiness
-					.getTotalFloatingProfitAndLoss(SecurityUtil.getUserId());
+				.getTotalFloatingProfitAndLoss(SecurityUtil.getUserId());
 		result.setTotalIncome(totalFloatingProfitAndLoss);
 		return new Response<>(result);
 	}
@@ -862,27 +949,26 @@ public class FuturesOrderController {
 	 * @param buysellDto
 	 *            当前合约详情
 	 */
-	public void checkBuyUpAndFullSum(BigDecimal buyUpNum, BigDecimal buyFullNum, BigDecimal perNum,
+	public void checkBuyUpAndFullSum(BigDecimal buyUpNum, BigDecimal buyFallNum, BigDecimal perNum,
 			BigDecimal userMaxNum, FuturesOrderType orderType, BigDecimal quantity, FuturesContractDto contractDto) {
-		BigDecimal userNum = quantity;
 		BigDecimal buyUpTotal = BigDecimal.ZERO;
-		BigDecimal buyFullTotal = BigDecimal.ZERO;
+		BigDecimal buyFallTotal = BigDecimal.ZERO;
 		if (orderType == FuturesOrderType.BuyUp) {
 			buyUpTotal = buyUpNum.add(quantity);
+			if (contractDto.getBuyUpTotalLimit() != null
+					&& buyUpTotal.compareTo(contractDto.getBuyUpTotalLimit()) > 0) {
+				// 买涨持仓总额度已达上限
+				throw new ServiceException(ExceptionConstant.TOTAL_AMOUNT_BUYUP_CAPACITY_INSUFFICIENT_EXCEPTION);
+			}
 		} else {
-			buyFullTotal = buyFullNum.add(quantity);
+			buyFallTotal = buyFallNum.add(quantity);
+			if (contractDto.getBuyFullTotalLimit() != null
+					&& buyFallTotal.compareTo(contractDto.getBuyFullTotalLimit()) > 0) {
+				// 买跌持仓总额度已达上限
+				throw new ServiceException(ExceptionConstant.TOTAL_AMOUNT_BUYFULL_CAPACITY_INSUFFICIENT_EXCEPTION);
+			}
 		}
-
-		if (contractDto.getBuyUpTotalLimit() != null && buyUpTotal.compareTo(contractDto.getBuyUpTotalLimit()) > 0) {
-			// 买涨持仓总额度已达上限
-			throw new ServiceException(ExceptionConstant.TOTAL_AMOUNT_BUYUP_CAPACITY_INSUFFICIENT_EXCEPTION);
-		}
-		if (contractDto.getBuyFullTotalLimit() != null
-				&& buyFullTotal.compareTo(contractDto.getBuyFullTotalLimit()) > 0) {
-			// 买跌持仓总额度已达上限
-			throw new ServiceException(ExceptionConstant.TOTAL_AMOUNT_BUYFULL_CAPACITY_INSUFFICIENT_EXCEPTION);
-		}
-		if (perNum != null && userNum.compareTo(perNum) > 0) {
+		if (perNum != null && quantity.compareTo(perNum) > 0) {
 			// 单笔交易数量过大
 			throw new ServiceException(ExceptionConstant.SINGLE_TRANSACTION_QUANTITY_EXCEPTION);
 		}
@@ -891,11 +977,11 @@ public class FuturesOrderController {
 				// 用户单笔交易数量大于用户持仓总量
 				throw new ServiceException(ExceptionConstant.CONTRACT_HOLDING_CAPACITY_INSUFFICIENT_EXCEPTION);
 			}
-			if (buyUpTotal.abs().compareTo(userMaxNum) > 0 || buyFullTotal.compareTo(userMaxNum) > 0) {
+			if (buyUpTotal.abs().compareTo(userMaxNum) > 0 || buyFallTotal.compareTo(userMaxNum) > 0) {
 				// 该用户持仓量已达上限
 				throw new ServiceException(ExceptionConstant.UPPER_LIMIT_HOLDING_CAPACITY_EXCEPTION);
 			}
-			if (buyUpTotal.add(buyFullTotal).compareTo(userMaxNum) > 0) {
+			if (buyUpTotal.add(buyFallTotal).compareTo(userMaxNum) > 0) {
 				// 该用户持仓量已达上限
 				throw new ServiceException(ExceptionConstant.UPPER_LIMIT_HOLDING_CAPACITY_EXCEPTION);
 			}

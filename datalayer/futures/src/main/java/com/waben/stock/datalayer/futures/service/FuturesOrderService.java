@@ -31,7 +31,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
 import com.waben.stock.datalayer.futures.business.CapitalFlowBusiness;
@@ -89,7 +88,6 @@ import com.waben.stock.interfaces.enums.FuturesWindControlType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
-import com.waben.stock.interfaces.pojo.query.futures.FuturesContractOrderQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
 import com.waben.stock.interfaces.util.StringUtil;
 import com.waben.stock.interfaces.util.UniqueCodeGenerator;
@@ -384,10 +382,10 @@ public class FuturesOrderService {
 					predicateList.add(root.get("state").in(query.getStates()));
 				}
 				// 盈利了的交易
-//				if (query.isOnlyProfit()) {
-//					predicateList.add(criteriaBuilder.gt(root.get("publisherProfitOrLoss").as(BigDecimal.class),
-//							new BigDecimal(0)));
-//				}
+				// if (query.isOnlyProfit()) {
+				// predicateList.add(criteriaBuilder.gt(root.get("publisherProfitOrLoss").as(BigDecimal.class),
+				// new BigDecimal(0)));
+				// }
 				// 交易动态过滤已到期数据
 				if (query.isExpire()) {
 					Join<FuturesOrder, FuturesContract> contractJoin = root.join("contract", JoinType.LEFT);
@@ -654,7 +652,8 @@ public class FuturesOrderService {
 	}
 
 	private void doUnwind(FuturesContract contract, FuturesContractOrder contractOrder, FuturesOrderType orderType,
-			BigDecimal quantity, FuturesTradePriceType priceType, BigDecimal entrustPrice, Long publisherId) {
+			BigDecimal quantity, FuturesTradePriceType priceType, BigDecimal entrustPrice, Long publisherId,
+			boolean isBackhand) {
 		Date date = new Date();
 		// step 1 : 创建平仓委托
 		FuturesTradeEntrust tradeEntrust = new FuturesTradeEntrust();
@@ -752,7 +751,11 @@ public class FuturesOrderService {
 		contractOrder.setUpdateTime(date);
 		contractOrderDao.update(contractOrder);
 		// step 4 : 放入委托查询队列（平仓）
-		entrueQuery.entrustQuery(tradeEntrust.getId(), 2);
+		if (isBackhand) {
+			entrueQuery.entrustQuery(tradeEntrust.getId(), 3);
+		} else {
+			entrueQuery.entrustQuery(tradeEntrust.getId(), 2);
+		}
 	}
 
 	/**
@@ -789,7 +792,7 @@ public class FuturesOrderService {
 		if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
 			return;
 		}
-		doUnwind(contract, contractOrder, orderType, quantity, priceType, entrustPrice, publisherId);
+		doUnwind(contract, contractOrder, orderType, quantity, priceType, entrustPrice, publisherId, false);
 	}
 
 	public void applyUnwindAll(Long publisherId) {
@@ -801,14 +804,36 @@ public class FuturesOrderService {
 				BigDecimal buyFallQuantity = contractOrder.getBuyFallCanUnwindQuantity();
 				if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
 					doUnwind(contract, contractOrder, FuturesOrderType.BuyUp, buyUpQuantity, FuturesTradePriceType.MKT,
-							null, publisherId);
+							null, publisherId, false);
 				}
 				if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
 					doUnwind(contract, contractOrder, FuturesOrderType.BuyFall, buyFallQuantity,
-							FuturesTradePriceType.MKT, null, publisherId);
+							FuturesTradePriceType.MKT, null, publisherId, false);
 				}
 			}
 		}
+	}
+
+	public void backhandUnwind(Long contractId, FuturesOrderType orderType, FuturesTradePriceType priceType,
+			BigDecimal entrustPrice, Long publisherId) {
+		FuturesContract contract = contractDao.retrieve(contractId);
+		if (contract == null) {
+			throw new ServiceException(ExceptionConstant.DATANOTFOUND_EXCEPTION);
+		}
+		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract, publisherId);
+		if (contractOrder == null) {
+			return;
+		}
+		BigDecimal quantity = BigDecimal.ZERO;
+		if (orderType == FuturesOrderType.BuyUp) {
+			quantity = contractOrder.getBuyUpCanUnwindQuantity();
+		} else {
+			quantity = contractOrder.getBuyFallCanUnwindQuantity();
+		}
+		if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
+			return;
+		}
+		doUnwind(contract, contractOrder, orderType, quantity, priceType, entrustPrice, publisherId, true);
 	}
 
 	public void balanceUnwind(Long contractId, FuturesOrderType orderType, FuturesTradePriceType sellingPriceType,
@@ -833,7 +858,7 @@ public class FuturesOrderService {
 		if (canQuantity.compareTo(quantity) < 0) {
 			throw new ServiceException(ExceptionConstant.UNWINDQUANTITY_NOTENOUGH_EXCEPTION);
 		}
-		doUnwind(contract, contractOrder, orderType, quantity, FuturesTradePriceType.MKT, null, publisherId);
+		doUnwind(contract, contractOrder, orderType, quantity, FuturesTradePriceType.MKT, null, publisherId, false);
 	}
 
 	public void settingProfitAndLossLimit(Long publisherId, Long contractId, FuturesOrderType orderType,
@@ -2039,10 +2064,10 @@ public class FuturesOrderService {
 		if (!StringUtil.isEmpty(query.getOrderType())) {
 			orderType = " AND t2.order_type =" + query.getOrderType().trim();
 		}
-		 String orderState = "";
-		 if (!StringUtil.isEmpty(query.getOrderState())) {
-		    orderState = " AND t2.state in(" + query.getOrderState().trim() + ")";
-		 }
+		String orderState = "";
+		if (!StringUtil.isEmpty(query.getOrderState())) {
+			orderState = " AND t2.state in(" + query.getOrderState().trim() + ")";
+		}
 		// 定单类型，1 市价 ,2 限价
 		String priceType = "";
 		if (!StringUtil.isEmpty(query.getPriceType())) {
@@ -2115,7 +2140,7 @@ public class FuturesOrderService {
 			public Predicate toPredicate(Root<FuturesContractOrder> root, CriteriaQuery<?> criteriaQuery,
 					CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
-				
+
 				// 以更新时间排序
 				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("updateTime").as(Date.class)));
 				return criteriaQuery.getRestriction();
