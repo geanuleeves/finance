@@ -14,12 +14,13 @@ import com.waben.stock.applayer.admin.business.ProfileBusiness;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.dto.admin.futures.FutresOrderEntrustDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesHoldPositionAgentDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeActionAgentDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCurrencyRateDto;
-import com.waben.stock.interfaces.dto.futures.FuturesTradeActionViewDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
 import com.waben.stock.interfaces.dto.publisher.RealNameDto;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
@@ -28,6 +29,7 @@ import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
 import com.waben.stock.interfaces.service.futures.FuturesContractInterface;
+import com.waben.stock.interfaces.service.futures.FuturesContractOrderInterface;
 import com.waben.stock.interfaces.service.futures.FuturesCurrencyRateInterface;
 import com.waben.stock.interfaces.service.futures.FuturesTradeActionInterface;
 import com.waben.stock.interfaces.service.futures.FuturesTradeEntrustInterface;
@@ -70,8 +72,20 @@ public class FuturesOrderBusiness {
 	@Autowired
 	@Qualifier("futuresTradeEntrustInterface")
 	private FuturesTradeEntrustInterface entrusReference;
+	
+	@Autowired
+	@Qualifier("futuresContractOrderInterface")
+	private FuturesContractOrderInterface orderReference;
 
 	Logger logger = LoggerFactory.getLogger(getClass());
+	
+	public PageInfo<FuturesHoldPositionAgentDto> pagesHoldingOrderAgent(FuturesTradeAdminQuery query) {
+		Response<PageInfo<FuturesHoldPositionAgentDto>> response = orderReference.pagesAgentAdmin(query);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
 	
 	public PageInfo<FuturesTradeDto> pageTradeEnutrs(FuturesTradeAdminQuery query){
 		Response<PageInfo<FuturesTradeDto>> response = entrusReference.pagesEntrust(query);
@@ -82,16 +96,10 @@ public class FuturesOrderBusiness {
 		throw new ServiceException(response.getCode());
 	}
 	
-	public PageInfo<FuturesTradeActionViewDto> pageTradeAdmin(FuturesTradeAdminQuery query){
-		List<Long> publisherIds = queryPublishIds(query);
-		if(publisherIds==null){
-			return new PageInfo<FuturesTradeActionViewDto>();
-		}else{
-			query.setPublisherIds(publisherIds);
-		}
-		Response<PageInfo<FuturesTradeActionViewDto>> response = actionReference.pagesTradeAdmin(query);
+	
+	public PageInfo<FuturesTradeActionAgentDto> pageTradeAdmin(FuturesTradeAdminQuery query){
+		Response<PageInfo<FuturesTradeActionAgentDto>> response = reference.pagesOrderAgentDealRecord(query);
 		if ("200".equals(response.getCode())) {
-
 			return response.getResult();
 		}
 		throw new ServiceException(response.getCode());
