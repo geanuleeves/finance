@@ -215,11 +215,11 @@ public class FuturesTradeActionService {
 				}
 				Predicate predicate1 = criteriaBuilder.and(criteriaBuilder.equal(root.get("tradeActionType").
 								as(FuturesTradeActionType.class), FuturesTradeActionType.OPEN),
-						criteriaBuilder.in(root.get("state").in(new FuturesTradeEntrustState[]{FuturesTradeEntrustState.Canceled,
+						criteriaBuilder.and(root.get("state").in(new FuturesTradeEntrustState[]{FuturesTradeEntrustState.Canceled,
 								FuturesTradeEntrustState.Failure})));
 				Predicate predicate2 = criteriaBuilder.and(criteriaBuilder.equal(root.get("tradeActionType").
 								as(FuturesTradeActionType.class), FuturesTradeActionType.CLOSE),
-						criteriaBuilder.in(root.get("state").in(new FuturesTradeEntrustState[]{FuturesTradeEntrustState.PartSuccess,
+						criteriaBuilder.and(root.get("state").in(new FuturesTradeEntrustState[]{FuturesTradeEntrustState.PartSuccess,
 								FuturesTradeEntrustState.Success})));
 				predicateList.add(criteriaBuilder.or(predicate1, predicate2));
 
