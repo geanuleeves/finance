@@ -100,7 +100,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
     }
 
     @Override
-    public Response<PageInfo<FuturesContractOrderViewDto>> pages(FuturesContractOrderQuery query) {
+    public Response<PageInfo<FuturesContractOrderViewDto>> pages(@RequestBody FuturesContractOrderQuery query) {
         Page<FuturesContractOrder> page = futuresContractOrderService.pages(query);
         PageInfo<FuturesContractOrderViewDto> result = PageToPageInfo.pageToPageInfo(page, FuturesContractOrderViewDto.class);
         List<FuturesContractOrderViewDto> futuresContractOrderViewDtos = new ArrayList<>();
@@ -125,22 +125,23 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                     Integer findUpFilledNow = futuresTradeActionService.findFilledNow(futuresContractOrder.getPublisherId(),
                             futuresContractOrder.getCommodityNo(), futuresContractOrder.getContractNo(),
                             FuturesOrderType.BuyUp.getIndex());
-                    buyDto.setQuantityNow(new BigDecimal(findUpFilledNow));
-                    //成交价格
-                    BigDecimal avgUpFillPrice = futuresOrderService.getAvgFillPrice(futuresContractOrder.getPublisherId(),
-                            futuresContractOrder.getContractNo(), futuresContractOrder.getCommodityNo(),
-                            FuturesOrderType.BuyUp.getIndex());
-                    buyDto.setAvgFillPrice(avgUpFillPrice);
-                    buyDto.setAvgFillPriceNow(lastPrice);
                     //浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
                     BigDecimal buyReserveFund = new BigDecimal(0);
-                    if (futuresCommodity != null) {
+                    if (futuresCommodity != null && findUpFilledNow != null && findUpFilledNow > 0) {
+                        buyDto.setQuantityNow(new BigDecimal(findUpFilledNow));
+                        //成交价格
+                        BigDecimal avgUpFillPrice = futuresOrderService.getAvgFillPrice(futuresContractOrder.getPublisherId(),
+                                futuresContractOrder.getContractNo(), futuresContractOrder.getCommodityNo(),
+                                FuturesOrderType.BuyUp.getIndex());
+                        buyDto.setAvgFillPrice(avgUpFillPrice);
+                        buyDto.setAvgFillPriceNow(lastPrice);
                         buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice).divide(futuresCommodity.getMinWave())
                                 .multiply(futuresCommodity.getPerWaveMoney()).multiply(futuresContractOrder.getBuyUpQuantity()));
                         buyDto.setServiceFee(futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee()));
                         if (futuresContractOrder.getBuyUpQuantity().compareTo(futuresContractOrder.getBuyFallQuantity()) > 0) {
                             buyDto.setReserveFund(futuresCommodity.getPerUnitReserveFund().multiply(futuresContractOrder.getBuyUpQuantity()));
                         }
+                        futuresContractOrderViewDtos.add(buyDto);
                     }
                     //买跌
                     FuturesContractOrderViewDto sellDto = futuresContractOrderViewDto.deepClone();
@@ -150,24 +151,23 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                     Integer findFallFilledNow = futuresTradeActionService.findFilledNow(futuresContractOrder.getPublisherId(),
                             futuresContractOrder.getCommodityNo(), futuresContractOrder.getContractNo(),
                             FuturesOrderType.BuyFall.getIndex());
-                    sellDto.setQuantityNow(new BigDecimal(findFallFilledNow));
-                    //成交价格
-                    BigDecimal avgFallFillPrice = futuresOrderService.getAvgFillPrice(futuresContractOrder.getPublisherId(),
-                            futuresContractOrder.getContractNo(), futuresContractOrder.getCommodityNo(),
-                            FuturesOrderType.BuyFall.getIndex());
-                    sellDto.setAvgFillPrice(avgFallFillPrice);
-                    sellDto.setAvgFillPriceNow(lastPrice);
                     //浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
-                    if (futuresCommodity != null) {
+                    if (futuresCommodity != null && findFallFilledNow != null && findFallFilledNow > 0) {
+                        sellDto.setQuantityNow(new BigDecimal(findFallFilledNow));
+                        //成交价格
+                        BigDecimal avgFallFillPrice = futuresOrderService.getAvgFillPrice(futuresContractOrder.getPublisherId(),
+                                futuresContractOrder.getContractNo(), futuresContractOrder.getCommodityNo(),
+                                FuturesOrderType.BuyFall.getIndex());
+                        sellDto.setAvgFillPrice(avgFallFillPrice);
+                        sellDto.setAvgFillPriceNow(lastPrice);
                         sellDto.setFloatingProfitAndLoss(lastPrice.subtract(avgFallFillPrice).divide(futuresCommodity.getMinWave())
                                 .multiply(futuresCommodity.getPerWaveMoney().multiply(futuresContractOrder.getBuyFallQuantity())));
                         sellDto.setServiceFee(futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee()));
                         if (futuresContractOrder.getBuyFallQuantity().compareTo(futuresContractOrder.getBuyUpQuantity()) > 0) {
                             sellDto.setReserveFund(futuresCommodity.getPerUnitReserveFund().multiply(futuresContractOrder.getBuyUpQuantity()));
                         }
+                        futuresContractOrderViewDtos.add(sellDto);
                     }
-                    futuresContractOrderViewDtos.add(buyDto);
-                    futuresContractOrderViewDtos.add(sellDto);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (ClassNotFoundException e) {

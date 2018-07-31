@@ -193,22 +193,16 @@ public class FuturesOrderController {
 		return new Response<>(futuresOrderBusiness.placeOrder(orderParam));
 	}
 
-	@PostMapping("/cancelEntrust/{entrustId}")
-	@ApiOperation(value = "用户取消委托", notes = "entrustId为委托Id")
-	public Response<FuturesTradeEntrustDto> cancelEntrust(@PathVariable Long entrustId) {
-		return new Response<>(entrustBusiness.cancelEntrust(entrustId, SecurityUtil.getUserId()));
+	@PostMapping("/applyUnwind/{contractId}")
+	@ApiOperation(value = "市价平仓")
+	public Response<String> applyUnwind(@PathVariable Long contractId,
+			@RequestParam(required = true) FuturesOrderType orderType,
+			@RequestParam(required = true) FuturesTradePriceType sellingPriceType, BigDecimal sellingEntrustPrice) {
+		futuresOrderBusiness.applyUnwind(contractId, orderType, sellingPriceType, sellingEntrustPrice,
+				SecurityUtil.getUserId());
+		return new Response<>("success");
 	}
 	
-	/********************************************分割线************************************************/
-
-	@PostMapping("/applyUnwind/{orderId}")
-	@ApiOperation(value = "用户申请平仓")
-	public Response<FuturesOrderDto> applyUnwind(@PathVariable Long orderId,
-			@RequestParam(required = true) FuturesTradePriceType sellingPriceType, BigDecimal sellingEntrustPrice) {
-		return new Response<>(futuresOrderBusiness.applyUnwind(orderId, sellingPriceType, sellingEntrustPrice,
-				SecurityUtil.getUserId()));
-	}
-
 	@PostMapping("/applyUnwindAll")
 	@ApiOperation(value = "用户申请一键平仓所有订单")
 	public Response<String> applyUnwindAll() {
@@ -218,8 +212,28 @@ public class FuturesOrderController {
 		return result;
 	}
 
+	@PostMapping("/settingProfitAndLossLimit/{contractId}")
+	@ApiOperation(value = "设置止损止盈")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "contractId", value = "订单ID", dataType = "Long", paramType = "path", required = true),
+			@ApiImplicitParam(name = "limitProfitType", value = "止盈类型", dataType = "int", paramType = "query", required = false),
+			@ApiImplicitParam(name = "perUnitLimitProfitAmount", value = "止盈金额", dataType = "BigDecimal", paramType = "query", required = false),
+			@ApiImplicitParam(name = "limitLossType", value = "止损类型", dataType = "int", paramType = "query", required = false),
+			@ApiImplicitParam(name = "perUnitLimitLossAmount", value = "止损金额", dataType = "BigDecimal", paramType = "query", required = false),
+			@ApiImplicitParam(name = "orderType", value = "订单类型", dataType = "String", paramType = "query", required = true) })
+	public Response<String> settingProfitAndLossLimit(@PathVariable Long contractId, Integer limitProfitType,
+			BigDecimal perUnitLimitProfitAmount, Integer limitLossType, BigDecimal perUnitLimitLossAmount,
+			FuturesOrderType orderType) {
+		futuresOrderBusiness.settingProfitAndLossLimit(SecurityUtil.getUserId(), contractId, orderType, limitProfitType,
+				perUnitLimitProfitAmount, limitLossType, perUnitLimitLossAmount, SecurityUtil.getUserId());
+		Response<String> result = new Response<>();
+		return result;
+	}
+	
+	/******************************************** 分割线 ************************************************/
+
 	@PostMapping("/backhandUnwind/{orderId}")
-	@ApiOperation(value = "用户市价反手")
+	@ApiOperation(value = "用户市价反手", hidden = true)
 	public Response<FuturesOrderDto> backhandUnwind(@PathVariable Long orderId) {
 		FuturesOrderDto orderDto = futuresOrderBusiness.fetchByOrderId(orderId);
 		FuturesContractQuery query = new FuturesContractQuery();
@@ -258,7 +272,7 @@ public class FuturesOrderController {
 	}
 
 	@GetMapping("/holding")
-	@ApiOperation(value = "获取持仓中列表")
+	@ApiOperation(value = "获取持仓中列表", hidden = true)
 	public Response<PageInfo<FuturesOrderMarketDto>> holdingList(int page, int size) {
 		// long startTime = System.currentTimeMillis();
 		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
@@ -274,7 +288,7 @@ public class FuturesOrderController {
 	}
 
 	@GetMapping("/entrustQueuing")
-	@ApiOperation(value = "获取委托排队中列表")
+	@ApiOperation(value = "获取委托排队中列表", hidden = true)
 	public Response<PageInfo<FuturesOrderMarketDto>> entrustQueuing(int page, int size) {
 		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
 		FuturesOrderState[] states = { FuturesOrderState.BuyingEntrust, FuturesOrderState.SellingEntrust };
@@ -286,7 +300,7 @@ public class FuturesOrderController {
 	}
 
 	@GetMapping("/entrustment")
-	@ApiOperation(value = "获取委托中列表")
+	@ApiOperation(value = "获取委托中列表", hidden = true)
 	public Response<PageInfo<FuturesOrderMarketDto>> entrustmentList(int page, int size) {
 		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
 		FuturesOrderState[] states = { FuturesOrderState.BuyingEntrust, FuturesOrderState.BuyingCanceled,
@@ -300,7 +314,7 @@ public class FuturesOrderController {
 	}
 
 	@GetMapping("/turnover")
-	@ApiOperation(value = "获取成交记录列表（包括持仓中、已结算订单）")
+	@ApiOperation(value = "获取成交记录列表（包括持仓中、已结算订单）", hidden = true)
 	public Response<PageInfo<FuturesOrderMarketDto>> turnoverList(int page, int size, String contractName,
 			String startTime, String endTime) {
 		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
@@ -328,7 +342,7 @@ public class FuturesOrderController {
 	}
 
 	@GetMapping("/settled")
-	@ApiOperation(value = "获取已结算列表")
+	@ApiOperation(value = "获取已结算列表", hidden = true)
 	public Response<PageInfo<FuturesOrderMarketDto>> settledList(int page, int size) {
 		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
 		FuturesOrderState[] states = { FuturesOrderState.Unwind, FuturesOrderState.BuyingCanceled,
@@ -412,7 +426,7 @@ public class FuturesOrderController {
 	}
 
 	@GetMapping("/unwinded")
-	@ApiOperation(value = "获取已平仓列表")
+	@ApiOperation(value = "获取已平仓列表", hidden = true)
 	public Response<PageInfo<FuturesOrderMarketDto>> unwindedList(int page, int size) {
 		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
 		FuturesOrderState[] states = { FuturesOrderState.Unwind };
@@ -469,22 +483,6 @@ public class FuturesOrderController {
 		} else {
 			return new Response<>();
 		}
-	}
-
-	@PostMapping("/settingStopLoss/{orderId}")
-	@ApiOperation(value = "设置止损止盈")
-	@ApiImplicitParams({
-			@ApiImplicitParam(name = "orderId", value = "订单ID", dataType = "Long", paramType = "path", required = true),
-			@ApiImplicitParam(name = "limitProfitType", value = "止盈类型", dataType = "int", paramType = "query", required = false),
-			@ApiImplicitParam(name = "perUnitLimitProfitAmount", value = "止盈金额", dataType = "BigDecimal", paramType = "query", required = false),
-			@ApiImplicitParam(name = "limitLossType", value = "止损类型", dataType = "int", paramType = "query", required = false),
-			@ApiImplicitParam(name = "perUnitLimitLossAmount", value = "止损金额", dataType = "BigDecimal", paramType = "query", required = false),
-			@ApiImplicitParam(name = "stopLossOrProfitId", value = "档位ID", dataType = "Long", paramType = "query", required = true) })
-	public Response<Integer> editOrder(@PathVariable Long orderId, Integer limitProfitType,
-			BigDecimal perUnitLimitProfitAmount, Integer limitLossType, BigDecimal perUnitLimitLossAmount,
-			Long stopLossOrProfitId) {
-		return new Response<>(futuresOrderBusiness.settingStopLoss(orderId, limitProfitType, perUnitLimitProfitAmount,
-				limitLossType, perUnitLimitLossAmount, SecurityUtil.getUserId(), stopLossOrProfitId));
 	}
 
 	@GetMapping("/turnover/statisty/record")

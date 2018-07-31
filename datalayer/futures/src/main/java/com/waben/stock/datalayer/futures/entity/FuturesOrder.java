@@ -50,6 +50,8 @@ public class FuturesOrder {
 	private BigDecimal openAvgFillPrice;
 	/** 已成交部分总费用（开仓） */
 	private BigDecimal openTotalFillCost;
+	/** 成功时间（开仓） */
+	private Date openTradeTime;
 	/** 已成交量（平仓） */
 	private BigDecimal closeFilled;
 	/** 剩余未成交量（平仓） */
@@ -349,6 +351,14 @@ public class FuturesOrder {
 
 	public void setExchangeName(String exchangeName) {
 		this.exchangeName = exchangeName;
+	}
+
+	public Date getOpenTradeTime() {
+		return openTradeTime;
+	}
+
+	public void setOpenTradeTime(Date openTradeTime) {
+		this.openTradeTime = openTradeTime;
 	}
 
 }
