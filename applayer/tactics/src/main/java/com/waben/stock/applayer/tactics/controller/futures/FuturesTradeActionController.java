@@ -68,14 +68,13 @@ public class FuturesTradeActionController {
 	@GetMapping("/pages_phone")
 	@ApiOperation(value = "移动端订单交易开平仓记录列表", notes = "startTime和endTime格式(yyyy-MM-dd HH:mm:ss)")
 	public Response<PageInfo<FuturesTradeActionViewDto>> pagesPhone(int page, int size, String name, String startTime,
-															   String endTime, FuturesTradeActionType tradeActionType) {
+															   String endTime) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		FuturesTradeActionQuery query = new FuturesTradeActionQuery();
 		query.setPage(page);
 		query.setSize(size);
 		query.setPublisherId(SecurityUtil.getUserId());
 		query.setName(name);
-		query.setTradeActionType(tradeActionType);
 		if (!StringUtil.isEmpty(startTime)) {
 			try {
 				query.setStartTime(sdf.parse(startTime));
