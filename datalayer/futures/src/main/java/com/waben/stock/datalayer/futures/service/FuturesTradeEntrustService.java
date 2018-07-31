@@ -601,7 +601,7 @@ public class FuturesTradeEntrustService {
 		
 		String orderStateCondition = "";
 		if (!StringUtil.isEmpty(query.getOrderState())) {
-			orderStateCondition = " and f1.state like '%" + query.getOrderState() + "%'";
+			orderStateCondition = " and f1.state in in(" + query.getOrderState().trim() + ") ";
 		}
 		
 		String startTimeCondition = "";
@@ -613,19 +613,27 @@ public class FuturesTradeEntrustService {
 			endTimeCondition = " and t1.entrust_time<'" + fullSdf.format(query.getEndTime()) + "' ";
 		}
 		
+		String treeCode = "";
+		if (query.getTreeCode() != null) {
+			treeCode = " AND t8.tree_code LIKE '%" + query.getTreeCode() + "%'";
+		}
+		
 		String sql = String.format(" select f1.id, f5.name, f4.phone, f1.commodity_no, f3.commodity_name, f1.contract_no,f1.order_type,"
 	                              +" f1.trade_action_type, f1.filled, f1.quantity, f1.entrust_price, f1.avg_fill_price," 
 								  +" f1.entrust_no, f1.entrust_time, f1.state,f1.total_fill_cost, f1.trade_price,"
-								  +" f1.price_type, f3.is_test "
+								  +" f1.price_type, f3.is_test, f1.return_reserve_fund "
 								  +" from f_futures_trade_entrust f1"
 								  +" LEFT JOIN f_futures_trade_action f2 on f1.id=f2.trade_entrust_id"
 								  +" LEFT JOIN f_futures_order f3 ON f2.order_id=f3.id"
 								  +" LEFT JOIN publisher f4 ON f1.publisher_id=f4.id"
 								  +" LEFT JOIN real_name f5 ON f5.resource_id = f1.publisher_id"
-								  +" where 1=1 %s %s %s %s %s %s %s %s %s %s  ORDER BY f1.entrust_time DESC"
+								  +" LEFT JOIN f_futures_contract t6 ON t6.id = f1.contract_id "
+								  +" LEFT JOIN p_organization_publisher t7 ON t7.publisher_id = f1.publisher_id "
+								  +" LEFT JOIN p_organization t8 ON t8.id = t7.org_id"
+								  +" where 1=1 %s %s %s %s %s %s %s %s %s %s %s  ORDER BY f1.entrust_time DESC"
 								  +" LIMIT " + query.getPage() * query.getSize()+ "," + query.getSize(), 
 								  publisherNameCondition,publisherPhoneCondition,contractNameCondition,contractNoCondition,orderTypeCondition,
-								  tradeActionCondition,tradeNoCondition,orderStateCondition,startTimeCondition,endTimeCondition);
+								  tradeActionCondition,tradeNoCondition,orderStateCondition,startTimeCondition,endTimeCondition,treeCode);
 		String countSql = "select count(*) " + sql.substring(sql.indexOf("from"), sql.indexOf("LIMIT"));
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setId", new Class<?>[] { Long.class }));
@@ -634,19 +642,20 @@ public class FuturesTradeEntrustService {
 		setMethodMap.put(new Integer(3), new MethodDesc("setSymbol", new Class<?>[] { String.class }));
 		setMethodMap.put(new Integer(4), new MethodDesc("setName", new Class<?>[] { String.class }));
 		setMethodMap.put(new Integer(5), new MethodDesc("setContractNo", new Class<?>[] { String.class }));
-		setMethodMap.put(new Integer(6), new MethodDesc("setOrderType", new Class<?>[] { String.class }));
-		setMethodMap.put(new Integer(7), new MethodDesc("setTradeActionType", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(6), new MethodDesc("setOrderType", new Class<?>[] { Integer.class }));
+		setMethodMap.put(new Integer(7), new MethodDesc("setTradeActionType", new Class<?>[] { Integer.class }));
 		setMethodMap.put(new Integer(8), new MethodDesc("setFilled", new Class<?>[] { BigDecimal.class }));
 		setMethodMap.put(new Integer(9), new MethodDesc("setQuantity", new Class<?>[] { BigDecimal.class }));
 		setMethodMap.put(new Integer(10), new MethodDesc("setEntrustPrice", new Class<?>[] { BigDecimal.class }));
 		setMethodMap.put(new Integer(11), new MethodDesc("setAvgFillPrice", new Class<?>[] { BigDecimal.class }));
 		setMethodMap.put(new Integer(12), new MethodDesc("setEntrustNo", new Class<?>[] { String.class }));
 		setMethodMap.put(new Integer(13), new MethodDesc("setEntrustTime", new Class<?>[] { Date.class }));
-		setMethodMap.put(new Integer(14), new MethodDesc("setState", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(14), new MethodDesc("setState", new Class<?>[] { Integer.class }));
 		setMethodMap.put(new Integer(15), new MethodDesc("setTotalFillCost", new Class<?>[] { BigDecimal.class }));
 		setMethodMap.put(new Integer(16), new MethodDesc("setTradePrice", new Class<?>[] { BigDecimal.class }));
-		setMethodMap.put(new Integer(17), new MethodDesc("setPriceType", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(17), new MethodDesc("setPriceType", new Class<?>[] { Integer.class }));
 		setMethodMap.put(new Integer(18), new MethodDesc("setIsTest", new Class<?>[] { Boolean.class }));
+		setMethodMap.put(new Integer(19), new MethodDesc("setReturnReserveFund", new Class<?>[] { BigDecimal.class }));
 		
 		List<FuturesTradeDto> content = sqlDao.execute(FuturesTradeDto.class, sql, setMethodMap);
 		BigInteger totalElements = sqlDao.executeComputeSql(countSql);

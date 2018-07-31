@@ -24,6 +24,7 @@ import com.waben.stock.interfaces.dto.admin.futures.AgentOrderRecordDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesHoldPositionAgentDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeActionAgentDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeDto;
 import com.waben.stock.interfaces.dto.organization.FuturesFowDto;
 import com.waben.stock.interfaces.enums.CapitalFlowType;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
@@ -88,6 +89,13 @@ public class FuturesTradeController {
 	public Response<PageInfo<FuturesHoldPositionAgentDto>> pagesHoldingOrderAgent(FuturesTradeAdminQuery query) {
 		query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
 		return new Response<>(business.pagesHoldingOrderAgent(query));
+	}
+	
+	@RequestMapping(value = "/futures/hoding/order/entruts", method = RequestMethod.GET)
+	@ApiOperation(value = "获取持仓订单记录")
+	public Response<PageInfo<FuturesTradeDto>> pageTradeEnturs(FuturesTradeAdminQuery query) {
+		query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
+		return new Response<>(business.pageTradeEnturs(query));
 	}
 
 	@RequestMapping(value = "/export", method = RequestMethod.GET)

@@ -2039,11 +2039,10 @@ public class FuturesOrderService {
 		if (!StringUtil.isEmpty(query.getOrderType())) {
 			orderType = " AND t2.order_type =" + query.getOrderType().trim();
 		}
-		// String orderState = "";
-		// if (!StringUtil.isEmpty(query.getOrderState())) {
-		// orderState = " AND t1.state in(" + query.getOrderState().trim() + ")
-		// ";
-		// }
+		 String orderState = "";
+		 if (!StringUtil.isEmpty(query.getOrderState())) {
+		    orderState = " AND t2.state in(" + query.getOrderState().trim() + ")";
+		 }
 		// 定单类型，1 市价 ,2 限价
 		String priceType = "";
 		if (!StringUtil.isEmpty(query.getPriceType())) {
@@ -2077,10 +2076,10 @@ public class FuturesOrderService {
 						+ "LEFT JOIN f_futures_contract t6 ON t6.id = t2.contract_id "
 						+ "LEFT JOIN p_organization_publisher t7 ON t7.publisher_id = t1.publisher_id "
 						+ "LEFT JOIN p_organization t8 ON t8.id = t7.org_id"
-						+ " WHERE 1=1 %s %s %s %s %s %s %s %s %s %s ORDER BY t1.trade_time DESC LIMIT "
+						+ " WHERE 1=1 %s %s %s %s %s %s %s %s %s %s %s ORDER BY t1.trade_time DESC LIMIT "
 						+ query.getPage() * query.getSize() + "," + query.getSize(),
 				publisherNameCondition, publisherPhoneCondition, symbol, commodityName, orderType, priceType, tradeNo,
-				windControlType, treeCode, tradeActionType);
+				windControlType, treeCode, tradeActionType, orderState);
 		String countSql = "select count(*) " + sql.substring(sql.indexOf("FROM"), sql.indexOf("LIMIT"));
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setId", new Class<?>[] { Long.class }));
