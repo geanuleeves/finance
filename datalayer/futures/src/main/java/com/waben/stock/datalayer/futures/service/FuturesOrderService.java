@@ -2116,6 +2116,20 @@ public class FuturesOrderService {
 					CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
 				
+				if (query.getPublisherIds().size() > 0) {
+					predicateList.add(criteriaBuilder.in(root.get("publisherId")).value(query.getPublisherIds()));
+				}
+				
+				if (query.getSymbol() != null && !"".equals(query.getSymbol())) {
+					predicateList.add(criteriaBuilder.like(root.get("commodityNo").as(String.class),
+							"%" + query.getSymbol() + "%"));
+				}
+				
+				if (query.getSymbol() != null && !"".equals(query.getSymbol())) {
+					predicateList.add(criteriaBuilder.like(root.get("commodityName").as(String.class),
+							"%" + query.getName() + "%"));
+				}
+				
 				// 以更新时间排序
 				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("updateTime").as(Date.class)));
 				return criteriaQuery.getRestriction();

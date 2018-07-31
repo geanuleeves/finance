@@ -80,6 +80,12 @@ public class FuturesOrderBusiness {
 	Logger logger = LoggerFactory.getLogger(getClass());
 	
 	public PageInfo<FuturesHoldPositionAgentDto> pagesHoldingOrderAgent(FuturesTradeAdminQuery query) {
+		List<Long> publisherIds = queryPublishIds(query);
+		if(publisherIds==null){
+			return new PageInfo<FuturesHoldPositionAgentDto>();
+		}else{
+			query.setPublisherIds(publisherIds);
+		}
 		Response<PageInfo<FuturesHoldPositionAgentDto>> response = orderReference.pagesAgentAdmin(query);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();

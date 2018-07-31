@@ -259,7 +259,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 					buyDto.setCommoditySymbol(futuresCommodity.getSymbol());
 					buyDto.setContractId(futuresContractOrder.getContract().getId());
 
-					buyDto.setOrderType(FuturesOrderType.BuyUp);
+					buyDto.setOrderType(FuturesOrderType.getByIndex("1"));
 					// 已持仓
 					buyDto.setBuyUpQuantity(futuresContractOrder.getBuyUpQuantity());
 					// 今持仓
@@ -301,7 +301,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 					sellDto.setCommoditySymbol(futuresCommodity.getSymbol());
 					sellDto.setContractId(futuresContractOrder.getContract().getId());
 
-					sellDto.setOrderType(FuturesOrderType.BuyFall);
+					sellDto.setOrderType(FuturesOrderType.getByIndex("2"));
 					sellDto.setBuyFallQuantity(futuresContractOrder.getBuyFallQuantity());
 					// 今持仓
 					Integer findFallFilledNow = futuresTradeActionService.findFilledNow(

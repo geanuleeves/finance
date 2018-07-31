@@ -29,6 +29,8 @@ public class FuturesContractOrder {
 	private FuturesContract contract;
 	/** 品种编号 */
 	private String commodityNo;
+	/** 品种名称 */
+	private String commodityName;
 	/** 合约编号 */
 	private String contractNo;
 	/** 买涨手数（总，包括买入委托中的） */
@@ -122,6 +124,14 @@ public class FuturesContractOrder {
 
 	public void setCommodityNo(String commodityNo) {
 		this.commodityNo = commodityNo;
+	}
+
+	public String getCommodityName() {
+		return commodityName;
+	}
+
+	public void setCommodityName(String commodityName) {
+		this.commodityName = commodityName;
 	}
 
 	public String getContractNo() {
