@@ -166,6 +166,8 @@ public class FuturesOrderController implements FuturesOrderInterface {
 				FuturesContractOrderViewDto.class);
 		BigDecimal totalFloatingProfitAndLoss = new BigDecimal(0);
 		if (result != null && result.getContent() != null) {
+			BigDecimal buyUpFloatingProfitAndLoss = new BigDecimal(0);
+			BigDecimal buyFallFloatingProfitAndLoss = new BigDecimal(0);
 			for (int i = 0; i < result.getContent().size(); i++) {
 				FuturesContractOrder futuresContractOrder = page.getContent().get(i);
 				FuturesCommodity futuresCommodity = futuresCommodityService
@@ -182,15 +184,19 @@ public class FuturesOrderController implements FuturesOrderInterface {
 					BigDecimal avgFallFillPrice = futuresOrderService.getAvgFillPrice(
 							futuresContractOrder.getPublisherId(), futuresContractOrder.getContractNo(),
 							futuresContractOrder.getCommodityNo(), FuturesOrderType.BuyFall.getIndex());
-					// 买涨浮动盈亏
-					BigDecimal buyUpFloatingProfitAndLoss = lastPrice.subtract(avgUpFillPrice)
-							.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
-							.multiply(futuresContractOrder.getBuyUpQuantity());
-					// 买跌浮动盈亏
-					BigDecimal buyFallFloatingProfitAndLoss = lastPrice.subtract(avgFallFillPrice)
-							.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
-							.multiply(futuresContractOrder.getBuyFallQuantity());
-					totalFloatingProfitAndLoss.add(buyUpFloatingProfitAndLoss).add(buyFallFloatingProfitAndLoss);
+					if (avgUpFillPrice != null && avgUpFillPrice.compareTo(new BigDecimal(0)) > 0) {
+						// 买涨浮动盈亏
+						buyUpFloatingProfitAndLoss = lastPrice.subtract(avgUpFillPrice)
+								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
+								.multiply(futuresContractOrder.getBuyUpQuantity());
+					}
+					if (avgFallFillPrice != null && avgFallFillPrice.compareTo(new BigDecimal(0)) > 0) {
+						// 买跌浮动盈亏
+						buyFallFloatingProfitAndLoss = lastPrice.subtract(avgFallFillPrice)
+								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
+								.multiply(futuresContractOrder.getBuyFallQuantity());
+					}
+					totalFloatingProfitAndLoss = totalFloatingProfitAndLoss.add(buyUpFloatingProfitAndLoss).add(buyFallFloatingProfitAndLoss);
 				}
 			}
 		}
