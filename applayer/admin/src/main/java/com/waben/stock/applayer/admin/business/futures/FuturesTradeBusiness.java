@@ -58,8 +58,6 @@ public class FuturesTradeBusiness {
 	
 	@Autowired
 	private ProfileBusiness profileBusiness;
-	
-
 
 	public Integer sumUserNum(Long contractId, Long publisherId, Integer type) {
 		Response<Integer> response = futuresOrderInterface.sumByListOrderContractIdAndPublisherId(contractId,

@@ -24,6 +24,7 @@ import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FutresOrderEntrustDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeDto;
 import com.waben.stock.interfaces.dto.futures.FuturesTradeActionViewDto;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
 import com.waben.stock.interfaces.exception.ServiceException;
@@ -74,6 +75,12 @@ public class FuturesOrderController {
 	@ApiOperation(value = "查询委托订单")
 	public Response<PageInfo<FutresOrderEntrustDto>> pagesOrderEntust(FuturesTradeAdminQuery query) {
 		return new Response<>(business.pagesOrderEntrust(query));
+	}
+	
+	@GetMapping("/pageTradeEntust")
+	@ApiOperation(value = "查询委托订单")
+	public Response<PageInfo<FuturesTradeDto>> pageTradeEntust(FuturesTradeAdminQuery query) {
+		return new Response<>(business.pageTradeEnutrs(query));
 	}
 
 	@RequestMapping(value = "/export", method = RequestMethod.GET)

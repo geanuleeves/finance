@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeDto;
 import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeEntrustQuery;
 
 /**
@@ -80,5 +82,13 @@ public interface FuturesTradeEntrustInterface {
 	 */
 	@RequestMapping(value = "/pages", method = RequestMethod.POST, consumes = "application/json")
 	Response<PageInfo<FuturesTradeEntrustDto>> pages(@RequestBody FuturesTradeEntrustQuery query);
+	
+	/**
+	 * 根据条件查询交易委托
+	 * @param query
+	 * @return
+	 */
+	@RequestMapping(value = "/pagesEntrust", method = RequestMethod.POST, consumes = "application/json")
+	Response<PageInfo<FuturesTradeDto>> pagesEntrust(@RequestBody FuturesTradeAdminQuery query);
 
 }

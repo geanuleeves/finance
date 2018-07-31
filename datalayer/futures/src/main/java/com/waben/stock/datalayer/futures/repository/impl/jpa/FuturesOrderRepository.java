@@ -121,7 +121,7 @@ public interface FuturesOrderRepository extends CustomJpaRepository<FuturesOrder
 	@Query(value = "SELECT sum(open_total_fill_cost)/sum(open_filled - close_filled)  FROM f_futures_order t " +
 			"LEFT JOIN f_futures_contract contract ON contract.id = t.contract_id " +
 			"LEFT JOIN f_futures_commodity commodity ON commodity.id = contract.commodity_id " +
-			"WHERE t.publisherId = ?1 AND contract.contract_no = ?2 AND commodity.symbol = ?3 " +
+			"WHERE t.publisher_id = ?1 AND contract.contract_no = ?2 AND commodity.symbol = ?3 " +
 			"AND t.order_type = ?4 AND t.state IN(5,6,7,8)", nativeQuery = true)
 	BigDecimal getAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType);
 

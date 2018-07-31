@@ -21,8 +21,9 @@ import com.waben.stock.applayer.promotion.security.SecurityUtil;
 import com.waben.stock.applayer.promotion.util.PoiUtil;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.AgentOrderRecordDto;
-import com.waben.stock.interfaces.dto.admin.futures.FutresOrderEntrustDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesHoldPositionAgentDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeActionAgentDto;
 import com.waben.stock.interfaces.dto.organization.FuturesFowDto;
 import com.waben.stock.interfaces.enums.CapitalFlowType;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
@@ -73,6 +74,20 @@ public class FuturesTradeController {
 	@ApiOperation(value = "订单总计")
 	public Response<FuturesOrderCountDto> countOrderState(FuturesTradeAdminQuery query) {
 		return business.countOrderState(query);
+	}
+
+	@RequestMapping(value = "/futures/trade/action/agent", method = RequestMethod.GET)
+	@ApiOperation(value = "获取成交记录和平仓记录")
+	public Response<PageInfo<FuturesTradeActionAgentDto>> pagesOrderAgentDealRecord(FuturesTradeAdminQuery query) {
+		query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
+		return new Response<>(business.pagesOrderAgentDealRecord(query));
+	}
+
+	@RequestMapping(value = "/futures/hoding/order/agent", method = RequestMethod.GET)
+	@ApiOperation(value = "获取持仓订单记录")
+	public Response<PageInfo<FuturesHoldPositionAgentDto>> pagesHoldingOrderAgent(FuturesTradeAdminQuery query) {
+		query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
+		return new Response<>(business.pagesHoldingOrderAgent(query));
 	}
 
 	@RequestMapping(value = "/export", method = RequestMethod.GET)

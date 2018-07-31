@@ -50,7 +50,7 @@ public class EntrustQueryConsumer {
 	@Autowired
 	private QuoteContainer quoteContainer;
 
-	@RabbitHandler
+	 @RabbitHandler
 	public void handlerMessage(String message) {
 		if (RandomUtil.getRandomInt(100) % 51 == 0 && RandomUtil.getRandomInt(100) % 51 == 0) {
 			logger.info("消费期货委托查询消息:{}", message);

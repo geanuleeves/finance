@@ -44,7 +44,6 @@ public class FuturesContractOrderController {
         FuturesContractOrderQuery query = new FuturesContractOrderQuery();
         query.setPublisherId(SecurityUtil.getUserId());
         query.setCommodityNo(commodityNo);
-        query.setContractId(contractId);
         query.setContractNo(contractNo);
         return new Response<>(futuresContractOrderBusiness.pages(query));
     }

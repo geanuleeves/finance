@@ -34,6 +34,8 @@ public class FuturesTradeAction {
 	private Long id;
 	/** 用户ID */
 	private Long publisherId;
+	/** 交易开平仓记录编号 */
+	private String actionNo;
 	/** 对应的订单 */
 	@ManyToOne
 	@JoinColumn(name = "order_id")
@@ -258,6 +260,22 @@ public class FuturesTradeAction {
 
 	public void setSettlementTime(Date settlementTime) {
 		this.settlementTime = settlementTime;
+	}
+
+	public String getActionNo() {
+		return actionNo;
+	}
+
+	public void setActionNo(String actionNo) {
+		this.actionNo = actionNo;
+	}
+
+	public FuturesWindControlType getWindControlType() {
+		return windControlType;
+	}
+
+	public void setWindControlType(FuturesWindControlType windControlType) {
+		this.windControlType = windControlType;
 	}
 
 }

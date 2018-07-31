@@ -16,6 +16,7 @@ import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractM
 import com.waben.stock.interfaces.dto.admin.futures.FutresOrderEntrustDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
 import com.waben.stock.interfaces.dto.futures.FuturesCurrencyRateDto;
 import com.waben.stock.interfaces.dto.futures.FuturesTradeActionViewDto;
@@ -29,6 +30,7 @@ import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuer
 import com.waben.stock.interfaces.service.futures.FuturesContractInterface;
 import com.waben.stock.interfaces.service.futures.FuturesCurrencyRateInterface;
 import com.waben.stock.interfaces.service.futures.FuturesTradeActionInterface;
+import com.waben.stock.interfaces.service.futures.FuturesTradeEntrustInterface;
 import com.waben.stock.interfaces.service.futures.FuturesTradeInterface;
 import com.waben.stock.interfaces.service.publisher.PublisherInterface;
 import com.waben.stock.interfaces.service.publisher.RealNameInterface;
@@ -52,7 +54,6 @@ public class FuturesOrderBusiness {
 	private RealNameInterface realnameInterface;
 
 	@Autowired
-	@Qualifier("futuresContractInterface")
 	private FuturesContractInterface futuresContractInterface;
 
 	@Autowired
@@ -65,8 +66,21 @@ public class FuturesOrderBusiness {
 	@Autowired
 	@Qualifier("futuresTradeActionInterface")
 	private FuturesTradeActionInterface actionReference;
+	
+	@Autowired
+	@Qualifier("futuresTradeEntrustInterface")
+	private FuturesTradeEntrustInterface entrusReference;
 
 	Logger logger = LoggerFactory.getLogger(getClass());
+	
+	public PageInfo<FuturesTradeDto> pageTradeEnutrs(FuturesTradeAdminQuery query){
+		Response<PageInfo<FuturesTradeDto>> response = entrusReference.pagesEntrust(query);
+		if ("200".equals(response.getCode())) {
+
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
 	
 	public PageInfo<FuturesTradeActionViewDto> pageTradeAdmin(FuturesTradeAdminQuery query){
 		List<Long> publisherIds = queryPublishIds(query);
