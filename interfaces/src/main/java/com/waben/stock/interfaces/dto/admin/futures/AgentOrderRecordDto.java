@@ -16,72 +16,70 @@ public class AgentOrderRecordDto {
 
 	private Long id;
 
+	/** 客户姓名 **/
 	private String publisherName;
-
+	/** 交易账号 **/
 	private String publisherPhone;
-
+	/** 品种代码 **/
 	private String symbol;
-
+	/** 品种名称 **/
 	private String name;
-
+	/** 品种编号 **/
 	private String contractNo;
-
+	/** 流水号 **/
 	private String tradeNo;
-
+	/** 交易方向 **/
 	private Integer orderType;
-
+	/** 状态 **/
 	private Integer state;
-
+	/** 手数 **/
 	private BigDecimal totalQuantity;
-
+	/** 买入时间 **/
 	private Date buyingTime;
-
+	/** 买入价格 **/
 	private BigDecimal buyingPrice;
-
+	/** 用户盈亏 **/
 	private BigDecimal publisherProfitOrLoss;
-
+	/** 定单类型 **/
 	private FuturesTradePriceType buyingPriceType;
-
+	/** 开仓手续费 **/
 	private BigDecimal openwindServiceFee;
-
+	/** 平仓手续费 **/
 	private BigDecimal unwindServiceFee;
-
+	/** 服务费 **/
 	private BigDecimal reserveFund;
-
+	/** 隔夜手续费 **/
 	private BigDecimal overnightServiceFee;
-
+	/** 隔夜服务费 **/
 	private BigDecimal overnightReserveFund;
-
+	/** 止损金额 **/
 	private BigDecimal perUnitLimitLossAmount;
-
+	/** 止盈金额 **/
 	private BigDecimal perUnitLimitProfitAmount;
-
+	/** 卖出时间 **/
 	private Date sellingTime;
-
+	/** 卖出价格 **/
 	private BigDecimal sellingPrice;
-
+	/** 盈亏 **/
 	private BigDecimal profitOrLoss;
-
+	/** 风控类型 **/
 	private FuturesWindControlType windControlType;
-
+	/** 代理商名称 **/
 	private String orgName;
-
+	/** 合约id **/
 	private Long contractId;
-
+	/** 品种货币 **/
 	private String commodityCurrency;
-
+	/** 代理商代码 **/
 	private String code;
 
 	/*******************************************************/
-
+	/** 最新价格 **/
 	private BigDecimal LastPrice;
-
+	/** 持仓小时 **/
 	private String positionDays;
-
 	private BigDecimal sellingProfit;
-
 	private Date positionEndTime;
-
 	private BigDecimal floatingProfitOrLoss;
 
 	private BigDecimal profit;

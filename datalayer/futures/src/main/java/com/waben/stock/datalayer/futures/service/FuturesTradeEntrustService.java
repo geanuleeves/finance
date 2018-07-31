@@ -591,8 +591,8 @@ public class FuturesTradeEntrustService {
 			orderTypeCondition = " and f1.orderType = " + query.getOrderType().trim();
 		}
 		String tradeActionCondition = "";
-		if(!StringUtil.isEmpty(query.getTradeActionType())){
-			tradeActionCondition = " and f1.trade_action_type =" + query.getTradeActionType().trim();
+		if(query.getTradeActionType()!=null){
+			tradeActionCondition = " and f1.trade_action_type =" + query.getTradeActionType();
 		}
 		String tradeNoCondition = "";
 		if(!StringUtil.isEmpty(query.getTradeNo())){
