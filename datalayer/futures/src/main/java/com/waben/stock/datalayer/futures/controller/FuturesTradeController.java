@@ -328,6 +328,7 @@ public class FuturesTradeController implements FuturesTradeInterface {
 									.multiply(futuresContractOrder.getBuyUpQuantity()));
 						}
 					}
+
 					// 买跌
 					FuturesHoldPositionAgentDto sellDto = futuresContractOrderViewDto.deepClone();
 					if (realName != null) {

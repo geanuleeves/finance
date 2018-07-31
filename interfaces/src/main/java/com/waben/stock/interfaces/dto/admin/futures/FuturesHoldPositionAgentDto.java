@@ -27,10 +27,6 @@ public class FuturesHoldPositionAgentDto extends FuturesContractOrderViewDto {
 	private BigDecimal lastPrice;
 	/** 递延费 */
 	private BigDecimal deferredFee;
-	/** 持仓小时 */
-	private Integer holdingHours;
-	/** 定单类型，1 市价 ,2 限价 */
-	private Integer priceType;
 	/** 状态 */
 	private Integer state;
 
@@ -96,22 +92,6 @@ public class FuturesHoldPositionAgentDto extends FuturesContractOrderViewDto {
 
 	public void setDeferredFee(BigDecimal deferredFee) {
 		this.deferredFee = deferredFee;
-	}
-
-	public Integer getHoldingHours() {
-		return holdingHours;
-	}
-
-	public void setHoldingHours(Integer holdingHours) {
-		this.holdingHours = holdingHours;
-	}
-
-	public Integer getPriceType() {
-		return priceType;
-	}
-
-	public void setPriceType(Integer priceType) {
-		this.priceType = priceType;
 	}
 
 	public Integer getState() {
