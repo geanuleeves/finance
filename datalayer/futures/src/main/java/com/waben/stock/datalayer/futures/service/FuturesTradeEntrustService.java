@@ -221,14 +221,15 @@ public class FuturesTradeEntrustService {
 	}
 
 	@Transactional
-	public FuturesTradeEntrust success(Long id, BigDecimal filled, BigDecimal remaining, BigDecimal avgFillPrice) {
+	public FuturesTradeEntrust success(Long id, BigDecimal filled, BigDecimal remaining, BigDecimal avgFillPrice,
+			Date date) {
 		FuturesTradeEntrust entrust = dao.retrieve(id);
 		BigDecimal minWave = entrust.getContract().getCommodity().getMinWave();
 		BigDecimal perWaveMoney = entrust.getContract().getCommodity().getPerWaveMoney();
 		String currency = entrust.getContract().getCommodity().getCurrency();
 		FuturesOrderType orderType = entrust.getOrderType();
 		FuturesTradeActionType actionType = entrust.getTradeActionType();
-		Date date = new Date();
+		date = date != null ? date : new Date();
 		BigDecimal totalFilled = BigDecimal.ZERO;
 		// step 1 : 更新订单信息
 		List<FuturesTradeAction> actionList = actionDao.retrieveByTradeEntrustAndTradeActionType(entrust, actionType);

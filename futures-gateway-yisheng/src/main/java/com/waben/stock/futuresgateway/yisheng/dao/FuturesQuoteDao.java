@@ -19,9 +19,14 @@ public interface FuturesQuoteDao {
 
 	public void deleteFuturesQuoteById(String commodityNo, String contractNo, String id);
 
+	public void deleteFuturesQuoteByDateTimeStampLessThan(String commodityNo, String contractNo, String dateTimeStamp);
+
 	public FuturesQuote retrieveFuturesQuoteById(String commodityNo, String contractNo, String id);
 
 	public Page<FuturesQuote> pageFuturesQuote(String commodityNo, String contractNo, int page, int limit);
+
+	public Page<FuturesQuote> pageFuturesQuoteByDateTimeStampLessThan(String commodityNo, String contractNo, int page,
+			int limit, String dateTimeStamp);
 
 	public List<FuturesQuote> listFuturesQuote(String commodityNo, String contractNo);
 
