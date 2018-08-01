@@ -614,6 +614,7 @@ public class FuturesOrderService {
 		tradeAction.setRemaining(orderParam.getTotalQuantity());
 		tradeAction.setSettlementRate(BigDecimal.ZERO);
 		tradeAction.setSort(1);
+		tradeAction.setActionNo(UniqueCodeGenerator.generateTradeNo());
 		tradeAction.setState(FuturesTradeEntrustState.Queuing);
 		tradeAction.setTotalFillCost(BigDecimal.ZERO);
 		tradeAction.setTradeActionType(FuturesTradeActionType.OPEN);
@@ -798,7 +799,7 @@ public class FuturesOrderService {
 
 	private void doUnwind(FuturesContract contract, FuturesContractOrder contractOrder, FuturesOrderType orderType,
 			BigDecimal quantity, FuturesTradePriceType priceType, BigDecimal entrustPrice, Long publisherId,
-			boolean isBackhand) {
+			FuturesWindControlType windControlType, boolean isBackhand) {
 		Date date = new Date();
 		// step 1 : 创建平仓委托
 		FuturesTradeEntrust tradeEntrust = new FuturesTradeEntrust();
@@ -816,6 +817,7 @@ public class FuturesOrderService {
 		tradeEntrust.setPriceType(priceType);
 		tradeEntrust.setPublisherId(publisherId);
 		tradeEntrust.setQuantity(quantity);
+		tradeEntrust.setWindControlType(windControlType);
 		tradeEntrust.setRemaining(quantity);
 		tradeEntrust.setFilled(BigDecimal.ZERO);
 		tradeEntrust.setAvgFillPrice(BigDecimal.ZERO);
@@ -869,6 +871,8 @@ public class FuturesOrderService {
 				tradeAction.setQuantity(availableQuantity);
 				tradeAction.setRemaining(availableQuantity);
 				tradeAction.setSettlementRate(BigDecimal.ZERO);
+				tradeAction.setActionNo(UniqueCodeGenerator.generateTradeNo());
+				tradeAction.setWindControlType(windControlType);
 				tradeAction.setSort(sort++);
 				tradeAction.setState(FuturesTradeEntrustState.Queuing);
 				tradeAction.setTotalFillCost(BigDecimal.ZERO);
@@ -937,7 +941,8 @@ public class FuturesOrderService {
 		if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
 			return;
 		}
-		doUnwind(contract, contractOrder, orderType, quantity, priceType, entrustPrice, publisherId, false);
+		doUnwind(contract, contractOrder, orderType, quantity, priceType, entrustPrice, publisherId,
+				FuturesWindControlType.UserApplyUnwind, false);
 	}
 
 	public void applyUnwindAll(Long publisherId) {
@@ -949,11 +954,12 @@ public class FuturesOrderService {
 				BigDecimal buyFallQuantity = contractOrder.getBuyFallCanUnwindQuantity();
 				if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
 					doUnwind(contract, contractOrder, FuturesOrderType.BuyUp, buyUpQuantity, FuturesTradePriceType.MKT,
-							null, publisherId, false);
+							null, publisherId, FuturesWindControlType.UserApplyUnwind, false);
 				}
 				if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
 					doUnwind(contract, contractOrder, FuturesOrderType.BuyFall, buyFallQuantity,
-							FuturesTradePriceType.MKT, null, publisherId, false);
+							FuturesTradePriceType.MKT, null, publisherId, FuturesWindControlType.UserApplyUnwind,
+							false);
 				}
 			}
 		}
@@ -978,7 +984,8 @@ public class FuturesOrderService {
 		if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
 			return;
 		}
-		doUnwind(contract, contractOrder, orderType, quantity, priceType, entrustPrice, publisherId, true);
+		doUnwind(contract, contractOrder, orderType, quantity, priceType, entrustPrice, publisherId,
+				FuturesWindControlType.BackhandUnwind, true);
 	}
 
 	public void balanceUnwind(Long contractId, FuturesOrderType orderType, FuturesTradePriceType sellingPriceType,
@@ -1003,7 +1010,8 @@ public class FuturesOrderService {
 		if (canQuantity.compareTo(quantity) < 0) {
 			throw new ServiceException(ExceptionConstant.UNWINDQUANTITY_NOTENOUGH_EXCEPTION);
 		}
-		doUnwind(contract, contractOrder, orderType, quantity, FuturesTradePriceType.MKT, null, publisherId, false);
+		doUnwind(contract, contractOrder, orderType, quantity, FuturesTradePriceType.MKT, null, publisherId,
+				FuturesWindControlType.UserApplyUnwind, false);
 	}
 
 	public void settingProfitAndLossLimit(Long publisherId, Long contractId, FuturesOrderType orderType,
