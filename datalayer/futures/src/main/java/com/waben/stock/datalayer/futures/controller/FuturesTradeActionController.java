@@ -139,6 +139,35 @@ public class FuturesTradeActionController implements FuturesTradeActionInterface
 		return new Response<>(result);
 	}
 
+	public Response<FuturesTradeActionViewDto> detail(@PathVariable Long id) {
+		FuturesTradeActionViewDto futuresTradeActionViewDto = CopyBeanUtils.copyBeanProperties(FuturesTradeActionViewDto.class,
+				futuresTradeActionService.findById(id), false);
+		// step 1 : 获取汇率map
+		Map<String, FuturesCurrencyRate> rateMap = rateService.getRateMap();
+		if (futuresTradeActionViewDto != null) {
+			String commodityNo = futuresTradeActionViewDto.getCommodityNo();
+			FuturesCommodity futuresCommodity = futuresCommodityService
+					.retrieveByCommodityNo(commodityNo);
+			BigDecimal openwindServiceFee = futuresCommodity.getOpenwindServiceFee() != null ?
+					futuresCommodity.getOpenwindServiceFee() : new BigDecimal(0);
+			BigDecimal unwindServiceFee = futuresCommodity.getUnwindServiceFee() != null ?
+					futuresCommodity.getUnwindServiceFee() : new BigDecimal(0);
+			futuresTradeActionViewDto.setServiceFee(openwindServiceFee.add(unwindServiceFee));
+			BigDecimal perUnitReserveFund = futuresCommodity.getPerUnitReserveFund() != null ?
+					futuresCommodity.getPerUnitReserveFund() : new BigDecimal(0);
+			BigDecimal filled = futuresTradeActionViewDto.getFilled() != null ?
+					futuresTradeActionViewDto.getFilled() : new BigDecimal(0);
+			futuresTradeActionViewDto.setReserveFund(perUnitReserveFund.multiply(filled));
+			String contractNo = futuresTradeActionViewDto.getContractNo();
+			futuresTradeActionViewDto.setLastPrice(quoteContainer.getLastPrice(commodityNo, contractNo));
+			FuturesCurrencyRate rate = rateMap.get(futuresTradeActionViewDto.getCurrency());
+			if (rate != null) {
+				futuresTradeActionViewDto.setCurrencySign(rate.getCurrencySign());
+				futuresTradeActionViewDto.setRate(rate.getRate());
+			}
+		}
+		return new Response<>(futuresTradeActionViewDto);
+	}
 
 
 	@Override

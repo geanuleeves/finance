@@ -96,10 +96,7 @@ public class FuturesTradeActionController {
 
 	@GetMapping("/detail/{id}")
 	@ApiOperation(value = "移动端订单交易开平仓记录列表", notes = "startTime和endTime格式(yyyy-MM-dd HH:mm:ss)")
-	public Response<PageInfo<FuturesTradeActionViewDto>> detail(@PathVariable(value = "id") Long id) {
-		FuturesTradeActionQuery query = new FuturesTradeActionQuery();
-		query.setPublisherId(SecurityUtil.getUserId());
-		query.setId(id);
-		return new Response<>(futuresTradeActionBusiness.pagesPhone(query));
+	public Response<FuturesTradeActionViewDto> detail(@PathVariable(value = "id") Long id) {
+		return new Response<>(futuresTradeActionBusiness.detail(id));
 	}
 }
