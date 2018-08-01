@@ -47,7 +47,6 @@ public class FuturesTradeActionViewDto extends FuturesTradeActionDto {
 	@ApiModelProperty(value = "订单编号")
 	private String actionNo;
 
-
 	public FuturesOrderType getOrderType() {
 		return orderType;
 	}
@@ -73,7 +72,7 @@ public class FuturesTradeActionViewDto extends FuturesTradeActionDto {
 	}
 
 	public BigDecimal getMinWave() {
-		if(minWave != null) {
+		if (minWave != null) {
 			return minWave.stripTrailingZeros();
 		}
 		return minWave;
@@ -138,4 +137,5 @@ public class FuturesTradeActionViewDto extends FuturesTradeActionDto {
 	public void setActionNo(String actionNo) {
 		this.actionNo = actionNo;
 	}
+
 }

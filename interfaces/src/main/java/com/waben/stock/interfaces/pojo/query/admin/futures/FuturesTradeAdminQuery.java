@@ -61,7 +61,7 @@ public class FuturesTradeAdminQuery extends PageAndSortQuery {
 	/**
 	 * 交易开平仓 类型 ，1 开仓，2 平仓
 	 */
-	private Integer tradeActionType;
+	private String tradeActionType;
 
 	/**
 	 * 查询开始时间
@@ -218,11 +218,11 @@ public class FuturesTradeAdminQuery extends PageAndSortQuery {
 		this.isTest = isTest;
 	}
 
-	public Integer getTradeActionType() {
+	public String getTradeActionType() {
 		return tradeActionType;
 	}
 
-	public void setTradeActionType(Integer tradeActionType) {
+	public void setTradeActionType(String tradeActionType) {
 		this.tradeActionType = tradeActionType;
 	}
 

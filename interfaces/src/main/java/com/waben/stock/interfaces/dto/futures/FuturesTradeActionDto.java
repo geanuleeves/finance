@@ -88,6 +88,12 @@ public class FuturesTradeActionDto {
 	/** 合约编号 */
 	@ApiModelProperty(value = "合约编号")
 	private String contractNo;
+	/** 开仓成交均价 */
+	@ApiModelProperty(value = "开仓成交均价")
+	private BigDecimal openAvgFillPrice;
+	/** 委托价格 */
+	@ApiModelProperty(value = "委托价格")
+	private BigDecimal entrustPrice;
 
 	public Long getId() {
 		return id;
@@ -287,6 +293,22 @@ public class FuturesTradeActionDto {
 
 	public void setContractNo(String contractNo) {
 		this.contractNo = contractNo;
+	}
+
+	public BigDecimal getOpenAvgFillPrice() {
+		return openAvgFillPrice;
+	}
+
+	public void setOpenAvgFillPrice(BigDecimal openAvgFillPrice) {
+		this.openAvgFillPrice = openAvgFillPrice;
+	}
+
+	public BigDecimal getEntrustPrice() {
+		return entrustPrice;
+	}
+
+	public void setEntrustPrice(BigDecimal entrustPrice) {
+		this.entrustPrice = entrustPrice;
 	}
 
 }

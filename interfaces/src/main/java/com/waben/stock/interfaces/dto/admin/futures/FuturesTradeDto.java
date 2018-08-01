@@ -11,8 +11,7 @@ public class FuturesTradeDto {
 	private Long id;
 
 	private Long publisherId;
-	
-	
+
 	/**
 	 * 发布人姓名
 	 * <p>
@@ -25,7 +24,7 @@ public class FuturesTradeDto {
 	 * 发布人手机号
 	 */
 	private String publisherPhone;
-	
+
 	/**
 	 * 合约代码
 	 */
@@ -35,7 +34,7 @@ public class FuturesTradeDto {
 	 * 合约名称
 	 */
 	private String name;
-	
+
 	/**
 	 * 合约ID
 	 */
@@ -45,61 +44,65 @@ public class FuturesTradeDto {
 	 * 合约编号
 	 */
 	private String contractNo;
-	
+
 	/**
 	 * 交易方向
 	 */
 	private Integer orderType;
-	
+
 	/**
 	 * 委托状态
 	 */
 	private Integer state;
-	
+
 	/** 交易开平仓 类型 */
 	private Integer tradeActionType;
-	
+
 	/** 委托价格 */
 	private BigDecimal entrustPrice;
-	
+
 	/** 委托数量 */
 	private BigDecimal quantity;
-	
+
 	/** 成交量 */
 	private BigDecimal filled;
-	
+
 	/** 已成交部分均价 */
 	private BigDecimal avgFillPrice;
-	
+
 	/** 盈亏（人民币） */
 	private BigDecimal profitOrLoss;
-	
+
 	/** 已成交部分总费用 */
 	private BigDecimal totalFillCost;
-	
+
 	/** 最终成交价格 */
 	private BigDecimal tradePrice;
-	
+
 	/** 交易成功时间 */
 	private Date tradeTime;
-	
+
 	/** 委托时间 */
 	private Date entrustTime;
-	
+
 	/** 委托编号 */
 	private String entrustNo;
-	
+
 	/** 风控类型 */
 	private String windControlType;
-	
+
 	/** 价格类型 */
 	private Integer priceType;
-	
+
 	/** 退回保证金（人民币） */
 	private BigDecimal returnReserveFund;
-	
+
 	/** 是否为测试单 */
 	private Boolean isTest;
+	/** 合约编号 **/
+	private String code;
+	/** 合约编号 **/
+	private String orgName;
 
 	public Long getId() {
 		return id;
@@ -300,6 +303,21 @@ public class FuturesTradeDto {
 	public void setIsTest(Boolean isTest) {
 		this.isTest = isTest;
 	}
-	
-	
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public String getOrgName() {
+		return orgName;
+	}
+
+	public void setOrgName(String orgName) {
+		this.orgName = orgName;
+	}
+
 }
