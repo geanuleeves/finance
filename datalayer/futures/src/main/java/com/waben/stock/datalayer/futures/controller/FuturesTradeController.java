@@ -359,8 +359,8 @@ public class FuturesTradeController implements FuturesTradeInterface {
 							futuresContractOrder.getContractNo(), FuturesOrderType.BuyUp.getIndex());
 					// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
 					BigDecimal buyReserveFund = new BigDecimal(0);
-					if (futuresCommodity != null && findUpFilledNow != null && findUpFilledNow > 0) {
-						buyDto.setQuantityNow(new BigDecimal(findUpFilledNow));
+					if (futuresCommodity != null) {
+						buyDto.setQuantityNow(new BigDecimal(findUpFilledNow == null ? 0 : findUpFilledNow));
 						// 成交价格
 						BigDecimal avgUpFillPrice = futuresOrderService.getAvgFillPrice(
 								futuresContractOrder.getPublisherId(), futuresContractOrder.getContractNo(),
@@ -388,8 +388,8 @@ public class FuturesTradeController implements FuturesTradeInterface {
 							buyDto.setReserveFund(futuresCommodity.getPerUnitReserveFund()
 									.multiply(futuresContractOrder.getBuyUpQuantity()));
 						}
+						futuresContractOrderViewDtos.add(buyDto);
 					}
-					futuresContractOrderViewDtos.add(buyDto);
 					// 买跌
 					FuturesHoldPositionAgentDto sellDto = futuresContractOrderViewDto.deepClone();
 					if (realName != null) {
@@ -420,8 +420,8 @@ public class FuturesTradeController implements FuturesTradeInterface {
 							futuresContractOrder.getPublisherId(), futuresContractOrder.getCommodityNo(),
 							futuresContractOrder.getContractNo(), FuturesOrderType.BuyFall.getIndex());
 					// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
-					if (futuresCommodity != null && findFallFilledNow != null && findFallFilledNow > 0) {
-						sellDto.setQuantityNow(new BigDecimal(findFallFilledNow));
+					if (futuresCommodity != null) {
+						sellDto.setQuantityNow(new BigDecimal(findFallFilledNow == null ? 0 : findFallFilledNow));
 						// 成交价格
 						BigDecimal avgFallFillPrice = futuresOrderService.getAvgFillPrice(
 								futuresContractOrder.getPublisherId(), futuresContractOrder.getContractNo(),
@@ -447,8 +447,8 @@ public class FuturesTradeController implements FuturesTradeInterface {
 							sellDto.setReserveFund(futuresCommodity.getPerUnitReserveFund()
 									.multiply(futuresContractOrder.getBuyUpQuantity()));
 						}
+						futuresContractOrderViewDtos.add(sellDto);
 					}
-					futuresContractOrderViewDtos.add(sellDto);
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (ClassNotFoundException e) {
