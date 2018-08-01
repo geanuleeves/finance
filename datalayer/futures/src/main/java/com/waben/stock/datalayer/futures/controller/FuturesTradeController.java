@@ -277,7 +277,7 @@ public class FuturesTradeController implements FuturesTradeInterface {
 				FuturesHoldPositionAgentDto futuresContractOrderViewDto = result.getContent().get(i);
 				FuturesContractOrder futuresContractOrder = page.getContent().get(i);
 				// 合约名称
-				futuresContractOrderViewDto.setContractName(futuresContractOrder.getContract().getContractName());
+				//futuresContractOrderViewDto.setContractName(futuresContractOrder.getContract().getContractName());
 				// 拷贝两份出来
 				try {
 					FuturesCommodity futuresCommodity = futuresCommodityService
@@ -315,7 +315,7 @@ public class FuturesTradeController implements FuturesTradeInterface {
 							futuresContractOrder.getPublisherId(), futuresContractOrder.getContractNo(),
 							futuresContractOrder.getCommodityNo(), FuturesOrderType.BuyUp.getIndex());
 					buyDto.setAvgFillPrice(avgUpFillPrice);
-					buyDto.setAvgFillPriceNow(lastPrice);
+					buyDto.setLastPrice(lastPrice);
 					// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格
 					if (futuresCommodity != null) {
 						buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice)
@@ -354,7 +354,7 @@ public class FuturesTradeController implements FuturesTradeInterface {
 							futuresContractOrder.getPublisherId(), futuresContractOrder.getContractNo(),
 							futuresContractOrder.getCommodityNo(), FuturesOrderType.BuyFall.getIndex());
 					sellDto.setAvgFillPrice(avgFallFillPrice);
-					sellDto.setAvgFillPriceNow(lastPrice);
+					sellDto.setLastPrice(lastPrice);
 					// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格
 					if (futuresCommodity != null) {
 						sellDto.setFloatingProfitAndLoss(lastPrice.subtract(avgFallFillPrice)

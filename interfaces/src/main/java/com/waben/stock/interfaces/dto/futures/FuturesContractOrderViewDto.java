@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.models.auth.In;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FuturesContractOrderViewDto implements Serializable,Cloneable {
@@ -76,8 +77,8 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 	private Date updateTime;
 
 	/** 合约名称 */
-	@ApiModelProperty(value = "合约名称")
-	private String contractName;
+	@ApiModelProperty(value = "产品名称")
+	private String commodityName;
 
 	/** 今持仓（成功） */
 	@ApiModelProperty(value = " 今持仓（成功）")
@@ -87,11 +88,8 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 	@ApiModelProperty(value = "已成交部分均价")
 	private BigDecimal avgFillPrice;
 
-	/** 已成交部分最新均价 */
-	@ApiModelProperty(value = "已成交部分最新均价")
-	private BigDecimal avgFillPriceNow;
 
-	/** 浮动盈亏=（最新价格-成交价格）/ 最小波动 * 最小波动价格 */
+	/** 浮动盈亏=（最新价格-成交价格）/ 最小波动 * 最小波动价格* 手数 */
 	@ApiModelProperty(value = "浮动盈亏")
 	private BigDecimal floatingProfitAndLoss;
 
@@ -126,6 +124,18 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 	/** 合约id*/
 	@ApiModelProperty(value = "合约id")
 	private Long contractId;
+
+	/**
+	 * 一手强平点（亏损到剩余）
+	 */
+	@ApiModelProperty(value = "一手强平点（亏损到剩余）")
+	private Integer unwindPointType;
+
+	/**
+	 * 一手强平点（亏损到剩余）
+	 */
+	@ApiModelProperty(value = "一手强平点（亏损到剩余）")
+	private BigDecimal perUnitUnwindPoint;
 
 
 	public Long getId() {
@@ -248,12 +258,12 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 		this.updateTime = updateTime;
 	}
 
-	public String getContractName() {
-		return contractName;
+	public String getCommodityName() {
+		return commodityName;
 	}
 
-	public void setContractName(String contractName) {
-		this.contractName = contractName;
+	public void setCommodityName(String commodityName) {
+		this.commodityName = commodityName;
 	}
 
 	public BigDecimal getQuantityNow() {
@@ -270,14 +280,6 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 
 	public void setAvgFillPrice(BigDecimal avgFillPrice) {
 		this.avgFillPrice = avgFillPrice;
-	}
-
-	public BigDecimal getAvgFillPriceNow() {
-		return avgFillPriceNow;
-	}
-
-	public void setAvgFillPriceNow(BigDecimal avgFillPriceNow) {
-		this.avgFillPriceNow = avgFillPriceNow;
 	}
 
 	public BigDecimal getFloatingProfitAndLoss() {
@@ -353,6 +355,22 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 
 	public void setContractId(Long contractId) {
 		this.contractId = contractId;
+	}
+
+	public Integer getUnwindPointType() {
+		return unwindPointType;
+	}
+
+	public void setUnwindPointType(Integer unwindPointType) {
+		this.unwindPointType = unwindPointType;
+	}
+
+	public BigDecimal getPerUnitUnwindPoint() {
+		return perUnitUnwindPoint;
+	}
+
+	public void setPerUnitUnwindPoint(BigDecimal perUnitUnwindPoint) {
+		this.perUnitUnwindPoint = perUnitUnwindPoint;
 	}
 
 	/**

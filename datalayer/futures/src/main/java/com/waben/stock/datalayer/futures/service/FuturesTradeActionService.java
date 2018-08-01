@@ -208,6 +208,10 @@ public class FuturesTradeActionService {
 			public Predicate toPredicate(Root<FuturesTradeAction> root, CriteriaQuery<?> criteriaQuery,
 										 CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
+				if (query.getId() != null && query.getId() != 0) {
+					predicateList
+							.add(criteriaBuilder.equal(root.get("id").as(Long.class), query.getId()));
+				}
 				// 用户ID
 				if (query.getPublisherId() != null && query.getPublisherId() != 0) {
 					predicateList

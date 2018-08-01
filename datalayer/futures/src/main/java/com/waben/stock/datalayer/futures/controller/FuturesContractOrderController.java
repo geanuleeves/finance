@@ -128,14 +128,18 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
             for (int i = 0; i < result.getContent().size(); i++) {
                 FuturesContractOrderViewDto futuresContractOrderViewDto = result.getContent().get(i);
                 FuturesContractOrder futuresContractOrder = page.getContent().get(i);
-                //合约名称
-                futuresContractOrderViewDto.setContractName(futuresContractOrder.getContract().getContractName());
                 //合约id
                 futuresContractOrderViewDto.setContractId(futuresContractOrder.getContract().getId());
                 //拷贝两份出来
                 try {
                     FuturesCommodity futuresCommodity = futuresCommodityService.retrieveByCommodityNo(
                             futuresContractOrder.getCommodityNo());
+                    //合约名称
+                    futuresContractOrderViewDto.setCommodityName(futuresCommodity != null ? futuresCommodity.getName() : "");
+                    futuresContractOrderViewDto.setUnwindPointType(futuresCommodity != null ?
+                            futuresCommodity.getUnwindPointType() : 0);
+                    futuresContractOrderViewDto.setPerUnitUnwindPoint(futuresCommodity != null ?
+                            futuresCommodity.getPerUnitUnwindPoint() : new BigDecimal(0));
                     //已成交部分最新均价
                     BigDecimal lastPrice = quoteContainer.getLastPrice(futuresContractOrder.getCommodityNo(),
                             futuresContractOrder.getContractNo());
@@ -162,7 +166,6 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 
                         buyDto.setAvgFillPrice(avgUpFillPrice);
                         //最新价
-                        buyDto.setAvgFillPriceNow(lastPrice);
                         buyDto.setLastPrice(lastPrice);
                         //最小波动
                         buyDto.setMinWave(futuresCommodity.getMinWave());
@@ -197,7 +200,6 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                                 FuturesOrderType.BuyFall.getIndex());
                         avgFallFillPrice = avgFallFillPrice == null ? new BigDecimal(0) : avgFallFillPrice;
                         sellDto.setAvgFillPrice(avgFallFillPrice);
-                        sellDto.setAvgFillPriceNow(lastPrice);
                         sellDto.setLastPrice(lastPrice);
                         //最小波动
                         sellDto.setMinWave(futuresCommodity.getMinWave());
@@ -237,7 +239,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 				FuturesHoldPositionAgentDto futuresContractOrderViewDto = result.getContent().get(i);
 				FuturesContractOrder futuresContractOrder = page.getContent().get(i);
 				// 合约名称
-				futuresContractOrderViewDto.setContractName(futuresContractOrder.getContract().getContractName());
+				//futuresContractOrderViewDto.setContractName(futuresContractOrder.getContract().getContractName());
 				// 拷贝两份出来
 				try {
 					FuturesCommodity futuresCommodity = futuresCommodityService
@@ -277,7 +279,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 							futuresContractOrder.getPublisherId(), futuresContractOrder.getContractNo(),
 							futuresContractOrder.getCommodityNo(), FuturesOrderType.BuyUp.getIndex());
 					buyDto.setAvgFillPrice(avgUpFillPrice);
-					buyDto.setAvgFillPriceNow(lastPrice);
+					buyDto.setLastPrice(lastPrice);
 					// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格
 					if (futuresCommodity != null) {
 						buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice)
@@ -318,7 +320,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 							futuresContractOrder.getPublisherId(), futuresContractOrder.getContractNo(),
 							futuresContractOrder.getCommodityNo(), FuturesOrderType.BuyFall.getIndex());
 					sellDto.setAvgFillPrice(avgFallFillPrice);
-					sellDto.setAvgFillPriceNow(lastPrice);
+					sellDto.setLastPrice(lastPrice);
 					if(avgFallFillPrice == null){
 						avgFallFillPrice = new BigDecimal(0);
 					}
