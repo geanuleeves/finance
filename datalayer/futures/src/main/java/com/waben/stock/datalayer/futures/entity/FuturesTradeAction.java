@@ -117,6 +117,12 @@ public class FuturesTradeAction {
 	/** 货币缩写 */
 	@Transient
 	private String currency;
+	/** 开仓成交均价 */
+	@Transient
+	private BigDecimal openAvgFillPrice;
+	/** 委托价格 */
+	@Transient
+	private BigDecimal entrustPrice;
 
 	public Long getId() {
 		return id;
@@ -407,6 +413,28 @@ public class FuturesTradeAction {
 
 	public void setCurrency(String currency) {
 		this.currency = currency;
+	}
+
+	public BigDecimal getOpenAvgFillPrice() {
+		if (order != null) {
+			return order.getOpenAvgFillPrice();
+		}
+		return openAvgFillPrice;
+	}
+
+	public void setOpenAvgFillPrice(BigDecimal openAvgFillPrice) {
+		this.openAvgFillPrice = openAvgFillPrice;
+	}
+
+	public BigDecimal getEntrustPrice() {
+		if (tradeEntrust != null && tradeEntrust.getPriceType() == FuturesTradePriceType.LMT) {
+			return tradeEntrust.getEntrustPrice();
+		}
+		return entrustPrice;
+	}
+
+	public void setEntrustPrice(BigDecimal entrustPrice) {
+		this.entrustPrice = entrustPrice;
 	}
 
 }
