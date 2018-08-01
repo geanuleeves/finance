@@ -1,6 +1,9 @@
 package com.waben.stock.datalayer.futures.controller;
 
-import com.waben.stock.datalayer.futures.entity.*;
+import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
+import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
+import com.waben.stock.datalayer.futures.entity.FuturesOrder;
+import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.service.FuturesCommodityService;
 import com.waben.stock.datalayer.futures.service.FuturesContractOrderService;
@@ -28,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @RestController
 @RequestMapping("/order")
@@ -189,13 +193,13 @@ public class FuturesOrderController implements FuturesOrderInterface {
 						// 买涨浮动盈亏
 						buyUpFloatingProfitAndLoss = lastPrice.subtract(avgUpFillPrice)
 								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
-								.multiply(futuresContractOrder.getBuyUpQuantity());
+								.multiply(futuresContractOrder.getBuyUpQuantity()).setScale(2, RoundingMode.HALF_UP);
 					}
 					if (avgFallFillPrice != null && avgFallFillPrice.compareTo(new BigDecimal(0)) > 0) {
 						// 买跌浮动盈亏
 						buyFallFloatingProfitAndLoss = lastPrice.subtract(avgFallFillPrice)
 								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
-								.multiply(futuresContractOrder.getBuyFallQuantity());
+								.multiply(futuresContractOrder.getBuyFallQuantity()).setScale(2, RoundingMode.HALF_UP);
 					}
 					totalFloatingProfitAndLoss = totalFloatingProfitAndLoss.add(buyUpFloatingProfitAndLoss)
 							.add(buyFallFloatingProfitAndLoss);
