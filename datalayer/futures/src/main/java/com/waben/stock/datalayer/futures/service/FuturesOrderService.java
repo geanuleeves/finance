@@ -895,7 +895,7 @@ public class FuturesOrderService {
 		if (orderType == FuturesOrderType.BuyUp) {
 			contractOrder.setBuyUpCanUnwindQuantity(contractOrder.getBuyUpCanUnwindQuantity().subtract(quantity));
 		} else {
-			contractOrder.setBuyFallCanUnwindQuantity(contractOrder.getBuyUpCanUnwindQuantity().subtract(quantity));
+			contractOrder.setBuyFallCanUnwindQuantity(contractOrder.getBuyFallCanUnwindQuantity().subtract(quantity));
 		}
 		contractOrder.setUpdateTime(date);
 		contractOrderDao.update(contractOrder);
