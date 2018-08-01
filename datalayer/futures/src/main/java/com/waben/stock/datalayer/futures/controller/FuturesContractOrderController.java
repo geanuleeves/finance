@@ -149,14 +149,16 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                     //订单类型
                     buyDto.setOrderType(FuturesOrderType.BuyUp);
                     //买涨手数
-                    buyDto.setBuyUpQuantity(futuresContractOrder.getBuyUpQuantity());
+                    BigDecimal buyUpQuantity = futuresContractOrder.getBuyUpQuantity();
+                    buyDto.setBuyUpQuantity(buyUpQuantity);
                     //今持仓
                     Integer findUpFilledNow = futuresTradeActionService.findFilledNow(futuresContractOrder.getPublisherId(),
                             futuresContractOrder.getCommodityNo(), futuresContractOrder.getContractNo(),
                             FuturesOrderType.BuyUp.getIndex());
                     //浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
                     BigDecimal buyReserveFund = new BigDecimal(0);
-                    if (futuresCommodity != null && findUpFilledNow != null && findUpFilledNow > 0) {
+                    if (futuresCommodity != null && findUpFilledNow != null && findUpFilledNow > 0
+                            && buyUpQuantity != null && buyUpQuantity.compareTo(new BigDecimal(0)) > 0) {
                         buyDto.setQuantityNow(new BigDecimal(findUpFilledNow));
                         //成交价格
                         BigDecimal avgUpFillPrice = futuresOrderService.getAvgFillPrice(futuresContractOrder.getPublisherId(),
@@ -186,13 +188,15 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                     //买跌
                     FuturesContractOrderViewDto sellDto = futuresContractOrderViewDto.deepClone();
                     sellDto.setOrderType(FuturesOrderType.BuyFall);
-                    sellDto.setBuyFallQuantity(futuresContractOrder.getBuyFallQuantity());
+                    BigDecimal buyFallQuantity = futuresContractOrder.getBuyFallQuantity();
+                    sellDto.setBuyFallQuantity(buyFallQuantity);
                     //今持仓
                     Integer findFallFilledNow = futuresTradeActionService.findFilledNow(futuresContractOrder.getPublisherId(),
                             futuresContractOrder.getCommodityNo(), futuresContractOrder.getContractNo(),
                             FuturesOrderType.BuyFall.getIndex());
                     //浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
-                    if (futuresCommodity != null && findFallFilledNow != null && findFallFilledNow > 0) {
+                    if (futuresCommodity != null && findFallFilledNow != null && findFallFilledNow > 0 &&
+                            buyFallQuantity != null && buyFallQuantity.compareTo(new BigDecimal(0)) > 0) {
                         sellDto.setQuantityNow(new BigDecimal(findFallFilledNow));
                         //成交价格
                         BigDecimal avgFallFillPrice = futuresOrderService.getAvgFillPrice(futuresContractOrder.getPublisherId(),
