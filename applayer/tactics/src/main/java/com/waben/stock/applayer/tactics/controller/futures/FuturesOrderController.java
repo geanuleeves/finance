@@ -20,6 +20,7 @@ import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesContractOrderQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeActionQuery;
 import com.waben.stock.interfaces.util.StringUtil;
@@ -79,6 +80,9 @@ public class FuturesOrderController {
 
 	@Autowired
 	private FuturesTradeActionBusiness futuresTradeActionBusiness;
+
+	@Autowired
+	private FuturesContractOrderBusiness futuresContractOrderBusiness;
 
 
 	private SimpleDateFormat exprotSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -585,14 +589,24 @@ public class FuturesOrderController {
 	@ApiOperation(value = "获取已结算总收益")
 	public Response<FuturesOrderProfitDto> settledProfit(int page, int size) {
 		FuturesOrderProfitDto result = new FuturesOrderProfitDto();
-		FuturesTradeActionQuery query = new FuturesTradeActionQuery();
-		query.setPublisherId(SecurityUtil.getUserId());
-		PageInfo<FuturesTradeActionViewDto> pageInfo = futuresTradeActionBusiness.pagesPhone(query);
+		//结算总收益
+		FuturesTradeActionQuery futuresTradeActionQuery = new FuturesTradeActionQuery();
+		futuresTradeActionQuery.setPublisherId(SecurityUtil.getUserId());
+		PageInfo<FuturesTradeActionViewDto> tradeActionpageInfo = futuresTradeActionBusiness.pagesPhone(futuresTradeActionQuery);
 		BigDecimal totalIncome = new BigDecimal(0);
-		for (FuturesTradeActionViewDto futuresTradeActionViewDto : pageInfo.getContent()) {
-			totalIncome = totalIncome.add(futuresTradeActionViewDto.getProfitOrLoss());
+		for (FuturesTradeActionViewDto futuresTradeActionViewDto : tradeActionpageInfo.getContent()) {
+			totalIncome = totalIncome.add(futuresTradeActionViewDto.getPublisherProfitOrLoss());
 		}
 		result.setTotalIncome(totalIncome);
+		//冻结保证金
+		FuturesContractOrderQuery futuresContractOrderQuery = new FuturesContractOrderQuery();
+		futuresContractOrderQuery.setPublisherId(SecurityUtil.getUserId());
+		PageInfo<FuturesContractOrderViewDto> contractOrderPageInfo = futuresContractOrderBusiness.pages(futuresContractOrderQuery);
+		BigDecimal reserveFund = new BigDecimal(0);
+		for (FuturesContractOrderViewDto futuresContractOrderViewDto : contractOrderPageInfo.getContent()) {
+			reserveFund = reserveFund.add(futuresContractOrderViewDto.getReserveFund());
+		}
+		result.setReserveFund(reserveFund);
 		return new Response<>(result);
 	}
 

@@ -183,6 +183,10 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                         if (futuresContractOrder.getBuyUpQuantity().compareTo(futuresContractOrder.getBuyFallQuantity()) > 0) {
                             buyDto.setReserveFund(futuresCommodity.getPerUnitReserveFund().multiply(futuresContractOrder.getBuyUpQuantity()));
                         }
+                        buyDto.setLimitProfitType(futuresContractOrder.getBuyUpLimitProfitType());
+                        buyDto.setPerUnitLimitProfitAmount(futuresContractOrder.getBuyUpPerUnitLimitProfitAmount());
+                        buyDto.setLimitLossType(futuresContractOrder.getBuyUpLimitLossType());
+                        buyDto.setPerUnitLimitLossAmount(futuresContractOrder.getBuyUpPerUnitLimitLossAmount());
                         futuresContractOrderViewDtos.add(buyDto);
                     }
                     //买跌
@@ -219,6 +223,10 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                         if (futuresContractOrder.getBuyFallQuantity().compareTo(futuresContractOrder.getBuyUpQuantity()) > 0) {
                             sellDto.setReserveFund(futuresCommodity.getPerUnitReserveFund().multiply(futuresContractOrder.getBuyUpQuantity()));
                         }
+                        sellDto.setLimitProfitType(futuresContractOrder.getBuyFallLimitProfitType());
+                        sellDto.setPerUnitLimitProfitAmount(futuresContractOrder.getBuyFallPerUnitLimitProfitAmount());
+                        sellDto.setLimitLossType(futuresContractOrder.getBuyFallLimitLossType());
+                        sellDto.setPerUnitLimitLossAmount(futuresContractOrder.getBuyFallPerUnitLimitLossAmount());
                         futuresContractOrderViewDtos.add(sellDto);
                     }
                 } catch (IOException e) {
