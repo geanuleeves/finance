@@ -903,19 +903,23 @@ public class CapitalAccountService {
 		BigDecimal realProfitOrLoss = profitOrLoss;
 		CapitalAccount account = capitalAccountDao.retriveByPublisherId(publisherId);
 		Date date = new Date();
-		// 获取冻结资金记录
-		FrozenCapital frozen = frozenCapitalDao.retriveByPublisherIdAndFuturesOrderId(publisherId, orderId);
-		if (frozen.getStatus() == FrozenCapitalStatus.Thaw) {
-			return account;
-		}
-		BigDecimal frozenAmount = frozen.getAmount();
-		// 退回全部冻结资金
-		thawAmount(account, frozenAmount, frozenAmount, date);
-		account.setFrozenCapital(account.getFrozenCapital().subtract(frozenAmount.abs()));
-		capitalAccountDao.update(account);
-		flowDao.create(account.getPublisher(), CapitalFlowType.FuturesReturnReserveFund, frozenAmount.abs(), date,
-				CapitalFlowExtendType.FUTURESRECORD, orderId, account.getAvailableBalance(),
-				account.getFrozenCapital());
+//		// 获取冻结资金记录
+//		FrozenCapital frozen = frozenCapitalDao.retriveByPublisherIdAndFuturesOrderId(publisherId, orderId);
+//		if (frozen.getStatus() == FrozenCapitalStatus.Thaw) {
+//			return account;
+//		}
+//		BigDecimal frozenAmount = frozen.getAmount();
+//		// 退回全部冻结资金
+//		thawAmount(account, frozenAmount, frozenAmount, date);
+//		account.setFrozenCapital(account.getFrozenCapital().subtract(frozenAmount.abs()));
+//		capitalAccountDao.update(account);
+//		flowDao.create(account.getPublisher(), CapitalFlowType.FuturesReturnReserveFund, frozenAmount.abs(), date,
+//				CapitalFlowExtendType.FUTURESRECORD, orderId, account.getAvailableBalance(),
+//				account.getFrozenCapital());
+		// 修改冻结记录为解冻状态
+//		frozen.setStatus(FrozenCapitalStatus.Thaw);
+//		frozen.setThawTime(new Date());
+//		frozenCapitalDao.update(frozen);
 		// 盈亏
 		if (profitOrLoss.compareTo(new BigDecimal(0)) > 0) {
 			// 盈利
@@ -937,11 +941,6 @@ public class CapitalAccountService {
 					orderId, account.getAvailableBalance(), account.getFrozenCapital());
 			realProfitOrLoss = lossAmountAbs.multiply(new BigDecimal(-1));
 		}
-		// 修改冻结记录为解冻状态
-		frozen.setStatus(FrozenCapitalStatus.Thaw);
-		frozen.setThawTime(new Date());
-		frozenCapitalDao.update(frozen);
-
 		CapitalAccount result = findByPublisherId(publisherId);
 		result.setRealProfitOrLoss(realProfitOrLoss);
 		return result;

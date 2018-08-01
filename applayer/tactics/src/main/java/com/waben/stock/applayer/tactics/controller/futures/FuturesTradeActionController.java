@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -68,14 +69,13 @@ public class FuturesTradeActionController {
 	@GetMapping("/pages_phone")
 	@ApiOperation(value = "移动端订单交易开平仓记录列表", notes = "startTime和endTime格式(yyyy-MM-dd HH:mm:ss)")
 	public Response<PageInfo<FuturesTradeActionViewDto>> pagesPhone(int page, int size, String name, String startTime,
-															   String endTime, FuturesTradeActionType tradeActionType) {
+															   String endTime) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		FuturesTradeActionQuery query = new FuturesTradeActionQuery();
 		query.setPage(page);
 		query.setSize(size);
 		query.setPublisherId(SecurityUtil.getUserId());
 		query.setName(name);
-		query.setTradeActionType(tradeActionType);
 		if (!StringUtil.isEmpty(startTime)) {
 			try {
 				query.setStartTime(sdf.parse(startTime));
@@ -90,9 +90,16 @@ public class FuturesTradeActionController {
 				throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION);
 			}
 		}
-		query.setStates(new FuturesTradeEntrustState[] { FuturesTradeEntrustState.Success, FuturesTradeEntrustState.PartSuccess});
 		return new Response<>(futuresTradeActionBusiness.pagesPhone(query));
 	}
 
 
+	@GetMapping("/detail/{id}")
+	@ApiOperation(value = "移动端订单交易开平仓记录列表", notes = "startTime和endTime格式(yyyy-MM-dd HH:mm:ss)")
+	public Response<PageInfo<FuturesTradeActionViewDto>> detail(@PathVariable(value = "id") Long id) {
+		FuturesTradeActionQuery query = new FuturesTradeActionQuery();
+		query.setPublisherId(SecurityUtil.getUserId());
+		query.setId(id);
+		return new Response<>(futuresTradeActionBusiness.pagesPhone(query));
+	}
 }

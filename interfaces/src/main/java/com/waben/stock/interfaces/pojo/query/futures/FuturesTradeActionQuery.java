@@ -1,10 +1,10 @@
 package com.waben.stock.interfaces.pojo.query.futures;
 
-import java.util.Date;
-
 import com.waben.stock.interfaces.enums.FuturesTradeActionType;
 import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
 import com.waben.stock.interfaces.pojo.query.PageAndSortQuery;
+
+import java.util.Date;
 
 /**
  * 订单交易开平仓记录
@@ -13,6 +13,7 @@ import com.waben.stock.interfaces.pojo.query.PageAndSortQuery;
  */
 public class FuturesTradeActionQuery extends PageAndSortQuery {
 
+	private Long id;
 	/** 发布人ID */
 	private Long publisherId;
 	/** 名称（品种名称+合约编号模糊查询） */
@@ -34,6 +35,14 @@ public class FuturesTradeActionQuery extends PageAndSortQuery {
 		super();
 		super.setPage(page);
 		super.setSize(size);
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getName() {

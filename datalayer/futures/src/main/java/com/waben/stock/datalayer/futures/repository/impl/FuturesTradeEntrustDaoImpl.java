@@ -61,4 +61,9 @@ public class FuturesTradeEntrustDaoImpl implements FuturesTradeEntrustDao {
     public List<FuturesTradeEntrust> findByPublisherId(Long contractId) {
         return repository.findByPublisherId(contractId);
     }
+
+	@Override
+	public List<FuturesTradeEntrust> retrieveByBackhandEntrustId(Long entrustId) {
+		return repository.findByBackhandEntrustId(entrustId);
+	}
 }

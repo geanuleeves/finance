@@ -88,6 +88,8 @@ public class FuturesTradeEntrust {
 	private Date tradeTime;
 	/** 更新时间 */
 	private Date updateTime;
+	/** 反手源委托ID */
+	private Long backhandEntrustId;
 
 	/***************** 分割线，以下字段为非数据库字段 ********************/
 	/** 合约ID */
@@ -343,6 +345,14 @@ public class FuturesTradeEntrust {
 
 	public void setCurrency(String currency) {
 		this.currency = currency;
+	}
+
+	public Long getBackhandEntrustId() {
+		return backhandEntrustId;
+	}
+
+	public void setBackhandEntrustId(Long backhandEntrustId) {
+		this.backhandEntrustId = backhandEntrustId;
 	}
 
 }

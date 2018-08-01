@@ -87,12 +87,12 @@ public class FuturesTradeController {
 	@RequestMapping(value = "/futures/hoding/order/agent", method = RequestMethod.GET)
 	@ApiOperation(value = "获取持仓订单记录")
 	public Response<PageInfo<FuturesHoldPositionAgentDto>> pagesHoldingOrderAgent(FuturesTradeAdminQuery query) {
-		query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
+		query.setPublisherIds(business.getPublisherId(SecurityUtil.getUserDetails().getTreeCode()));
 		return new Response<>(business.pagesHoldingOrderAgent(query));
 	}
-	
+
 	@RequestMapping(value = "/futures/hoding/order/entruts", method = RequestMethod.GET)
-	@ApiOperation(value = "获取持仓订单记录")
+	@ApiOperation(value = "获取委托订单记录")
 	public Response<PageInfo<FuturesTradeDto>> pageTradeEnturs(FuturesTradeAdminQuery query) {
 		query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
 		return new Response<>(business.pageTradeEnturs(query));

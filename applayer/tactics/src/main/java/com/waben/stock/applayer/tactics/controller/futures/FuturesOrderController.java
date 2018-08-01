@@ -1,5 +1,39 @@
 package com.waben.stock.applayer.tactics.controller.futures;
 
+import com.waben.stock.applayer.tactics.business.CapitalAccountBusiness;
+import com.waben.stock.applayer.tactics.business.PublisherBusiness;
+import com.waben.stock.applayer.tactics.business.futures.FuturesContractBusiness;
+import com.waben.stock.applayer.tactics.business.futures.FuturesContractOrderBusiness;
+import com.waben.stock.applayer.tactics.business.futures.FuturesOrderBusiness;
+import com.waben.stock.applayer.tactics.business.futures.FuturesTradeActionBusiness;
+import com.waben.stock.applayer.tactics.dto.futures.*;
+import com.waben.stock.applayer.tactics.security.SecurityUtil;
+import com.waben.stock.applayer.tactics.util.PoiUtil;
+import com.waben.stock.interfaces.constants.ExceptionConstant;
+import com.waben.stock.interfaces.dto.futures.*;
+import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
+import com.waben.stock.interfaces.dto.publisher.PublisherDto;
+import com.waben.stock.interfaces.enums.FuturesOrderState;
+import com.waben.stock.interfaces.enums.FuturesOrderType;
+import com.waben.stock.interfaces.enums.FuturesTradePriceType;
+import com.waben.stock.interfaces.exception.ServiceException;
+import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
+import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeActionQuery;
+import com.waben.stock.interfaces.util.StringUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,55 +45,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.waben.stock.applayer.tactics.business.CapitalAccountBusiness;
-import com.waben.stock.applayer.tactics.business.PublisherBusiness;
-import com.waben.stock.applayer.tactics.business.futures.FuturesContractBusiness;
-import com.waben.stock.applayer.tactics.business.futures.FuturesContractOrderBusiness;
-import com.waben.stock.applayer.tactics.business.futures.FuturesOrderBusiness;
-import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderBuysellDto;
-import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderDayGainLossDto;
-import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderMarketDto;
-import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderProfitDto;
-import com.waben.stock.applayer.tactics.dto.futures.TransactionDynamicsDto;
-import com.waben.stock.applayer.tactics.security.SecurityUtil;
-import com.waben.stock.applayer.tactics.util.PoiUtil;
-import com.waben.stock.interfaces.constants.ExceptionConstant;
-import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
-import com.waben.stock.interfaces.dto.futures.FuturesContractOrderDto;
-import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
-import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
-import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
-import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
-import com.waben.stock.interfaces.dto.publisher.PublisherDto;
-import com.waben.stock.interfaces.enums.FuturesOrderState;
-import com.waben.stock.interfaces.enums.FuturesOrderType;
-import com.waben.stock.interfaces.enums.FuturesTradePriceType;
-import com.waben.stock.interfaces.exception.ServiceException;
-import com.waben.stock.interfaces.pojo.Response;
-import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
-import com.waben.stock.interfaces.pojo.query.PageInfo;
-import com.waben.stock.interfaces.pojo.query.futures.FuturesContractQuery;
-import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
-import com.waben.stock.interfaces.util.StringUtil;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 
 /**
  * 期货订单
@@ -91,6 +76,10 @@ public class FuturesOrderController {
 
 	@Autowired
 	private FuturesOrderBusiness orderBusiness;
+
+	@Autowired
+	private FuturesTradeActionBusiness futuresTradeActionBusiness;
+
 
 	private SimpleDateFormat exprotSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -211,7 +200,7 @@ public class FuturesOrderController {
 			@RequestParam(required = true) FuturesOrderType orderType) {
 		futuresOrderBusiness.applyUnwind(contractId, orderType, FuturesTradePriceType.MKT, null,
 				SecurityUtil.getUserId());
-		return new Response<>("success");
+		return new Response<>();
 	}
 
 	@PostMapping("/applyUnwindAll")
@@ -314,7 +303,7 @@ public class FuturesOrderController {
 		// step 7 : 检查条件成立
 		futuresOrderBusiness.backhandUnwind(contractId, orderType, FuturesTradePriceType.MKT, null,
 				SecurityUtil.getUserId());
-		return new Response<>("success");
+		return new Response<>();
 	}
 
 	@PostMapping("/lockUnwind/{contractId}")
@@ -452,47 +441,6 @@ public class FuturesOrderController {
 	}
 
 	/******************************************** 分割线 ************************************************/
-
-	@PostMapping("/backhandUnwind_bak/{orderId}")
-	@ApiOperation(value = "用户市价反手", hidden = true)
-	public Response<FuturesOrderDto> backhandUnwind(@PathVariable Long orderId) {
-		FuturesOrderDto orderDto = futuresOrderBusiness.fetchByOrderId(orderId);
-		FuturesContractQuery query = new FuturesContractQuery();
-		query.setPage(0);
-		query.setSize(1);
-		query.setContractId(orderDto.getContractId());
-		// 判断该合约是否可用是否在交易中、网关是否支持该合约、合约交易所是否可用、以及是否在交易时间内
-		FuturesContractDto contractDto = futuresContractBusiness.getContractByOne(query);
-		checkedMinPlaceOrder(contractDto);
-		// 用户买涨持仓总额度
-		Integer buyUp = futuresOrderBusiness.sumUserNum(orderDto.getContractId(), SecurityUtil.getUserId(), 1);
-		BigDecimal buyUpNum = buyUp == null ? new BigDecimal(0) : new BigDecimal(buyUp).abs();
-		// 用户买跌持仓总额度
-		Integer buyFull = futuresOrderBusiness.sumUserNum(orderDto.getContractId(), SecurityUtil.getUserId(), 2);
-		BigDecimal buyFullNum = buyFull == null ? new BigDecimal(0) : new BigDecimal(buyFull).abs();
-		if (orderDto.getOrderType() == FuturesOrderType.BuyUp) {
-			if (contractDto.getBuyFullTotalLimit() != null
-					&& buyFullNum.add(orderDto.getTotalQuantity()).compareTo(contractDto.getBuyFullTotalLimit()) > 0) {
-				// 买跌持仓总额度已达上限
-				throw new ServiceException(ExceptionConstant.TOTAL_AMOUNT_BUYFULL_CAPACITY_INSUFFICIENT_EXCEPTION);
-			}
-		} else {
-			if (contractDto.getBuyUpTotalLimit() != null
-					&& buyUpNum.add(orderDto.getTotalQuantity()).compareTo(contractDto.getBuyUpTotalLimit()) > 0) {
-				// 买涨持仓总额度已达上限
-				throw new ServiceException(ExceptionConstant.TOTAL_AMOUNT_BUYUP_CAPACITY_INSUFFICIENT_EXCEPTION);
-			}
-		}
-		FuturesOrderBuysellDto buysellDto = new FuturesOrderBuysellDto();
-		buysellDto.setTotalQuantity(orderDto.getTotalQuantity());
-		buysellDto.setOrderType(orderDto.getOrderType());
-		// 判断当前下单手数是否满足条件
-		checkBuyUpAndFullSum(buyUpNum, buyFullNum, contractDto.getPerOrderLimit(), contractDto.getUserTotalLimit(),
-				buysellDto.getOrderType(), buysellDto.getTotalQuantity(), contractDto);
-		// return new Response<>(futuresOrderBusiness.backhandUnwind(orderId,
-		// SecurityUtil.getUserId()));
-		return new Response<>();
-	}
 
 	@GetMapping("/holding")
 	@ApiOperation(value = "获取持仓中列表", hidden = true)
@@ -636,31 +584,15 @@ public class FuturesOrderController {
 	@GetMapping("/settled/profit")
 	@ApiOperation(value = "获取已结算总收益")
 	public Response<FuturesOrderProfitDto> settledProfit(int page, int size) {
-		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
-		FuturesOrderState[] states = { FuturesOrderState.Unwind };
-		orderQuery.setStates(states);
-		orderQuery.setPage(page);
-		orderQuery.setSize(size);
-		orderQuery.setPublisherId(SecurityUtil.getUserId());
-		List<FuturesOrderMarketDto> list = futuresOrderBusiness.pageOrderMarket(orderQuery).getContent();
-		BigDecimal totalIncome = new BigDecimal(0);
-		String sign = "";
-		BigDecimal rate = BigDecimal.ZERO;
-		for (FuturesOrderMarketDto futuresOrderMarketDto : list) {
-			// totalIncome =
-			// totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss()
-			// == null ? new BigDecimal(0)
-			// : futuresOrderMarketDto.getPublisherProfitOrLoss());
-		}
-		if (list != null && list.size() > 0) {
-			sign = list.get(0).getCurrencySign();
-			rate = list.get(0).getRate();
-		}
-
 		FuturesOrderProfitDto result = new FuturesOrderProfitDto();
-		result.setTotalIncome(totalIncome.setScale(2, RoundingMode.DOWN));
-		result.setRate(rate.setScale(2, RoundingMode.DOWN));
-		result.setCurrencySign(sign);
+		FuturesTradeActionQuery query = new FuturesTradeActionQuery();
+		query.setPublisherId(SecurityUtil.getUserId());
+		PageInfo<FuturesTradeActionViewDto> pageInfo = futuresTradeActionBusiness.pagesPhone(query);
+		BigDecimal totalIncome = new BigDecimal(0);
+		for (FuturesTradeActionViewDto futuresTradeActionViewDto : pageInfo.getContent()) {
+			totalIncome = totalIncome.add(futuresTradeActionViewDto.getProfitOrLoss());
+		}
+		result.setTotalIncome(totalIncome);
 		return new Response<>(result);
 	}
 

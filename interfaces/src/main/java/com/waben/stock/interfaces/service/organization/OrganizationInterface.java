@@ -17,7 +17,6 @@ import com.waben.stock.interfaces.dto.organization.FuturesAgentPriceDto;
 import com.waben.stock.interfaces.dto.organization.FuturesFowDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationDetailDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationDto;
-import com.waben.stock.interfaces.dto.organization.OrganizationPublisherDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationStaDto;
 import com.waben.stock.interfaces.dto.organization.TradingFowDto;
 import com.waben.stock.interfaces.dto.organization.TreeNode;

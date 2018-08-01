@@ -12,4 +12,6 @@ public interface FuturesTradeEntrustRepository extends CustomJpaRepository<Futur
 
     List<FuturesTradeEntrust> findByPublisherId(Long publisherId);
 
+	List<FuturesTradeEntrust> findByBackhandEntrustId(Long backhandEntrustId);
+
 }

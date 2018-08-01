@@ -208,6 +208,10 @@ public class FuturesTradeActionService {
 			public Predicate toPredicate(Root<FuturesTradeAction> root, CriteriaQuery<?> criteriaQuery,
 										 CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
+				if (query.getId() != null && query.getId() != 0) {
+					predicateList
+							.add(criteriaBuilder.equal(root.get("id").as(Long.class), query.getId()));
+				}
 				// 用户ID
 				if (query.getPublisherId() != null && query.getPublisherId() != 0) {
 					predicateList
@@ -215,11 +219,11 @@ public class FuturesTradeActionService {
 				}
 				Predicate predicate1 = criteriaBuilder.and(criteriaBuilder.equal(root.get("tradeActionType").
 								as(FuturesTradeActionType.class), FuturesTradeActionType.OPEN),
-						criteriaBuilder.in(root.get("state").in(new FuturesTradeEntrustState[]{FuturesTradeEntrustState.Canceled,
+						criteriaBuilder.and(root.get("state").in(new FuturesTradeEntrustState[]{FuturesTradeEntrustState.Canceled,
 								FuturesTradeEntrustState.Failure})));
 				Predicate predicate2 = criteriaBuilder.and(criteriaBuilder.equal(root.get("tradeActionType").
 								as(FuturesTradeActionType.class), FuturesTradeActionType.CLOSE),
-						criteriaBuilder.in(root.get("state").in(new FuturesTradeEntrustState[]{FuturesTradeEntrustState.PartSuccess,
+						criteriaBuilder.and(root.get("state").in(new FuturesTradeEntrustState[]{FuturesTradeEntrustState.PartSuccess,
 								FuturesTradeEntrustState.Success})));
 				predicateList.add(criteriaBuilder.or(predicate1, predicate2));
 

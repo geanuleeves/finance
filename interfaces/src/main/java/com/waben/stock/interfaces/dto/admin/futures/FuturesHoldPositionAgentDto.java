@@ -29,6 +29,10 @@ public class FuturesHoldPositionAgentDto extends FuturesContractOrderViewDto {
 	private BigDecimal deferredFee;
 	/** 状态 */
 	private Integer state;
+	/** 代理商名称 */
+	private String orgName;
+	/** 代理商代码 */
+	private String code;
 
 	public String getPublisherName() {
 		return publisherName;
@@ -100,6 +104,22 @@ public class FuturesHoldPositionAgentDto extends FuturesContractOrderViewDto {
 
 	public void setState(Integer state) {
 		this.state = state;
+	}
+
+	public String getOrgName() {
+		return orgName;
+	}
+
+	public void setOrgName(String orgName) {
+		this.orgName = orgName;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
 	}
 
 	/**

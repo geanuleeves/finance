@@ -45,6 +45,7 @@ import com.waben.stock.datalayer.futures.repository.FuturesTradeEntrustDao;
 import com.waben.stock.datalayer.futures.repository.impl.MethodDesc;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeDto;
+import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.enums.FuturesTradeActionType;
@@ -71,7 +72,7 @@ public class FuturesTradeEntrustService {
 
 	@Autowired
 	private DynamicQuerySqlDao sqlDao;
-	
+
 	@Autowired
 	private FuturesTradeEntrustDao dao;
 
@@ -85,6 +86,9 @@ public class FuturesTradeEntrustService {
 	private FuturesOrderDao orderDao;
 
 	@Autowired
+	private FuturesCurrencyRateService rateService;
+
+	@Autowired
 	private CapitalAccountBusiness accountBusiness;
 
 	@Autowired
@@ -92,7 +96,7 @@ public class FuturesTradeEntrustService {
 
 	@Autowired
 	private FuturesTradeEntrustDao futuresTradeEntrustDao;
-	
+
 	private SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	public FuturesTradeEntrust findById(Long id) {
@@ -114,7 +118,7 @@ public class FuturesTradeEntrustService {
 	@Transactional
 	public FuturesTradeEntrust cancelEntrust(Long id, Long publisherId) {
 		FuturesTradeEntrust entrust = dao.retrieve(id);
-		if(entrust == null) {
+		if (entrust == null) {
 			throw new ServiceException(ExceptionConstant.DATANOTFOUND_EXCEPTION);
 		}
 		if (FuturesTradeEntrustState.Queuing != entrust.getState()) {
@@ -126,17 +130,18 @@ public class FuturesTradeEntrustService {
 		dao.update(entrust);
 		// step 2 : 更新开平仓记录和订单状态
 		List<FuturesTradeAction> actionList = actionDao.retrieveByTradeEntrust(entrust);
-		for(FuturesTradeAction action : actionList) {
+		for (FuturesTradeAction action : actionList) {
 			// step 2.1 : 更新开平仓记录状态
 			action.setState(FuturesTradeEntrustState.Canceled);
 			action.setUpdateTime(new Date());
 			// step 2.2 : 更新订单状态
 			FuturesOrder order = action.getOrder();
 			order.setCloseRemaining(order.getCloseRemaining().subtract(action.getRemaining()));
-			if(entrust.getTradeActionType() == FuturesTradeActionType.OPEN) {
+			if (entrust.getTradeActionType() == FuturesTradeActionType.OPEN) {
 				order.setState(FuturesOrderState.BuyingCanceled);
 			} else {
-				if(order.getCloseRemaining().compareTo(BigDecimal.ZERO) > 0 || order.getCloseFilled().compareTo(BigDecimal.ZERO) > 0) {
+				if (order.getCloseRemaining().compareTo(BigDecimal.ZERO) > 0
+						|| order.getCloseFilled().compareTo(BigDecimal.ZERO) > 0) {
 					order.setState(FuturesOrderState.PartUnwind);
 				} else {
 					order.setState(FuturesOrderState.Unwind);
@@ -145,7 +150,7 @@ public class FuturesTradeEntrustService {
 			order.setUpdateTime(new Date());
 			orderDao.update(order);
 			// step 2.3 : 退回交易综合费
-			if(entrust.getTradeActionType() == FuturesTradeActionType.OPEN) {
+			if (entrust.getTradeActionType() == FuturesTradeActionType.OPEN) {
 				BigDecimal returnServiceFee = action.getOrder().getServiceFee();
 				accountBusiness.futuresOrderRevoke(publisherId, order.getId(), returnServiceFee);
 			}
@@ -153,23 +158,30 @@ public class FuturesTradeEntrustService {
 		// step 3 : 更新合约订单状态
 		FuturesContract contract = entrust.getContract();
 		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract, publisherId);
-		if(entrust.getTradeActionType() == FuturesTradeActionType.OPEN) {
-			BigDecimal expectReserveFund = BigDecimal.ZERO;
-			if(entrust.getOrderType() == FuturesOrderType.BuyUp) {
-				contractOrder.setBuyUpTotalQuantity(contractOrder.getBuyUpTotalQuantity().subtract(entrust.getRemaining()));
-				expectReserveFund = contract.getCommodity().getPerUnitReserveFund().multiply(contractOrder.getBuyUpTotalQuantity());
+		if (entrust.getTradeActionType() == FuturesTradeActionType.OPEN) {
+			BigDecimal buyUpNum = contractOrder.getBuyUpTotalQuantity();
+			BigDecimal buyFallNum = contractOrder.getBuyFallTotalQuantity();
+			BigDecimal singleEdgeMax = BigDecimal.ZERO;
+			if (entrust.getOrderType() == FuturesOrderType.BuyUp) {
+				BigDecimal preBuyUpNum = buyUpNum.subtract(entrust.getQuantity());
+				contractOrder.setBuyUpTotalQuantity(preBuyUpNum);
+				singleEdgeMax = preBuyUpNum.compareTo(buyFallNum) >= 0 ? preBuyUpNum : buyFallNum;
 			} else {
-				contractOrder.setBuyFallTotalQuantity(contractOrder.getBuyFallTotalQuantity().subtract(entrust.getRemaining()));
-				expectReserveFund = contract.getCommodity().getPerUnitReserveFund().multiply(contractOrder.getBuyFallTotalQuantity());
+				BigDecimal prebuyFallNum = buyFallNum.subtract(entrust.getQuantity());
+				contractOrder.setBuyUpTotalQuantity(prebuyFallNum);
+				singleEdgeMax = prebuyFallNum.compareTo(buyUpNum) >= 0 ? prebuyFallNum : buyUpNum;
 			}
 			contractOrderDao.update(contractOrder);
+			BigDecimal expectReserveFund = contract.getCommodity().getPerUnitReserveFund().multiply(singleEdgeMax);
 			// step 4 : 退款保证金，计算需要退款的保证金
 			BigDecimal returnReserveFund = BigDecimal.ZERO;
-			if(contractOrder.getReserveFund().compareTo(expectReserveFund) > 0) {
+			if (contractOrder.getReserveFund().compareTo(expectReserveFund) > 0) {
 				returnReserveFund = contractOrder.getReserveFund().subtract(expectReserveFund);
 			}
 			entrust.setReturnReserveFund(returnReserveFund);
 			accountBusiness.futuresReturnReserveFund(publisherId, contractOrder.getId(), returnReserveFund);
+			// step 5 : 发送站外消息
+			sendOutsideMessage(entrust);
 		}
 		return entrust;
 	}
@@ -180,10 +192,40 @@ public class FuturesTradeEntrustService {
 		return null;
 	}
 
+	/**
+	 * 计算盈利或者亏损（交易所货币）
+	 *
+	 * @param orderType
+	 *            订单类型
+	 * @param buyingPrice
+	 *            买入价格
+	 * @param sellingPrice
+	 *            卖出价格
+	 * @param minWave
+	 *            最小波动
+	 * @param perWaveMoney
+	 *            波动一次盈亏金额，单位为该合约的货币单位
+	 * @param rate
+	 *            汇率
+	 * @return 盈利或者亏损值
+	 */
+	private BigDecimal computeProfitOrLoss(FuturesOrderType orderType, BigDecimal totalQuantity, BigDecimal buyingPrice,
+			BigDecimal sellingPrice, BigDecimal minWave, BigDecimal perWaveMoney) {
+		BigDecimal waveMoney = sellingPrice.subtract(buyingPrice).divide(minWave, 4, RoundingMode.DOWN)
+				.multiply(perWaveMoney).multiply(totalQuantity);
+		if (orderType == FuturesOrderType.BuyUp) {
+			return waveMoney;
+		} else {
+			return waveMoney.multiply(new BigDecimal(-1));
+		}
+	}
+
 	@Transactional
 	public FuturesTradeEntrust success(Long id, BigDecimal filled, BigDecimal remaining, BigDecimal avgFillPrice) {
 		FuturesTradeEntrust entrust = dao.retrieve(id);
 		BigDecimal minWave = entrust.getContract().getCommodity().getMinWave();
+		BigDecimal perWaveMoney = entrust.getContract().getCommodity().getPerWaveMoney();
+		String currency = entrust.getContract().getCommodity().getCurrency();
 		FuturesOrderType orderType = entrust.getOrderType();
 		FuturesTradeActionType actionType = entrust.getTradeActionType();
 		Date date = new Date();
@@ -214,7 +256,16 @@ public class FuturesTradeEntrustService {
 				action.setTradePrice(actionAvgFillPrice);
 				action.setTradeTime(date);
 				if (entrust.getTradeActionType() == FuturesTradeActionType.CLOSE) {
-					// TODO 计算盈亏
+					// 盈亏（交易所货币）
+					BigDecimal currencyProfitOrLoss = computeProfitOrLoss(orderType, actionFilled,
+							action.getOrder().getOpenAvgFillPrice(), actionAvgFillPrice, minWave, perWaveMoney);
+					// 盈亏（人民币）
+					BigDecimal rate = rateService.findByCurrency(currency).getRate();
+					BigDecimal profitOrLoss = currencyProfitOrLoss.multiply(rate).setScale(2, RoundingMode.DOWN);
+					action.setCurrencyProfitOrLoss(currencyProfitOrLoss);
+					action.setProfitOrLoss(profitOrLoss);
+					action.setSettlementRate(rate);
+					action.setSettlementTime(date);
 				}
 			}
 			action.setAvgFillPrice(actionAvgFillPrice);
@@ -267,7 +318,8 @@ public class FuturesTradeEntrustService {
 			} else if (orderType == FuturesOrderType.BuyFall && actionType == FuturesTradeActionType.OPEN) {
 				contractOrder.setBuyFallQuantity(contractOrder.getBuyFallQuantity().add(currentFilled));
 				contractOrder.setLightQuantity(contractOrder.getLightQuantity().subtract(currentFilled));
-				contractOrder.setBuyFallCanUnwindQuantity(contractOrder.getBuyFallCanUnwindQuantity().add(currentFilled));
+				contractOrder
+						.setBuyFallCanUnwindQuantity(contractOrder.getBuyFallCanUnwindQuantity().add(currentFilled));
 			} else if (orderType == FuturesOrderType.BuyFall && actionType == FuturesTradeActionType.CLOSE) {
 				contractOrder.setBuyFallTotalQuantity(contractOrder.getBuyFallTotalQuantity().subtract(currentFilled));
 				contractOrder.setBuyFallQuantity(contractOrder.getBuyFallQuantity().subtract(currentFilled));
@@ -297,7 +349,43 @@ public class FuturesTradeEntrustService {
 				entrust.setTradePrice(entrustAvgFillPrice);
 				entrust.setTradeTime(date);
 				if (entrust.getTradeActionType() == FuturesTradeActionType.CLOSE) {
-					// TODO 给用户结算
+					FuturesContract contract = entrust.getContract();
+					FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract,
+							entrust.getPublisherId());
+					BigDecimal singleEdgeMax = contractOrder.getBuyUpTotalQuantity()
+							.compareTo(contractOrder.getBuyFallTotalQuantity()) > 0
+									? contractOrder.getBuyUpTotalQuantity() : contractOrder.getBuyFallTotalQuantity();
+					contractOrderDao.update(contractOrder);
+					BigDecimal expectReserveFund = contract.getCommodity().getPerUnitReserveFund()
+							.multiply(singleEdgeMax);
+					// step 2.1 : 退款保证金，计算需要退款的保证金
+					BigDecimal returnReserveFund = BigDecimal.ZERO;
+					if (contractOrder.getReserveFund().compareTo(expectReserveFund) > 0) {
+						returnReserveFund = contractOrder.getReserveFund().subtract(expectReserveFund);
+					}
+					entrust.setReturnReserveFund(returnReserveFund);
+					accountBusiness.futuresReturnReserveFund(entrust.getPublisherId(), contractOrder.getId(),
+							returnReserveFund);
+					// step 2.2 : 给用户结算盈亏
+					for (FuturesTradeAction action : actionList) {
+						CapitalAccountDto account = accountBusiness.futuresOrderSettlement(action.getPublisherId(),
+								action.getOrder().getId(), action.getProfitOrLoss());
+						// 发布人盈亏（人民币）、平台盈亏（人民币）
+						BigDecimal publisherProfitOrLoss = BigDecimal.ZERO;
+						BigDecimal platformProfitOrLoss = BigDecimal.ZERO;
+						if (action.getProfitOrLoss().compareTo(BigDecimal.ZERO) > 0) {
+							publisherProfitOrLoss = action.getProfitOrLoss();
+						} else if (action.getProfitOrLoss().compareTo(BigDecimal.ZERO) < 0) {
+							publisherProfitOrLoss = account.getRealProfitOrLoss();
+							if (action.getProfitOrLoss().abs().compareTo(publisherProfitOrLoss.abs()) > 0) {
+								platformProfitOrLoss = action.getProfitOrLoss().abs()
+										.subtract(publisherProfitOrLoss.abs()).multiply(new BigDecimal(-1));
+							}
+						}
+						action.setPublisherProfitOrLoss(publisherProfitOrLoss);
+						action.setPlatformProfitOrLoss(platformProfitOrLoss);
+						actionDao.update(action);
+					}
 				}
 				dao.update(entrust);
 				sendOutsideMessage(entrust);
@@ -425,62 +513,69 @@ public class FuturesTradeEntrustService {
 		}
 		return avgFillPrice;
 	}
-	
+
 	public Page<FuturesTradeEntrust> pagesTradeAdmin(final FuturesTradeEntrustQuery query) {
 		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
 		Page<FuturesTradeEntrust> page = futuresTradeEntrustDao.page(new Specification<FuturesTradeEntrust>() {
 			@Override
 			public Predicate toPredicate(Root<FuturesTradeEntrust> root, CriteriaQuery<?> criteriaQuery,
-										 CriteriaBuilder criteriaBuilder) {
+					CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
 
-				//委托编号
+				// 委托编号
 				if (!StringUtils.isEmpty(query.getEntrustNo())) {
-					predicateList.add(criteriaBuilder.equal(root.get("entrustNo").as(String.class), query.getEntrustNo()));
+					predicateList
+							.add(criteriaBuilder.equal(root.get("entrustNo").as(String.class), query.getEntrustNo()));
 				}
 
-				//用户ID
+				// 用户ID
 				if (query.getPublisherId() != null && query.getPublisherId() != 0) {
-					predicateList.add(criteriaBuilder.equal(root.get("publisherId").as(Long.class), query.getPublisherId()));
+					predicateList
+							.add(criteriaBuilder.equal(root.get("publisherId").as(Long.class), query.getPublisherId()));
 				}
-				//联合查询合约
+				// 联合查询合约
 				Join<FuturesTradeEntrust, FuturesContract> contractJoin = root.join("contract", JoinType.LEFT);
 				if (query.getContractId() != null && query.getContractId() != 0) {
 					Predicate contractId = criteriaBuilder.equal(contractJoin.get("id").as(Long.class),
 							query.getContractId());
 					predicateList.add(criteriaBuilder.and(contractId));
 				}
-				//品种编号
+				// 品种编号
 				if (!StringUtils.isEmpty(query.getCommodityNo())) {
-					predicateList.add(criteriaBuilder.equal(root.get("commodityNo").as(String.class), query.getCommodityNo()));
+					predicateList.add(
+							criteriaBuilder.equal(root.get("commodityNo").as(String.class), query.getCommodityNo()));
 				}
-				//合约编号
+				// 合约编号
 				if (!StringUtils.isEmpty(query.getContractNo())) {
-					predicateList.add(criteriaBuilder.equal(root.get("contractNo").as(String.class), query.getContractNo()));
+					predicateList
+							.add(criteriaBuilder.equal(root.get("contractNo").as(String.class), query.getContractNo()));
 				}
-				//订单类型
+				// 订单类型
 				if (!StringUtils.isEmpty(query.getOrderType())) {
-					predicateList.add(criteriaBuilder.equal(root.get("orderType").as(String.class), query.getOrderType()));
+					predicateList
+							.add(criteriaBuilder.equal(root.get("orderType").as(String.class), query.getOrderType()));
 				}
-				//委托时间
+				// 委托时间
 				if (query.getEntrustTime() != null) {
 					Predicate entrustTime = criteriaBuilder.greaterThanOrEqualTo(root.get("entrustTime").as(Date.class),
 							query.getEntrustTime());
 					predicateList.add(criteriaBuilder.and(entrustTime));
 				}
-				//价格类型
+				// 价格类型
 				if (!StringUtils.isEmpty(query.getPriceType())) {
-					predicateList.add(criteriaBuilder.equal(root.get("priceType").as(String.class), query.getPriceType()));
+					predicateList
+							.add(criteriaBuilder.equal(root.get("priceType").as(String.class), query.getPriceType()));
 				}
-				//交易开平仓 类型
+				// 交易开平仓 类型
 				if (!StringUtils.isEmpty(query.getTradeActionType())) {
-					predicateList.add(criteriaBuilder.equal(root.get("tradeActionType").as(String.class), query.getTradeActionType()));
+					predicateList.add(criteriaBuilder.equal(root.get("tradeActionType").as(String.class),
+							query.getTradeActionType()));
 				}
-				//委托状态
+				// 委托状态
 				if (!StringUtils.isEmpty(query.getState())) {
 					predicateList.add(criteriaBuilder.equal(root.get("state").as(String.class), query.getState()));
 				}
-				//交易成功时间
+				// 交易成功时间
 				if (query.getTradeTime() != null) {
 					Predicate tradeTime = criteriaBuilder.greaterThanOrEqualTo(root.get("tradeTime").as(Date.class),
 							query.getTradeTime());
@@ -489,7 +584,7 @@ public class FuturesTradeEntrustService {
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
-				//以委托时间排序
+				// 以委托时间排序
 				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("entrustTime").as(Date.class)));
 				return criteriaQuery.getRestriction();
 			}
@@ -502,56 +597,63 @@ public class FuturesTradeEntrustService {
 		Page<FuturesTradeEntrust> page = futuresTradeEntrustDao.page(new Specification<FuturesTradeEntrust>() {
 			@Override
 			public Predicate toPredicate(Root<FuturesTradeEntrust> root, CriteriaQuery<?> criteriaQuery,
-										 CriteriaBuilder criteriaBuilder) {
+					CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
 
-				//委托编号
+				// 委托编号
 				if (!StringUtils.isEmpty(query.getEntrustNo())) {
-					predicateList.add(criteriaBuilder.equal(root.get("entrustNo").as(String.class), query.getEntrustNo()));
+					predicateList
+							.add(criteriaBuilder.equal(root.get("entrustNo").as(String.class), query.getEntrustNo()));
 				}
 
-				//用户ID
+				// 用户ID
 				if (query.getPublisherId() != null && query.getPublisherId() != 0) {
-					predicateList.add(criteriaBuilder.equal(root.get("publisherId").as(Long.class), query.getPublisherId()));
+					predicateList
+							.add(criteriaBuilder.equal(root.get("publisherId").as(Long.class), query.getPublisherId()));
 				}
-				//联合查询合约
+				// 联合查询合约
 				Join<FuturesTradeEntrust, FuturesContract> contractJoin = root.join("contract", JoinType.LEFT);
 				if (query.getContractId() != null && query.getContractId() != 0) {
 					Predicate contractId = criteriaBuilder.equal(contractJoin.get("id").as(Long.class),
 							query.getContractId());
 					predicateList.add(criteriaBuilder.and(contractId));
 				}
-				//品种编号
+				// 品种编号
 				if (!StringUtils.isEmpty(query.getCommodityNo())) {
-					predicateList.add(criteriaBuilder.equal(root.get("commodityNo").as(String.class), query.getCommodityNo()));
+					predicateList.add(
+							criteriaBuilder.equal(root.get("commodityNo").as(String.class), query.getCommodityNo()));
 				}
-				//合约编号
+				// 合约编号
 				if (!StringUtils.isEmpty(query.getContractNo())) {
-					predicateList.add(criteriaBuilder.equal(root.get("contractNo").as(String.class), query.getContractNo()));
+					predicateList
+							.add(criteriaBuilder.equal(root.get("contractNo").as(String.class), query.getContractNo()));
 				}
-				//订单类型
+				// 订单类型
 				if (!StringUtils.isEmpty(query.getOrderType())) {
-					predicateList.add(criteriaBuilder.equal(root.get("orderType").as(String.class), query.getOrderType()));
+					predicateList
+							.add(criteriaBuilder.equal(root.get("orderType").as(String.class), query.getOrderType()));
 				}
-				//委托时间
+				// 委托时间
 				if (query.getEntrustTime() != null) {
 					Predicate entrustTime = criteriaBuilder.greaterThanOrEqualTo(root.get("entrustTime").as(Date.class),
 							query.getEntrustTime());
 					predicateList.add(criteriaBuilder.and(entrustTime));
 				}
-				//价格类型
+				// 价格类型
 				if (!StringUtils.isEmpty(query.getPriceType())) {
-					predicateList.add(criteriaBuilder.equal(root.get("priceType").as(String.class), query.getPriceType()));
+					predicateList
+							.add(criteriaBuilder.equal(root.get("priceType").as(String.class), query.getPriceType()));
 				}
-				//交易开平仓 类型
+				// 交易开平仓 类型
 				if (!StringUtils.isEmpty(query.getTradeActionType())) {
-					predicateList.add(criteriaBuilder.equal(root.get("tradeActionType").as(String.class), query.getTradeActionType()));
+					predicateList.add(criteriaBuilder.equal(root.get("tradeActionType").as(String.class),
+							query.getTradeActionType()));
 				}
-				//委托状态
+				// 委托状态
 				if (!StringUtils.isEmpty(query.getState())) {
 					predicateList.add(criteriaBuilder.equal(root.get("state").as(String.class), query.getState()));
 				}
-				//交易成功时间
+				// 交易成功时间
 				if (query.getTradeTime() != null) {
 					Predicate tradeTime = criteriaBuilder.greaterThanOrEqualTo(root.get("tradeTime").as(Date.class),
 							query.getTradeTime());
@@ -560,16 +662,16 @@ public class FuturesTradeEntrustService {
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
-				//以委托时间排序
+				// 以委托时间排序
 				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("entrustTime").as(Date.class)));
 				return criteriaQuery.getRestriction();
 			}
 		}, pageable);
 		return page;
 	}
-	
-	public Page<FuturesTradeDto> pageTradeAdmin(FuturesTradeAdminQuery query){
-		
+
+	public Page<FuturesTradeDto> pageTradeAdmin(FuturesTradeAdminQuery query) {
+
 		String publisherNameCondition = "";
 		if (!StringUtil.isEmpty(query.getPublisherName())) {
 			publisherNameCondition = " and f4.phone like '%" + query.getPublisherPhone() + "%' ";
@@ -583,7 +685,7 @@ public class FuturesTradeEntrustService {
 			contractNameCondition = " and f3.commodity_name like '%" + query.getName() + "%'";
 		}
 		String contractNoCondition = "";
-		if(!StringUtil.isEmpty(query.getSymbol())){
+		if (!StringUtil.isEmpty(query.getSymbol())) {
 			contractNoCondition = " and f1.commodity_no like '%" + query.getSymbol() + "%'";
 		}
 		String orderTypeCondition = "";
@@ -591,19 +693,19 @@ public class FuturesTradeEntrustService {
 			orderTypeCondition = " and f1.orderType = " + query.getOrderType().trim();
 		}
 		String tradeActionCondition = "";
-		if(query.getTradeActionType()!=null){
+		if (query.getTradeActionType() != null) {
 			tradeActionCondition = " and f1.trade_action_type =" + query.getTradeActionType();
 		}
 		String tradeNoCondition = "";
-		if(!StringUtil.isEmpty(query.getTradeNo())){
+		if (!StringUtil.isEmpty(query.getTradeNo())) {
 			tradeNoCondition = " and f1.entrust_no = " + query.getTradeNo().trim();
 		}
-		
+
 		String orderStateCondition = "";
 		if (!StringUtil.isEmpty(query.getOrderState())) {
 			orderStateCondition = " and f1.state in in(" + query.getOrderState().trim() + ") ";
 		}
-		
+
 		String startTimeCondition = "";
 		if (query.getStartTime() != null) {
 			startTimeCondition = " and t1.entrust_time>='" + fullSdf.format(query.getStartTime()) + "' ";
@@ -612,28 +714,30 @@ public class FuturesTradeEntrustService {
 		if (query.getEndTime() != null) {
 			endTimeCondition = " and t1.entrust_time<'" + fullSdf.format(query.getEndTime()) + "' ";
 		}
-		
+
 		String treeCode = "";
 		if (query.getTreeCode() != null) {
 			treeCode = " AND t8.tree_code LIKE '%" + query.getTreeCode() + "%'";
 		}
-		
-		String sql = String.format(" select f1.id, f5.name, f4.phone, f1.commodity_no, f3.commodity_name, f1.contract_no,f1.order_type,"
-	                              +" f1.trade_action_type, f1.filled, f1.quantity, f1.entrust_price, f1.avg_fill_price," 
-								  +" f1.entrust_no, f1.entrust_time, f1.state,f1.total_fill_cost, f1.trade_price,"
-								  +" f1.price_type, f3.is_test, f1.return_reserve_fund "
-								  +" from f_futures_trade_entrust f1"
-								  +" LEFT JOIN f_futures_trade_action f2 on f1.id=f2.trade_entrust_id"
-								  +" LEFT JOIN f_futures_order f3 ON f2.order_id=f3.id"
-								  +" LEFT JOIN publisher f4 ON f1.publisher_id=f4.id"
-								  +" LEFT JOIN real_name f5 ON f5.resource_id = f1.publisher_id"
-								  +" LEFT JOIN f_futures_contract t6 ON t6.id = f1.contract_id "
-								  +" LEFT JOIN p_organization_publisher t7 ON t7.publisher_id = f1.publisher_id "
-								  +" LEFT JOIN p_organization t8 ON t8.id = t7.org_id"
-								  +" where 1=1 %s %s %s %s %s %s %s %s %s %s %s  ORDER BY f1.entrust_time DESC"
-								  +" LIMIT " + query.getPage() * query.getSize()+ "," + query.getSize(), 
-								  publisherNameCondition,publisherPhoneCondition,contractNameCondition,contractNoCondition,orderTypeCondition,
-								  tradeActionCondition,tradeNoCondition,orderStateCondition,startTimeCondition,endTimeCondition,treeCode);
+
+		String sql = String.format(
+				" select f1.id, f5.name, f4.phone, f1.commodity_no, f3.commodity_name, f1.contract_no,f1.order_type,"
+						+ " f1.trade_action_type, f1.filled, f1.quantity, f1.entrust_price, f1.avg_fill_price,"
+						+ " f1.entrust_no, f1.entrust_time, f1.state,f1.total_fill_cost, f1.trade_price,"
+						+ " f1.price_type, f3.is_test, f1.return_reserve_fund, t8.code, t8.name as org_name, f2.trade_time "
+						+ " from f_futures_trade_entrust f1"
+						+ " LEFT JOIN f_futures_trade_action f2 on f1.id=f2.trade_entrust_id"
+						+ " LEFT JOIN f_futures_order f3 ON f2.order_id=f3.id"
+						+ " LEFT JOIN publisher f4 ON f1.publisher_id=f4.id"
+						+ " LEFT JOIN real_name f5 ON f5.resource_id = f1.publisher_id"
+						+ " LEFT JOIN f_futures_contract t6 ON t6.id = f1.contract_id "
+						+ " LEFT JOIN p_organization_publisher t7 ON t7.publisher_id = f1.publisher_id "
+						+ " LEFT JOIN p_organization t8 ON t8.id = t7.org_id"
+						+ " where 1=1 %s %s %s %s %s %s %s %s %s %s %s  ORDER BY f1.entrust_time DESC LIMIT "
+						+ query.getPage() * query.getSize() + "," + query.getSize(),
+				publisherNameCondition, publisherPhoneCondition, contractNameCondition, contractNoCondition,
+				orderTypeCondition, tradeActionCondition, tradeNoCondition, orderStateCondition, startTimeCondition,
+				endTimeCondition, treeCode);
 		String countSql = "select count(*) " + sql.substring(sql.indexOf("from"), sql.indexOf("LIMIT"));
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setId", new Class<?>[] { Long.class }));
@@ -656,7 +760,10 @@ public class FuturesTradeEntrustService {
 		setMethodMap.put(new Integer(17), new MethodDesc("setPriceType", new Class<?>[] { Integer.class }));
 		setMethodMap.put(new Integer(18), new MethodDesc("setIsTest", new Class<?>[] { Boolean.class }));
 		setMethodMap.put(new Integer(19), new MethodDesc("setReturnReserveFund", new Class<?>[] { BigDecimal.class }));
-		
+		setMethodMap.put(new Integer(20), new MethodDesc("setCode", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(21), new MethodDesc("setOrgName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(22), new MethodDesc("setTradeTime", new Class<?>[] { Date.class }));
+
 		List<FuturesTradeDto> content = sqlDao.execute(FuturesTradeDto.class, sql, setMethodMap);
 		BigInteger totalElements = sqlDao.executeComputeSql(countSql);
 		return new PageImpl<>(content, new PageRequest(query.getPage(), query.getSize()),

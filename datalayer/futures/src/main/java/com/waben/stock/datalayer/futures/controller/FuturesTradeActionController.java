@@ -1,8 +1,10 @@
 package com.waben.stock.datalayer.futures.controller;
 
+import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeAction;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
+import com.waben.stock.datalayer.futures.service.FuturesCommodityService;
 import com.waben.stock.datalayer.futures.service.FuturesCurrencyRateService;
 import com.waben.stock.datalayer.futures.service.FuturesTradeActionService;
 import com.waben.stock.interfaces.dto.futures.FuturesTradeActionDto;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -46,6 +49,9 @@ public class FuturesTradeActionController implements FuturesTradeActionInterface
 
 	@Autowired
 	private QuoteContainer quoteContainer;
+
+	@Autowired
+	private FuturesCommodityService futuresCommodityService;
 
 	@Override
 	public Response<FuturesTradeActionDto> fetchById(@PathVariable Long id) {
@@ -110,6 +116,17 @@ public class FuturesTradeActionController implements FuturesTradeActionInterface
 			// step 2 : 设置一些其他信息
 			for (FuturesTradeActionViewDto dto : result.getContent()) {
 				String commodityNo = dto.getCommodityNo();
+				FuturesCommodity futuresCommodity = futuresCommodityService
+						.retrieveByCommodityNo(commodityNo);
+				BigDecimal openwindServiceFee = futuresCommodity.getOpenwindServiceFee() != null ?
+						futuresCommodity.getOpenwindServiceFee() : new BigDecimal(0);
+				BigDecimal unwindServiceFee = futuresCommodity.getUnwindServiceFee() != null ?
+						futuresCommodity.getUnwindServiceFee() : new BigDecimal(0);
+				dto.setServiceFee(openwindServiceFee.add(unwindServiceFee));
+				BigDecimal perUnitReserveFund = futuresCommodity.getPerUnitReserveFund() != null ?
+						futuresCommodity.getPerUnitReserveFund() : new BigDecimal(0);
+				BigDecimal filled = dto.getFilled() != null ? dto.getFilled() : new BigDecimal(0);
+				dto.setReserveFund(perUnitReserveFund.multiply(filled));
 				String contractNo = dto.getContractNo();
 				dto.setLastPrice(quoteContainer.getLastPrice(commodityNo, contractNo));
 				FuturesCurrencyRate rate = rateMap.get(dto.getCurrency());

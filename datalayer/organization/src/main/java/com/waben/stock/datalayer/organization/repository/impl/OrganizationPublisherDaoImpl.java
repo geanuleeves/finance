@@ -80,4 +80,9 @@ public class OrganizationPublisherDaoImpl implements OrganizationPublisherDao {
 		return repository.findByOrgCode(orgCode);
 	}
 
+	@Override
+	public List<OrganizationPublisher> findByTreeCode(String treeCode) {
+		return repository.findByTreeCode(treeCode);
+	}
+
 }

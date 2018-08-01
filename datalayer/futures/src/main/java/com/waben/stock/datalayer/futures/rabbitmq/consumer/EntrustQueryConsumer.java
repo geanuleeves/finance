@@ -150,7 +150,8 @@ public class EntrustQueryConsumer {
 					entrustService.success(tradeEntrust.getId(), avgPrice.getFilled(), avgPrice.getRemaining(),
 							buyingPrice);
 					if (entrustType == 3) {
-						// TODO 反手开仓
+						// 反手开仓
+						orderService.backhandPlaceOrder(tradeEntrust.getId());
 					}
 					isNeedRetry = false;
 				}
