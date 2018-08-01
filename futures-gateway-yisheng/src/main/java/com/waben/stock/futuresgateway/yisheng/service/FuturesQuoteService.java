@@ -8,7 +8,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.waben.stock.futuresgateway.yisheng.dao.FuturesContractDao;
 import com.waben.stock.futuresgateway.yisheng.dao.FuturesQuoteDao;
+import com.waben.stock.futuresgateway.yisheng.entity.FuturesContract;
 import com.waben.stock.futuresgateway.yisheng.entity.FuturesQuote;
 
 /**
@@ -23,8 +25,25 @@ public class FuturesQuoteService {
 	@Autowired
 	private FuturesQuoteDao quoteDao;
 
+	@Autowired
+	private FuturesContractDao contractDao;
+
 	public FuturesQuote getFuturesQuoteInfo(String commodityNo, String contractNo, String id) {
 		return quoteDao.retrieveFuturesQuoteById(commodityNo, contractNo, id);
+	}
+
+	public void deleteQuoteByDateTimeStampLessThan(String dateTimeStamp) {
+		List<FuturesContract> contractList = contractDao.retriveByEnable(true);
+		for (FuturesContract contract : contractList) {
+			try {
+				String commodityNo = contract.getCommodityNo();
+				String contractNo = contract.getContractNo();
+				quoteDao.deleteFuturesQuoteByDateTimeStampLessThan(commodityNo, contractNo, dateTimeStamp);
+				System.out.println("删除quote:" + commodityNo + "-" + contractNo + "-" + dateTimeStamp);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
 	}
 
 	@Transactional

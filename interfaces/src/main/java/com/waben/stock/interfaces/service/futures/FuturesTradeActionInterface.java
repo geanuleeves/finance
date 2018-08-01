@@ -84,4 +84,7 @@ public interface FuturesTradeActionInterface {
 	@RequestMapping(value = "/pages_phone", method = RequestMethod.POST, consumes = "application/json")
 	public Response<PageInfo<FuturesTradeActionViewDto>> pagesPhone(@RequestBody FuturesTradeActionQuery query);
 
+	@RequestMapping(value = "/detail/{id}", method = RequestMethod.GET)
+	Response<FuturesTradeActionViewDto> detail(@PathVariable("id") Long id);
+
 }

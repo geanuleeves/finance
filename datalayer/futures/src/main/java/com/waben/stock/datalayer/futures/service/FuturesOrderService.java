@@ -1771,6 +1771,7 @@ public class FuturesOrderService {
 			result.setRemaining(remaining);
 			result.setTotalFillCost(totalFillCost);
 			result.setTotalQuantity(totalQuantity);
+			result.setMarket(mkt);
 			return result;
 		} else {
 			MarketAveragePrice result = new MarketAveragePrice();
@@ -1807,6 +1808,7 @@ public class FuturesOrderService {
 			result.setRemaining(remaining);
 			result.setTotalFillCost(totalFillCost);
 			result.setTotalQuantity(totalQuantity);
+			result.setMarket(mkt);
 			return result;
 		}
 	}

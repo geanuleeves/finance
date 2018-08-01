@@ -2,6 +2,8 @@ package com.waben.stock.interfaces.dto.futures;
 
 import java.math.BigDecimal;
 
+import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
+
 /**
  * 行情均价
  * 
@@ -38,6 +40,10 @@ public class MarketAveragePrice {
 	 * 已成交部分总费用
 	 */
 	private BigDecimal totalFillCost;
+	/**
+	 * 计算时候的行情
+	 */
+	private FuturesContractMarket market;
 
 	public BigDecimal getTotalQuantity() {
 		return totalQuantity;
@@ -93,6 +99,14 @@ public class MarketAveragePrice {
 
 	public void setTotalFillCost(BigDecimal totalFillCost) {
 		this.totalFillCost = totalFillCost;
+	}
+
+	public FuturesContractMarket getMarket() {
+		return market;
+	}
+
+	public void setMarket(FuturesContractMarket market) {
+		this.market = market;
 	}
 
 }

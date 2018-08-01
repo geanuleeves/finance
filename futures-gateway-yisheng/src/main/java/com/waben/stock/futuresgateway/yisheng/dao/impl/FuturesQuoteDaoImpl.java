@@ -49,6 +49,13 @@ public class FuturesQuoteDaoImpl implements FuturesQuoteDao {
 	}
 
 	@Override
+	public void deleteFuturesQuoteByDateTimeStampLessThan(String commodityNo, String contractNo, String dateTimeStamp) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("dateTimeStamp").lt(dateTimeStamp));
+		mongoTemplate.remove(query, FuturesQuote.class, quoteCollectionNamePrefix + commodityNo + "-" + contractNo);
+	}
+
+	@Override
 	public FuturesQuote retrieveFuturesQuoteById(String commodityNo, String contractNo, String id) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("id").is(id));
@@ -61,6 +68,22 @@ public class FuturesQuoteDaoImpl implements FuturesQuoteDao {
 		Query query = new Query();
 		query.skip(page * limit);
 		query.limit(limit);
+		List<FuturesQuote> content = mongoTemplate.find(query, FuturesQuote.class,
+				quoteCollectionNamePrefix + commodityNo + "-" + contractNo);
+		long total = mongoTemplate.count(query, FuturesQuote.class,
+				quoteCollectionNamePrefix + commodityNo + "-" + contractNo);
+		Page<FuturesQuote> result = new PageImpl<>(content, new PageRequest(page, limit), total);
+		return result;
+	}
+
+	@Override
+	public Page<FuturesQuote> pageFuturesQuoteByDateTimeStampLessThan(String commodityNo, String contractNo, int page,
+			int limit, String dateTimeStamp) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("dateTimeStamp").lt(dateTimeStamp));
+		query.skip(page * limit);
+		query.limit(limit);
+		query.with(new Sort(new Sort.Order(Direction.ASC, "dateTimeStamp")));
 		List<FuturesQuote> content = mongoTemplate.find(query, FuturesQuote.class,
 				quoteCollectionNamePrefix + commodityNo + "-" + contractNo);
 		long total = mongoTemplate.count(query, FuturesQuote.class,

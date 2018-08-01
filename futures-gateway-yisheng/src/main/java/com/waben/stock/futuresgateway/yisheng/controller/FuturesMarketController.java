@@ -17,6 +17,7 @@ import com.waben.stock.futuresgateway.yisheng.pojo.FuturesContractLineData;
 import com.waben.stock.futuresgateway.yisheng.pojo.FuturesQuoteData;
 import com.waben.stock.futuresgateway.yisheng.pojo.Response;
 import com.waben.stock.futuresgateway.yisheng.service.FuturesMarketService;
+import com.waben.stock.futuresgateway.yisheng.service.FuturesQuoteService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,6 +35,9 @@ public class FuturesMarketController {
 
 	@Autowired
 	public FuturesMarketService service;
+
+	@Autowired
+	private FuturesQuoteService quoteService;
 
 	@Autowired
 	private ImportDayK importDayK;
@@ -125,8 +129,17 @@ public class FuturesMarketController {
 		return result;
 	}
 
+	@PostMapping("/deleteQuoteByDateTimeStampLessThan")
+	@ApiOperation(value = "删除行情数据")
+	public Response<String> deleteQuoteByDateTimeStampLessThan(String dateTimeStamp) {
+		quoteService.deleteQuoteByDateTimeStampLessThan(dateTimeStamp);
+		Response<String> result = new Response<>();
+		result.setResult("success");
+		return result;
+	}
+
 	/******************************************** 以下接口为导入文华财经接口数据 *****************************************/
-	
+
 	@GetMapping("/importMainDayline")
 	@ApiOperation(value = "导入主力合约日K数据")
 	public Response<String> importMainDayline(String dirPath) {
@@ -144,7 +157,7 @@ public class FuturesMarketController {
 		result.setResult("success");
 		return result;
 	}
-	
+
 	@GetMapping("/moveMinuteKToMongo")
 	@ApiOperation(value = "迁移分钟K到mongdo")
 	public Response<String> moveMinuteKToMongo() {
@@ -153,7 +166,7 @@ public class FuturesMarketController {
 		result.setResult("success");
 		return result;
 	}
-	
+
 	@GetMapping("/importMainMultipleMinuteline")
 	@ApiOperation(value = "导入主力合约多分钟K数据")
 	public Response<String> importMainMultipleMinuteline(String dirPath) {
@@ -162,7 +175,7 @@ public class FuturesMarketController {
 		result.setResult("success");
 		return result;
 	}
-	
+
 	@GetMapping("/computeMainMinuteKGroup")
 	@ApiOperation(value = "计算主力合约分钟K组合数据")
 	public Response<String> computeMainMinuteKGroup(String startTime) {

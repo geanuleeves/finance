@@ -168,7 +168,7 @@ public class EsQuoteWrapper implements QuoteApiListener {
 
 	@Override
 	public void onRtnQuote(TapAPIQuoteWhole info) {
-		if(info.getQLastPrice() > 0) {
+		if (info.getQLastPrice() > 0) {
 			// 放入队列和缓存
 			EsQuoteInfo quoteInfo = new EsQuoteInfo();
 			quoteInfo.setInfo(info);
@@ -303,7 +303,7 @@ public class EsQuoteWrapper implements QuoteApiListener {
 				// 推送全部行情（部分信息）
 				allQuote = Message.MessageBase.newBuilder(allQuote).setClientId(clientId).build();
 				channel.writeAndFlush(allQuote);
-			} else if(rtinfo.get() != null && rtinfo.get() == 3) {
+			} else if (rtinfo.get() != null && rtinfo.get() == 3) {
 				// 推送全部行情（全信息）
 				allFullQuote = Message.MessageBase.newBuilder(allFullQuote).setClientId(clientId).build();
 				channel.writeAndFlush(allFullQuote);
@@ -382,7 +382,8 @@ public class EsQuoteWrapper implements QuoteApiListener {
 					.setBidSize10(info.getQBidQty()[9])
 					.setClosePrice(
 							new BigDecimal(info.getQPreClosingPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
-					.setNowClosePrice(new BigDecimal(info.getQClosingPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
+					.setNowClosePrice(
+							new BigDecimal(info.getQClosingPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
 					.setHighPrice(new BigDecimal(info.getQHighPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
 					.setLastPrice(new BigDecimal(info.getQLastPrice()).setScale(scale, RoundingMode.HALF_UP).toString())
 					.setLastSize(info.getQLastQty())
