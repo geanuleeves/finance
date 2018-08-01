@@ -46,7 +46,9 @@ public class FuturesTradeActionViewDto extends FuturesTradeActionDto {
 	/** 订单编号 */
 	@ApiModelProperty(value = "订单编号")
 	private String actionNo;
-
+	/** 开仓成交均价 */
+	@ApiModelProperty(value = "开仓成交均价")
+	private BigDecimal openAvgFillPrice;
 
 	public FuturesOrderType getOrderType() {
 		return orderType;
@@ -73,7 +75,7 @@ public class FuturesTradeActionViewDto extends FuturesTradeActionDto {
 	}
 
 	public BigDecimal getMinWave() {
-		if(minWave != null) {
+		if (minWave != null) {
 			return minWave.stripTrailingZeros();
 		}
 		return minWave;
@@ -138,4 +140,13 @@ public class FuturesTradeActionViewDto extends FuturesTradeActionDto {
 	public void setActionNo(String actionNo) {
 		this.actionNo = actionNo;
 	}
+
+	public BigDecimal getOpenAvgFillPrice() {
+		return openAvgFillPrice;
+	}
+
+	public void setOpenAvgFillPrice(BigDecimal openAvgFillPrice) {
+		this.openAvgFillPrice = openAvgFillPrice;
+	}
+
 }
