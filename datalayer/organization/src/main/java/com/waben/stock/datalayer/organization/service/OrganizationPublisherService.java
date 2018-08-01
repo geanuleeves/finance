@@ -156,4 +156,8 @@ public class OrganizationPublisherService {
 		}
 		throw new ServiceException(response.getCode());
 	}
+
+	public List<OrganizationPublisher> findByTreeCode(String treeCode) {
+		return dao.findByTreeCode(treeCode);
+	}
 }

@@ -24,4 +24,6 @@ public interface OrganizationPublisherRepository extends CustomJpaRepository<Org
 	
 	@Query(value = "select * from p_organization_publisher where org_code like %:orgCode", nativeQuery=true)
 	List<OrganizationPublisher> findByOrgCode(@PathVariable("orgCode") String orgCode);
+	
+	List<OrganizationPublisher> findByTreeCode(String treeCode);
 }

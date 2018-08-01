@@ -1,8 +1,8 @@
 package com.waben.stock.applayer.tactics.dto.futures;
 
-import java.math.BigDecimal;
-
 import io.swagger.annotations.ApiModelProperty;
+
+import java.math.BigDecimal;
 
 public class FuturesOrderProfitDto {
 
@@ -11,6 +11,10 @@ public class FuturesOrderProfitDto {
 	 */
 	@ApiModelProperty(value = "盈亏")
 	private BigDecimal totalIncome;
+
+	/** 保证金 */
+	@ApiModelProperty(value = "保证金")
+	private BigDecimal reserveFund;
 
 	/**
 	 * 总强平金额
@@ -60,4 +64,11 @@ public class FuturesOrderProfitDto {
 		this.totalBalance = totalBalance;
 	}
 
+	public BigDecimal getReserveFund() {
+		return reserveFund;
+	}
+
+	public void setReserveFund(BigDecimal reserveFund) {
+		this.reserveFund = reserveFund;
+	}
 }

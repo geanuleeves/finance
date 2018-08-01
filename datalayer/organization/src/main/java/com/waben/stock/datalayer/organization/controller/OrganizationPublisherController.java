@@ -39,7 +39,7 @@ public class OrganizationPublisherController implements OrganizationPublisherInt
 
 	@Autowired
 	public OrganizationPublisherService service;
-	
+
 	@Autowired
 	@Qualifier("organizationInterface")
 	private OrganizationInterface orgReference;
@@ -53,9 +53,11 @@ public class OrganizationPublisherController implements OrganizationPublisherInt
 	@Override
 	public Response<List<OrganizationPublisherDto>> fetchOrganizationPublishersByCode(@PathVariable String code) {
 		List<OrganizationPublisher> result = service.findOrganizationPublishersByCode(code);
-		List<OrganizationPublisherDto> response = CopyBeanUtils.copyListBeanPropertiesToList(result, OrganizationPublisherDto.class);
+		List<OrganizationPublisherDto> response = CopyBeanUtils.copyListBeanPropertiesToList(result,
+				OrganizationPublisherDto.class);
 		return new Response<>(response);
 	}
+
 	@Override
 	public Response<OrganizationPublisherDto> fetchOrgPublisher(@PathVariable Long publisherId) {
 		return new Response<>(CopyBeanUtils.copyBeanProperties(OrganizationPublisherDto.class,
@@ -65,7 +67,8 @@ public class OrganizationPublisherController implements OrganizationPublisherInt
 	@Override
 	public Response<List<OrganizationPublisherDto>> fetchAll() {
 		List<OrganizationPublisher> result = service.findAll();
-		List<OrganizationPublisherDto> response = CopyBeanUtils.copyListBeanPropertiesToList(result, OrganizationPublisherDto.class);
+		List<OrganizationPublisherDto> response = CopyBeanUtils.copyListBeanPropertiesToList(result,
+				OrganizationPublisherDto.class);
 		return new Response<>(response);
 	}
 
@@ -74,26 +77,28 @@ public class OrganizationPublisherController implements OrganizationPublisherInt
 		query.setTreeCode(code);
 		query.setPage(0);
 		query.setSize(Integer.MAX_VALUE);
-		//查询改机构下的所有子机构
+		// 查询改机构下的所有子机构
 		Response<PageInfo<OrganizationDto>> response = orgReference.adminPage(query);
 		List<OrganizationDto> list = response.getResult().getContent();
 		List<Long> orgIds = new ArrayList<Long>();
-		for(OrganizationDto dto:list){
+		for (OrganizationDto dto : list) {
 			orgIds.add(dto.getId());
 		}
-		
+
 		List<OrganizationPublisher> result = service.findByOrgId(orgIds);
-		List<OrganizationPublisherDto> resultDto = CopyBeanUtils.copyListBeanPropertiesToList(result, OrganizationPublisherDto.class);
+		List<OrganizationPublisherDto> resultDto = CopyBeanUtils.copyListBeanPropertiesToList(result,
+				OrganizationPublisherDto.class);
 		return new Response<>(resultDto);
 	}
 
 	@Override
 	public Response<List<OrganizationPublisherDto>> queryByTreeCode(@RequestBody FuturesTradeAdminQuery query) {
-		if(query.getTreeCode() !=null && !"".equals(query.getTreeCode())){
+		if (query.getTreeCode() != null && !"".equals(query.getTreeCode())) {
 			List<OrganizationPublisher> result = service.findByOrgCode(query.getTreeCode());
-			List<OrganizationPublisherDto> resultDto = CopyBeanUtils.copyListBeanPropertiesToList(result, OrganizationPublisherDto.class);
+			List<OrganizationPublisherDto> resultDto = CopyBeanUtils.copyListBeanPropertiesToList(result,
+					OrganizationPublisherDto.class);
 			return new Response<>(resultDto);
-		}else{
+		} else {
 			return new Response<>();
 		}
 	}
@@ -101,16 +106,20 @@ public class OrganizationPublisherController implements OrganizationPublisherInt
 	@Override
 	public Response<OrganizationPublisherDto> addOrgPublisher(@PathVariable Long publisherId) {
 		List<Organization> org = service.listByLevel(1);
-		if(org!=null && org.size()>0){
+		if (org != null && org.size() > 0) {
 			Organization zation = org.get(0);
-			if(!StringUtil.isEmpty(zation.getCode())){
+			if (!StringUtil.isEmpty(zation.getCode())) {
 				return new Response<>(CopyBeanUtils.copyBeanProperties(OrganizationPublisherDto.class,
 						service.addOrgPublisherAdmin(zation.getCode(), publisherId), false));
 			}
 		}
 		return new Response<>(new OrganizationPublisherDto());
 	}
-	
-	
+
+	@Override
+	public Response<List<OrganizationPublisherDto>> getTreeCode(@PathVariable String treeCode) {
+		return new Response<>(CopyBeanUtils.copyListBeanPropertiesToList(service.findByTreeCode(treeCode),
+				OrganizationPublisherDto.class));
+	}
 
 }

@@ -47,6 +47,10 @@ public class FuturesTradeActionAgentDto {
 	private Integer priceType;
 	/** 平仓类型 */
 	private Integer windControlType;
+	/** 合约编号 **/
+	private String code;
+	/** 合约编号 **/
+	private String orgName;
 
 	public Long getId() {
 		return id;
@@ -190,6 +194,22 @@ public class FuturesTradeActionAgentDto {
 
 	public void setContractId(Long contractId) {
 		this.contractId = contractId;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public String getOrgName() {
+		return orgName;
+	}
+
+	public void setOrgName(String orgName) {
+		this.orgName = orgName;
 	}
 
 }
