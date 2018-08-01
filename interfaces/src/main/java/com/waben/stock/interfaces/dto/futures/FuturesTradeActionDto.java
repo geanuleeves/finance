@@ -74,6 +74,9 @@ public class FuturesTradeActionDto {
 	/** 更新时间 */
 	@ApiModelProperty(value = "更新时间")
 	private Date updateTime;
+	/** 开仓成交均价 */
+	@ApiModelProperty(value = "开仓成交均价")
+	private BigDecimal openAvgFillPrice;
 
 	/***************** 以下字段为额外数据 ********************/
 	/** 合约ID */
@@ -287,6 +290,14 @@ public class FuturesTradeActionDto {
 
 	public void setContractNo(String contractNo) {
 		this.contractNo = contractNo;
+	}
+	
+	public BigDecimal getOpenAvgFillPrice() {
+		return openAvgFillPrice;
+	}
+
+	public void setOpenAvgFillPrice(BigDecimal openAvgFillPrice) {
+		this.openAvgFillPrice = openAvgFillPrice;
 	}
 
 }
