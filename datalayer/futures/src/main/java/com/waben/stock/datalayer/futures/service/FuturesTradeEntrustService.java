@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
+import com.waben.stock.datalayer.futures.business.OrganizationBusiness;
 import com.waben.stock.datalayer.futures.business.OutsideMessageBusiness;
 import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
@@ -96,6 +97,9 @@ public class FuturesTradeEntrustService {
 
 	@Autowired
 	private FuturesTradeEntrustDao futuresTradeEntrustDao;
+
+	@Autowired
+	private OrganizationBusiness orgBusiness;
 
 	private SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -385,6 +389,27 @@ public class FuturesTradeEntrustService {
 						action.setPublisherProfitOrLoss(publisherProfitOrLoss);
 						action.setPlatformProfitOrLoss(platformProfitOrLoss);
 						actionDao.update(action);
+
+						logger.info("代理分成自动平仓外, actionNo:{}, state:{}", action.getActionNo(),
+								action.getState().getType());
+						// 给代理商分成结算
+						if (action.getOrder().getIsTest() == null || action.getOrder().getIsTest() == false) {
+							logger.info("代理分成自动平仓内, actionNo:{}, state:{}", action.getActionNo(),
+									action.getState().getType());
+							// 递延费
+							BigDecimal deferredFee = BigDecimal.ZERO;
+							if (deferredFee == null) {
+								deferredFee = BigDecimal.ZERO;
+							}
+							// 当前拆分的服务费
+							BigDecimal currentServiceFee = action.getOrder().getServiceFee()
+									.divide(action.getOrder().getTotalQuantity()).multiply(action.getQuantity());
+							// 结算
+							orgBusiness.futuresRatioSettlement(action.getPublisherId(), action.getContractId(),
+									action.getId(), action.getActionNo(), action.getOrder().getTotalQuantity(),
+									currentServiceFee, publisherProfitOrLoss, deferredFee);
+						}
+
 					}
 				}
 				dao.update(entrust);

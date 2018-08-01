@@ -278,7 +278,7 @@ public class OrganizationController implements OrganizationInterface {
 	@Override
 	public Response<Integer> addAgentPartition(@PathVariable BigDecimal ratio, @PathVariable BigDecimal platformRatio,
 			@PathVariable Long orgId, Long id) {
-		return new Response<>(organizationService.addAgentJYTPartition(ratio, platformRatio, orgId, id));
+		return new Response<>(organizationService.addAgentTTPartition(ratio, platformRatio, orgId, id));
 	}
 
 	@Override

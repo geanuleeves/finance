@@ -1281,7 +1281,7 @@ public class OrganizationService {
 		return sumRatio;
 	}
 
-	public Integer addAgentJYTPartition(BigDecimal ratio, BigDecimal platformRatio, Long orgId, Long id) {
+	public Integer addAgentTTPartition(BigDecimal ratio, BigDecimal platformRatio, Long orgId, Long id) {
 		Organization org = organizationDao.retrieve(orgId);
 		Organization orgParent = org.getParent();
 		List<BenefitConfig> orgParentList = benefitConfigDao.retrieveByOrgAndResourceType(orgParent, 3);

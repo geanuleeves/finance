@@ -84,7 +84,7 @@ public class OrganizationSettlementService {
 		if (checkFlowList == null || checkFlowList.size() == 0) {
 			logger.info("参与结算返佣金额未结算前日志, tradeNo{},serviceFee:{},orderCloseFee:{},deferredFee:{}", tradeNo, serviceFee,
 					orderCloseFee, deferredFee);
-			futuresOrderRatioJYTSettlement(publisherId, BenefitConfigType.FuturesComprehensiveFee,
+			futuresOrderRatioTTSettlement(publisherId, BenefitConfigType.FuturesComprehensiveFee,
 					OrganizationAccountFlowType.FuturesComprehensiveFeeAssign, comprehensiveFee, benefitResourceId,
 					futuresOrderId, tradeNo);
 		}
@@ -636,7 +636,7 @@ public class OrganizationSettlementService {
 		accountService.futureBenefit(null, amount, amount, flowType, flowResourceType, flowResourceId, tradeNo);
 	}
 
-	public void futuresOrderRatioJYTSettlement(Long publisherId, BenefitConfigType benefitConfigType,
+	public void futuresOrderRatioTTSettlement(Long publisherId, BenefitConfigType benefitConfigType,
 			OrganizationAccountFlowType flowType, BigDecimal amount, Long benefitResourceId, Long flowResourceId,
 			String tradeNo) {
 		logger.info("参与结算返佣金额进入结算方法, tradeNo{}", tradeNo);
