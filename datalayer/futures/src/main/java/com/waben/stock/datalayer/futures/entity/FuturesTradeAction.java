@@ -62,8 +62,6 @@ public class FuturesTradeAction {
 	/** 委托状态(只存在全部成功，不存在部分成功情况) */
 	@Convert(converter = FuturesTradeEntrustStateConverter.class)
 	private FuturesTradeEntrustState state;
-	/** 开仓成交均价 */
-	private BigDecimal openAvgFillPrice;
 	/** 交易成功时间 */
 	private Date tradeTime;
 	/** 成交量 */
@@ -119,6 +117,12 @@ public class FuturesTradeAction {
 	/** 货币缩写 */
 	@Transient
 	private String currency;
+	/** 开仓成交均价 */
+	@Transient
+	private BigDecimal openAvgFillPrice;
+	/** 委托价格 */
+	@Transient
+	private BigDecimal entrustPrice;
 
 	public Long getId() {
 		return id;
@@ -412,7 +416,7 @@ public class FuturesTradeAction {
 	}
 
 	public BigDecimal getOpenAvgFillPrice() {
-		if(order != null) {
+		if (order != null) {
 			return order.getOpenAvgFillPrice();
 		}
 		return openAvgFillPrice;
@@ -420,6 +424,17 @@ public class FuturesTradeAction {
 
 	public void setOpenAvgFillPrice(BigDecimal openAvgFillPrice) {
 		this.openAvgFillPrice = openAvgFillPrice;
+	}
+
+	public BigDecimal getEntrustPrice() {
+		if (tradeEntrust != null && tradeEntrust.getPriceType() == FuturesTradePriceType.LMT) {
+			return tradeEntrust.getEntrustPrice();
+		}
+		return entrustPrice;
+	}
+
+	public void setEntrustPrice(BigDecimal entrustPrice) {
+		this.entrustPrice = entrustPrice;
 	}
 
 }
