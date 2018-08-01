@@ -233,7 +233,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
     }
 
 	@Override
-	public Response<PageInfo<FuturesHoldPositionAgentDto>> pagesAgentAdmin(FuturesTradeAdminQuery query) {
+	public Response<PageInfo<FuturesHoldPositionAgentDto>> pagesAgentAdmin(@RequestBody FuturesTradeAdminQuery query) {
 		Page<FuturesContractOrder> page = futuresOrderService.pages(query);
 		PageInfo<FuturesHoldPositionAgentDto> result = PageToPageInfo.pageToPageInfo(page,
 				FuturesHoldPositionAgentDto.class);
