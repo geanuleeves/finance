@@ -369,7 +369,6 @@ public class FuturesTradeController implements FuturesTradeInterface {
 
 						buyDto.setAvgFillPrice(avgUpFillPrice);
 						// 最新价
-						buyDto.setAvgFillPriceNow(lastPrice);
 						buyDto.setLastPrice(lastPrice);
 						// 最小波动
 						buyDto.setMinWave(futuresCommodity.getMinWave());
@@ -429,7 +428,6 @@ public class FuturesTradeController implements FuturesTradeInterface {
 								futuresContractOrder.getCommodityNo(), FuturesOrderType.BuyFall.getIndex());
 						avgFallFillPrice = avgFallFillPrice == null ? new BigDecimal(0) : avgFallFillPrice;
 						sellDto.setAvgFillPrice(avgFallFillPrice);
-						sellDto.setAvgFillPriceNow(lastPrice);
 						sellDto.setLastPrice(lastPrice);
 						// 最小波动
 						sellDto.setMinWave(futuresCommodity.getMinWave());

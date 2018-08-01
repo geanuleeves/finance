@@ -1,12 +1,11 @@
 package com.waben.stock.interfaces.dto.futures;
 
-import java.math.BigDecimal;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
-
 import io.swagger.annotations.ApiModelProperty;
+
+import java.math.BigDecimal;
 
 /**
  * @author chenk 2018/7/30
@@ -38,6 +37,16 @@ public class FuturesTradeActionViewDto extends FuturesTradeActionDto {
 	/** 货币缩写 */
 	@ApiModelProperty(value = "货币缩写")
 	private String currency;
+	/** 服务费 */
+	@ApiModelProperty(value = "服务费")
+	private BigDecimal serviceFee;
+	/** 保证金 */
+	@ApiModelProperty(value = "保证金")
+	private BigDecimal reserveFund;
+	/** 订单编号 */
+	@ApiModelProperty(value = "订单编号")
+	private String actionNo;
+
 
 	public FuturesOrderType getOrderType() {
 		return orderType;
@@ -106,4 +115,27 @@ public class FuturesTradeActionViewDto extends FuturesTradeActionDto {
 		this.currency = currency;
 	}
 
+	public BigDecimal getServiceFee() {
+		return serviceFee;
+	}
+
+	public void setServiceFee(BigDecimal serviceFee) {
+		this.serviceFee = serviceFee;
+	}
+
+	public BigDecimal getReserveFund() {
+		return reserveFund;
+	}
+
+	public void setReserveFund(BigDecimal reserveFund) {
+		this.reserveFund = reserveFund;
+	}
+
+	public String getActionNo() {
+		return actionNo;
+	}
+
+	public void setActionNo(String actionNo) {
+		this.actionNo = actionNo;
+	}
 }

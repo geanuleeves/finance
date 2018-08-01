@@ -264,6 +264,8 @@ public class FuturesTradeEntrustService {
 					BigDecimal profitOrLoss = currencyProfitOrLoss.multiply(rate).setScale(2, RoundingMode.DOWN);
 					action.setCurrencyProfitOrLoss(currencyProfitOrLoss);
 					action.setProfitOrLoss(profitOrLoss);
+					action.setSettlementRate(rate);
+					action.setSettlementTime(date);
 				}
 			}
 			action.setAvgFillPrice(actionAvgFillPrice);
