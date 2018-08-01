@@ -722,7 +722,8 @@ public class FuturesTradeEntrustService {
 				" select f1.id, f5.name, f4.phone, f1.commodity_no, f3.commodity_name, f1.contract_no,f1.order_type,"
 						+ " f1.trade_action_type, f1.filled, f1.quantity, f1.entrust_price, f1.avg_fill_price,"
 						+ " f1.entrust_no, f1.entrust_time, f1.state,f1.total_fill_cost, f1.trade_price,"
-						+ " f1.price_type, f3.is_test, f1.return_reserve_fund " + " from f_futures_trade_entrust f1"
+						+ " f1.price_type, f3.is_test, f1.return_reserve_fund, t8.code, t8.name as org_name, f2.trade_time "
+						+ " from f_futures_trade_entrust f1"
 						+ " LEFT JOIN f_futures_trade_action f2 on f1.id=f2.trade_entrust_id"
 						+ " LEFT JOIN f_futures_order f3 ON f2.order_id=f3.id"
 						+ " LEFT JOIN publisher f4 ON f1.publisher_id=f4.id"
@@ -730,7 +731,7 @@ public class FuturesTradeEntrustService {
 						+ " LEFT JOIN f_futures_contract t6 ON t6.id = f1.contract_id "
 						+ " LEFT JOIN p_organization_publisher t7 ON t7.publisher_id = f1.publisher_id "
 						+ " LEFT JOIN p_organization t8 ON t8.id = t7.org_id"
-						+ " where 1=1 %s %s %s %s %s %s %s %s %s %s %s  ORDER BY f1.entrust_time DESC" + " LIMIT "
+						+ " where 1=1 %s %s %s %s %s %s %s %s %s %s %s  ORDER BY f1.entrust_time DESC LIMIT "
 						+ query.getPage() * query.getSize() + "," + query.getSize(),
 				publisherNameCondition, publisherPhoneCondition, contractNameCondition, contractNoCondition,
 				orderTypeCondition, tradeActionCondition, tradeNoCondition, orderStateCondition, startTimeCondition,
@@ -757,6 +758,9 @@ public class FuturesTradeEntrustService {
 		setMethodMap.put(new Integer(17), new MethodDesc("setPriceType", new Class<?>[] { Integer.class }));
 		setMethodMap.put(new Integer(18), new MethodDesc("setIsTest", new Class<?>[] { Boolean.class }));
 		setMethodMap.put(new Integer(19), new MethodDesc("setReturnReserveFund", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(20), new MethodDesc("setCode", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(21), new MethodDesc("setOrgName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(22), new MethodDesc("setTradeTime", new Class<?>[] { Date.class }));
 
 		List<FuturesTradeDto> content = sqlDao.execute(FuturesTradeDto.class, sql, setMethodMap);
 		BigInteger totalElements = sqlDao.executeComputeSql(countSql);

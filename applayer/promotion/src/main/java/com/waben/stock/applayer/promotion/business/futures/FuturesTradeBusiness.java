@@ -55,6 +55,7 @@ public class FuturesTradeBusiness {
 	private FuturesTradeInterface reference;
 
 	@Autowired
+	@Qualifier("organizationPublisherInterface")
 	private OrganizationPublisherInterface organizationPublisherReference;
 
 	@Autowired
@@ -490,6 +491,20 @@ public class FuturesTradeBusiness {
 		Response<PageInfo<FuturesTradeDto>> response = entrustReference.pagesEntrust(query);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public List<Long> getPublisherId(String treeCode) {
+		Response<List<OrganizationPublisherDto>> response = organizationPublisherReference.getTreeCode(treeCode);
+		if ("200".equals(response.getCode())) {
+			List<Long> orgPublisherList = new ArrayList<Long>();
+			List<OrganizationPublisherDto> orgList = response.getResult();
+			for (OrganizationPublisherDto orgPublisher : orgList) {
+				orgPublisherList.add(orgPublisher.getPublisherId());
+			}
+			// String str = StringUtils.join(orgPublisherList, ",");
+			return orgPublisherList;
 		}
 		throw new ServiceException(response.getCode());
 	}

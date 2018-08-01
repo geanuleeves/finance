@@ -33,10 +33,13 @@ public interface OrganizationPublisherInterface {
 
 	@RequestMapping(value = "/all", method = RequestMethod.GET)
 	Response<List<OrganizationPublisherDto>> fetchAll();
-	
+
 	@RequestMapping(value = "/queryByTreeCode", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
 	Response<List<OrganizationPublisherDto>> queryByTreeCode(@RequestBody FuturesTradeAdminQuery query);
 
 	@RequestMapping(value = "/addOrgPublisher/{publisherId}", method = RequestMethod.GET)
 	Response<OrganizationPublisherDto> addOrgPublisher(@PathVariable("publisherId") Long publisherId);
+
+	@RequestMapping(value = "/tree/code/{treeCode}", method = RequestMethod.GET)
+	Response<List<OrganizationPublisherDto>> getTreeCode(@PathVariable("treeCode") String treeCode);
 }

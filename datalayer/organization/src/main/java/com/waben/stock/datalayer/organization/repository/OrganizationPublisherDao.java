@@ -17,9 +17,11 @@ public interface OrganizationPublisherDao extends BaseDao<OrganizationPublisher,
 	OrganizationPublisher retrieveByPublisherId(Long publisherId);
 
 	List<OrganizationPublisher> retrieveOrganizationPublishersByOrgCode(String code);
-	
+
 	List<OrganizationPublisher> findByOrdId(List<Long> orgId);
-	
+
 	List<OrganizationPublisher> findByOrgCode(String orgCode);
+
+	List<OrganizationPublisher> findByTreeCode(String treeCode);
 
 }
