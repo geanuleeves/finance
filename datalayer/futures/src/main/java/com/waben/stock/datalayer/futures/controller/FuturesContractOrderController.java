@@ -166,7 +166,6 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 
                         buyDto.setAvgFillPrice(avgUpFillPrice);
                         //最新价
-                        buyDto.setAvgFillPriceNow(lastPrice);
                         buyDto.setLastPrice(lastPrice);
                         //最小波动
                         buyDto.setMinWave(futuresCommodity.getMinWave());
@@ -201,7 +200,6 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                                 FuturesOrderType.BuyFall.getIndex());
                         avgFallFillPrice = avgFallFillPrice == null ? new BigDecimal(0) : avgFallFillPrice;
                         sellDto.setAvgFillPrice(avgFallFillPrice);
-                        sellDto.setAvgFillPriceNow(lastPrice);
                         sellDto.setLastPrice(lastPrice);
                         //最小波动
                         sellDto.setMinWave(futuresCommodity.getMinWave());
@@ -281,7 +279,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 							futuresContractOrder.getPublisherId(), futuresContractOrder.getContractNo(),
 							futuresContractOrder.getCommodityNo(), FuturesOrderType.BuyUp.getIndex());
 					buyDto.setAvgFillPrice(avgUpFillPrice);
-					buyDto.setAvgFillPriceNow(lastPrice);
+					buyDto.setLastPrice(lastPrice);
 					// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格
 					if (futuresCommodity != null) {
 						buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice)
@@ -322,7 +320,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 							futuresContractOrder.getPublisherId(), futuresContractOrder.getContractNo(),
 							futuresContractOrder.getCommodityNo(), FuturesOrderType.BuyFall.getIndex());
 					sellDto.setAvgFillPrice(avgFallFillPrice);
-					sellDto.setAvgFillPriceNow(lastPrice);
+					sellDto.setLastPrice(lastPrice);
 					if(avgFallFillPrice == null){
 						avgFallFillPrice = new BigDecimal(0);
 					}
