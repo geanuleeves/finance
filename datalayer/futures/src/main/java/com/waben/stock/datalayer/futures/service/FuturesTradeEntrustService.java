@@ -246,7 +246,7 @@ public class FuturesTradeEntrustService {
 			if (currentFilled.compareTo(filled) > 0) {
 				currentFilled = filled;
 			}
-			remaining = remaining.subtract(currentFilled);
+			filled = filled.subtract(currentFilled);
 			// step 1.2 : 更新开平仓记录
 			BigDecimal actionRemaining = action.getRemaining().subtract(currentFilled);
 			BigDecimal actionFilled = action.getFilled().add(currentFilled);
@@ -334,7 +334,7 @@ public class FuturesTradeEntrustService {
 			contractOrderDao.update(contractOrder);
 			// step 1.4 : 如果没有的剩余，停止循环
 			totalFilled = totalFilled.add(currentFilled);
-			if (remaining.compareTo(BigDecimal.ZERO) <= 0) {
+			if (filled.compareTo(BigDecimal.ZERO) <= 0) {
 				break;
 			}
 		}

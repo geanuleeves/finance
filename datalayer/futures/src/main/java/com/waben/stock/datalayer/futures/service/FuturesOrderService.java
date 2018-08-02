@@ -836,7 +836,8 @@ public class FuturesOrderService {
 		if (orderList != null && orderList.size() > 0) {
 			int sort = 1;
 			for (FuturesOrder order : orderList) {
-				if (!(order.getState() == FuturesOrderState.Position || order.getState() == FuturesOrderState.PartUnwind
+				if (order.getOrderType() != orderType || !(order.getState() == FuturesOrderState.Position
+						|| order.getState() == FuturesOrderState.PartUnwind
 						|| order.getState() == FuturesOrderState.SellingEntrust)) {
 					continue;
 				}
