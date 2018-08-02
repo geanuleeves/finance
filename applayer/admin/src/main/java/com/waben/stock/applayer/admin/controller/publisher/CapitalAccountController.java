@@ -6,10 +6,18 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.waben.stock.applayer.admin.business.manage.OperationLogBusiness;
+import com.waben.stock.applayer.admin.security.SecurityUtil;
+import com.waben.stock.applayer.admin.util.PhoneUtil;
+import com.waben.stock.interfaces.dto.admin.publisher.CapitalFlowAdminDto;
+import com.waben.stock.interfaces.dto.manage.OperationLogDto;
+import com.waben.stock.interfaces.dto.publisher.PublisherDto;
+import com.waben.stock.interfaces.enums.OperationType;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,13 +60,21 @@ public class CapitalAccountController {
 
 	@Autowired
 	private CapitalAccountBusiness business;
-	
+
+	@Autowired
+	private OperationLogBusiness operationLogBusiness;
+
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 
 	@GetMapping("/pages")
 	@ApiOperation(value = "查询资金账户")
 	public Response<PageInfo<CapitalAccountAdminDto>> pages(CapitalAccountAdminQuery query) {
-		return new Response<>(business.adminPagesByQuery(query));
+		PageInfo<CapitalAccountAdminDto> pageInfo = business.adminPagesByQuery(query);
+		for(CapitalAccountAdminDto dto : pageInfo.getContent()) {
+			dto.setPhone(PhoneUtil.encodedPhone(dto.getPhone()));
+		}
+		return new Response<>(pageInfo);
 	}
 
 	@PutMapping("/state/{id}/{state}")
@@ -160,5 +176,13 @@ public class CapitalAccountController {
 		result.add("资产状态");
 		result.add("是否测试");
 		return result;
+	}
+
+	@GetMapping("/phone/{id}")
+	@ApiOperation(value = "查看手机号码")
+	public Response<CapitalAccountDto> getPhone(@PathVariable Long id) {
+		CapitalAccountDto response = business.findById(id);
+		operationLogBusiness.save(OperationType.SEE_PHONE_NUMBER.getIndex());
+		return new Response<>(response);
 	}
 }

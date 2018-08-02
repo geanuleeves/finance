@@ -2,6 +2,8 @@ package com.waben.stock.applayer.admin.controller.publisher;
 
 import java.math.BigDecimal;
 
+import com.waben.stock.applayer.admin.util.PhoneUtil;
+import com.waben.stock.interfaces.dto.admin.publisher.CapitalFlowAdminDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +30,11 @@ public class FuturesComprehensiveFeeController {
 	@GetMapping("/pages")
 	@ApiOperation(value = "查询提现审核记录")
 	public Response<PageInfo<WithdrawalsOrderDto>> page(FuturesComprehensiveFeeQuery query){
-		return new Response<>(business.page(query));
+		PageInfo<WithdrawalsOrderDto> pageInfo = business.page(query);
+		for(WithdrawalsOrderDto dto : pageInfo.getContent()) {
+			dto.setPublisherPhone(PhoneUtil.encodedPhone(dto.getPublisherPhone()));
+		}
+		return new Response<>(pageInfo);
 	}
 	
 	@GetMapping("/wbWithdrawalsAdmin")

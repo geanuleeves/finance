@@ -2,6 +2,7 @@ package com.waben.stock.applayer.admin.business.publisher;
 
 import java.math.BigDecimal;
 
+import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -59,4 +60,11 @@ public class CapitalFlowBusiness {
 		throw new ServiceException(response.getCode());
 	}
 
+	public CapitalFlowDto findById(Long id) {
+		Response<CapitalFlowDto> response = reference.fetchById(id);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
 }

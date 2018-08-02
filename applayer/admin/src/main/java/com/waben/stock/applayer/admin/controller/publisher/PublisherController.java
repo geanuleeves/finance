@@ -5,10 +5,17 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.waben.stock.applayer.admin.business.manage.OperationLogBusiness;
+import com.waben.stock.applayer.admin.security.SecurityUtil;
+import com.waben.stock.applayer.admin.util.PhoneUtil;
+import com.waben.stock.interfaces.dto.manage.OperationLogDto;
+import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
+import com.waben.stock.interfaces.enums.OperationType;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +71,9 @@ public class PublisherController {
 	@Autowired
 	private BindCardBusiness bindCardBusiness;
 
+	@Autowired
+	private OperationLogBusiness operationLogBusiness;
+
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	@RequestMapping(value = "/savePublisher", method = RequestMethod.POST)
@@ -87,7 +97,11 @@ public class PublisherController {
 	@GetMapping("/pages")
 	@ApiOperation(value = "查询发布人")
 	public Response<PageInfo<PublisherAdminDto>> pages(PublisherAdminQuery query) {
-		return new Response<>(business.adminPagesByQuery(query));
+		PageInfo<PublisherAdminDto> pageInfo = business.adminPagesByQuery(query);
+		for(PublisherAdminDto dto : pageInfo.getContent()) {
+			dto.setPhone(PhoneUtil.encodedPhone(dto.getPhone()));
+		}
+		return new Response<>(pageInfo);
 	}
 
 	@GetMapping("/detail/{id}")
@@ -245,5 +259,13 @@ public class PublisherController {
 		result.add("状态");
 		result.add("是否测试");
 		return result;
+	}
+
+	@GetMapping("/phone/{id}")
+	@ApiOperation(value = "查看手机号码")
+	public Response<PublisherDto> getPhone(@PathVariable Long id) {
+		PublisherDto response = business.findById(id);
+		operationLogBusiness.save(OperationType.SEE_PHONE_NUMBER.getIndex());
+		return new Response<>(response);
 	}
 }

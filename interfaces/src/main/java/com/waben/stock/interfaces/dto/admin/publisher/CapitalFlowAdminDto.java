@@ -31,7 +31,7 @@ public class CapitalFlowAdminDto extends CapitalFlowDto {
 	 * 股票名称（点买记录）
 	 */
 	private String bStockName;
-	
+
 	public String getCommoditySymbol() {
 		return commoditySymbol;
 	}

@@ -21,7 +21,7 @@ public class PermissionVo implements Serializable {
     @ApiModelProperty(value = "权限代码")
     private String expression;
     @ApiModelProperty(value = "子权限数组")
-    private List<PermissionVo> childPermissions;
+    private List<PermissionVo> childs;
 
     public Long getId() {
         return id;
@@ -55,11 +55,11 @@ public class PermissionVo implements Serializable {
         this.expression = expression;
     }
 
-    public List<PermissionVo> getChildPermissions() {
-        return childPermissions;
+    public List<PermissionVo> getChilds() {
+        return childs;
     }
 
-    public void setChildPermissions(List<PermissionVo> childPermissions) {
-        this.childPermissions = childPermissions;
+    public void setChilds(List<PermissionVo> childs) {
+        this.childs = childs;
     }
 }

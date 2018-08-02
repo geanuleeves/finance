@@ -4,6 +4,7 @@ import com.waben.stock.datalayer.manage.entity.Permission;
 import com.waben.stock.datalayer.manage.entity.Role;
 import com.waben.stock.datalayer.manage.service.PermissionService;
 import com.waben.stock.interfaces.dto.manage.BannerDto;
+import com.waben.stock.interfaces.dto.manage.MenuDto;
 import com.waben.stock.interfaces.dto.manage.PermissionDto;
 import com.waben.stock.interfaces.dto.manage.RoleDto;
 import com.waben.stock.interfaces.dto.stockcontent.StockExponentDto;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -71,8 +73,8 @@ public class PermissionController implements PermissionInterface {
     @Override
     public Response<List<PermissionDto>> fetchPermissionsByVariety(@PathVariable Long variety) {
         List<Permission> permissions = permissionService.findPermissionsByVariety(variety);
-        List<PermissionDto> permissionDtos = CopyBeanUtils.copyListBeanPropertiesToList(permissions,
-                PermissionDto.class);
+        List<PermissionDto> permissionDtos = permissions(CopyBeanUtils.copyListBeanPropertiesToList(permissions,
+                PermissionDto.class),0L);
         return new Response<>(permissionDtos);
     }
 
@@ -92,5 +94,17 @@ public class PermissionController implements PermissionInterface {
                 PermissionDto.class);
         System.out.println(JacksonUtil.encode(permissionDtos));
         return new Response<>(permissionDtos);
+    }
+
+    private List<PermissionDto> permissions(List<PermissionDto> permissionDtos, Long pid) {
+        List<PermissionDto> permissions = new ArrayList<>();
+        for (PermissionDto permissionDto : permissionDtos) {
+            if (permissionDto.getPid().equals(pid)) {
+//              若传过来的pid 为当前的id 则找到对应的父级并添加到子列表中
+                permissionDto.setChilds(permissions(permissionDtos, permissionDto.getId()));
+                permissions.add(permissionDto);
+            }
+        }
+        return permissions;
     }
 }
