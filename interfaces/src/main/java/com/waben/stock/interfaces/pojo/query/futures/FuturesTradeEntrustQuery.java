@@ -12,14 +12,12 @@ import java.util.Date;
  */
 public class FuturesTradeEntrustQuery extends PageAndSortQuery {
 
+    private Long id;
     @ApiModelProperty(value = "委托编号")
     private String entrustNo;
 
     @ApiModelProperty(value = "用户ID")
     private Long publisherId;
-
-    @ApiModelProperty(value = "对应的合约ID")
-    private Long contractId;
 
     @ApiModelProperty(value = "品种编号")
     private String commodityNo;
@@ -30,9 +28,6 @@ public class FuturesTradeEntrustQuery extends PageAndSortQuery {
     @ApiModelProperty(value = "订单交易类型")
     private String orderType;
 
-    @ApiModelProperty(value = "委托时间")
-    private Date entrustTime;
-
     @ApiModelProperty(value = "价格类型")
     private String priceType;
 
@@ -42,8 +37,12 @@ public class FuturesTradeEntrustQuery extends PageAndSortQuery {
     @ApiModelProperty(value = "委托状态")
     private String state;
 
-    @ApiModelProperty(value = "交易成功时间")
-    private Date tradeTime;
+    /** 交易成交时间-查询开始时间 */
+    @ApiModelProperty(value = "交易成交时间-查询开始时间")
+    private Date startTime;
+    /** 交易成交时间-查询结束时间 */
+    @ApiModelProperty(value = "交易成交时间-查询结束时间")
+    private Date endTime;
 
     public FuturesTradeEntrustQuery() {
         super();
@@ -61,14 +60,6 @@ public class FuturesTradeEntrustQuery extends PageAndSortQuery {
 
     public void setPublisherId(Long publisherId) {
         this.publisherId = publisherId;
-    }
-
-    public Long getContractId() {
-        return contractId;
-    }
-
-    public void setContractId(Long contractId) {
-        this.contractId = contractId;
     }
 
     public String getCommodityNo() {
@@ -95,14 +86,6 @@ public class FuturesTradeEntrustQuery extends PageAndSortQuery {
         this.orderType = orderType;
     }
 
-    public Date getEntrustTime() {
-        return entrustTime;
-    }
-
-    public void setEntrustTime(Date entrustTime) {
-        this.entrustTime = entrustTime;
-    }
-
     public String getPriceType() {
         return priceType;
     }
@@ -127,19 +110,35 @@ public class FuturesTradeEntrustQuery extends PageAndSortQuery {
         this.state = state;
     }
 
-    public Date getTradeTime() {
-        return tradeTime;
-    }
-
-    public void setTradeTime(Date tradeTime) {
-        this.tradeTime = tradeTime;
-    }
-
     public String getEntrustNo() {
         return entrustNo;
     }
 
     public void setEntrustNo(String entrustNo) {
         this.entrustNo = entrustNo;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 }

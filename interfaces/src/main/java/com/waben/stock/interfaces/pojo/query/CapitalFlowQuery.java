@@ -1,8 +1,8 @@
 package com.waben.stock.interfaces.pojo.query;
 
-import java.util.Date;
-
 import com.waben.stock.interfaces.enums.CapitalFlowType;
+
+import java.util.Date;
 
 public class CapitalFlowQuery extends PageAndSortQuery {
 
@@ -11,8 +11,9 @@ public class CapitalFlowQuery extends PageAndSortQuery {
 	private CapitalFlowType[] types;
 	private String publisherPhone;
 	private Date startTime;
-
 	private Date endTime;
+	private String commodityName;
+
 
 	public CapitalFlowQuery() {
 		super();
@@ -62,5 +63,13 @@ public class CapitalFlowQuery extends PageAndSortQuery {
 
 	public void setPublisherPhone(String publisherPhone) {
 		this.publisherPhone = publisherPhone;
+	}
+
+	public String getCommodityName() {
+		return commodityName;
+	}
+
+	public void setCommodityName(String commodityName) {
+		this.commodityName = commodityName;
 	}
 }

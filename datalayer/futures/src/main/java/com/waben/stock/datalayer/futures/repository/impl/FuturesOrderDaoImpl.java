@@ -136,8 +136,12 @@ public class FuturesOrderDaoImpl implements FuturesOrderDao {
 	}
 
 	@Override
-	public BigDecimal getAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
-		return repository.getAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
+	public BigDecimal getOpenAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
+		return repository.getOpenAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
+	}
+
+	public BigDecimal getCloseAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
+		return repository.getCloseAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
 	}
 
 	@Override

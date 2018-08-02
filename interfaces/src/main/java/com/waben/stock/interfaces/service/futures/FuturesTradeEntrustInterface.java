@@ -91,4 +91,15 @@ public interface FuturesTradeEntrustInterface {
 	@RequestMapping(value = "/pagesEntrust", method = RequestMethod.POST, consumes = "application/json")
 	Response<PageInfo<FuturesTradeDto>> pagesEntrust(@RequestBody FuturesTradeAdminQuery query);
 
+	/**
+	 *  移动端查询交易委托
+	 * @param query
+	 * @return
+	 */
+	@RequestMapping(value = "/pagesPhone", method = RequestMethod.POST, consumes = "application/json")
+	Response<PageInfo<FuturesTradeEntrustDto>> pagesPhone(@RequestBody FuturesTradeEntrustQuery query);
+
+	@RequestMapping(value = "/detail/{id}", method = RequestMethod.GET)
+	Response<FuturesTradeEntrustDto> detail(@PathVariable Long id);
+
 }

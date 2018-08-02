@@ -182,11 +182,11 @@ public class FuturesOrderController implements FuturesOrderInterface {
 						futuresContractOrder.getContractNo());
 				if (futuresCommodity != null) {
 					// 成交价格-买涨
-					BigDecimal avgUpFillPrice = futuresOrderService.getAvgFillPrice(
+					BigDecimal avgUpFillPrice = futuresOrderService.getOpenAvgFillPrice(
 							futuresContractOrder.getPublisherId(), futuresContractOrder.getContractNo(),
 							futuresContractOrder.getCommodityNo(), FuturesOrderType.BuyUp.getIndex());
 					// 成交价格-买跌
-					BigDecimal avgFallFillPrice = futuresOrderService.getAvgFillPrice(
+					BigDecimal avgFallFillPrice = futuresOrderService.getCloseAvgFillPrice(
 							futuresContractOrder.getPublisherId(), futuresContractOrder.getContractNo(),
 							futuresContractOrder.getCommodityNo(), FuturesOrderType.BuyFall.getIndex());
 					if (avgUpFillPrice != null && avgUpFillPrice.compareTo(new BigDecimal(0)) > 0) {
