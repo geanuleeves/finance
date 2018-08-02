@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeEntrust;
-import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqProducer;
 import com.waben.stock.datalayer.futures.rabbitmq.message.EntrustQueryMessage;
@@ -45,9 +44,6 @@ public class EntrustQueryConsumer {
 
 	@Autowired
 	private FuturesTradeEntrustService entrustService;
-
-	@Autowired
-	private QuoteContainer quoteContainer;
 
 	@RabbitHandler
 	public void handlerMessage(String message) {
