@@ -233,7 +233,7 @@ public class FuturesTradeEntrustService {
 		String currency = entrust.getContract().getCommodity().getCurrency();
 		FuturesOrderType orderType = entrust.getOrderType();
 		FuturesTradeActionType actionType = entrust.getTradeActionType();
-		// date = date != null ? date : new Date();
+		date = date != null ? date : new Date();
 		BigDecimal totalFilled = BigDecimal.ZERO;
 		// step 1 : 更新订单信息
 		List<FuturesTradeAction> actionList = actionDao.retrieveByTradeEntrustAndTradeActionType(entrust, actionType);
@@ -303,10 +303,11 @@ public class FuturesTradeEntrustService {
 						RoundingMode.DOWN);
 				orderAvgFillPrice = avgFillPriceScale(minWave, orderAvgFillPrice, orderType, actionType);
 				order.setCloseAvgFillPrice(orderAvgFillPrice);
-				if (order.getCloseRemaining().compareTo(BigDecimal.ZERO) > 0) {
-					order.setState(FuturesOrderState.PartUnwind);
-				} else {
+				if (order.getCloseRemaining().compareTo(BigDecimal.ZERO) <= 0
+						&& order.getTotalQuantity().compareTo(order.getCloseFilled()) == 0) {
 					order.setState(FuturesOrderState.Unwind);
+				} else {
+					order.setState(FuturesOrderState.PartUnwind);
 				}
 			}
 			orderDao.update(order);

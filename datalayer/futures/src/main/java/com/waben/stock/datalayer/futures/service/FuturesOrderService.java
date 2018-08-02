@@ -30,6 +30,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
@@ -647,6 +648,7 @@ public class FuturesOrderService {
 		return tradeEntrust;
 	}
 
+	@Transactional
 	public FuturesTradeEntrust backhandPlaceOrder(Long entrustId) {
 		logger.info("反手下单，源委托ID：{}", entrustId);
 		FuturesTradeEntrust originEntrust = tradeEntrustDao.retrieve(entrustId);
@@ -797,6 +799,7 @@ public class FuturesOrderService {
 		}
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	private void doUnwind(FuturesContract contract, FuturesContractOrder contractOrder, FuturesOrderType orderType,
 			BigDecimal quantity, FuturesTradePriceType priceType, BigDecimal entrustPrice, Long publisherId,
 			FuturesWindControlType windControlType, boolean isBackhand) {
@@ -945,6 +948,7 @@ public class FuturesOrderService {
 				FuturesWindControlType.UserApplyUnwind, false);
 	}
 
+	@Transactional
 	public void applyUnwindAll(Long publisherId) {
 		List<FuturesContractOrder> contractOrderList = contractOrderDao.retrieveByPublisherId(publisherId);
 		if (contractOrderList != null && contractOrderList.size() > 0) {
@@ -965,6 +969,7 @@ public class FuturesOrderService {
 		}
 	}
 
+	@Transactional
 	public void backhandUnwind(Long contractId, FuturesOrderType orderType, FuturesTradePriceType priceType,
 			BigDecimal entrustPrice, Long publisherId) {
 		FuturesContract contract = contractDao.retrieve(contractId);
@@ -988,6 +993,7 @@ public class FuturesOrderService {
 				FuturesWindControlType.BackhandUnwind, true);
 	}
 
+	@Transactional
 	public void balanceUnwind(Long contractId, FuturesOrderType orderType, FuturesTradePriceType sellingPriceType,
 			BigDecimal sellingEntrustPrice, Long publisherId, BigDecimal quantity) {
 		FuturesContract contract = contractDao.retrieve(contractId);
