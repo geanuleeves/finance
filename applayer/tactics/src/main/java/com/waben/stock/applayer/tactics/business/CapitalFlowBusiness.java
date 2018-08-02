@@ -1,14 +1,11 @@
 package com.waben.stock.applayer.tactics.business;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
+import com.waben.stock.applayer.tactics.business.futures.FuturesContractOrderBusiness;
 import com.waben.stock.applayer.tactics.business.futures.FuturesOrderBusiness;
 import com.waben.stock.applayer.tactics.dto.publisher.CapitalFlowWithExtendDto;
+import com.waben.stock.applayer.tactics.security.SecurityUtil;
 import com.waben.stock.interfaces.dto.buyrecord.BuyRecordDto;
+import com.waben.stock.interfaces.dto.futures.FuturesContractOrderDto;
 import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
 import com.waben.stock.interfaces.dto.futures.FuturesOvernightRecordDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
@@ -25,6 +22,12 @@ import com.waben.stock.interfaces.service.futures.FuturesOrderInterface;
 import com.waben.stock.interfaces.service.publisher.CapitalFlowInterface;
 import com.waben.stock.interfaces.service.stockcontent.StrategyTypeInterface;
 import com.waben.stock.interfaces.util.CopyBeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 资金流水 Business
@@ -61,6 +64,9 @@ public class CapitalFlowBusiness {
 	@Autowired
 	@Qualifier("futuresOrderInterface")
 	private FuturesOrderInterface futuresOrderInterface;
+
+	@Autowired
+	private FuturesContractOrderBusiness futuresContractOrderBusiness;
 
 	public PageInfo<CapitalFlowWithExtendDto> pages(CapitalFlowQuery query) {
 		Response<PageInfo<CapitalFlowDto>> response = service.pagesByQuery(query);
@@ -116,6 +122,10 @@ public class CapitalFlowBusiness {
 					flowWithExtend.setCommodityName(orderDto.getCommodityName());
 					flowWithExtend.setCommoditySymbol(orderDto.getCommoditySymbol());
 					flowWithExtend.setContractNo(orderDto.getContractNo());
+					FuturesContractOrderDto futuresContractOrderViewDto = futuresContractOrderBusiness
+							.fetchByContractIdAndPublisherId(SecurityUtil.getUserId(), orderDto.getContractId());
+					flowWithExtend.setReserveFund(futuresContractOrderViewDto != null ?
+							futuresContractOrderViewDto.getReserveFund() : BigDecimal.ZERO);
 				} else if (flow.getExtendType() == CapitalFlowExtendType.FUTURESOVERNIGHTRECORD) {
 					Response<FuturesOvernightRecordDto> recordDto = futuresOrderInterface
 							.fetchByOvernightId(flow.getExtendId());
