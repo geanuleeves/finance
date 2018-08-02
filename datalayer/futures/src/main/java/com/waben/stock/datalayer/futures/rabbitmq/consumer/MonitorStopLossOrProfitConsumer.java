@@ -95,7 +95,7 @@ public class MonitorStopLossOrProfitConsumer {
 						BigDecimal limitLoss = order.getBuyUpPerUnitLimitLossAmount();
 						// step 1.1 : 买涨是否止盈
 						if (limitProfit != null) {
-							BigDecimal avgFillPrice = orderService.getAvgFillPrice(order.getPublisherId(), contractNo,
+							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(), contractNo,
 									commodityNo, FuturesOrderType.BuyUp.getIndex());
 							if (limitProfit.compareTo(avgFillPrice) > 0
 									&& market.getLastPrice().compareTo(limitProfit) > 0) {
@@ -105,7 +105,7 @@ public class MonitorStopLossOrProfitConsumer {
 						}
 						// step 1.2 : 买涨是否止损
 						if (limitLoss != null) {
-							BigDecimal avgFillPrice = orderService.getAvgFillPrice(order.getPublisherId(), contractNo,
+							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(), contractNo,
 									commodityNo, FuturesOrderType.BuyUp.getIndex());
 							if (limitProfit.compareTo(avgFillPrice) > 0
 									&& market.getLastPrice().compareTo(limitProfit) > 0) {
@@ -116,7 +116,7 @@ public class MonitorStopLossOrProfitConsumer {
 					}
 					// step 2 : 买跌订单
 					if (buyUpCanUnwind != null && buyUpCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
-						BigDecimal avgFillPrice = orderService.getAvgFillPrice(order.getPublisherId(), contractNo,
+						BigDecimal avgFillPrice = orderService.getCloseAvgFillPrice(order.getPublisherId(), contractNo,
 								commodityNo, FuturesOrderType.BuyFall.getIndex());
 						// step 2.1 : 买跌是否止盈
 

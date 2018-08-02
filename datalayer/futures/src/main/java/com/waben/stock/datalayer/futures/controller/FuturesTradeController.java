@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -356,13 +357,14 @@ public class FuturesTradeController implements FuturesTradeInterface {
 					// 今持仓
 					Integer findUpFilledNow = futuresTradeActionService.findFilledNow(
 							futuresContractOrder.getPublisherId(), futuresContractOrder.getCommodityNo(),
-							futuresContractOrder.getContractNo(), FuturesOrderType.BuyUp.getIndex());
+							futuresContractOrder.getContractNo(), FuturesTradeActionType.OPEN.getIndex(),
+							FuturesOrderType.BuyUp.getIndex());
 					// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
 					BigDecimal buyReserveFund = new BigDecimal(0);
 					if (futuresCommodity != null) {
 						buyDto.setQuantityNow(new BigDecimal(findUpFilledNow == null ? 0 : findUpFilledNow));
 						// 成交价格
-						BigDecimal avgUpFillPrice = futuresOrderService.getAvgFillPrice(
+						BigDecimal avgUpFillPrice = futuresOrderService.getOpenAvgFillPrice(
 								futuresContractOrder.getPublisherId(), futuresContractOrder.getContractNo(),
 								futuresContractOrder.getCommodityNo(), FuturesOrderType.BuyUp.getIndex());
 						avgUpFillPrice = avgUpFillPrice == null ? new BigDecimal(0) : avgUpFillPrice;
@@ -418,12 +420,13 @@ public class FuturesTradeController implements FuturesTradeInterface {
 					// 今持仓
 					Integer findFallFilledNow = futuresTradeActionService.findFilledNow(
 							futuresContractOrder.getPublisherId(), futuresContractOrder.getCommodityNo(),
-							futuresContractOrder.getContractNo(), FuturesOrderType.BuyFall.getIndex());
+							futuresContractOrder.getContractNo(), FuturesTradeActionType.CLOSE.getIndex(),
+							FuturesOrderType.BuyFall.getIndex());
 					// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
 					if (futuresCommodity != null) {
 						sellDto.setQuantityNow(new BigDecimal(findFallFilledNow == null ? 0 : findFallFilledNow));
 						// 成交价格
-						BigDecimal avgFallFillPrice = futuresOrderService.getAvgFillPrice(
+						BigDecimal avgFallFillPrice = futuresOrderService.getCloseAvgFillPrice(
 								futuresContractOrder.getPublisherId(), futuresContractOrder.getContractNo(),
 								futuresContractOrder.getCommodityNo(), FuturesOrderType.BuyFall.getIndex());
 						avgFallFillPrice = avgFallFillPrice == null ? new BigDecimal(0) : avgFallFillPrice;

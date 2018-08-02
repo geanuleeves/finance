@@ -2198,11 +2198,18 @@ public class FuturesOrderService {
 	 *            合约编号
 	 * @param commodityNo
 	 *            产品编号
+	 * @param orderType
+	 *            订单类型
 	 * @return
 	 */
-	public BigDecimal getAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
-		return orderDao.getAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
+	public BigDecimal getOpenAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
+		return orderDao.getOpenAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
 	}
+
+	public BigDecimal getCloseAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
+		return orderDao.getCloseAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
+	}
+
 
 	public Page<FuturesTradeActionAgentDto> pagesOrderAgentDealRecord(FuturesTradeAdminQuery query) {
 		String publisherNameCondition = "";

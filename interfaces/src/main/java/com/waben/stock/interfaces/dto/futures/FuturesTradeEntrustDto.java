@@ -105,6 +105,9 @@ public class FuturesTradeEntrustDto {
 	/** 货币缩写 */
 	@ApiModelProperty(value = "货币缩写")
 	private String currency;
+	/** 服务费 */
+	@ApiModelProperty(value = "服务费")
+	private BigDecimal serviceFee;
 
 	public Long getId() {
 		return id;
@@ -349,4 +352,11 @@ public class FuturesTradeEntrustDto {
 		this.currency = currency;
 	}
 
+	public BigDecimal getServiceFee() {
+		return serviceFee;
+	}
+
+	public void setServiceFee(BigDecimal serviceFee) {
+		this.serviceFee = serviceFee;
+	}
 }

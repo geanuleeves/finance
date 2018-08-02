@@ -261,8 +261,8 @@ public class FuturesTradeActionService {
 	 *            交易开平仓类型
 	 * @return
 	 */
-	public Integer findFilledNow(Long publisherId, String commodityNo, String contractNo, String tradeActionType) {
-		return futuresTradeActionDao.findFilledNow(publisherId, commodityNo, contractNo, tradeActionType);
+	public Integer findFilledNow(Long publisherId, String commodityNo, String contractNo, String tradeActionType, String orderType) {
+		return futuresTradeActionDao.findFilledNow(publisherId, commodityNo, contractNo, tradeActionType, orderType);
 	}
 
 }
