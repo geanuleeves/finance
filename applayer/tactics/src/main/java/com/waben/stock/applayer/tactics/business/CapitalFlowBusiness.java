@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -123,7 +124,8 @@ public class CapitalFlowBusiness {
 					flowWithExtend.setContractNo(orderDto.getContractNo());
 					FuturesContractOrderDto futuresContractOrderViewDto = futuresContractOrderBusiness
 							.fetchByContractIdAndPublisherId(SecurityUtil.getUserId(), orderDto.getContractId());
-					flowWithExtend.setReserveFund(futuresContractOrderViewDto.getReserveFund());
+					flowWithExtend.setReserveFund(futuresContractOrderViewDto != null ?
+							futuresContractOrderViewDto.getReserveFund() : BigDecimal.ZERO);
 				} else if (flow.getExtendType() == CapitalFlowExtendType.FUTURESOVERNIGHTRECORD) {
 					Response<FuturesOvernightRecordDto> recordDto = futuresOrderInterface
 							.fetchByOvernightId(flow.getExtendId());
