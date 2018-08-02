@@ -177,8 +177,14 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                         FuturesCurrencyRate rate = rateService.findByCurrency(futuresCommodity.getCurrency());
                         buyDto.setRate(rate.getRate());
                         buyDto.setCurrencySign(rate.getCurrencySign());
-                        buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice).divide(futuresCommodity.getMinWave())
-                                .multiply(futuresCommodity.getPerWaveMoney()).multiply(futuresContractOrder.getBuyUpQuantity()));
+                        BigDecimal remainder = lastPrice.subtract(avgUpFillPrice).divideAndRemainder(futuresCommodity.getMinWave())[1];
+                        if (remainder.compareTo(BigDecimal.ZERO) > 0) {
+                            buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice).add(BigDecimal.ONE).divide(futuresCommodity.getMinWave()).
+                                multiply(futuresCommodity.getPerWaveMoney()).multiply(futuresContractOrder.getBuyUpQuantity()));
+                        } else {
+                            buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice).divide(futuresCommodity.getMinWave())
+                                    .multiply(futuresCommodity.getPerWaveMoney()).multiply(futuresContractOrder.getBuyUpQuantity()));
+                        }
                         buyDto.setServiceFee(futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee()));
                         if (futuresContractOrder.getBuyUpQuantity().compareTo(futuresContractOrder.getBuyFallQuantity()) > 0) {
                             buyDto.setReserveFund(futuresCommodity.getPerUnitReserveFund().multiply(futuresContractOrder.getBuyUpQuantity()));
