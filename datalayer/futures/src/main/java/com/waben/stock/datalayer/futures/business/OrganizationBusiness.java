@@ -93,7 +93,7 @@ public class OrganizationBusiness {
 			}
 			throw new ServiceException(response.getCode());
 		} catch (Exception ex) {
-			logger.error("调用机构期货订单结算发生异常!{}_{}_{}", publisherId, futuresOrderId, tradeNo);
+			logger.error("调用期货订单结算发生异常!{}_{}_{}", publisherId, futuresOrderId, tradeNo);
 		}
 	}
 

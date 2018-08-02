@@ -362,5 +362,7 @@ public class ExceptionConstant {
 	public static final String THE_STATE_ISNOT_AUDITED_EXCEPTION = "13049";
 	// 提现失败
 	public static final String WITHDRAWALS_ADMIN_EXCEPTION = "13050";
+	// 分成比例不能大于上级
+	public static final String THE_PROPORTION_CANNOTBE_LARGER_SUPERIOR_EXCEPTION = "13051";
 
 }
