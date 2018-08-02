@@ -139,8 +139,7 @@ public class EntrustQueryConsumer {
 		FuturesTradePriceType priceType = tradeEntrust.getPriceType();
 		boolean isNeedRetry = true;
 		// step 3 : 处理委托
-		if (tradeEntrust.getState() == FuturesTradeEntrustState.Queuing
-				|| tradeEntrust.getState() == FuturesTradeEntrustState.PartSuccess) {
+		if (tradeEntrust.getState() == FuturesTradeEntrustState.Queuing) {
 			MarketAveragePrice avgPrice = null;
 			if (priceType == FuturesTradePriceType.MKT) {
 				// 市价
@@ -150,7 +149,7 @@ public class EntrustQueryConsumer {
 				avgPrice = orderService.computeLmtAvgPrice(commodityNo, contractNo, actionType, totalQuantity,
 						tradeEntrust.getEntrustPrice());
 			}
-			if (avgPrice.getFilled().compareTo(BigDecimal.ZERO) > 0
+			if (avgPrice.getFilled().compareTo(totalQuantity) == 0
 					&& avgPrice.getRemaining().compareTo(BigDecimal.ZERO) == 0) {
 				logger.info("交易委托{}【{}】成功，买入成功时候的行情为{}", tradeEntrust.getId(), entrustType,
 						avgPrice.getMarket() != null ? JacksonUtil.encode(avgPrice.getMarket()) : "");
@@ -159,7 +158,7 @@ public class EntrustQueryConsumer {
 					price = price.add(new BigDecimal(slipPoint).multiply(minWave).multiply(reverse));
 				}
 				entrustService.success(tradeEntrust.getId(), avgPrice.getFilled(), avgPrice.getRemaining(), price,
-						avgPrice.getMarket() != null ? avgPrice.getMarket().getTime() : null);
+						null);
 				if (entrustType == 3) {
 					// 反手开仓
 					orderService.backhandPlaceOrder(tradeEntrust.getId());

@@ -233,7 +233,7 @@ public class FuturesTradeEntrustService {
 		String currency = entrust.getContract().getCommodity().getCurrency();
 		FuturesOrderType orderType = entrust.getOrderType();
 		FuturesTradeActionType actionType = entrust.getTradeActionType();
-		date = date != null ? date : new Date();
+		// date = date != null ? date : new Date();
 		BigDecimal totalFilled = BigDecimal.ZERO;
 		// step 1 : 更新订单信息
 		List<FuturesTradeAction> actionList = actionDao.retrieveByTradeEntrustAndTradeActionType(entrust, actionType);

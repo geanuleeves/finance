@@ -121,12 +121,6 @@ public class FuturesOrderDaoImpl implements FuturesOrderDao {
 	}
 
 	@Override
-	public List<FuturesOrder> retrieveByBackhandSourceOrderId(Long backhandSourceOrderId) {
-//		return repository.findByBackhandSourceOrderId(backhandSourceOrderId);
-		return null;
-	}
-
-	@Override
 	public List<Object> queryByState(List<Integer> state) {
 		return repository.queryByState(state);
 	}

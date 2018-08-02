@@ -52,7 +52,7 @@ import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControl
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.EntrustQueryConsumer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorPublisherFuturesOrderConsumer;
-import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorSingleFuturesOrderConsumer;
+import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorStopLossOrProfitConsumer;
 import com.waben.stock.datalayer.futures.repository.DynamicQuerySqlDao;
 import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
@@ -145,7 +145,7 @@ public class FuturesOrderService {
 
 	private MonitorPublisherFuturesOrderConsumer monitorPublisher;
 
-	private MonitorSingleFuturesOrderConsumer monitorOrder;
+	private MonitorStopLossOrProfitConsumer monitorOrder;
 
 	@Autowired
 	private EntrustQueryConsumer entrueQuery;

@@ -34,7 +34,7 @@ import com.waben.stock.interfaces.util.RandomUtil;
  * @author lma
  *
  */
-@Component
+// @Component
 public class BuyingEntrustOrderMonitorSchedule {
 
 	/**

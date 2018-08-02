@@ -266,7 +266,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 							.fetchByResourceId(futuresContractOrderViewDto.getPublisherId()).getResult();
 					PublisherDto publisher = publisherInterface.fetchById(futuresContractOrderViewDto.getPublisherId())
 							.getResult();
-					// 已成交部分最新均价
+					// 已成交部分最新价
 					BigDecimal lastPrice = quoteContainer.getLastPrice(futuresContractOrder.getCommodityNo(),
 							futuresContractOrder.getContractNo());
 					// 买涨

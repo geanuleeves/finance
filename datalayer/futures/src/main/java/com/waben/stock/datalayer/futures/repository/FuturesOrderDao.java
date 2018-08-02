@@ -115,15 +115,6 @@ public interface FuturesOrderDao extends BaseDao<FuturesOrder, Long> {
 	List<FuturesOrder> retrieveByPublisherIdAndState(Long publisherId, FuturesOrderState state);
 
 	/**
-	 * 根据反手源订单ID获取订单
-	 * 
-	 * @param backhandSourceOrderId
-	 *            反手源订单ID
-	 * @return 订单
-	 */
-	List<FuturesOrder> retrieveByBackhandSourceOrderId(Long backhandSourceOrderId);
-
-	/**
 	 * 获取总数
 	 * 
 	 * @param state
