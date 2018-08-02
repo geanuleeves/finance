@@ -100,6 +100,6 @@ public interface FuturesTradeEntrustInterface {
 	Response<PageInfo<FuturesTradeEntrustDto>> pagesPhone(@RequestBody FuturesTradeEntrustQuery query);
 
 	@RequestMapping(value = "/detail/{id}", method = RequestMethod.GET)
-	Response<FuturesTradeEntrustDto> detail(@PathVariable Long id);
+	Response<FuturesTradeEntrustDto> detail(@PathVariable("id") Long id);
 
 }
