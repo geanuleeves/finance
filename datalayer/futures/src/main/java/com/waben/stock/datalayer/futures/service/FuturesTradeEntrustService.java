@@ -678,7 +678,42 @@ public class FuturesTradeEntrustService {
 		return page;
 	}
 
-	public Page<FuturesTradeEntrust> pagesPhone(final FuturesTradeEntrustQuery query) {
+	public Page<FuturesTradeEntrust> pagesPhoneEntrust(final FuturesTradeEntrustQuery query) {
+		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
+		Page<FuturesTradeEntrust> page = futuresTradeEntrustDao.page(new Specification<FuturesTradeEntrust>() {
+			@Override
+			public Predicate toPredicate(Root<FuturesTradeEntrust> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+				List<Predicate> predicateList = new ArrayList<Predicate>();
+				if (query.getId() != null && query.getId() != 0) {
+					predicateList
+							.add(criteriaBuilder.equal(root.get("id").as(Long.class), query.getId()));
+				}
+				// 用户ID
+				if (query.getPublisherId() != null && query.getPublisherId() != 0) {
+					predicateList
+							.add(criteriaBuilder.equal(root.get("publisherId").as(Long.class), query.getPublisherId()));
+				}
+				if (query.getStartTime() != null) {
+					predicateList.add(criteriaBuilder.greaterThanOrEqualTo(root.get("tradeTime").as(Date.class),
+							query.getStartTime()));
+				}
+				if (query.getEndTime() != null) {
+					predicateList
+							.add(criteriaBuilder.lessThan(root.get("tradeTime").as(Date.class), query.getEndTime()));
+				}
+				if (predicateList.size() > 0) {
+					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
+				}
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("tradeTime").as(Date.class)),
+						criteriaBuilder.desc(root.get("entrustTime").as(Date.class)));
+				return criteriaQuery.getRestriction();
+			}
+		}, pageable);
+		return page;
+	}
+
+
+	public Page<FuturesTradeEntrust> pagesPhoneAction(final FuturesTradeEntrustQuery query) {
 		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
 		Page<FuturesTradeEntrust> page = futuresTradeEntrustDao.page(new Specification<FuturesTradeEntrust>() {
 			@Override
@@ -721,7 +756,6 @@ public class FuturesTradeEntrustService {
 		}, pageable);
 		return page;
 	}
-
 
 
 	public Page<FuturesTradeDto> pageTradeAdmin(FuturesTradeAdminQuery query) {
