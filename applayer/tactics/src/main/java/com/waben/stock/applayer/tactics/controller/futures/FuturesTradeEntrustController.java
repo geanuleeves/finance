@@ -75,7 +75,7 @@ public class FuturesTradeEntrustController {
 	}
 
 	@GetMapping("/pages_phone/action")
-	@ApiOperation(value = "移动端交易委托列表", notes = "startTime和endTime格式(yyyy-MM-dd HH:mm:ss)")
+	@ApiOperation(value = "移动端结算列表", notes = "startTime和endTime格式(yyyy-MM-dd HH:mm:ss)")
 	public Response<PageInfo<FuturesTradeEntrustDto>> pagesPhoneAction(int page, int size, String name, String startTime,
 																 String endTime) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
