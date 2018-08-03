@@ -52,8 +52,8 @@ import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesOrderStateC
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControlTypeConverter;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.EntrustQueryConsumer;
-import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorPublisherFuturesOrderConsumer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorStopLossOrProfitConsumer;
+import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorStrongPointConsumer;
 import com.waben.stock.datalayer.futures.repository.DynamicQuerySqlDao;
 import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
@@ -144,7 +144,7 @@ public class FuturesOrderService {
 	@Autowired
 	private QuoteContainer allQuote;
 
-	private MonitorPublisherFuturesOrderConsumer monitorPublisher;
+	private MonitorStrongPointConsumer monitorPublisher;
 
 	private MonitorStopLossOrProfitConsumer monitorOrder;
 
@@ -507,7 +507,7 @@ public class FuturesOrderService {
 				}
 			}
 			contractOrder.setUpdateTime(new Date());
-			contractOrderDao.update(contractOrder);
+			contractOrderDao.doUpdate(contractOrder);
 		} else {
 			contractOrder = new FuturesContractOrder();
 			contractOrder.setBuyFallQuantity(BigDecimal.ZERO);
@@ -644,7 +644,7 @@ public class FuturesOrderService {
 			}
 		}
 		// step 8 : 放入委托查询队列（开仓）
-		entrueQuery.entrustQuery(tradeEntrust.getId(), 1);
+		entrueQuery.entrustQuery(tradeEntrust.getId(), 1, false, null);
 		return tradeEntrust;
 	}
 
@@ -800,9 +800,10 @@ public class FuturesOrderService {
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED)
-	private void doUnwind(FuturesContract contract, FuturesContractOrder contractOrder, FuturesOrderType orderType,
+	public void doUnwind(FuturesContract contract, FuturesContractOrder contractOrder, FuturesOrderType orderType,
 			BigDecimal quantity, FuturesTradePriceType priceType, BigDecimal entrustPrice, Long publisherId,
-			FuturesWindControlType windControlType, boolean isBackhand) {
+			FuturesWindControlType windControlType, boolean isBackhand, boolean isStopLossOrProfit,
+			BigDecimal stopLossOrProfitPrice) {
 		Date date = new Date();
 		// step 1 : 创建平仓委托
 		FuturesTradeEntrust tradeEntrust = new FuturesTradeEntrust();
@@ -902,12 +903,12 @@ public class FuturesOrderService {
 			contractOrder.setBuyFallCanUnwindQuantity(contractOrder.getBuyFallCanUnwindQuantity().subtract(quantity));
 		}
 		contractOrder.setUpdateTime(date);
-		contractOrderDao.update(contractOrder);
+		contractOrderDao.doUpdate(contractOrder);
 		// step 4 : 放入委托查询队列（平仓）
 		if (isBackhand) {
-			entrueQuery.entrustQuery(tradeEntrust.getId(), 3);
+			entrueQuery.entrustQuery(tradeEntrust.getId(), 3, isStopLossOrProfit, stopLossOrProfitPrice);
 		} else {
-			entrueQuery.entrustQuery(tradeEntrust.getId(), 2);
+			entrueQuery.entrustQuery(tradeEntrust.getId(), 2, isStopLossOrProfit, stopLossOrProfitPrice);
 		}
 	}
 
@@ -946,7 +947,7 @@ public class FuturesOrderService {
 			return;
 		}
 		doUnwind(contract, contractOrder, orderType, quantity, priceType, entrustPrice, publisherId,
-				FuturesWindControlType.UserApplyUnwind, false);
+				FuturesWindControlType.UserApplyUnwind, false, false, null);
 	}
 
 	@Transactional
@@ -959,12 +960,12 @@ public class FuturesOrderService {
 				BigDecimal buyFallQuantity = contractOrder.getBuyFallCanUnwindQuantity();
 				if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
 					doUnwind(contract, contractOrder, FuturesOrderType.BuyUp, buyUpQuantity, FuturesTradePriceType.MKT,
-							null, publisherId, FuturesWindControlType.UserApplyUnwind, false);
+							null, publisherId, FuturesWindControlType.UserApplyUnwind, false, false, null);
 				}
 				if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
 					doUnwind(contract, contractOrder, FuturesOrderType.BuyFall, buyFallQuantity,
-							FuturesTradePriceType.MKT, null, publisherId, FuturesWindControlType.UserApplyUnwind,
-							false);
+							FuturesTradePriceType.MKT, null, publisherId, FuturesWindControlType.UserApplyUnwind, false,
+							false, null);
 				}
 			}
 		}
@@ -991,7 +992,7 @@ public class FuturesOrderService {
 			return;
 		}
 		doUnwind(contract, contractOrder, orderType, quantity, priceType, entrustPrice, publisherId,
-				FuturesWindControlType.BackhandUnwind, true);
+				FuturesWindControlType.BackhandUnwind, true, false, null);
 	}
 
 	@Transactional
@@ -1018,7 +1019,7 @@ public class FuturesOrderService {
 			throw new ServiceException(ExceptionConstant.UNWINDQUANTITY_NOTENOUGH_EXCEPTION);
 		}
 		doUnwind(contract, contractOrder, orderType, quantity, FuturesTradePriceType.MKT, null, publisherId,
-				FuturesWindControlType.UserApplyUnwind, false);
+				FuturesWindControlType.UserApplyUnwind, false, false, null);
 	}
 
 	public void settingProfitAndLossLimit(Long publisherId, Long contractId, FuturesOrderType orderType,
@@ -1044,7 +1045,7 @@ public class FuturesOrderService {
 			contractOrder.setBuyFallPerUnitLimitProfitAmount(perUnitLimitProfitAmount);
 		}
 		contractOrder.setUpdateTime(new Date());
-		contractOrderDao.update(contractOrder);
+		contractOrderDao.doUpdate(contractOrder);
 	}
 
 	/**************************************** 分割线 ************************************************/
@@ -2209,7 +2210,6 @@ public class FuturesOrderService {
 	public BigDecimal getCloseAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
 		return orderDao.getCloseAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
 	}
-
 
 	public Page<FuturesTradeActionAgentDto> pagesOrderAgentDealRecord(FuturesTradeAdminQuery query) {
 		String publisherNameCondition = "";

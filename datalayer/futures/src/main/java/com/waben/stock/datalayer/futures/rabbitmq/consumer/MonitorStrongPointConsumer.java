@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,6 @@ import com.waben.stock.datalayer.futures.service.FuturesOrderService;
 import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
-import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.enums.FuturesWindControlType;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
 import com.waben.stock.interfaces.util.JacksonUtil;
@@ -40,9 +40,8 @@ import com.waben.stock.interfaces.util.RandomUtil;
 import com.waben.stock.interfaces.util.StringUtil;
 
 // @Component
-// @RabbitListener(queues = {
-// RabbitmqConfiguration.monitorPublisherFuturesOrderQueueName })
-public class MonitorPublisherFuturesOrderConsumer {
+// @RabbitListener(queues = { RabbitmqConfiguration.monitorStrongPointQueueName })
+public class MonitorStrongPointConsumer {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -79,7 +78,7 @@ public class MonitorPublisherFuturesOrderConsumer {
 		for (Long publisherId : monitorPublisherList) {
 			MonitorPublisherFuturesOrderMessage messgeObj = new MonitorPublisherFuturesOrderMessage();
 			messgeObj.setPublisherId(publisherId);
-			producer.sendMessage(RabbitmqConfiguration.monitorPublisherFuturesOrderQueueName, messgeObj);
+			producer.sendMessage(RabbitmqConfiguration.monitorStrongPointQueueName, messgeObj);
 		}
 	}
 
@@ -109,8 +108,8 @@ public class MonitorPublisherFuturesOrderConsumer {
 						if (isEnoughOvernight(orderList, account)) {
 							// step 4.1 : 扣除递延费
 							for (FuturesOrder order : overnightOrderList) {
-//								orderService.overnight(order,
-//										order.getContract().getCommodity().getExchange().getTimeZoneGap());
+								// orderService.overnight(order,
+								// order.getContract().getCommodity().getExchange().getTimeZoneGap());
 								// TODO
 							}
 						} else {
@@ -133,19 +132,23 @@ public class MonitorPublisherFuturesOrderConsumer {
 	}
 
 	private void strongUnwind(FuturesOrder order, FuturesWindControlType windControlType) {
-//		FuturesContract contract = order.getContract();
-//		if (orderService.isTradeTime(contract.getCommodity().getExchange().getTimeZoneGap(), contract)) {
-//			if (order.getState() == FuturesOrderState.Position) {
-//				orderService.sellingEntrust(order, windControlType, FuturesTradePriceType.MKT, null);
-//			} else if (order.getState() == FuturesOrderState.SellingEntrust
-//					&& order.getSellingPriceType() == FuturesTradePriceType.LMT
-//					&& order.getWindControlType() != FuturesWindControlType.ReachStrongPoint
-//					&& order.getWindControlType() != FuturesWindControlType.DayUnwind) {
-//				order.setWindControlType(windControlType);
-//				orderService.revisionOrder(order);
-//				orderService.cancelOrder(order.getId(), order.getPublisherId());
-//			}
-//		}
+		// FuturesContract contract = order.getContract();
+		// if
+		// (orderService.isTradeTime(contract.getCommodity().getExchange().getTimeZoneGap(),
+		// contract)) {
+		// if (order.getState() == FuturesOrderState.Position) {
+		// orderService.sellingEntrust(order, windControlType,
+		// FuturesTradePriceType.MKT, null);
+		// } else if (order.getState() == FuturesOrderState.SellingEntrust
+		// && order.getSellingPriceType() == FuturesTradePriceType.LMT
+		// && order.getWindControlType() !=
+		// FuturesWindControlType.ReachStrongPoint
+		// && order.getWindControlType() != FuturesWindControlType.DayUnwind) {
+		// order.setWindControlType(windControlType);
+		// orderService.revisionOrder(order);
+		// orderService.cancelOrder(order.getId(), order.getPublisherId());
+		// }
+		// }
 	}
 
 	/**
@@ -164,8 +167,10 @@ public class MonitorPublisherFuturesOrderConsumer {
 			// 计算强平金额
 			totalStrong = totalStrong.add(orderService.getStrongMoney(order));
 			// 计算浮动盈亏
-//			totalProfitOrLoss = totalProfitOrLoss.add(orderService.getProfitOrLoss(order,
-//					quoteContainer.getLastPrice(order.getCommoditySymbol(), order.getContractNo())));
+			// totalProfitOrLoss =
+			// totalProfitOrLoss.add(orderService.getProfitOrLoss(order,
+			// quoteContainer.getLastPrice(order.getCommoditySymbol(),
+			// order.getContractNo())));
 		}
 		if (totalProfitOrLoss.compareTo(BigDecimal.ZERO) < 0
 				&& account.getAvailableBalance().add(totalStrong).compareTo(totalProfitOrLoss.abs()) <= 0) {
@@ -189,35 +194,42 @@ public class MonitorPublisherFuturesOrderConsumer {
 	 * @return 是否足够过夜
 	 */
 	private boolean isEnoughOvernight(List<FuturesOrder> orderList, CapitalAccountDto account) {
-//		BigDecimal totalProfitOrLoss = BigDecimal.ZERO;
-//		BigDecimal totalTradeReserveFund = BigDecimal.ZERO;
-//		BigDecimal totalOvernightDeferredFee = BigDecimal.ZERO;
-//		BigDecimal totalOvernightReserveFund = BigDecimal.ZERO;
-//		for (FuturesOrder order : orderList) {
-//			// 计算浮动盈亏
-//			totalProfitOrLoss = totalProfitOrLoss.add(orderService.getProfitOrLoss(order,
-//					quoteContainer.getLastPrice(order.getCommoditySymbol(), order.getContractNo())));
-//			// 计算交易保证金
-//			totalTradeReserveFund = totalTradeReserveFund.add(order.getReserveFund());
-//			// 计算隔夜手续费
-//			totalOvernightDeferredFee = totalOvernightDeferredFee
-//					.add(order.getTotalQuantity().multiply(order.getOvernightPerUnitDeferredFee()));
-//			// 计算隔夜保证金
-//			totalOvernightReserveFund = totalOvernightReserveFund
-//					.add(order.getTotalQuantity().multiply(order.getOvernightPerUnitReserveFund()));
-//		}
-//
-//		if (totalProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
-//			if (account.getAvailableBalance().add(totalProfitOrLoss).compareTo(totalOvernightDeferredFee) < 0) {
-//				return false;
-//			}
-//		}
-//		if (account.getAvailableBalance().add(totalProfitOrLoss).add(totalTradeReserveFund)
-//				.compareTo(totalOvernightReserveFund.add(totalOvernightDeferredFee)) >= 0) {
-//			return true;
-//		} else {
-//			return false;
-//		}
+		// BigDecimal totalProfitOrLoss = BigDecimal.ZERO;
+		// BigDecimal totalTradeReserveFund = BigDecimal.ZERO;
+		// BigDecimal totalOvernightDeferredFee = BigDecimal.ZERO;
+		// BigDecimal totalOvernightReserveFund = BigDecimal.ZERO;
+		// for (FuturesOrder order : orderList) {
+		// // 计算浮动盈亏
+		// totalProfitOrLoss =
+		// totalProfitOrLoss.add(orderService.getProfitOrLoss(order,
+		// quoteContainer.getLastPrice(order.getCommoditySymbol(),
+		// order.getContractNo())));
+		// // 计算交易保证金
+		// totalTradeReserveFund =
+		// totalTradeReserveFund.add(order.getReserveFund());
+		// // 计算隔夜手续费
+		// totalOvernightDeferredFee = totalOvernightDeferredFee
+		// .add(order.getTotalQuantity().multiply(order.getOvernightPerUnitDeferredFee()));
+		// // 计算隔夜保证金
+		// totalOvernightReserveFund = totalOvernightReserveFund
+		// .add(order.getTotalQuantity().multiply(order.getOvernightPerUnitReserveFund()));
+		// }
+		//
+		// if (totalProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+		// if
+		// (account.getAvailableBalance().add(totalProfitOrLoss).compareTo(totalOvernightDeferredFee)
+		// < 0) {
+		// return false;
+		// }
+		// }
+		// if
+		// (account.getAvailableBalance().add(totalProfitOrLoss).add(totalTradeReserveFund)
+		// .compareTo(totalOvernightReserveFund.add(totalOvernightDeferredFee))
+		// >= 0) {
+		// return true;
+		// } else {
+		// return false;
+		// }
 		return false;
 	}
 
@@ -328,13 +340,13 @@ public class MonitorPublisherFuturesOrderConsumer {
 			messgeObj.setConsumeCount(consumeCount + 1);
 			Thread.sleep(50);
 			if (messgeObj.getMaxConsumeCount() > 0 && consumeCount < messgeObj.getMaxConsumeCount()) {
-				producer.sendMessage(RabbitmqConfiguration.monitorPublisherFuturesOrderQueueName, messgeObj);
+				producer.sendMessage(RabbitmqConfiguration.monitorStrongPointQueueName, messgeObj);
 			} else if (messgeObj.getMaxConsumeCount() <= 0) {
-				producer.sendMessage(RabbitmqConfiguration.monitorPublisherFuturesOrderQueueName, messgeObj);
+				producer.sendMessage(RabbitmqConfiguration.monitorStrongPointQueueName, messgeObj);
 			}
 		} catch (Exception ex) {
-			throw new RuntimeException(
-					RabbitmqConfiguration.monitorPublisherFuturesOrderQueueName + " message retry exception!", ex);
+			throw new RuntimeException(RabbitmqConfiguration.monitorStrongPointQueueName + " message retry exception!",
+					ex);
 		}
 	}
 

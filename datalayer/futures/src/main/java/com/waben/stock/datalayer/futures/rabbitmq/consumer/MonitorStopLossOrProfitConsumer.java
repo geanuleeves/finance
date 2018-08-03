@@ -16,23 +16,23 @@ import org.springframework.stereotype.Component;
 
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqProducer;
 import com.waben.stock.datalayer.futures.rabbitmq.message.MonitorStopLossOrProfitMessage;
 import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
-import com.waben.stock.datalayer.futures.service.FuturesCurrencyRateService;
 import com.waben.stock.datalayer.futures.service.FuturesOrderService;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.enums.FuturesTradeActionType;
+import com.waben.stock.interfaces.enums.FuturesTradePriceType;
+import com.waben.stock.interfaces.enums.FuturesWindControlType;
 import com.waben.stock.interfaces.util.JacksonUtil;
 import com.waben.stock.interfaces.util.RandomUtil;
 
-// @Component
-// @RabbitListener(queues = {
-//		RabbitmqConfiguration.monitorStopLossOrProfitQueueName }, containerFactory = "monitorStopLossOrProfitContainerFactory")
+@Component
+@RabbitListener(queues = {
+		RabbitmqConfiguration.monitorStopLossOrProfitQueueName }, containerFactory = "monitorStopLossOrProfitContainerFactory")
 public class MonitorStopLossOrProfitConsumer {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
@@ -45,9 +45,6 @@ public class MonitorStopLossOrProfitConsumer {
 
 	@Autowired
 	private FuturesOrderService orderService;
-
-	@Autowired
-	private FuturesCurrencyRateService rateService;
 
 	@Autowired
 	private QuoteContainer quoteContainer;
@@ -89,39 +86,100 @@ public class MonitorStopLossOrProfitConsumer {
 				String contractNo = contract.getContractNo();
 				FuturesContractMarket market = quoteContainer.getQuote(commodityNo, contractNo);
 				if (orderService.isTradeTime(timeZoneGap, contract, FuturesTradeActionType.CLOSE)) {
+					boolean needMonitorBuyUp = true;
+					boolean needMonitorBuyFall = true;
 					// step 1 : 买涨订单
 					if (buyUpCanUnwind != null && buyUpCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
-						BigDecimal limitProfit = order.getBuyUpPerUnitLimitProfitAmount();
-						BigDecimal limitLoss = order.getBuyUpPerUnitLimitLossAmount();
+						BigDecimal buyUpLimitProfit = order.getBuyUpPerUnitLimitProfitAmount();
+						BigDecimal buyUpLimitLoss = order.getBuyUpPerUnitLimitLossAmount();
 						// step 1.1 : 买涨是否止盈
-						if (limitProfit != null) {
-							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(), contractNo,
-									commodityNo, FuturesOrderType.BuyUp.getIndex());
-							if (limitProfit.compareTo(avgFillPrice) > 0
-									&& market.getLastPrice().compareTo(limitProfit) > 0) {
-								logger.info("{}买涨订单达到止盈，");
-								// TODO
+						if (buyUpLimitProfit != null) {
+							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
+									contractNo, commodityNo, FuturesOrderType.BuyUp.getIndex());
+							if (buyUpLimitProfit.compareTo(avgFillPrice) > 0
+									&& market.getLastPrice().compareTo(buyUpLimitProfit) >= 0) {
+								logger.info("{}买涨订单{}手达到止盈，止盈价格{}，此时的行情{}", order.getId(),
+										order.getBuyUpCanUnwindQuantity(), buyUpLimitProfit,
+										JacksonUtil.encode(market));
+								BigDecimal stopLossOrProfitPrice = BigDecimal.ZERO;
+								BigDecimal[] divideArr = buyUpLimitProfit.divideAndRemainder(minWave);
+								stopLossOrProfitPrice = divideArr[0].multiply(minWave);
+								orderService.doUnwind(contract, order, FuturesOrderType.BuyUp,
+										order.getBuyUpCanUnwindQuantity(), FuturesTradePriceType.MKT, null,
+										order.getPublisherId(), FuturesWindControlType.ReachProfitPoint, false, true,
+										stopLossOrProfitPrice);
+								needMonitorBuyUp = false;
 							}
 						}
 						// step 1.2 : 买涨是否止损
-						if (limitLoss != null) {
-							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(), contractNo,
-									commodityNo, FuturesOrderType.BuyUp.getIndex());
-							if (limitProfit.compareTo(avgFillPrice) > 0
-									&& market.getLastPrice().compareTo(limitProfit) > 0) {
-
+						if (buyUpLimitLoss != null) {
+							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
+									contractNo, commodityNo, FuturesOrderType.BuyUp.getIndex());
+							if (buyUpLimitLoss.compareTo(avgFillPrice) < 0
+									&& market.getLastPrice().compareTo(buyUpLimitLoss) <= 0) {
+								logger.info("{}买涨订单{}手达到止损，止损价格{}，此时的行情{}", order.getId(),
+										order.getBuyUpCanUnwindQuantity(), buyUpLimitLoss, JacksonUtil.encode(market));
+								BigDecimal stopLossOrProfitPrice = BigDecimal.ZERO;
+								BigDecimal[] divideArr = buyUpLimitLoss.divideAndRemainder(minWave);
+								stopLossOrProfitPrice = divideArr[0].multiply(minWave);
+								orderService.doUnwind(contract, order, FuturesOrderType.BuyUp,
+										order.getBuyUpCanUnwindQuantity(), FuturesTradePriceType.MKT, null,
+										order.getPublisherId(), FuturesWindControlType.ReachLossPoint, false, true,
+										stopLossOrProfitPrice);
+								needMonitorBuyUp = false;
 							}
 						}
 
+					} else {
+						needMonitorBuyUp = false;
 					}
 					// step 2 : 买跌订单
-					if (buyUpCanUnwind != null && buyUpCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
-						BigDecimal avgFillPrice = orderService.getCloseAvgFillPrice(order.getPublisherId(), contractNo,
-								commodityNo, FuturesOrderType.BuyFall.getIndex());
+					BigDecimal buyFallLimitProfit = order.getBuyFallPerUnitLimitProfitAmount();
+					BigDecimal buyFallLimitLoss = order.getBuyFallPerUnitLimitLossAmount();
+					if (buyFallCanUnwind != null && buyFallCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
 						// step 2.1 : 买跌是否止盈
-
+						if (buyFallLimitProfit != null) {
+							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
+									contractNo, commodityNo, FuturesOrderType.BuyFall.getIndex());
+							if (buyFallLimitProfit.compareTo(avgFillPrice) < 0
+									&& market.getLastPrice().compareTo(buyFallLimitProfit) <= 0) {
+								logger.info("{}买跌订单{}手达到止盈，止盈价格{}，此时的行情{}", order.getId(),
+										order.getBuyFallCanUnwindQuantity(), buyFallLimitProfit,
+										JacksonUtil.encode(market));
+								BigDecimal stopLossOrProfitPrice = BigDecimal.ZERO;
+								BigDecimal[] divideArr = buyFallLimitProfit.divideAndRemainder(minWave);
+								stopLossOrProfitPrice = divideArr[0].multiply(minWave);
+								orderService.doUnwind(contract, order, FuturesOrderType.BuyFall,
+										order.getBuyUpCanUnwindQuantity(), FuturesTradePriceType.MKT, null,
+										order.getPublisherId(), FuturesWindControlType.ReachProfitPoint, false, true,
+										stopLossOrProfitPrice);
+								needMonitorBuyFall = false;
+							}
+						}
 						// step 2.2 : 买跌是否止损
-
+						if (buyFallLimitLoss != null) {
+							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
+									contractNo, commodityNo, FuturesOrderType.BuyFall.getIndex());
+							if (buyFallLimitLoss.compareTo(avgFillPrice) > 0
+									&& market.getLastPrice().compareTo(buyFallLimitLoss) >= 0) {
+								logger.info("{}买跌订单{}手达到止损，止损价格{}，此时的行情{}", order.getId(),
+										order.getBuyUpCanUnwindQuantity(), buyFallLimitLoss,
+										JacksonUtil.encode(market));
+								BigDecimal stopLossOrProfitPrice = BigDecimal.ZERO;
+								BigDecimal[] divideArr = buyFallLimitLoss.divideAndRemainder(minWave);
+								stopLossOrProfitPrice = divideArr[0].multiply(minWave);
+								orderService.doUnwind(contract, order, FuturesOrderType.BuyFall,
+										order.getBuyUpCanUnwindQuantity(), FuturesTradePriceType.MKT, null,
+										order.getPublisherId(), FuturesWindControlType.ReachLossPoint, false, true,
+										stopLossOrProfitPrice);
+								needMonitorBuyFall = false;
+							}
+						}
+					} else {
+						needMonitorBuyFall = false;
+					}
+					if (!needMonitorBuyUp && !needMonitorBuyFall) {
+						isNeedRetry = false;
 					}
 				}
 			} else {
@@ -129,206 +187,13 @@ public class MonitorStopLossOrProfitConsumer {
 			}
 			if (isNeedRetry) {
 				retry(messgeObj);
+			} else {
+				monitorContractOrderIdList.remove(messgeObj.getContractOrderId());
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			retry(messgeObj);
 		}
-	}
-
-	/**
-	 * 判断是否达到止盈点
-	 * 
-	 * @param order
-	 *            订单
-	 * @param market
-	 *            行情
-	 * @return 否达到止盈点
-	 */
-	private boolean isReachProfitPoint(FuturesOrder order) {
-		// BigDecimal lastPrice =
-		// quoteContainer.getLastPrice(order.getCommoditySymbol(),
-		// order.getContractNo());
-		// if (lastPrice != null && lastPrice.compareTo(BigDecimal.ZERO) > 0) {
-		// BigDecimal profitOrLoss = orderService.getProfitOrLossCurrency(order,
-		// lastPrice);
-		// BigDecimal limitProfit =
-		// order.getPerUnitLimitProfitAmount().multiply(order.getTotalQuantity());
-		// if (order.getIsNeedLog() != null && order.getIsNeedLog()) {
-		// System.out.println(
-		// "监控订单：" + order.getId() + "，最新价：" + lastPrice + "，浮动盈亏：" +
-		// profitOrLoss + "，止盈：" + limitProfit);
-		// }
-		// if (profitOrLoss.compareTo(BigDecimal.ZERO) > 0 &&
-		// profitOrLoss.compareTo(limitProfit) >= 0) {
-		// BigDecimal minWave = order.getContract().getCommodity().getMinWave();
-		// BigDecimal perWaveMoney =
-		// order.getContract().getCommodity().getPerWaveMoney();
-		// BigDecimal waveCount =
-		// order.getPerUnitLimitProfitAmount().divide(perWaveMoney, 0,
-		// RoundingMode.DOWN);
-		// BigDecimal wavePrice = minWave.multiply(waveCount);
-		// BigDecimal sellingPrice = order.getBuyingPrice();
-		// if (order.getOrderType() == FuturesOrderType.BuyUp) {
-		// sellingPrice = sellingPrice.add(wavePrice);
-		// } else {
-		// sellingPrice = sellingPrice.subtract(wavePrice);
-		// }
-		// orderService.unwindOrder(order.getId(), sellingPrice,
-		// FuturesWindControlType.ReachProfitPoint);
-		// return true;
-		// }
-		// }
-		return false;
-	}
-
-	/**
-	 * 判断是否达到止损点
-	 * 
-	 * @param order
-	 *            订单
-	 * @param market
-	 *            行情
-	 * @return 是否达到止损点
-	 */
-	private boolean isReachLossPoint(FuturesOrder order) {
-		// BigDecimal lastPrice =
-		// quoteContainer.getLastPrice(order.getCommoditySymbol(),
-		// order.getContractNo());
-		// if (lastPrice != null && lastPrice.compareTo(BigDecimal.ZERO) > 0) {
-		// BigDecimal profitOrLoss = orderService.getProfitOrLossCurrency(order,
-		// lastPrice);
-		// BigDecimal limitLoss =
-		// order.getPerUnitLimitLossAmount().multiply(order.getTotalQuantity());
-		// if (order.getIsNeedLog() != null && order.getIsNeedLog()) {
-		// System.out.println(
-		// "监控订单：" + order.getId() + "，最新价：" + lastPrice + "，浮动盈亏：" +
-		// profitOrLoss + "，止损：" + limitLoss);
-		// }
-		// if (profitOrLoss.compareTo(BigDecimal.ZERO) < 0 &&
-		// profitOrLoss.abs().compareTo(limitLoss.abs()) >= 0) {
-		// BigDecimal minWave = order.getContract().getCommodity().getMinWave();
-		// BigDecimal perWaveMoney =
-		// order.getContract().getCommodity().getPerWaveMoney();
-		// BigDecimal waveCount =
-		// order.getPerUnitLimitLossAmount().divide(perWaveMoney, 0,
-		// RoundingMode.DOWN);
-		// BigDecimal wavePrice = minWave.multiply(waveCount);
-		// BigDecimal sellingPrice = order.getBuyingPrice();
-		// if (order.getOrderType() == FuturesOrderType.BuyUp) {
-		// sellingPrice = sellingPrice.subtract(wavePrice);
-		// } else {
-		// sellingPrice = sellingPrice.add(wavePrice);
-		// }
-		// orderService.unwindOrder(order.getId(), sellingPrice,
-		// FuturesWindControlType.ReachLossPoint);
-		// return true;
-		// }
-		// }
-		return false;
-	}
-
-	/**
-	 * 计算订单止损价格
-	 * 
-	 * @param order
-	 *            订单
-	 * @return 止损价格
-	 */
-	private BigDecimal computeLimitLossPrice(FuturesOrder order) {
-		// FuturesOrderType orderType = order.getOrderType();
-		// BigDecimal buyingPrice = order.getBuyingPrice();
-		// // 用户设置
-		// Integer limitLossType = order.getLimitLossType();
-		// BigDecimal perUnitLimitLossAmount =
-		// order.getPerUnitLimitLossAmount();
-		// // 波动设置
-		// BigDecimal minWave = order.getContract().getCommodity().getMinWave();
-		// BigDecimal perWaveMoney =
-		// order.getContract().getCommodity().getPerWaveMoney();
-		// // 货币汇率
-		// // FuturesCurrencyRate rate =
-		// // rateService.findByCurrency(order.getCommodityCurrency());
-		// if (buyingPrice != null) {
-		// // 获取用户设置的止损价格
-		// BigDecimal userSetNeedWavePrice = null;
-		// if (limitLossType != null && limitLossType == 1 &&
-		// perUnitLimitLossAmount != null) {
-		// // type为行情价格
-		// if (orderType == FuturesOrderType.BuyUp &&
-		// perUnitLimitLossAmount.compareTo(buyingPrice) < 0) {
-		// userSetNeedWavePrice = buyingPrice.subtract(perUnitLimitLossAmount);
-		// } else if (orderType == FuturesOrderType.BuyFall &&
-		// perUnitLimitLossAmount.compareTo(buyingPrice) > 0) {
-		// userSetNeedWavePrice = perUnitLimitLossAmount.subtract(buyingPrice);
-		// }
-		// } else if (limitLossType != null && limitLossType == 2 &&
-		// perUnitLimitLossAmount != null) {
-		// // type为每手亏损金额
-		// userSetNeedWavePrice = perUnitLimitLossAmount.divide(perWaveMoney, 2,
-		// RoundingMode.DOWN)
-		// .multiply(minWave).setScale(minWave.scale(), RoundingMode.DOWN);
-		// }
-		// // 获取最终需要波动的价格
-		// BigDecimal lastNeedWavePrice = userSetNeedWavePrice;
-		// if (lastNeedWavePrice != null) {
-		// if (orderType == FuturesOrderType.BuyUp) {
-		// return buyingPrice.subtract(lastNeedWavePrice.abs());
-		// } else if (orderType == FuturesOrderType.BuyFall) {
-		// return buyingPrice.add(lastNeedWavePrice.abs());
-		// }
-		// }
-		// }
-		return null;
-	}
-
-	/**
-	 * 计算订单止盈价格
-	 * 
-	 * @param order
-	 *            订单
-	 * @return 止盈价格
-	 */
-	private BigDecimal computeLimitProfitPrice(FuturesOrder order) {
-		// FuturesOrderType orderType = order.getOrderType();
-		// BigDecimal buyingPrice = order.getBuyingPrice();
-		// // 用户设置
-		// Integer limitProfitType = order.getLimitProfitType();
-		// BigDecimal perUnitLimitProfitAmount =
-		// order.getPerUnitLimitProfitAmount();
-		// // 波动设置
-		// BigDecimal minWave = order.getContract().getCommodity().getMinWave();
-		// BigDecimal perWaveMoney =
-		// order.getContract().getCommodity().getPerWaveMoney();
-		// // 货币汇率
-		// FuturesCurrencyRate rate =
-		// rateService.findByCurrency(order.getCommodityCurrency());
-		// if (buyingPrice != null && perUnitLimitProfitAmount != null) {
-		// if (limitProfitType != null && limitProfitType == 1 &&
-		// perUnitLimitProfitAmount != null) {
-		// // type为行情价格
-		// if (orderType == FuturesOrderType.BuyUp &&
-		// perUnitLimitProfitAmount.compareTo(buyingPrice) > 0) {
-		// return perUnitLimitProfitAmount;
-		// } else if (orderType == FuturesOrderType.BuyFall
-		// && perUnitLimitProfitAmount.compareTo(buyingPrice) < 0) {
-		// return perUnitLimitProfitAmount;
-		// }
-		// } else if (limitProfitType != null && limitProfitType == 2 && rate !=
-		// null && rate.getRate() != null
-		// && perUnitLimitProfitAmount != null) {
-		// // type为每手盈利金额
-		// BigDecimal needWavePrice =
-		// perUnitLimitProfitAmount.divide(perWaveMoney, 2, RoundingMode.DOWN)
-		// .multiply(minWave).setScale(minWave.scale(), RoundingMode.DOWN);
-		// if (orderType == FuturesOrderType.BuyUp) {
-		// return buyingPrice.add(needWavePrice);
-		// } else if (orderType == FuturesOrderType.BuyFall) {
-		// return buyingPrice.subtract(needWavePrice);
-		// }
-		// }
-		// }
-		return null;
 	}
 
 	private void retry(MonitorStopLossOrProfitMessage messgeObj) {
