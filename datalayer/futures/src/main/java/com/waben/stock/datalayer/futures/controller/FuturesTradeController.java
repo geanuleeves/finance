@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.waben.stock.interfaces.enums.FuturesTradeActionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +44,7 @@ import com.waben.stock.interfaces.dto.organization.OrganizationPublisherDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
 import com.waben.stock.interfaces.dto.publisher.RealNameDto;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
@@ -313,7 +313,7 @@ public class FuturesTradeController implements FuturesTradeInterface {
 			}
 		}
 		result.setContent(positionAgentList);
-		List<FuturesHoldPositionAgentDto> futuresContractOrderViewDtos = new ArrayList<>();
+		List<FuturesHoldPositionAgentDto> futuresContractOrderViewDtos = new ArrayList<FuturesHoldPositionAgentDto>();
 		if (result != null && result.getContent() != null) {
 			// 封装汇率
 			Map<String, FuturesCurrencyRateDto> rateMap = new HashMap<String, FuturesCurrencyRateDto>();
@@ -384,7 +384,6 @@ public class FuturesTradeController implements FuturesTradeInterface {
 								futuresContractOrder.getContractNo(), FuturesTradeActionType.OPEN.getIndex(),
 								FuturesOrderType.BuyUp.getIndex());
 						// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
-						BigDecimal buyReserveFund = new BigDecimal(0);
 						if (futuresCommodity != null) {
 							buyDto.setQuantityNow(new BigDecimal(findUpFilledNow == null ? 0 : findUpFilledNow));
 							// 成交价格
