@@ -167,6 +167,9 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                         buyDto.setAvgFillPrice(avgUpFillPrice);
                         //最新价
                         buyDto.setLastPrice(lastPrice);
+                        //买方对手价
+                        buyDto.setBidPrice(quoteContainer.getBidPrice(futuresContractOrder.getCommodityNo(),
+                                futuresContractOrder.getContractNo()));
                         //最小波动
                         buyDto.setMinWave(futuresCommodity.getMinWave());
                         //最小波动价格
@@ -213,6 +216,9 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                         avgFallFillPrice = avgFallFillPrice == null ? new BigDecimal(0) : avgFallFillPrice;
                         sellDto.setAvgFillPrice(avgFallFillPrice);
                         sellDto.setLastPrice(lastPrice);
+                        //卖方对手价
+                        sellDto.setAskPrice(quoteContainer.getAskPrice(futuresContractOrder.getCommodityNo(),
+                                futuresContractOrder.getContractNo()));
                         //最小波动
                         sellDto.setMinWave(futuresCommodity.getMinWave());
                         //最小波动价格
