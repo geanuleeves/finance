@@ -2,6 +2,9 @@ package com.waben.stock.interfaces.dto.admin.futures;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FuturesOrderCountDto {
 
 	private BigDecimal quantity;

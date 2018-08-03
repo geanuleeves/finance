@@ -2,6 +2,9 @@ package com.waben.stock.interfaces.dto.admin.futures;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FuturesContractTimeDto {
 
 	private Long id;

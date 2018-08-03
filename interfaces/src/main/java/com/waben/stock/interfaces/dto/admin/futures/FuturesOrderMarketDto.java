@@ -2,6 +2,7 @@ package com.waben.stock.interfaces.dto.admin.futures;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -12,6 +13,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author sl
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FuturesOrderMarketDto extends FuturesOrderDto {
 
 	/**

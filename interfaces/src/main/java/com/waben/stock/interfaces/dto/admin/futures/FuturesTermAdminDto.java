@@ -1,5 +1,8 @@
 package com.waben.stock.interfaces.dto.admin.futures;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FuturesTermAdminDto {
 
 	private Long id;

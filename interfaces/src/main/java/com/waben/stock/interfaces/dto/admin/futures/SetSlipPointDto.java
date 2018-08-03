@@ -1,7 +1,10 @@
 package com.waben.stock.interfaces.dto.admin.futures;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import io.swagger.annotations.ApiModelProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SetSlipPointDto {
 
 	/**

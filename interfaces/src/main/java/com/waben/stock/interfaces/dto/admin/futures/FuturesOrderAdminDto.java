@@ -3,10 +3,12 @@ package com.waben.stock.interfaces.dto.admin.futures;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 
 import io.swagger.annotations.ApiModelProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FuturesOrderAdminDto {
 
 	/**
