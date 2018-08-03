@@ -18,4 +18,6 @@ public interface FuturesContractOrderDao extends BaseDao<FuturesContractOrder, L
 
 	List<FuturesContractOrder> retrivePositionContractOrders();
 
+	FuturesContractOrder doUpdate(FuturesContractOrder contractOrder);
+
 }

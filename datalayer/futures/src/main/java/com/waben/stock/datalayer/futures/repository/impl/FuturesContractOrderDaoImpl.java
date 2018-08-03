@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
+import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorStopLossOrProfitConsumer;
 import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
 import com.waben.stock.datalayer.futures.repository.impl.jpa.FuturesContractOrderRepository;
 
@@ -31,6 +32,9 @@ public class FuturesContractOrderDaoImpl implements FuturesContractOrderDao {
 
 	@Autowired
 	private FuturesContractOrderRepository repository;
+	
+	@Autowired
+	private MonitorStopLossOrProfitConsumer monitorStopLossOrProfit;
 
 	@Override
 	public FuturesContractOrder create(FuturesContractOrder t) {
@@ -44,6 +48,23 @@ public class FuturesContractOrderDaoImpl implements FuturesContractOrderDao {
 
 	@Override
 	public FuturesContractOrder update(FuturesContractOrder t) {
+		return repository.save(t);
+	}
+
+	@Override
+	public FuturesContractOrder doUpdate(FuturesContractOrder t) {
+		BigDecimal buyUpCanUnwind = t.getBuyUpCanUnwindQuantity();
+		BigDecimal buyFallCanUnwind = t.getBuyFallCanUnwindQuantity();
+		boolean needMonitor = false;
+		if (buyUpCanUnwind != null && buyUpCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
+			needMonitor = true;
+		}
+		if (buyFallCanUnwind != null && buyFallCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
+			needMonitor = true;
+		}
+		if (needMonitor) {
+			monitorStopLossOrProfit.monitorContractOrder(t.getId());
+		}
 		return repository.save(t);
 	}
 

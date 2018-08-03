@@ -86,6 +86,14 @@ public class FuturesTradeEntrust {
 	private BigDecimal tradePrice;
 	/** 交易成功时间 */
 	private Date tradeTime;
+	/** 发布人盈亏（人民币，只有平仓才有值） */
+	private BigDecimal publisherProfitOrLoss;
+	/** 结算货币汇率（只有平仓才有值） */
+	private BigDecimal settlementRate;
+	/** 结算时间（只有平仓才有值） */
+	private Date settlementTime;
+	/** 开仓均价（只有平仓才有值） */
+	private BigDecimal openAvgFillPrice;
 	/** 更新时间 */
 	private Date updateTime;
 	/** 反手源委托ID */
@@ -353,6 +361,38 @@ public class FuturesTradeEntrust {
 
 	public void setBackhandEntrustId(Long backhandEntrustId) {
 		this.backhandEntrustId = backhandEntrustId;
+	}
+
+	public BigDecimal getPublisherProfitOrLoss() {
+		return publisherProfitOrLoss;
+	}
+
+	public void setPublisherProfitOrLoss(BigDecimal publisherProfitOrLoss) {
+		this.publisherProfitOrLoss = publisherProfitOrLoss;
+	}
+
+	public BigDecimal getSettlementRate() {
+		return settlementRate;
+	}
+
+	public void setSettlementRate(BigDecimal settlementRate) {
+		this.settlementRate = settlementRate;
+	}
+
+	public Date getSettlementTime() {
+		return settlementTime;
+	}
+
+	public void setSettlementTime(Date settlementTime) {
+		this.settlementTime = settlementTime;
+	}
+
+	public BigDecimal getOpenAvgFillPrice() {
+		return openAvgFillPrice;
+	}
+
+	public void setOpenAvgFillPrice(BigDecimal openAvgFillPrice) {
+		this.openAvgFillPrice = openAvgFillPrice;
 	}
 
 }

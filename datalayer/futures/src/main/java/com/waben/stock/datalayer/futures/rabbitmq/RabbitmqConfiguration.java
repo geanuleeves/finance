@@ -19,7 +19,7 @@ public class RabbitmqConfiguration {
 
 	public static final String entrustQueryQueueName = "futures-entrustQuery";
 
-	public static final String monitorPublisherFuturesOrderQueueName = "futures-monitorPublisherFuturesOrder";
+	public static final String monitorStrongPointQueueName = "futures-monitorStrongPoint";
 
 	public static final String monitorStopLossOrProfitQueueName = "futures-monitorStopLossOrProfit";
 
@@ -52,11 +52,11 @@ public class RabbitmqConfiguration {
 	}
 
 	/**
-	 * 创建 监控用户期货订单 队列
+	 * 创建 监控强平 队列
 	 */
 	@Bean
-	public Queue monitorPublisherFuturesOrderQueue() {
-		return new Queue(monitorPublisherFuturesOrderQueueName);
+	public Queue monitorStrongPointQueue() {
+		return new Queue(monitorStrongPointQueueName);
 	}
 
 	/**
