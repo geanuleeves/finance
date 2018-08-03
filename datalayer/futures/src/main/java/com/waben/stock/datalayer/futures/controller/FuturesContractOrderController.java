@@ -159,7 +159,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                     //浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
                     BigDecimal buyReserveFund = new BigDecimal(0);
                     if (futuresCommodity != null && buyUpQuantity != null && buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
-                        buyDto.setQuantityNow(new BigDecimal(findUpFilledNow));
+                        buyDto.setQuantityNow(new BigDecimal(findUpFilledNow != null ? findUpFilledNow : 0));
                         //成交价格
                         BigDecimal avgUpFillPrice = futuresOrderService.getOpenAvgFillPrice(futuresContractOrder.getPublisherId(),
                                 futuresContractOrder.getContractNo(), futuresContractOrder.getCommodityNo(),

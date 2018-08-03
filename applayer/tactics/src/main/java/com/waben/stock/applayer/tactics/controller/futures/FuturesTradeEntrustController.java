@@ -48,9 +48,9 @@ public class FuturesTradeEntrustController {
 		return new Response<>(futuresTradeEntrustBusiness.pages(query));
 	}
 
-	@GetMapping("/pages_phone")
+	@GetMapping("/pages_phone/entrust")
 	@ApiOperation(value = "移动端交易委托列表", notes = "startTime和endTime格式(yyyy-MM-dd HH:mm:ss)")
-	public Response<PageInfo<FuturesTradeEntrustDto>> pagesPhone(int page, int size, String name, String startTime,
+	public Response<PageInfo<FuturesTradeEntrustDto>> pagesPhoneEntrust(int page, int size, String name, String startTime,
 																	String endTime) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		FuturesTradeEntrustQuery query = new FuturesTradeEntrustQuery();
@@ -73,6 +73,34 @@ public class FuturesTradeEntrustController {
 		}
 		return new Response<>(futuresTradeEntrustBusiness.pagesPhone(query));
 	}
+
+	@GetMapping("/pages_phone/action")
+	@ApiOperation(value = "移动端交易委托列表", notes = "startTime和endTime格式(yyyy-MM-dd HH:mm:ss)")
+	public Response<PageInfo<FuturesTradeEntrustDto>> pagesPhoneAction(int page, int size, String name, String startTime,
+																 String endTime) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		FuturesTradeEntrustQuery query = new FuturesTradeEntrustQuery();
+		query.setPage(page);
+		query.setSize(size);
+		query.setPublisherId(SecurityUtil.getUserId());
+		if (!StringUtil.isEmpty(startTime)) {
+			try {
+				query.setStartTime(sdf.parse(startTime));
+			} catch (ParseException e) {
+				throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION);
+			}
+		}
+		if (!StringUtil.isEmpty(endTime)) {
+			try {
+				query.setEndTime(sdf.parse(endTime));
+			} catch (ParseException e) {
+				throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION);
+			}
+		}
+		return new Response<>(futuresTradeEntrustBusiness.pagesPhone(query));
+	}
+
+
 
 	@GetMapping("/detail/{id}")
 	@ApiOperation(value = "移动端交易委托明细", notes = "startTime和endTime格式(yyyy-MM-dd HH:mm:ss)")
