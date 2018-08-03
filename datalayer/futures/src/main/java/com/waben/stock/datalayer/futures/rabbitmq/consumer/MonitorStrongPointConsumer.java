@@ -1,14 +1,9 @@
 package com.waben.stock.datalayer.futures.rabbitmq.consumer;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -16,31 +11,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
-import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
-import com.waben.stock.datalayer.futures.entity.FuturesContract;
+import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqProducer;
-import com.waben.stock.datalayer.futures.rabbitmq.message.MonitorPublisherFuturesOrderMessage;
+import com.waben.stock.datalayer.futures.rabbitmq.message.MonitorStrongPointMessage;
 import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
+import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
 import com.waben.stock.datalayer.futures.service.FuturesOrderService;
 import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
-import com.waben.stock.interfaces.enums.FuturesOrderState;
 import com.waben.stock.interfaces.enums.FuturesWindControlType;
-import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
 import com.waben.stock.interfaces.util.JacksonUtil;
 import com.waben.stock.interfaces.util.RandomUtil;
-import com.waben.stock.interfaces.util.StringUtil;
 
-// @Component
-// @RabbitListener(queues = { RabbitmqConfiguration.monitorStrongPointQueueName })
+@Component
+@RabbitListener(queues = { RabbitmqConfiguration.monitorStrongPointQueueName })
 public class MonitorStrongPointConsumer {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
@@ -50,6 +40,9 @@ public class MonitorStrongPointConsumer {
 
 	@Autowired
 	private FuturesOrderService orderService;
+
+	@Autowired
+	private FuturesContractOrderDao contractOrderDao;
 
 	@Autowired
 	private CapitalAccountBusiness accountBusiness;
@@ -67,19 +60,19 @@ public class MonitorStrongPointConsumer {
 
 	@PostConstruct
 	public void init() {
-		List<FuturesOrder> orderList = retrivePositionOrders();
-		for (FuturesOrder order : orderList) {
-			Long publisherId = order.getPublisherId();
-			if (!monitorPublisherList.contains(publisherId)) {
-				monitorPublisherList.add(publisherId);
-			}
-		}
-
-		for (Long publisherId : monitorPublisherList) {
-			MonitorPublisherFuturesOrderMessage messgeObj = new MonitorPublisherFuturesOrderMessage();
-			messgeObj.setPublisherId(publisherId);
-			producer.sendMessage(RabbitmqConfiguration.monitorStrongPointQueueName, messgeObj);
-		}
+//		List<FuturesOrder> orderList = retrivePositionOrders();
+//		for (FuturesOrder order : orderList) {
+//			Long publisherId = order.getPublisherId();
+//			if (!monitorPublisherList.contains(publisherId)) {
+//				monitorPublisherList.add(publisherId);
+//			}
+//		}
+//
+//		for (Long publisherId : monitorPublisherList) {
+//			MonitorStrongPointMessage messgeObj = new MonitorStrongPointMessage();
+//			messgeObj.setPublisherId(publisherId);
+//			producer.sendMessage(RabbitmqConfiguration.monitorStrongPointQueueName, messgeObj);
+//		}
 	}
 
 	// @RabbitHandler
@@ -87,68 +80,47 @@ public class MonitorStrongPointConsumer {
 		if (RandomUtil.getRandomInt(100) % 51 == 0 && RandomUtil.getRandomInt(100) % 51 == 0) {
 			logger.info("监控用户订单:{}", message);
 		}
-		MonitorPublisherFuturesOrderMessage messgeObj = JacksonUtil.decode(message,
-				MonitorPublisherFuturesOrderMessage.class);
-		try {
-			Long publisherId = messgeObj.getPublisherId();
-			// step 1 : 获取资金账号
-			CapitalAccountDto account = accountBusiness.fetchByPublisherId(publisherId);
-			// step 2 : 获取持仓订单
-			List<FuturesOrder> orderList = retrivePublisherPositionOrders(publisherId);
-			if (orderList != null && orderList.size() > 0) {
-				// step 3 : 判断是否达到强平
-				if (isReachStongPoint(orderList, account)) {
-					for (FuturesOrder order : orderList) {
-						strongUnwind(order, FuturesWindControlType.ReachStrongPoint);
-					}
-				} else {
-					// step 4 : 判断是否触发隔夜，是否足够过夜
-					List<FuturesOrder> overnightOrderList = triggerOvernightOrderList(orderList);
-					if (overnightOrderList != null && overnightOrderList.size() > 0) {
-						if (isEnoughOvernight(orderList, account)) {
-							// step 4.1 : 扣除递延费
-							for (FuturesOrder order : overnightOrderList) {
-								// orderService.overnight(order,
-								// order.getContract().getCommodity().getExchange().getTimeZoneGap());
-								// TODO
-							}
-						} else {
-							// step 4.2 : 不满足隔夜条件，强平
-							for (FuturesOrder order : overnightOrderList) {
-								strongUnwind(order, FuturesWindControlType.DayUnwind);
-							}
-						}
-					}
-				}
-				retry(messgeObj);
-			} else {
-				// 从监控队列中移除
-				monitorPublisherList.remove(publisherId);
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			retry(messgeObj);
-		}
-	}
-
-	private void strongUnwind(FuturesOrder order, FuturesWindControlType windControlType) {
-		// FuturesContract contract = order.getContract();
-		// if
-		// (orderService.isTradeTime(contract.getCommodity().getExchange().getTimeZoneGap(),
-		// contract)) {
-		// if (order.getState() == FuturesOrderState.Position) {
-		// orderService.sellingEntrust(order, windControlType,
-		// FuturesTradePriceType.MKT, null);
-		// } else if (order.getState() == FuturesOrderState.SellingEntrust
-		// && order.getSellingPriceType() == FuturesTradePriceType.LMT
-		// && order.getWindControlType() !=
-		// FuturesWindControlType.ReachStrongPoint
-		// && order.getWindControlType() != FuturesWindControlType.DayUnwind) {
-		// order.setWindControlType(windControlType);
-		// orderService.revisionOrder(order);
-		// orderService.cancelOrder(order.getId(), order.getPublisherId());
-		// }
-		// }
+		MonitorStrongPointMessage messgeObj = JacksonUtil.decode(message, MonitorStrongPointMessage.class);
+//		try {
+//			Long publisherId = messgeObj.getPublisherId();
+//			// step 1 : 获取资金账号
+//			CapitalAccountDto account = accountBusiness.fetchByPublisherId(publisherId);
+//			// step 2 : 获取持仓订单
+//			List<FuturesOrder> orderList = retrivePublisherPositionOrders(publisherId);
+//			if (orderList != null && orderList.size() > 0) {
+//				// step 3 : 判断是否达到强平
+//				if (isReachStongPoint(orderList, account)) {
+//					for (FuturesOrder order : orderList) {
+//						strongUnwind(order, FuturesWindControlType.ReachStrongPoint);
+//					}
+//				} else {
+//					// step 4 : 判断是否触发隔夜，是否足够过夜
+//					List<FuturesOrder> overnightOrderList = triggerOvernightOrderList(orderList);
+//					if (overnightOrderList != null && overnightOrderList.size() > 0) {
+//						if (isEnoughOvernight(orderList, account)) {
+//							// step 4.1 : 扣除递延费
+//							for (FuturesOrder order : overnightOrderList) {
+//								// orderService.overnight(order,
+//								// order.getContract().getCommodity().getExchange().getTimeZoneGap());
+//								// TODO
+//							}
+//						} else {
+//							// step 4.2 : 不满足隔夜条件，强平
+//							for (FuturesOrder order : overnightOrderList) {
+//								strongUnwind(order, FuturesWindControlType.DayUnwind);
+//							}
+//						}
+//					}
+//				}
+//				retry(messgeObj);
+//			} else {
+//				// 从监控队列中移除
+//				monitorPublisherList.remove(publisherId);
+//			}
+//		} catch (Exception ex) {
+//			ex.printStackTrace();
+//			retry(messgeObj);
+//		}
 	}
 
 	/**
@@ -181,160 +153,15 @@ public class MonitorStrongPointConsumer {
 	}
 
 	/**
-	 * 判断是否足够过夜
-	 * 
-	 * <p>
-	 * 计算公式：账户余额 +浮动盈亏+交易保证金+隔夜手续费>=隔夜保证金
-	 * </p>
-	 * 
-	 * @param orderList
-	 *            订单列表
-	 * @param account
-	 *            资金账户
-	 * @return 是否足够过夜
-	 */
-	private boolean isEnoughOvernight(List<FuturesOrder> orderList, CapitalAccountDto account) {
-		// BigDecimal totalProfitOrLoss = BigDecimal.ZERO;
-		// BigDecimal totalTradeReserveFund = BigDecimal.ZERO;
-		// BigDecimal totalOvernightDeferredFee = BigDecimal.ZERO;
-		// BigDecimal totalOvernightReserveFund = BigDecimal.ZERO;
-		// for (FuturesOrder order : orderList) {
-		// // 计算浮动盈亏
-		// totalProfitOrLoss =
-		// totalProfitOrLoss.add(orderService.getProfitOrLoss(order,
-		// quoteContainer.getLastPrice(order.getCommoditySymbol(),
-		// order.getContractNo())));
-		// // 计算交易保证金
-		// totalTradeReserveFund =
-		// totalTradeReserveFund.add(order.getReserveFund());
-		// // 计算隔夜手续费
-		// totalOvernightDeferredFee = totalOvernightDeferredFee
-		// .add(order.getTotalQuantity().multiply(order.getOvernightPerUnitDeferredFee()));
-		// // 计算隔夜保证金
-		// totalOvernightReserveFund = totalOvernightReserveFund
-		// .add(order.getTotalQuantity().multiply(order.getOvernightPerUnitReserveFund()));
-		// }
-		//
-		// if (totalProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
-		// if
-		// (account.getAvailableBalance().add(totalProfitOrLoss).compareTo(totalOvernightDeferredFee)
-		// < 0) {
-		// return false;
-		// }
-		// }
-		// if
-		// (account.getAvailableBalance().add(totalProfitOrLoss).add(totalTradeReserveFund)
-		// .compareTo(totalOvernightReserveFund.add(totalOvernightDeferredFee))
-		// >= 0) {
-		// return true;
-		// } else {
-		// return false;
-		// }
-		return false;
-	}
-
-	/**
-	 * 获取触发隔夜的订单
-	 * 
-	 * @param order
-	 *            订单
-	 * @return 是否触发隔夜
-	 */
-	private List<FuturesOrder> triggerOvernightOrderList(List<FuturesOrder> orderList) {
-		List<FuturesOrder> result = new ArrayList<>();
-		SimpleDateFormat daySdf = new SimpleDateFormat("yyyy-MM-dd");
-		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Date now = new Date();
-		for (FuturesOrder order : orderList) {
-			String overnightTimeGroup = overnightTimeMap().get(order.getContract().getCommodityId());
-			if (overnightTimeGroup != null) {
-				// 获取时差、隔夜时间、交易所时间
-				String[] group = overnightTimeGroup.split("-");
-				Integer timeZoneGap = Integer.parseInt(group[0]);
-				String overnightTime = group[1];
-				FuturesOvernightRecord record = overnightService.findNewestOvernightRecord(order);
-				Date nowExchangeTime = orderService.retriveExchangeTime(now, timeZoneGap);
-				String nowStr = daySdf.format(nowExchangeTime);
-				// 判断是否有今天的隔夜记录
-				if (!(record != null && nowStr.equals(daySdf.format(record.getDeferredTime())))) {
-					FuturesContract contract = order.getContract();
-					try {
-						// 判断是否达到隔夜时间，隔夜时间~隔夜时间+1分钟
-						Date beginTime = fullSdf.parse(nowStr + " " + overnightTime);
-						Date endTime = new Date(beginTime.getTime() + 1 * 60 * 1000);
-						if (nowExchangeTime.getTime() >= beginTime.getTime()
-								&& nowExchangeTime.getTime() < endTime.getTime()) {
-							result.add(order);
-						}
-					} catch (ParseException e) {
-						logger.error("期货品种" + contract.getCommodity().getSymbol() + "隔夜时间格式错误?" + overnightTime);
-					}
-				}
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * 获取隔夜时间Map
-	 * 
-	 * <p>
-	 * key为品种ID;value格式为“时差-隔夜时间”，如“12-16:55:00”。
-	 * </p>
-	 * 
-	 * @return 隔夜时间Map
-	 */
-	private Map<Long, String> overnightTimeMap() {
-		Map<Long, String> result = new HashMap<Long, String>();
-		List<FuturesCommodity> commodityList = commodityDao.list();
-		for (FuturesCommodity commodity : commodityList) {
-			Integer timeZoneGap = commodity.getExchange().getTimeZoneGap();
-			String overnightTime = commodity.getOvernightTime();
-			if (!StringUtil.isEmpty(overnightTime)) {
-				result.put(commodity.getId(), getOvernightTimeMapValue(timeZoneGap, overnightTime.trim()));
-			}
-		}
-		return result;
-	}
-
-	private String getOvernightTimeMapValue(Integer timeZoneGap, String overnightTime) {
-		return timeZoneGap + "-" + overnightTime;
-	}
-
-	/**
-	 * 获取用户所有持仓中的订单
+	 * 获取所有持仓中的合约订单
 	 * 
 	 * @return 持仓中的订单
 	 */
-	private List<FuturesOrder> retrivePublisherPositionOrders(Long publisherId) {
-		FuturesOrderState[] states = { FuturesOrderState.Position, FuturesOrderState.SellingEntrust,
-				FuturesOrderState.PartUnwind };
-		FuturesOrderQuery query = new FuturesOrderQuery();
-		query.setPage(0);
-		query.setSize(Integer.MAX_VALUE);
-		query.setStates(states);
-		query.setPublisherId(publisherId);
-		Page<FuturesOrder> pages = orderService.pagesOrder(query);
-		return pages.getContent();
+	private List<FuturesContractOrder> retrivePositionContractOrders() {
+		return contractOrderDao.retrivePositionContractOrders();
 	}
 
-	/**
-	 * 获取全部用户所有持仓中的订单
-	 * 
-	 * @return 持仓中的订单
-	 */
-	private List<FuturesOrder> retrivePositionOrders() {
-		FuturesOrderState[] states = { FuturesOrderState.Position, FuturesOrderState.SellingEntrust,
-				FuturesOrderState.PartUnwind };
-		FuturesOrderQuery query = new FuturesOrderQuery();
-		query.setPage(0);
-		query.setSize(Integer.MAX_VALUE);
-		query.setStates(states);
-		Page<FuturesOrder> pages = orderService.pagesOrder(query);
-		return pages.getContent();
-	}
-
-	private void retry(MonitorPublisherFuturesOrderMessage messgeObj) {
+	private void retry(MonitorStrongPointMessage messgeObj) {
 		try {
 			int consumeCount = messgeObj.getConsumeCount();
 			messgeObj.setConsumeCount(consumeCount + 1);
@@ -360,11 +187,10 @@ public class MonitorStrongPointConsumer {
 					e.printStackTrace();
 				}
 				if (!monitorPublisherList.contains(publisherId)) {
-					MonitorPublisherFuturesOrderMessage messgeObj = new MonitorPublisherFuturesOrderMessage();
+					MonitorStrongPointMessage messgeObj = new MonitorStrongPointMessage();
 					messgeObj.setPublisherId(publisherId);
-					// producer.sendMessage(RabbitmqConfiguration.monitorPublisherFuturesOrderQueueName,
-					// messgeObj);
-					// monitorPublisherList.add(publisherId);
+					producer.sendMessage(RabbitmqConfiguration.monitorStrongPointQueueName, messgeObj);
+					monitorPublisherList.add(publisherId);
 				}
 			}
 		}).start();

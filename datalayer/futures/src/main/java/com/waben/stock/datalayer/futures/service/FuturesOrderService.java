@@ -144,9 +144,11 @@ public class FuturesOrderService {
 	@Autowired
 	private QuoteContainer allQuote;
 
-	private MonitorStrongPointConsumer monitorPublisher;
+	@Autowired
+	private MonitorStopLossOrProfitConsumer monitorStopLossOrProfit;
 
-	private MonitorStopLossOrProfitConsumer monitorOrder;
+	@Autowired
+	private MonitorStrongPointConsumer monitorStrongPoint;
 
 	@Autowired
 	private EntrustQueryConsumer entrueQuery;
@@ -508,6 +510,7 @@ public class FuturesOrderService {
 			}
 			contractOrder.setUpdateTime(new Date());
 			contractOrderDao.doUpdate(contractOrder);
+			this.monitorContractOrder(contractOrder);
 		} else {
 			contractOrder = new FuturesContractOrder();
 			contractOrder.setBuyFallQuantity(BigDecimal.ZERO);
@@ -904,11 +907,28 @@ public class FuturesOrderService {
 		}
 		contractOrder.setUpdateTime(date);
 		contractOrderDao.doUpdate(contractOrder);
+		this.monitorContractOrder(contractOrder);
 		// step 4 : 放入委托查询队列（平仓）
 		if (isBackhand) {
 			entrueQuery.entrustQuery(tradeEntrust.getId(), 3, isStopLossOrProfit, stopLossOrProfitPrice);
 		} else {
 			entrueQuery.entrustQuery(tradeEntrust.getId(), 2, isStopLossOrProfit, stopLossOrProfitPrice);
+		}
+	}
+
+	private void monitorContractOrder(FuturesContractOrder contractOrder) {
+		BigDecimal buyUpCanUnwind = contractOrder.getBuyUpCanUnwindQuantity();
+		BigDecimal buyFallCanUnwind = contractOrder.getBuyFallCanUnwindQuantity();
+		boolean needMonitor = false;
+		if (buyUpCanUnwind != null && buyUpCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
+			needMonitor = true;
+		}
+		if (buyFallCanUnwind != null && buyFallCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
+			needMonitor = true;
+		}
+		if (needMonitor) {
+			monitorStopLossOrProfit.monitorContractOrder(contractOrder.getId());
+			monitorStrongPoint.monitorPublisher(contractOrder.getPublisherId());
 		}
 	}
 
