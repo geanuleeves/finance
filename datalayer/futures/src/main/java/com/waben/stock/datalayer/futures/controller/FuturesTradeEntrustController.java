@@ -109,7 +109,7 @@ public class FuturesTradeEntrustController implements FuturesTradeEntrustInterfa
 	}
 
 	@Override
-	public Response<PageInfo<FuturesTradeDto>> pagesEntrust(FuturesTradeAdminQuery query) {
+	public Response<PageInfo<FuturesTradeDto>> pagesEntrust(@RequestBody FuturesTradeAdminQuery query) {
 		Page<FuturesTradeDto> page = futuresTradeEntrustService.pageTradeAdmin(query);
 		PageInfo<FuturesTradeDto> result = PageToPageInfo.pageToPageInfo(page, FuturesTradeDto.class);
 		return new Response<>(result);

@@ -2300,6 +2300,14 @@ public class FuturesOrderService {
 				if (query.getPublisherIds().size() > 0) {
 					predicateList.add(criteriaBuilder.in(root.get("publisherId")).value(query.getPublisherIds()));
 				}
+				if (!StringUtil.isEmpty(query.getPublisherName())) {
+					predicateList.add(criteriaBuilder.equal(root.get("publisherName").as(String.class),
+							query.getPublisherName()));
+				}
+				if (!StringUtil.isEmpty(query.getPublisherPhone())) {
+					predicateList
+							.add(criteriaBuilder.equal(root.get("phone").as(String.class), query.getPublisherPhone()));
+				}
 				if (!StringUtil.isEmpty(query.getSymbol())) {
 					predicateList.add(criteriaBuilder.or(
 							criteriaBuilder.like(root.get("commodityNo").as(String.class),
