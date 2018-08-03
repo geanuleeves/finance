@@ -114,8 +114,8 @@ public class FuturesTradeEntrustController implements FuturesTradeEntrustInterfa
 		return new Response<>(result);
 	}
 
-	public Response<PageInfo<FuturesTradeEntrustDto>> pagesPhone(@RequestBody FuturesTradeEntrustQuery query) {
-		Page<FuturesTradeEntrust> page = futuresTradeEntrustService.pagesPhone(query);
+	public Response<PageInfo<FuturesTradeEntrustDto>> pagesPhoneEntrust(@RequestBody FuturesTradeEntrustQuery query) {
+		Page<FuturesTradeEntrust> page = futuresTradeEntrustService.pagesPhoneEntrust(query);
 		PageInfo<FuturesTradeEntrustDto> result = PageToPageInfo.pageToPageInfo(page,
 				FuturesTradeEntrustDto.class);
 		if (result != null && result.getContent() != null) {
@@ -147,6 +147,38 @@ public class FuturesTradeEntrustController implements FuturesTradeEntrustInterfa
 		return new Response<>(result);
 	}
 
+    public Response<PageInfo<FuturesTradeEntrustDto>> pagesPhoneAction(@RequestBody FuturesTradeEntrustQuery query) {
+        Page<FuturesTradeEntrust> page = futuresTradeEntrustService.pagesPhoneAction(query);
+        PageInfo<FuturesTradeEntrustDto> result = PageToPageInfo.pageToPageInfo(page,
+                FuturesTradeEntrustDto.class);
+        if (result != null && result.getContent() != null) {
+            // step 1 : 获取汇率map
+            Map<String, FuturesCurrencyRate> rateMap = rateService.getRateMap();
+            // step 2 : 设置一些其他信息
+            for (FuturesTradeEntrustDto dto : result.getContent()) {
+                String commodityNo = dto.getCommodityNo();
+                FuturesCommodity futuresCommodity = futuresCommodityService
+                        .retrieveByCommodityNo(commodityNo);
+                BigDecimal openwindServiceFee = futuresCommodity.getOpenwindServiceFee() != null ?
+                        futuresCommodity.getOpenwindServiceFee() : new BigDecimal(0);
+                BigDecimal unwindServiceFee = futuresCommodity.getUnwindServiceFee() != null ?
+                        futuresCommodity.getUnwindServiceFee() : new BigDecimal(0);
+                dto.setServiceFee(openwindServiceFee.add(unwindServiceFee));
+                BigDecimal perUnitReserveFund = futuresCommodity.getPerUnitReserveFund() != null ?
+                        futuresCommodity.getPerUnitReserveFund() : new BigDecimal(0);
+                BigDecimal filled = dto.getFilled() != null ? dto.getFilled() : new BigDecimal(0);
+                dto.setReserveFund(perUnitReserveFund.multiply(filled));
+                String contractNo = dto.getContractNo();
+                dto.setLastPrice(quoteContainer.getLastPrice(commodityNo, contractNo));
+                FuturesCurrencyRate rate = rateMap.get(dto.getCurrency());
+                if (rate != null) {
+                    dto.setCurrencySign(rate.getCurrencySign());
+                    dto.setRate(rate.getRate());
+                }
+            }
+        }
+        return new Response<>(result);
+    }
 
 	public Response<FuturesTradeEntrustDto> detail(@PathVariable Long id) {
 		FuturesTradeEntrustDto futuresTradeEntrustDto = CopyBeanUtils.copyBeanProperties(FuturesTradeEntrustDto.class,

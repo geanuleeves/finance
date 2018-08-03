@@ -12,6 +12,8 @@ import java.util.Map;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -690,31 +692,64 @@ public class FuturesTradeEntrustService {
 		return page;
 	}
 
-	public Page<FuturesTradeEntrust> pagesPhone(final FuturesTradeEntrustQuery query) {
+	public Page<FuturesTradeEntrust> pagesPhoneEntrust(final FuturesTradeEntrustQuery query) {
 		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
 		Page<FuturesTradeEntrust> page = futuresTradeEntrustDao.page(new Specification<FuturesTradeEntrust>() {
 			@Override
-			public Predicate toPredicate(Root<FuturesTradeEntrust> root, CriteriaQuery<?> criteriaQuery,
-					CriteriaBuilder criteriaBuilder) {
+			public Predicate toPredicate(Root<FuturesTradeEntrust> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
 				if (query.getId() != null && query.getId() != 0) {
-					predicateList.add(criteriaBuilder.equal(root.get("id").as(Long.class), query.getId()));
+					predicateList
+							.add(criteriaBuilder.equal(root.get("id").as(Long.class), query.getId()));
 				}
 				// 用户ID
 				if (query.getPublisherId() != null && query.getPublisherId() != 0) {
 					predicateList
 							.add(criteriaBuilder.equal(root.get("publisherId").as(Long.class), query.getPublisherId()));
 				}
-				Predicate predicate1 = criteriaBuilder.and(
-						criteriaBuilder.equal(root.get("tradeActionType").as(FuturesTradeActionType.class),
-								FuturesTradeActionType.OPEN),
-						criteriaBuilder.and(root.get("state").in(new FuturesTradeEntrustState[] {
-								FuturesTradeEntrustState.Canceled, FuturesTradeEntrustState.Failure })));
-				Predicate predicate2 = criteriaBuilder.and(
-						criteriaBuilder.equal(root.get("tradeActionType").as(FuturesTradeActionType.class),
-								FuturesTradeActionType.CLOSE),
-						criteriaBuilder.and(root.get("state").in(new FuturesTradeEntrustState[] {
-								FuturesTradeEntrustState.PartSuccess, FuturesTradeEntrustState.Success })));
+				if (query.getStartTime() != null) {
+					predicateList.add(criteriaBuilder.greaterThanOrEqualTo(root.get("tradeTime").as(Date.class),
+							query.getStartTime()));
+				}
+				if (query.getEndTime() != null) {
+					predicateList
+							.add(criteriaBuilder.lessThan(root.get("tradeTime").as(Date.class), query.getEndTime()));
+				}
+				if (predicateList.size() > 0) {
+					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
+				}
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("tradeTime").as(Date.class)),
+						criteriaBuilder.desc(root.get("entrustTime").as(Date.class)));
+				return criteriaQuery.getRestriction();
+			}
+		}, pageable);
+		return page;
+	}
+
+
+	public Page<FuturesTradeEntrust> pagesPhoneAction(final FuturesTradeEntrustQuery query) {
+		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
+		Page<FuturesTradeEntrust> page = futuresTradeEntrustDao.page(new Specification<FuturesTradeEntrust>() {
+			@Override
+			public Predicate toPredicate(Root<FuturesTradeEntrust> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+				List<Predicate> predicateList = new ArrayList<Predicate>();
+				if (query.getId() != null && query.getId() != 0) {
+					predicateList
+							.add(criteriaBuilder.equal(root.get("id").as(Long.class), query.getId()));
+				}
+				// 用户ID
+				if (query.getPublisherId() != null && query.getPublisherId() != 0) {
+					predicateList
+							.add(criteriaBuilder.equal(root.get("publisherId").as(Long.class), query.getPublisherId()));
+				}
+				Predicate predicate1 = criteriaBuilder.and(criteriaBuilder.equal(root.get("tradeActionType").
+								as(FuturesTradeActionType.class), FuturesTradeActionType.OPEN),
+						criteriaBuilder.and(root.get("state").in(new FuturesTradeEntrustState[]{FuturesTradeEntrustState.Canceled,
+								FuturesTradeEntrustState.Failure})));
+				Predicate predicate2 = criteriaBuilder.and(criteriaBuilder.equal(root.get("tradeActionType").
+								as(FuturesTradeActionType.class), FuturesTradeActionType.CLOSE),
+						criteriaBuilder.and(root.get("state").in(new FuturesTradeEntrustState[]{FuturesTradeEntrustState.PartSuccess,
+								FuturesTradeEntrustState.Success})));
 				predicateList.add(criteriaBuilder.or(predicate1, predicate2));
 
 				if (query.getStartTime() != null) {

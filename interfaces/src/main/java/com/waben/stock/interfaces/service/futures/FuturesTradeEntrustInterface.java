@@ -96,8 +96,18 @@ public interface FuturesTradeEntrustInterface {
 	 * @param query
 	 * @return
 	 */
-	@RequestMapping(value = "/pagesPhone", method = RequestMethod.POST, consumes = "application/json")
-	Response<PageInfo<FuturesTradeEntrustDto>> pagesPhone(@RequestBody FuturesTradeEntrustQuery query);
+	@RequestMapping(value = "/pagesPhoneEntrust", method = RequestMethod.POST, consumes = "application/json")
+	Response<PageInfo<FuturesTradeEntrustDto>> pagesPhoneEntrust(@RequestBody FuturesTradeEntrustQuery query);
+
+
+	/**
+	 *  移动端查询开平仓记录
+	 * @param query
+	 * @return
+	 */
+	@RequestMapping(value = "/pagesPhoneAction", method = RequestMethod.POST, consumes = "application/json")
+	Response<PageInfo<FuturesTradeEntrustDto>> pagesPhoneAction(@RequestBody FuturesTradeEntrustQuery query);
+
 
 	@RequestMapping(value = "/detail/{id}", method = RequestMethod.GET)
 	Response<FuturesTradeEntrustDto> detail(@PathVariable("id") Long id);
