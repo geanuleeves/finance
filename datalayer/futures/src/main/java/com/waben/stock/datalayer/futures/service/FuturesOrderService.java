@@ -30,6 +30,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
@@ -52,7 +53,7 @@ import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControl
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.EntrustQueryConsumer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorPublisherFuturesOrderConsumer;
-import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorSingleFuturesOrderConsumer;
+import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorStopLossOrProfitConsumer;
 import com.waben.stock.datalayer.futures.repository.DynamicQuerySqlDao;
 import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
@@ -145,7 +146,7 @@ public class FuturesOrderService {
 
 	private MonitorPublisherFuturesOrderConsumer monitorPublisher;
 
-	private MonitorSingleFuturesOrderConsumer monitorOrder;
+	private MonitorStopLossOrProfitConsumer monitorOrder;
 
 	@Autowired
 	private EntrustQueryConsumer entrueQuery;
@@ -647,6 +648,7 @@ public class FuturesOrderService {
 		return tradeEntrust;
 	}
 
+	@Transactional
 	public FuturesTradeEntrust backhandPlaceOrder(Long entrustId) {
 		logger.info("反手下单，源委托ID：{}", entrustId);
 		FuturesTradeEntrust originEntrust = tradeEntrustDao.retrieve(entrustId);
@@ -797,6 +799,7 @@ public class FuturesOrderService {
 		}
 	}
 
+	@Transactional(propagation = Propagation.REQUIRED)
 	private void doUnwind(FuturesContract contract, FuturesContractOrder contractOrder, FuturesOrderType orderType,
 			BigDecimal quantity, FuturesTradePriceType priceType, BigDecimal entrustPrice, Long publisherId,
 			FuturesWindControlType windControlType, boolean isBackhand) {
@@ -833,7 +836,8 @@ public class FuturesOrderService {
 		if (orderList != null && orderList.size() > 0) {
 			int sort = 1;
 			for (FuturesOrder order : orderList) {
-				if (!(order.getState() == FuturesOrderState.Position || order.getState() == FuturesOrderState.PartUnwind
+				if (order.getOrderType() != orderType || !(order.getState() == FuturesOrderState.Position
+						|| order.getState() == FuturesOrderState.PartUnwind
 						|| order.getState() == FuturesOrderState.SellingEntrust)) {
 					continue;
 				}
@@ -945,6 +949,7 @@ public class FuturesOrderService {
 				FuturesWindControlType.UserApplyUnwind, false);
 	}
 
+	@Transactional
 	public void applyUnwindAll(Long publisherId) {
 		List<FuturesContractOrder> contractOrderList = contractOrderDao.retrieveByPublisherId(publisherId);
 		if (contractOrderList != null && contractOrderList.size() > 0) {
@@ -965,6 +970,7 @@ public class FuturesOrderService {
 		}
 	}
 
+	@Transactional
 	public void backhandUnwind(Long contractId, FuturesOrderType orderType, FuturesTradePriceType priceType,
 			BigDecimal entrustPrice, Long publisherId) {
 		FuturesContract contract = contractDao.retrieve(contractId);
@@ -988,6 +994,7 @@ public class FuturesOrderService {
 				FuturesWindControlType.BackhandUnwind, true);
 	}
 
+	@Transactional
 	public void balanceUnwind(Long contractId, FuturesOrderType orderType, FuturesTradePriceType sellingPriceType,
 			BigDecimal sellingEntrustPrice, Long publisherId, BigDecimal quantity) {
 		FuturesContract contract = contractDao.retrieve(contractId);
@@ -2191,11 +2198,18 @@ public class FuturesOrderService {
 	 *            合约编号
 	 * @param commodityNo
 	 *            产品编号
+	 * @param orderType
+	 *            订单类型
 	 * @return
 	 */
-	public BigDecimal getAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
-		return orderDao.getAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
+	public BigDecimal getOpenAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
+		return orderDao.getOpenAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
 	}
+
+	public BigDecimal getCloseAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
+		return orderDao.getCloseAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
+	}
+
 
 	public Page<FuturesTradeActionAgentDto> pagesOrderAgentDealRecord(FuturesTradeAdminQuery query) {
 		String publisherNameCondition = "";

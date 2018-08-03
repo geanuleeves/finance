@@ -77,8 +77,8 @@ public class FuturesTradeActionDaoImpl implements FuturesTradeActionDao {
 	}
 
 	@Override
-	public Integer findFilledNow(Long publisherId, String commodityNo, String contractNo, String tradeActionType) {
-		return repository.findFilledNow(publisherId, commodityNo, contractNo, tradeActionType);
+	public Integer findFilledNow(Long publisherId, String commodityNo, String contractNo, String tradeActionType, String orderType) {
+		return repository.findFilledNow(publisherId, commodityNo, contractNo, tradeActionType, orderType);
 	}
 
 	@Override

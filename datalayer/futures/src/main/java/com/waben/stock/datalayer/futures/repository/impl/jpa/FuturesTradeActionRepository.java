@@ -1,14 +1,13 @@
 package com.waben.stock.datalayer.futures.repository.impl.jpa;
 
-import java.util.List;
-
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.Query;
-
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeAction;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeEntrust;
 import com.waben.stock.interfaces.enums.FuturesTradeActionType;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
 
 /**
  * 订单交易开平仓记录
@@ -41,8 +40,9 @@ public interface FuturesTradeActionRepository extends CustomJpaRepository<Future
 			+ "LEFT JOIN f_futures_trade_entrust entrust ON entrust.id = trade_entrust_id "
 			+ "WHERE actions.publisher_id = ?1 AND entrust.commodity_no = ?2 "
 			+ "AND entrust.contract_no = ?3 and DATEDIFF(actions.trade_time,NOW())=0 "
-			+ "AND actions.trade_action_type = ?4 AND (actions.state = '4' OR actions.state = '5') "
+			+ "AND actions.trade_action_type = ?4 AND entrust.order_type = ?5 "
+			+ "AND (actions.state = '4' OR actions.state = '5') "
 			+ "ORDER BY sort ASC ", nativeQuery = true)
-	Integer findFilledNow(Long publisherId, String commodityNo, String contractNo, String tradeActionType);
+	Integer findFilledNow(Long publisherId, String commodityNo, String contractNo, String tradeActionType, String orderType);
 
 }
