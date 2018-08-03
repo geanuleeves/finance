@@ -97,7 +97,7 @@ public class MonitorStopLossOrProfitConsumer {
 							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
 									contractNo, commodityNo, FuturesOrderType.BuyUp.getIndex());
 							if (buyUpLimitProfit.compareTo(avgFillPrice) > 0
-									&& market.getLastPrice().compareTo(buyUpLimitProfit) >= 0) {
+									&& market.getBidPrice().compareTo(buyUpLimitProfit) >= 0) {
 								logger.info("{}买涨订单{}手达到止盈，止盈价格{}，此时的行情{}", order.getId(),
 										order.getBuyUpCanUnwindQuantity(), buyUpLimitProfit,
 										JacksonUtil.encode(market));
@@ -116,7 +116,7 @@ public class MonitorStopLossOrProfitConsumer {
 							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
 									contractNo, commodityNo, FuturesOrderType.BuyUp.getIndex());
 							if (buyUpLimitLoss.compareTo(avgFillPrice) < 0
-									&& market.getLastPrice().compareTo(buyUpLimitLoss) <= 0) {
+									&& market.getBidPrice().compareTo(buyUpLimitLoss) <= 0) {
 								logger.info("{}买涨订单{}手达到止损，止损价格{}，此时的行情{}", order.getId(),
 										order.getBuyUpCanUnwindQuantity(), buyUpLimitLoss, JacksonUtil.encode(market));
 								BigDecimal stopLossOrProfitPrice = BigDecimal.ZERO;
@@ -142,7 +142,7 @@ public class MonitorStopLossOrProfitConsumer {
 							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
 									contractNo, commodityNo, FuturesOrderType.BuyFall.getIndex());
 							if (buyFallLimitProfit.compareTo(avgFillPrice) < 0
-									&& market.getLastPrice().compareTo(buyFallLimitProfit) <= 0) {
+									&& market.getAskPrice().compareTo(buyFallLimitProfit) <= 0) {
 								logger.info("{}买跌订单{}手达到止盈，止盈价格{}，此时的行情{}", order.getId(),
 										order.getBuyFallCanUnwindQuantity(), buyFallLimitProfit,
 										JacksonUtil.encode(market));
@@ -161,7 +161,7 @@ public class MonitorStopLossOrProfitConsumer {
 							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
 									contractNo, commodityNo, FuturesOrderType.BuyFall.getIndex());
 							if (buyFallLimitLoss.compareTo(avgFillPrice) > 0
-									&& market.getLastPrice().compareTo(buyFallLimitLoss) >= 0) {
+									&& market.getAskPrice().compareTo(buyFallLimitLoss) >= 0) {
 								logger.info("{}买跌订单{}手达到止损，止损价格{}，此时的行情{}", order.getId(),
 										order.getBuyUpCanUnwindQuantity(), buyFallLimitLoss,
 										JacksonUtil.encode(market));
