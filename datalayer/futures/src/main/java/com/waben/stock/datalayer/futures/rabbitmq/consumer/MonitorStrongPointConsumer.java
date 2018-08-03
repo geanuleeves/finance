@@ -3,19 +3,22 @@ package com.waben.stock.datalayer.futures.rabbitmq.consumer;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
+import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
+import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqProducer;
@@ -24,7 +27,10 @@ import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
 import com.waben.stock.datalayer.futures.service.FuturesOrderService;
 import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
+import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
+import com.waben.stock.interfaces.enums.FuturesOrderType;
+import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.enums.FuturesWindControlType;
 import com.waben.stock.interfaces.util.JacksonUtil;
 import com.waben.stock.interfaces.util.RandomUtil;
@@ -60,67 +66,92 @@ public class MonitorStrongPointConsumer {
 
 	@PostConstruct
 	public void init() {
-//		List<FuturesOrder> orderList = retrivePositionOrders();
-//		for (FuturesOrder order : orderList) {
-//			Long publisherId = order.getPublisherId();
-//			if (!monitorPublisherList.contains(publisherId)) {
-//				monitorPublisherList.add(publisherId);
-//			}
-//		}
-//
-//		for (Long publisherId : monitorPublisherList) {
-//			MonitorStrongPointMessage messgeObj = new MonitorStrongPointMessage();
-//			messgeObj.setPublisherId(publisherId);
-//			producer.sendMessage(RabbitmqConfiguration.monitorStrongPointQueueName, messgeObj);
-//		}
+		List<FuturesContractOrder> orderList = retrivePositionContractOrders();
+		for (FuturesContractOrder order : orderList) {
+			Long publisherId = order.getPublisherId();
+			if (!monitorPublisherList.contains(publisherId)) {
+				monitorPublisherList.add(publisherId);
+			}
+		}
+		for (Long publisherId : monitorPublisherList) {
+			MonitorStrongPointMessage messgeObj = new MonitorStrongPointMessage();
+			messgeObj.setPublisherId(publisherId);
+			producer.sendMessage(RabbitmqConfiguration.monitorStrongPointQueueName, messgeObj);
+		}
 	}
 
-	// @RabbitHandler
+	@RabbitHandler
 	public void handlerMessage(String message) {
 		if (RandomUtil.getRandomInt(100) % 51 == 0 && RandomUtil.getRandomInt(100) % 51 == 0) {
-			logger.info("监控用户订单:{}", message);
+			logger.info("监控强平点:{}", message);
 		}
 		MonitorStrongPointMessage messgeObj = JacksonUtil.decode(message, MonitorStrongPointMessage.class);
-//		try {
-//			Long publisherId = messgeObj.getPublisherId();
-//			// step 1 : 获取资金账号
-//			CapitalAccountDto account = accountBusiness.fetchByPublisherId(publisherId);
-//			// step 2 : 获取持仓订单
-//			List<FuturesOrder> orderList = retrivePublisherPositionOrders(publisherId);
-//			if (orderList != null && orderList.size() > 0) {
-//				// step 3 : 判断是否达到强平
-//				if (isReachStongPoint(orderList, account)) {
-//					for (FuturesOrder order : orderList) {
-//						strongUnwind(order, FuturesWindControlType.ReachStrongPoint);
-//					}
-//				} else {
-//					// step 4 : 判断是否触发隔夜，是否足够过夜
-//					List<FuturesOrder> overnightOrderList = triggerOvernightOrderList(orderList);
-//					if (overnightOrderList != null && overnightOrderList.size() > 0) {
-//						if (isEnoughOvernight(orderList, account)) {
-//							// step 4.1 : 扣除递延费
-//							for (FuturesOrder order : overnightOrderList) {
-//								// orderService.overnight(order,
-//								// order.getContract().getCommodity().getExchange().getTimeZoneGap());
-//								// TODO
-//							}
-//						} else {
-//							// step 4.2 : 不满足隔夜条件，强平
-//							for (FuturesOrder order : overnightOrderList) {
-//								strongUnwind(order, FuturesWindControlType.DayUnwind);
-//							}
-//						}
-//					}
-//				}
-//				retry(messgeObj);
-//			} else {
-//				// 从监控队列中移除
-//				monitorPublisherList.remove(publisherId);
-//			}
-//		} catch (Exception ex) {
-//			ex.printStackTrace();
-//			retry(messgeObj);
-//		}
+		try {
+			Long publisherId = messgeObj.getPublisherId();
+			// step 1 : 获取资金账号
+			CapitalAccountDto account = accountBusiness.fetchByPublisherId(publisherId);
+			// step 2 : 获取持仓订单
+			List<FuturesContractOrder> orderList = retrivePublisherPositionContractOrders(publisherId);
+			boolean isNeedRetry = true;
+			if (orderList != null && orderList.size() > 0) {
+				boolean hasQuatity = false;
+				for (FuturesContractOrder order : orderList) {
+					BigDecimal buyUpCanUnwind = order.getBuyUpCanUnwindQuantity();
+					BigDecimal buyFallCanUnwind = order.getBuyFallCanUnwindQuantity();
+					if (buyUpCanUnwind != null && buyUpCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
+						hasQuatity = true;
+					}
+					if (buyFallCanUnwind != null && buyFallCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
+						hasQuatity = true;
+					}
+				}
+				if (!hasQuatity) {
+					isNeedRetry = false;
+				} else {
+					// 执行强平逻辑
+					doStongPoint(orderList, account);
+				}
+			} else {
+				isNeedRetry = false;
+			}
+			if (isNeedRetry) {
+				retry(messgeObj);
+			} else {
+				monitorPublisherList.remove(messgeObj.getPublisherId());
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			retry(messgeObj);
+		}
+	}
+
+	private BigDecimal computeFloatProfitOrLoss(FuturesContractOrder contractOrder) {
+		Long publisherId = contractOrder.getPublisherId();
+		Long contractId = contractOrder.getContract().getId();
+		BigDecimal floatProfitOrLoss = BigDecimal.ZERO;
+		FuturesCommodity commotidy = contractOrder.getContract().getCommodity();
+		FuturesContractMarket market = quoteContainer.getQuote(commotidy.getSymbol(),
+				contractOrder.getContract().getContractNo());
+
+		BigDecimal buyUpCanUnwind = contractOrder.getBuyUpCanUnwindQuantity();
+		BigDecimal buyFallCanUnwind = contractOrder.getBuyFallCanUnwindQuantity();
+		if (buyUpCanUnwind != null && buyUpCanUnwind.compareTo(BigDecimal.ZERO) > 0
+				&& market.getBidPrice().compareTo(BigDecimal.ZERO) > 0) {
+			BigDecimal buyUpOpenAvgFillPrice = orderService.getOpenAvgFillPrice(publisherId, contractId,
+					FuturesOrderType.BuyUp.getIndex());
+			floatProfitOrLoss = floatProfitOrLoss
+					.add(orderService.computeProfitOrLoss(FuturesOrderType.BuyUp, buyUpCanUnwind, buyUpOpenAvgFillPrice,
+							market.getBidPrice(), commotidy.getMinWave(), commotidy.getPerWaveMoney()));
+		}
+		if (buyFallCanUnwind != null && buyFallCanUnwind.compareTo(BigDecimal.ZERO) > 0
+				&& market.getAskPrice().compareTo(BigDecimal.ZERO) > 0) {
+			BigDecimal buyFallOpenAvgFillPrice = orderService.getOpenAvgFillPrice(publisherId, contractId,
+					FuturesOrderType.BuyFall.getIndex());
+			floatProfitOrLoss = floatProfitOrLoss.add(orderService.computeProfitOrLoss(FuturesOrderType.BuyFall,
+					buyFallCanUnwind, buyFallOpenAvgFillPrice, market.getAskPrice(), commotidy.getMinWave(),
+					commotidy.getPerWaveMoney()));
+		}
+		return floatProfitOrLoss;
 	}
 
 	/**
@@ -132,23 +163,50 @@ public class MonitorStrongPointConsumer {
 	 *            资金账户
 	 * @return 是否触发强平
 	 */
-	private boolean isReachStongPoint(List<FuturesOrder> orderList, CapitalAccountDto account) {
+	private void doStongPoint(List<FuturesContractOrder> orderList, CapitalAccountDto account) {
 		BigDecimal totalStrong = BigDecimal.ZERO;
 		BigDecimal totalProfitOrLoss = BigDecimal.ZERO;
-		for (FuturesOrder order : orderList) {
+		for (FuturesContractOrder order : orderList) {
+			BigDecimal strongMoney = orderService.getStrongMoney(order);
+			BigDecimal floatProfitOrLoss = computeFloatProfitOrLoss(order);
+			order.setStrongMoney(strongMoney);
+			order.setFloatProfitOrLoss(floatProfitOrLoss);
 			// 计算强平金额
-			totalStrong = totalStrong.add(orderService.getStrongMoney(order));
+			totalStrong = totalStrong.add(strongMoney);
 			// 计算浮动盈亏
-			// totalProfitOrLoss =
-			// totalProfitOrLoss.add(orderService.getProfitOrLoss(order,
-			// quoteContainer.getLastPrice(order.getCommoditySymbol(),
-			// order.getContractNo())));
+			totalProfitOrLoss = totalProfitOrLoss.add(floatProfitOrLoss);
 		}
 		if (totalProfitOrLoss.compareTo(BigDecimal.ZERO) < 0
-				&& account.getAvailableBalance().add(totalStrong).compareTo(totalProfitOrLoss.abs()) <= 0) {
-			return true;
-		} else {
-			return false;
+				&& totalProfitOrLoss.abs().compareTo(account.getAvailableBalance()) < 0) {
+			// 根据盈亏值进行排序
+			Collections.sort(orderList, new Comparator<FuturesContractOrder>() {
+				@Override
+				public int compare(FuturesContractOrder o1, FuturesContractOrder o2) {
+					return o1.getFloatProfitOrLoss().compareTo(o2.getFloatProfitOrLoss());
+				}
+			});
+			// 账户余额已经亏损完，计算超出的部分
+			BigDecimal loss = totalProfitOrLoss.add(account.getAvailableBalance());
+			for (FuturesContractOrder order : orderList) {
+				BigDecimal strongMoney = order.getStrongMoney();
+				if (loss.abs().compareTo(strongMoney) >= 0) {
+					// 强平
+					FuturesContract contract = order.getContract();
+					BigDecimal buyUpQuantity = order.getBuyUpCanUnwindQuantity();
+					BigDecimal buyFallQuantity = order.getBuyFallCanUnwindQuantity();
+					if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
+						orderService.doUnwind(contract, order, FuturesOrderType.BuyUp, buyUpQuantity,
+								FuturesTradePriceType.MKT, null, order.getPublisherId(),
+								FuturesWindControlType.ReachStrongPoint, false, false, null);
+					}
+					if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
+						orderService.doUnwind(contract, order, FuturesOrderType.BuyFall, buyFallQuantity,
+								FuturesTradePriceType.MKT, null, order.getPublisherId(),
+								FuturesWindControlType.ReachStrongPoint, false, false, null);
+					}
+					loss = loss.add(strongMoney);
+				}
+			}
 		}
 	}
 
@@ -159,6 +217,15 @@ public class MonitorStrongPointConsumer {
 	 */
 	private List<FuturesContractOrder> retrivePositionContractOrders() {
 		return contractOrderDao.retrivePositionContractOrders();
+	}
+
+	/**
+	 * 获取所有持仓中的合约订单
+	 * 
+	 * @return 持仓中的订单
+	 */
+	private List<FuturesContractOrder> retrivePublisherPositionContractOrders(Long publisherId) {
+		return contractOrderDao.retrivePublisherPositionContractOrders(publisherId);
 	}
 
 	private void retry(MonitorStrongPointMessage messgeObj) {

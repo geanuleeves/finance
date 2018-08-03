@@ -451,6 +451,7 @@ public class FuturesTradeEntrustService {
 					BigDecimal[] divideArr = openAvgFillPrice.divideAndRemainder(minWave);
 					openAvgFillPrice = divideArr[0].multiply(minWave);
 					entrust.setOpenAvgFillPrice(openAvgFillPrice);
+					entrust.setPublisherProfitOrLoss(totalPublisherProfitOrLoss);
 				}
 				dao.update(entrust);
 				sendOutsideMessage(entrust);

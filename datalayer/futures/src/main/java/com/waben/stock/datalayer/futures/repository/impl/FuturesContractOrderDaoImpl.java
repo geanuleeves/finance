@@ -103,4 +103,26 @@ public class FuturesContractOrderDaoImpl implements FuturesContractOrderDao {
 		return pages.getContent();
 	}
 
+	@Override
+	public List<FuturesContractOrder> retrivePublisherPositionContractOrders(final Long publisherId) {
+		Pageable pageable = new PageRequest(0, Integer.MAX_VALUE);
+		Page<FuturesContractOrder> pages = this.page(new Specification<FuturesContractOrder>() {
+			@Override
+			public Predicate toPredicate(Root<FuturesContractOrder> root, CriteriaQuery<?> criteriaQuery,
+					CriteriaBuilder criteriaBuilder) {
+				List<Predicate> predicateList = new ArrayList<Predicate>();
+				predicateList.add(criteriaBuilder.equal(root.get("publisherId").as(Long.class), publisherId));
+				predicateList.add(criteriaBuilder.or(
+						criteriaBuilder.gt(root.get("buyUpCanUnwindQuantity").as(BigDecimal.class), BigDecimal.ZERO),
+						criteriaBuilder.gt(root.get("buyFallCanUnwindQuantity").as(BigDecimal.class),
+								BigDecimal.ZERO)));
+				if (predicateList.size() > 0) {
+					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
+				}
+				return criteriaQuery.getRestriction();
+			}
+		}, pageable);
+		return pages.getContent();
+	}
+
 }

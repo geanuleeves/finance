@@ -41,7 +41,6 @@ import com.waben.stock.datalayer.futures.business.PublisherBusiness;
 import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.entity.FuturesHoliday;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
@@ -1674,36 +1673,42 @@ public class FuturesOrderService {
 		}
 	}
 
-	public BigDecimal getStrongMoney(FuturesOrder order) {
-		FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
+	private BigDecimal computeSingleMax(FuturesContractOrder order) {
+		BigDecimal result = BigDecimal.ZERO;
+		if (order.getBuyUpCanUnwindQuantity().compareTo(result) > 0) {
+			result = order.getBuyUpCanUnwindQuantity();
+		}
+		if (order.getBuyFallCanUnwindQuantity().compareTo(result) > 0) {
+			result = order.getBuyFallCanUnwindQuantity();
+		}
+		return result;
+	}
+
+	public BigDecimal getStrongMoney(FuturesContractOrder order) {
+		FuturesContract contract = order.getContract();
+		FuturesCommodity commodity = contract.getCommodity();
+		BigDecimal singleMax = computeSingleMax(order);
 		// 合约设置
-		// Integer unwindPointType = order.getUnwindPointType();
-		// BigDecimal perUnitUnwindPoint = order.getPerUnitUnwindPoint();
-		// if (unwindPointType != null && perUnitUnwindPoint != null &&
-		// unwindPointType == 1) {
-		// if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(new
-		// BigDecimal(100)) < 0
-		// && perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
-		// return order.getReserveFund()
-		// .multiply(new BigDecimal(100).subtract(perUnitUnwindPoint).divide(new
-		// BigDecimal(100)));
-		// }
-		// } else if (unwindPointType != null && perUnitUnwindPoint != null &&
-		// unwindPointType == 2) {
-		// if (perUnitUnwindPoint != null &&
-		// perUnitUnwindPoint.compareTo(BigDecimal.ZERO) >= 0
-		// && perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
-		// BigDecimal strongMoney =
-		// order.getReserveFund().subtract(perUnitUnwindPoint
-		// .multiply(order.getTotalQuantity()).multiply(rate.getRate()).setScale(2,
-		// RoundingMode.DOWN));
-		// if (strongMoney.compareTo(BigDecimal.ZERO) <= 0) {
-		// return order.getReserveFund();
-		// } else {
-		// return strongMoney;
-		// }
-		// }
-		// }
+		Integer unwindPointType = commodity.getUnwindPointType();
+		BigDecimal perUnitUnwindPoint = commodity.getPerUnitUnwindPoint();
+		if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 1) {
+			if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(new BigDecimal(100)) < 0
+					&& perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
+				return singleMax.multiply(commodity.getPerUnitReserveFund())
+						.multiply(new BigDecimal(100).subtract(perUnitUnwindPoint).divide(new BigDecimal(100)));
+			}
+		} else if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 2) {
+			if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(BigDecimal.ZERO) >= 0
+					&& perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
+				BigDecimal strongMoney = commodity.getPerUnitReserveFund().subtract(perUnitUnwindPoint)
+						.multiply(singleMax).setScale(2, RoundingMode.DOWN);
+				if (strongMoney.compareTo(BigDecimal.ZERO) <= 0) {
+					return order.getReserveFund();
+				} else {
+					return strongMoney;
+				}
+			}
+		}
 		return order.getReserveFund();
 	}
 
@@ -2226,9 +2231,17 @@ public class FuturesOrderService {
 	public BigDecimal getOpenAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
 		return orderDao.getOpenAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
 	}
+	
+	public BigDecimal getOpenAvgFillPrice(Long publisherId, Long contractId, String orderType) {
+		return BigDecimal.ZERO;
+	}
 
 	public BigDecimal getCloseAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
 		return orderDao.getCloseAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
+	}
+	
+	public BigDecimal getCloseAvgFillPrice(Long publisherId, Long contractId, String orderType) {
+		return BigDecimal.ZERO;
 	}
 
 	public Page<FuturesTradeActionAgentDto> pagesOrderAgentDealRecord(FuturesTradeAdminQuery query) {

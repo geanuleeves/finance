@@ -69,7 +69,7 @@ public class MonitorStopLossOrProfitConsumer {
 	@RabbitHandler
 	public void handlerMessage(String message) {
 		if (RandomUtil.getRandomInt(100) % 51 == 0 && RandomUtil.getRandomInt(100) % 51 == 0) {
-			logger.info("监控当个订单:{}", message);
+			logger.info("监控止损止盈:{}", message);
 		}
 		MonitorStopLossOrProfitMessage messgeObj = JacksonUtil.decode(message, MonitorStopLossOrProfitMessage.class);
 		try {
