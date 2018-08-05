@@ -16,14 +16,11 @@ import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractM
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
-import com.waben.stock.interfaces.enums.CapitalFlowExtendType;
-import com.waben.stock.interfaces.enums.FuturesOrderType;
-import com.waben.stock.interfaces.enums.FuturesTradeActionType;
-import com.waben.stock.interfaces.enums.FuturesTradePriceType;
-import com.waben.stock.interfaces.enums.FuturesWindControlType;
+import com.waben.stock.interfaces.enums.*;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.util.JacksonUtil;
 import com.waben.stock.interfaces.util.RandomUtil;
+import com.waben.stock.interfaces.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
@@ -34,6 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Component
@@ -118,12 +117,12 @@ public class MonitorStrongPointConsumer {
 				} else {
 					// 执行强平逻辑
 					doStongPoint(orderList, account);
-					
+					List<FuturesContractOrder> overnightOrderList = triggerOvernightOrderList(orderList);
 					if (isEnoughOvernight(orderList, account)) {
 						//隔夜
-						overnight(orderList, account);
+						overnight(overnightOrderList, account);
 					} else {
-						// TODO 余额不足以过夜，强平
+						doUnwind(orderList);
 					}
 				}
 			} else {
@@ -137,6 +136,22 @@ public class MonitorStrongPointConsumer {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			retry(messgeObj);
+		}
+	}
+
+	private void doUnwind(List<FuturesContractOrder> orderList) {
+		for (FuturesContractOrder order : orderList) {
+			BigDecimal quantity = BigDecimal.ZERO;
+			FuturesOrderType orderType = FuturesOrderType.BuyUp;
+			if (order.getBuyUpQuantity().compareTo(order.getBuyFallQuantity()) > 0) {
+				quantity = order.getBuyUpQuantity();
+			} else {
+				quantity = order.getBuyFallQuantity();
+				orderType = FuturesOrderType.BuyFall;
+			}
+			orderService.doUnwind(order.getContract(), order, orderType,
+					quantity, FuturesTradePriceType.MKT, null, order.getPublisherId(),
+					FuturesWindControlType.DayUnwind ,false, false, null);
 		}
 	}
 
@@ -212,7 +227,8 @@ public class MonitorStrongPointConsumer {
 			BigDecimal overnightReserveFund = quantity.multiply(order.getContract()
 					.getCommodity().getOvernightPerUnitReserveFund());
 			//冻结金额=隔夜保证金-保证金
-			BigDecimal frozenDeposit = overnightReserveFund.subtract(order.getReserveFund());
+			BigDecimal frozenDeposit = overnightReserveFund.compareTo(order.getReserveFund()) < 0 ?
+					BigDecimal.ZERO : overnightReserveFund.subtract(order.getReserveFund());
 			overnightRecord.setOvernightReserveFund(overnightReserveFund);
 			overnightRecord.setPublisherId(order.getPublisherId());
 			overnightRecord.setReduceTime(new Date());
@@ -227,6 +243,9 @@ public class MonitorStrongPointConsumer {
 			//修改订单状态
 			order.setUpdateTime(new Date());
 			contractOrderDao.update(order);
+			if (frozenDeposit.compareTo(BigDecimal.ZERO) == 0) {
+				continue;
+			}
 			//扣除递延费，冻结保证金
 			try {
 				accountBusiness.futuresOrderOvernight(order.getPublisherId(), overnightRecord.getId(), overnightDeferredFee,
@@ -245,6 +264,75 @@ public class MonitorStrongPointConsumer {
 		}
 		return true;
 	}
+
+	/**
+	 * 获取触发隔夜的订单
+	 *
+	 * @param orderList
+	 *            订单
+	 * @return 是否触发隔夜
+	 */
+	private List<FuturesContractOrder> triggerOvernightOrderList(List<FuturesContractOrder> orderList) {
+		List<FuturesContractOrder> result = new ArrayList<>();
+		SimpleDateFormat daySdf = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date now = new Date();
+		for (FuturesContractOrder order : orderList) {
+			String overnightTimeGroup = overnightTimeMap().get(order.getContract().getCommodityId());
+			if (overnightTimeGroup != null) {
+				// 获取时差、隔夜时间、交易所时间
+				String[] group = overnightTimeGroup.split("-");
+				Integer timeZoneGap = Integer.parseInt(group[0]);
+				String overnightTime = group[1];
+				FuturesOvernightRecord record = overnightService.findNewestOvernightRecord(order);
+				Date nowExchangeTime = orderService.retriveExchangeTime(now, timeZoneGap);
+				String nowStr = daySdf.format(nowExchangeTime);
+				// 判断是否有今天的隔夜记录
+				if (!(record != null && nowStr.equals(daySdf.format(record.getDeferredTime())))) {
+					FuturesContract contract = order.getContract();
+					try {
+						// 判断是否达到隔夜时间，隔夜时间~隔夜时间+1分钟
+						Date beginTime = fullSdf.parse(nowStr + " " + overnightTime);
+						Date endTime = new Date(beginTime.getTime() + 1 * 60 * 1000);
+						if (nowExchangeTime.getTime() >= beginTime.getTime()
+								&& nowExchangeTime.getTime() < endTime.getTime()) {
+							result.add(order);
+						}
+					} catch (ParseException e) {
+						logger.error("期货品种" + contract.getCommodity().getSymbol() + "隔夜时间格式错误?" + overnightTime);
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 获取隔夜时间Map
+	 *
+	 * <p>
+	 * key为品种ID;value格式为“时差-隔夜时间”，如“12-16:55:00”。
+	 * </p>
+	 *
+	 * @return 隔夜时间Map
+	 */
+	private Map<Long, String> overnightTimeMap() {
+		Map<Long, String> result = new HashMap<Long, String>();
+		List<FuturesCommodity> commodityList = commodityDao.list();
+		for (FuturesCommodity commodity : commodityList) {
+			Integer timeZoneGap = commodity.getExchange().getTimeZoneGap();
+			String overnightTime = commodity.getOvernightTime();
+			if (!StringUtil.isEmpty(overnightTime)) {
+				result.put(commodity.getId(), getOvernightTimeMapValue(timeZoneGap, overnightTime.trim()));
+			}
+		}
+		return result;
+	}
+
+	private String getOvernightTimeMapValue(Integer timeZoneGap, String overnightTime) {
+		return timeZoneGap + "-" + overnightTime;
+	}
+
 
 	/**
 	 * 获取交易所的对应时间

@@ -74,6 +74,9 @@ public class MonitorStopLossOrProfitConsumer {
 		MonitorStopLossOrProfitMessage messgeObj = JacksonUtil.decode(message, MonitorStopLossOrProfitMessage.class);
 		try {
 			FuturesContractOrder order = contractOrderDao.retrieve(messgeObj.getContractOrderId());
+			if (order == null) {
+				return;
+			}
 			BigDecimal buyUpCanUnwind = order.getBuyUpCanUnwindQuantity();
 			BigDecimal buyFallCanUnwind = order.getBuyFallCanUnwindQuantity();
 			boolean isNeedRetry = true;
