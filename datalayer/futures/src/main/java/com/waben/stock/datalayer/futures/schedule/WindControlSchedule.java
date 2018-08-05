@@ -410,6 +410,9 @@ public class WindControlSchedule {
 		Date now = new Date();
 		// 获取退还隔夜保证金的时间
 		String returnOvernightReserveFundTime = order.getContract().getCommodity().getReturnOvernightReserveFundTime();
+		if (returnOvernightReserveFundTime == null) {
+			return;
+		}
 		Date nowExchangeTime = orderService.retriveExchangeTime(now, timeZoneGap);
 		String nowStr = daySdf.format(nowExchangeTime);
 		try {

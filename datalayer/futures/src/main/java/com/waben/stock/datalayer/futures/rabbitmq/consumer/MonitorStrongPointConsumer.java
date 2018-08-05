@@ -156,6 +156,9 @@ public class MonitorStrongPointConsumer {
 		BigDecimal totalOvernightDeferredFee = BigDecimal.ZERO;
 		BigDecimal totalOvernightReserveFund = BigDecimal.ZERO;
 		for (FuturesContractOrder order : orderList) {
+			if (order.getContract().getCommodity().getOvernightPerUnitReserveFund() == null) {
+				continue;
+			}
 			//计算交易保证金
 			totalTradeReserveFund = totalTradeReserveFund.add(order.getReserveFund());
 			//隔夜保证金=单边最大*每笔隔夜保证金
@@ -190,6 +193,9 @@ public class MonitorStrongPointConsumer {
 	@Transactional
 	public boolean overnight(List<FuturesContractOrder> orderList, CapitalAccountDto account) {
 		for (FuturesContractOrder order : orderList) {
+			if (order.getContract().getCommodity().getOvernightPerUnitReserveFund() == null) {
+				continue;
+			}
 			//保存隔夜记录
 			FuturesOvernightRecord overnightRecord = new FuturesOvernightRecord();
 			BigDecimal overnightDeferredFee = order.getBuyUpCanUnwindQuantity().add(
