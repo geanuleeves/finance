@@ -71,7 +71,7 @@ public class FuturesTradeEntrustController {
 				throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION);
 			}
 		}
-		return new Response<>(futuresTradeEntrustBusiness.pagesPhone(query));
+		return new Response<>(futuresTradeEntrustBusiness.pagesPhoneEntrust(query));
 	}
 
 	@GetMapping("/pages_phone/action")
@@ -97,10 +97,8 @@ public class FuturesTradeEntrustController {
 				throw new ServiceException(ExceptionConstant.ARGUMENT_EXCEPTION);
 			}
 		}
-		return new Response<>(futuresTradeEntrustBusiness.pagesPhone(query));
+		return new Response<>(futuresTradeEntrustBusiness.pagesPhoneAction(query));
 	}
-
-
 
 	@GetMapping("/detail/{id}")
 	@ApiOperation(value = "移动端交易委托明细", notes = "startTime和endTime格式(yyyy-MM-dd HH:mm:ss)")

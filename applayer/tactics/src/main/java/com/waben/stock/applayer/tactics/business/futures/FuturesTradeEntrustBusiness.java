@@ -42,14 +42,21 @@ public class FuturesTradeEntrustBusiness {
         throw new ServiceException(response.getCode());
     }
 
-    public PageInfo<FuturesTradeEntrustDto> pagesPhone(FuturesTradeEntrustQuery query) {
-        Response<PageInfo<FuturesTradeEntrustDto>> response = reference.pagesPhone(query);
+    public PageInfo<FuturesTradeEntrustDto> pagesPhoneEntrust(FuturesTradeEntrustQuery query) {
+        Response<PageInfo<FuturesTradeEntrustDto>> response = reference.pagesPhoneEntrust(query);
         if ("200".equals(response.getCode())) {
             return response.getResult();
         }
         throw new ServiceException(response.getCode());
     }
 
+    public PageInfo<FuturesTradeEntrustDto> pagesPhoneAction(FuturesTradeEntrustQuery query) {
+        Response<PageInfo<FuturesTradeEntrustDto>> response = reference.pagesPhoneAction(query);
+        if ("200".equals(response.getCode())) {
+            return response.getResult();
+        }
+        throw new ServiceException(response.getCode());
+    }
 
     public FuturesTradeEntrustDto detail(Long id) {
         Response<FuturesTradeEntrustDto> response = reference.detail(id);

@@ -137,6 +137,18 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 	@ApiModelProperty(value = "一手强平点（亏损到剩余）")
 	private BigDecimal perUnitUnwindPoint;
 
+	/**
+	 * 买方对手价
+	 */
+	@ApiModelProperty(value = "买方对手价")
+	private BigDecimal bidPrice;
+
+	/**
+	 * 卖方对手价
+	 */
+	@ApiModelProperty(value = "卖方对手价")
+	private BigDecimal askPrice;
+
 
 	public Long getId() {
 		return id;
@@ -371,6 +383,22 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 
 	public void setPerUnitUnwindPoint(BigDecimal perUnitUnwindPoint) {
 		this.perUnitUnwindPoint = perUnitUnwindPoint;
+	}
+
+	public BigDecimal getBidPrice() {
+		return bidPrice;
+	}
+
+	public void setBidPrice(BigDecimal bidPrice) {
+		this.bidPrice = bidPrice;
+	}
+
+	public BigDecimal getAskPrice() {
+		return askPrice;
+	}
+
+	public void setAskPrice(BigDecimal askPrice) {
+		this.askPrice = askPrice;
 	}
 
 	/**

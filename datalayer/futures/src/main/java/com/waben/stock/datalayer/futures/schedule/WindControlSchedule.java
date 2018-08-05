@@ -1,7 +1,29 @@
 package com.waben.stock.datalayer.futures.schedule;
 
+import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
+import com.waben.stock.datalayer.futures.business.CapitalFlowBusiness;
+import com.waben.stock.datalayer.futures.business.ProfileBusiness;
+import com.waben.stock.datalayer.futures.entity.FuturesContract;
+import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
+import com.waben.stock.datalayer.futures.entity.FuturesOrder;
+import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
+import com.waben.stock.datalayer.futures.service.FuturesContractOrderService;
+import com.waben.stock.datalayer.futures.service.FuturesCurrencyRateService;
+import com.waben.stock.datalayer.futures.service.FuturesOrderService;
+import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
+import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
+import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
+import com.waben.stock.interfaces.enums.*;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesContractOrderQuery;
+import com.waben.stock.interfaces.util.RandomUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,45 +31,13 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.annotation.PostConstruct;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Component;
-
-import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
-import com.waben.stock.datalayer.futures.business.CapitalFlowBusiness;
-import com.waben.stock.datalayer.futures.business.ProfileBusiness;
-import com.waben.stock.datalayer.futures.entity.FuturesContract;
-import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
-import com.waben.stock.datalayer.futures.entity.FuturesOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
-import com.waben.stock.datalayer.futures.service.FuturesCurrencyRateService;
-import com.waben.stock.datalayer.futures.service.FuturesOrderService;
-import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
-import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
-import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
-import com.waben.stock.interfaces.dto.futures.MarketAveragePrice;
-import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
-import com.waben.stock.interfaces.enums.CapitalFlowExtendType;
-import com.waben.stock.interfaces.enums.CapitalFlowType;
-import com.waben.stock.interfaces.enums.FuturesActionType;
-import com.waben.stock.interfaces.enums.FuturesOrderState;
-import com.waben.stock.interfaces.enums.FuturesOrderType;
-import com.waben.stock.interfaces.enums.FuturesTradePriceType;
-import com.waben.stock.interfaces.enums.FuturesWindControlType;
-import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
-import com.waben.stock.interfaces.util.RandomUtil;
-
 /**
  * 风控作业
  * 
  * @author lma
  *
  */
-// @Component
+@Component
 public class WindControlSchedule {
 
 	/**
@@ -78,6 +68,9 @@ public class WindControlSchedule {
 	@Autowired
 	private ProfileBusiness profileBusiness;
 
+	@Autowired
+	private FuturesContractOrderService futuresContractOrderService;
+
 	@PostConstruct
 	public void initTask() {
 		Timer timer = new Timer();
@@ -89,103 +82,15 @@ public class WindControlSchedule {
 		public void run() {
 			try {
 				// step 1 : 获取所有持仓中的正式单
-				List<FuturesOrder> content = retrivePositionOrders();
+				List<FuturesContractOrder> content = retrivePositionOrders();
 				if (RandomUtil.getRandomInt(100) % 51 == 0 && RandomUtil.getRandomInt(100) % 51 == 0) {
 					logger.info("监控持仓中的正式单数量：" + content.size());
 				}
 				// step 2 : 遍历所有订单，判断是否达到风控平仓条件
 				if (content != null && content.size() > 0) {
-					for (FuturesOrder order : content) {
-//						if (order.getState() == FuturesOrderState.SellingEntrust
-//								&& order.getSellingPriceType() == FuturesTradePriceType.MKT) {
-//							continue;
-//						}
-//						Integer timeZoneGap = orderService.retriveTimeZoneGap(order);
-//						FuturesContract contract = order.getContract();
-//						// step 3 : 是否触发退还隔夜保证金时间
-//						// checkAndDoReturnOvernightReserveFund(order,
-//						// timeZoneGap, contract);
-//						// step 4 : 是否合约到期
-//						if (orderService.isTradeTime(timeZoneGap, contract)
-//								&& isReachContractExpiration(timeZoneGap, contract)) {
-//							if (order.getState() == FuturesOrderState.SellingEntrust && (order
-//									.getWindControlType() == null
-//									|| order.getWindControlType() == FuturesWindControlType.InitPosition
-//									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
-//								orderService.cancelOrder(order.getId(), order.getPublisherId());
-//								continue;
-//							}
-//							orderService.sellingEntrust(order, FuturesWindControlType.ReachContractExpiration,
-//									FuturesTradePriceType.MKT, null);
-//							continue;
-//						}
-						// step 5 : 获取合约行情
-						// FuturesContractMarket market =
-						// RetriveFuturesOverHttp.market(profileBusiness.isProd(),
-						// order.getCommoditySymbol(), order.getContractNo());
-						// step 6 : 是否达到止盈点
-						// if (orderService.isTradeTime(timeZoneGap, contract)
-						// && isReachProfitPoint(order, market)) {
-						// if (order.getState() ==
-						// FuturesOrderState.SellingEntrust && (order
-						// .getWindControlType() == null
-						// || order.getWindControlType() ==
-						// FuturesWindControlType.InitPosition
-						// || order.getWindControlType() ==
-						// FuturesWindControlType.OvernightPosition)) {
-						// orderService.cancelOrder(order.getId(),
-						// order.getPublisherId());
-						// continue;
-						// }
-						// continue;
-						// }
-						// step 7 : 是否达到强平点
-						// if (orderService.isTradeTime(timeZoneGap, contract)
-						// && isReachStongPoint(order, market)) {
-						// if (order.getState() ==
-						// FuturesOrderState.SellingEntrust && (order
-						// .getWindControlType() == null
-						// || order.getWindControlType() ==
-						// FuturesWindControlType.InitPosition
-						// || order.getWindControlType() ==
-						// FuturesWindControlType.OvernightPosition)) {
-						// orderService.cancelOrder(order.getId(),
-						// order.getPublisherId());
-						// continue;
-						// }
-						// orderService.sellingEntrust(order,
-						// FuturesWindControlType.ReachStrongPoint,
-						// FuturesTradePriceType.MKT, null);
-						// continue;
-						// }
-						// step 8 : 是否达到止损点
-						// if (orderService.isTradeTime(timeZoneGap, contract)
-						// && isReachLossPoint(order, market)) {
-						// if (order.getState() ==
-						// FuturesOrderState.SellingEntrust && (order
-						// .getWindControlType() == null
-						// || order.getWindControlType() ==
-						// FuturesWindControlType.InitPosition
-						// || order.getWindControlType() ==
-						// FuturesWindControlType.OvernightPosition)) {
-						// orderService.cancelOrder(order.getId(),
-						// order.getPublisherId());
-						// continue;
-						// }
-						// continue;
-						// }
-						// step 9 : 是否触发隔夜时间
-//						if (orderService.isTradeTime(timeZoneGap, contract) && isTriggerOvernight(order, timeZoneGap)) {
-//							if (order.getState() == FuturesOrderState.SellingEntrust && (order
-//									.getWindControlType() == null
-//									|| order.getWindControlType() == FuturesWindControlType.InitPosition
-//									|| order.getWindControlType() == FuturesWindControlType.OvernightPosition)) {
-//								orderService.cancelOrder(order.getId(), order.getPublisherId());
-//								continue;
-//							}
-//							orderService.overnight(order, timeZoneGap);
-//							continue;
-//						}
+					for (FuturesContractOrder order : content) {
+						Integer timeZoneGap = order.getContract().getCommodity().getTimeZoneGap();
+						checkAndDoReturnOvernightReserveFund(order, timeZoneGap);
 					}
 				}
 			} catch (Exception ex) {
@@ -466,7 +371,7 @@ public class WindControlSchedule {
 	 *            订单
 	 * @return 是否触发隔夜
 	 */
-	private boolean isTriggerOvernight(FuturesOrder order, Integer timeZoneGap) {
+	private boolean isTriggerOvernight(FuturesContractOrder order, Integer timeZoneGap) {
 		SimpleDateFormat daySdf = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		FuturesOvernightRecord record = overnightService.findNewestOvernightRecord(order);
@@ -498,20 +403,13 @@ public class WindControlSchedule {
 	 *            订单
 	 * @return 是否触发隔夜
 	 */
-	private void checkAndDoReturnOvernightReserveFund(FuturesOrder order, Integer timeZoneGap,
-			FuturesContract contract) {
+	private void checkAndDoReturnOvernightReserveFund(FuturesContractOrder order, Integer timeZoneGap) {
 		SimpleDateFormat daySdf = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		// 判断当前时候+30分钟是否为交易时间段
 		Date now = new Date();
-		// Date nowAfter30mins = new Date(now.getTime() + 30 * 60 * 1000);
-		// boolean isTradeTime = orderService.isTradeTime(timeZoneGap, contract,
-		// nowAfter30mins);
-		// if (!isTradeTime) {
-		// return;
-		// }
 		// 获取退还隔夜保证金的时间
-		String returnOvernightReserveFundTime = contract.getCommodity().getReturnOvernightReserveFundTime();
+		String returnOvernightReserveFundTime = order.getContract().getCommodity().getReturnOvernightReserveFundTime();
 		Date nowExchangeTime = orderService.retriveExchangeTime(now, timeZoneGap);
 		String nowStr = daySdf.format(nowExchangeTime);
 		try {
@@ -546,7 +444,7 @@ public class WindControlSchedule {
 				}
 			}
 		} catch (ParseException e) {
-			logger.error("期货品种" + contract.getCommodity().getSymbol() + "隔夜时间格式错误?" + returnOvernightReserveFundTime);
+			logger.error("期货品种" + order.getContract().getCommodity().getSymbol() + "隔夜时间格式错误?" + returnOvernightReserveFundTime);
 		}
 	}
 
@@ -555,13 +453,11 @@ public class WindControlSchedule {
 	 * 
 	 * @return 持仓中的订单
 	 */
-	private List<FuturesOrder> retrivePositionOrders() {
-		FuturesOrderState[] states = { FuturesOrderState.Position, FuturesOrderState.SellingEntrust };
-		FuturesOrderQuery query = new FuturesOrderQuery();
+	private List<FuturesContractOrder> retrivePositionOrders() {
+		FuturesContractOrderQuery query = new FuturesContractOrderQuery();
 		query.setPage(0);
 		query.setSize(Integer.MAX_VALUE);
-		query.setStates(states);
-		Page<FuturesOrder> pages = orderService.pagesOrder(query);
+		Page<FuturesContractOrder> pages = futuresContractOrderService.pages(query);
 		return pages.getContent();
 	}
 

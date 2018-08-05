@@ -12,8 +12,6 @@ import java.util.Map;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -38,6 +36,8 @@ import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeAction;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeEntrust;
+import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorStopLossOrProfitConsumer;
+import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorStrongPointConsumer;
 import com.waben.stock.datalayer.futures.repository.DynamicQuerySqlDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
 import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
@@ -100,6 +100,12 @@ public class FuturesTradeEntrustService {
 
 	@Autowired
 	private OrganizationBusiness orgBusiness;
+
+	@Autowired
+	private MonitorStopLossOrProfitConsumer monitorStopLossOrProfit;
+
+	@Autowired
+	private MonitorStrongPointConsumer monitorStrongPoint;
 
 	private SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -175,7 +181,8 @@ public class FuturesTradeEntrustService {
 				contractOrder.setBuyUpTotalQuantity(prebuyFallNum);
 				singleEdgeMax = prebuyFallNum.compareTo(buyUpNum) >= 0 ? prebuyFallNum : buyUpNum;
 			}
-			contractOrderDao.update(contractOrder);
+			contractOrderDao.doUpdate(contractOrder);
+			this.monitorContractOrder(contractOrder);
 			BigDecimal expectReserveFund = contract.getCommodity().getPerUnitReserveFund().multiply(singleEdgeMax);
 			// step 4 : 退款保证金，计算需要退款的保证金
 			BigDecimal returnReserveFund = BigDecimal.ZERO;
@@ -188,6 +195,22 @@ public class FuturesTradeEntrustService {
 			sendOutsideMessage(entrust);
 		}
 		return entrust;
+	}
+
+	private void monitorContractOrder(FuturesContractOrder contractOrder) {
+		BigDecimal buyUpCanUnwind = contractOrder.getBuyUpCanUnwindQuantity();
+		BigDecimal buyFallCanUnwind = contractOrder.getBuyFallCanUnwindQuantity();
+		boolean needMonitor = false;
+		if (buyUpCanUnwind != null && buyUpCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
+			needMonitor = true;
+		}
+		if (buyFallCanUnwind != null && buyFallCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
+			needMonitor = true;
+		}
+		if (needMonitor) {
+			monitorStopLossOrProfit.monitorContractOrder(contractOrder.getId());
+			monitorStrongPoint.monitorPublisher(contractOrder.getPublisherId());
+		}
 	}
 
 	@Transactional
@@ -331,7 +354,8 @@ public class FuturesTradeEntrustService {
 				contractOrder.setBuyFallQuantity(contractOrder.getBuyFallQuantity().subtract(currentFilled));
 				contractOrder.setLightQuantity(contractOrder.getLightQuantity().add(currentFilled));
 			}
-			contractOrderDao.update(contractOrder);
+			contractOrderDao.doUpdate(contractOrder);
+			this.monitorContractOrder(contractOrder);
 			// step 1.4 : 如果没有的剩余，停止循环
 			totalFilled = totalFilled.add(currentFilled);
 			if (filled.compareTo(BigDecimal.ZERO) <= 0) {
@@ -361,7 +385,7 @@ public class FuturesTradeEntrustService {
 					BigDecimal singleEdgeMax = contractOrder.getBuyUpTotalQuantity()
 							.compareTo(contractOrder.getBuyFallTotalQuantity()) > 0
 									? contractOrder.getBuyUpTotalQuantity() : contractOrder.getBuyFallTotalQuantity();
-					contractOrderDao.update(contractOrder);
+					contractOrderDao.doUpdate(contractOrder);
 					BigDecimal expectReserveFund = contract.getCommodity().getPerUnitReserveFund()
 							.multiply(singleEdgeMax);
 					// step 2.1 : 退款保证金，计算需要退款的保证金
@@ -373,7 +397,15 @@ public class FuturesTradeEntrustService {
 					accountBusiness.futuresReturnReserveFund(entrust.getPublisherId(), contractOrder.getId(),
 							returnReserveFund);
 					// step 2.2 : 给用户结算盈亏
+					BigDecimal rate = rateService.findByCurrency(currency).getRate();
+					entrust.setSettlementTime(date);
+					entrust.setSettlementRate(rate);
+					BigDecimal totalOpenCost = BigDecimal.ZERO;
+					BigDecimal totalUnwindQuantity = BigDecimal.ZERO;
+					BigDecimal totalPublisherProfitOrLoss = BigDecimal.ZERO;
 					for (FuturesTradeAction action : actionList) {
+						totalUnwindQuantity = totalUnwindQuantity.add(action.getQuantity());
+						totalOpenCost = totalUnwindQuantity.multiply(action.getOpenAvgFillPrice());
 						CapitalAccountDto account = accountBusiness.futuresOrderSettlement(action.getPublisherId(),
 								action.getOrder().getId(), action.getProfitOrLoss());
 						// 发布人盈亏（人民币）、平台盈亏（人民币）
@@ -389,6 +421,7 @@ public class FuturesTradeEntrustService {
 							}
 						}
 						action.setPublisherProfitOrLoss(publisherProfitOrLoss);
+						totalPublisherProfitOrLoss = totalPublisherProfitOrLoss.add(publisherProfitOrLoss);
 						action.setPlatformProfitOrLoss(platformProfitOrLoss);
 						actionDao.update(action);
 
@@ -413,6 +446,12 @@ public class FuturesTradeEntrustService {
 						}
 
 					}
+					// 计算开仓的均价
+					BigDecimal openAvgFillPrice = totalOpenCost.multiply(totalUnwindQuantity);
+					BigDecimal[] divideArr = openAvgFillPrice.divideAndRemainder(minWave);
+					openAvgFillPrice = divideArr[0].multiply(minWave);
+					entrust.setOpenAvgFillPrice(openAvgFillPrice);
+					entrust.setPublisherProfitOrLoss(totalPublisherProfitOrLoss);
 				}
 				dao.update(entrust);
 				sendOutsideMessage(entrust);
@@ -546,7 +585,7 @@ public class FuturesTradeEntrustService {
 		Page<FuturesTradeEntrust> page = futuresTradeEntrustDao.page(new Specification<FuturesTradeEntrust>() {
 			@Override
 			public Predicate toPredicate(Root<FuturesTradeEntrust> root, CriteriaQuery<?> criteriaQuery,
-										 CriteriaBuilder criteriaBuilder) {
+					CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
 
 				// 委托编号
@@ -616,7 +655,7 @@ public class FuturesTradeEntrustService {
 		Page<FuturesTradeEntrust> page = futuresTradeEntrustDao.page(new Specification<FuturesTradeEntrust>() {
 			@Override
 			public Predicate toPredicate(Root<FuturesTradeEntrust> root, CriteriaQuery<?> criteriaQuery,
-										 CriteriaBuilder criteriaBuilder) {
+					CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
 
 				// 委托编号
@@ -678,29 +717,65 @@ public class FuturesTradeEntrustService {
 		return page;
 	}
 
-	public Page<FuturesTradeEntrust> pagesPhone(final FuturesTradeEntrustQuery query) {
+	public Page<FuturesTradeEntrust> pagesPhoneEntrust(final FuturesTradeEntrustQuery query) {
 		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
 		Page<FuturesTradeEntrust> page = futuresTradeEntrustDao.page(new Specification<FuturesTradeEntrust>() {
 			@Override
-			public Predicate toPredicate(Root<FuturesTradeEntrust> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+			public Predicate toPredicate(Root<FuturesTradeEntrust> root, CriteriaQuery<?> criteriaQuery,
+					CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
 				if (query.getId() != null && query.getId() != 0) {
-					predicateList
-							.add(criteriaBuilder.equal(root.get("id").as(Long.class), query.getId()));
+					predicateList.add(criteriaBuilder.equal(root.get("id").as(Long.class), query.getId()));
 				}
 				// 用户ID
 				if (query.getPublisherId() != null && query.getPublisherId() != 0) {
 					predicateList
 							.add(criteriaBuilder.equal(root.get("publisherId").as(Long.class), query.getPublisherId()));
 				}
-				Predicate predicate1 = criteriaBuilder.and(criteriaBuilder.equal(root.get("tradeActionType").
-								as(FuturesTradeActionType.class), FuturesTradeActionType.OPEN),
-						criteriaBuilder.and(root.get("state").in(new FuturesTradeEntrustState[]{FuturesTradeEntrustState.Canceled,
-								FuturesTradeEntrustState.Failure})));
-				Predicate predicate2 = criteriaBuilder.and(criteriaBuilder.equal(root.get("tradeActionType").
-								as(FuturesTradeActionType.class), FuturesTradeActionType.CLOSE),
-						criteriaBuilder.and(root.get("state").in(new FuturesTradeEntrustState[]{FuturesTradeEntrustState.PartSuccess,
-								FuturesTradeEntrustState.Success})));
+				if (query.getStartTime() != null) {
+					predicateList.add(criteriaBuilder.greaterThanOrEqualTo(root.get("tradeTime").as(Date.class),
+							query.getStartTime()));
+				}
+				if (query.getEndTime() != null) {
+					predicateList
+							.add(criteriaBuilder.lessThan(root.get("tradeTime").as(Date.class), query.getEndTime()));
+				}
+				if (predicateList.size() > 0) {
+					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
+				}
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("tradeTime").as(Date.class)),
+						criteriaBuilder.desc(root.get("entrustTime").as(Date.class)));
+				return criteriaQuery.getRestriction();
+			}
+		}, pageable);
+		return page;
+	}
+
+	public Page<FuturesTradeEntrust> pagesPhoneAction(final FuturesTradeEntrustQuery query) {
+		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
+		Page<FuturesTradeEntrust> page = futuresTradeEntrustDao.page(new Specification<FuturesTradeEntrust>() {
+			@Override
+			public Predicate toPredicate(Root<FuturesTradeEntrust> root, CriteriaQuery<?> criteriaQuery,
+					CriteriaBuilder criteriaBuilder) {
+				List<Predicate> predicateList = new ArrayList<Predicate>();
+				if (query.getId() != null && query.getId() != 0) {
+					predicateList.add(criteriaBuilder.equal(root.get("id").as(Long.class), query.getId()));
+				}
+				// 用户ID
+				if (query.getPublisherId() != null && query.getPublisherId() != 0) {
+					predicateList
+							.add(criteriaBuilder.equal(root.get("publisherId").as(Long.class), query.getPublisherId()));
+				}
+				Predicate predicate1 = criteriaBuilder.and(
+						criteriaBuilder.equal(root.get("tradeActionType").as(FuturesTradeActionType.class),
+								FuturesTradeActionType.OPEN),
+						criteriaBuilder.and(root.get("state").in(new FuturesTradeEntrustState[] {
+								FuturesTradeEntrustState.Canceled, FuturesTradeEntrustState.Failure })));
+				Predicate predicate2 = criteriaBuilder.and(
+						criteriaBuilder.equal(root.get("tradeActionType").as(FuturesTradeActionType.class),
+								FuturesTradeActionType.CLOSE),
+						criteriaBuilder.and(root.get("state").in(new FuturesTradeEntrustState[] {
+								FuturesTradeEntrustState.PartSuccess, FuturesTradeEntrustState.Success })));
 				predicateList.add(criteriaBuilder.or(predicate1, predicate2));
 
 				if (query.getStartTime() != null) {
@@ -721,8 +796,6 @@ public class FuturesTradeEntrustService {
 		}, pageable);
 		return page;
 	}
-
-
 
 	public Page<FuturesTradeDto> pageTradeAdmin(FuturesTradeAdminQuery query) {
 

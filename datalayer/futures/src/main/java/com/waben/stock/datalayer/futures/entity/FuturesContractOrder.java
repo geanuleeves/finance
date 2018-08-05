@@ -97,6 +97,13 @@ public class FuturesContractOrder {
 	/** 更新时间 */
 	private Date updateTime;
 
+	/** 浮动的盈亏 */
+	@Transient
+	private BigDecimal floatProfitOrLoss;
+
+	@Transient
+	private BigDecimal strongMoney;
+
 	@Formula("(select r.name from real_name r where r.resource_id = publisher_id limit 1)")
 	private String publisherName;
 
@@ -301,6 +308,22 @@ public class FuturesContractOrder {
 
 	public void setPublisherPhone(String publisherPhone) {
 		this.publisherPhone = publisherPhone;
+	}
+
+	public BigDecimal getFloatProfitOrLoss() {
+		return floatProfitOrLoss;
+	}
+
+	public void setFloatProfitOrLoss(BigDecimal floatProfitOrLoss) {
+		this.floatProfitOrLoss = floatProfitOrLoss;
+	}
+
+	public BigDecimal getStrongMoney() {
+		return strongMoney;
+	}
+
+	public void setStrongMoney(BigDecimal strongMoney) {
+		this.strongMoney = strongMoney;
 	}
 
 }

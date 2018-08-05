@@ -1,19 +1,17 @@
 package com.waben.stock.datalayer.futures.quote;
 
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.waben.stock.datalayer.futures.business.ProfileBusiness;
 import com.waben.stock.datalayer.futures.quote.protobuf.FuturesQuoteFullData.FuturesQuoteFullDataBase;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 行情
@@ -43,6 +41,35 @@ public class QuoteContainer {
 		}
 		return null;
 	}
+
+	/**
+	 * 买方对手价
+	 * @param commodityNo
+	 * @param contractNo
+	 * @return
+	 */
+	public BigDecimal getBidPrice(String commodityNo, String contractNo) {
+		FuturesContractMarket market = quoteCache.get(getQuoteCacheKey(commodityNo, contractNo));
+		if (market != null) {
+			return market.getBidPrice();
+		}
+		return null;
+	}
+
+	/**
+	 * 卖方对手价
+	 * @param commodityNo
+	 * @param contractNo
+	 * @return
+	 */
+	public BigDecimal getAskPrice(String commodityNo, String contractNo) {
+		FuturesContractMarket market = quoteCache.get(getQuoteCacheKey(commodityNo, contractNo));
+		if (market != null) {
+			return market.getAskPrice();
+		}
+		return null;
+	}
+
 
 	public FuturesContractMarket getQuote(String commodityNo, String contractNo) {
 		return quoteCache.get(getQuoteCacheKey(commodityNo, contractNo));

@@ -1,6 +1,6 @@
 package com.waben.stock.datalayer.futures.rabbitmq.message;
 
-public class MonitorPublisherFuturesOrderMessage {
+public class MonitorStrongPointMessage {
 
 	/**
 	 * 用户ID
