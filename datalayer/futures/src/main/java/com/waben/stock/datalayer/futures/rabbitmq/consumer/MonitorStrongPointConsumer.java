@@ -30,6 +30,7 @@ import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.enums.FuturesWindControlType;
 import com.waben.stock.interfaces.util.JacksonUtil;
@@ -110,6 +111,7 @@ public class MonitorStrongPointConsumer {
 				} else {
 					// 执行强平逻辑
 					doStongPoint(orderList, account);
+					// TODO 隔夜
 				}
 			} else {
 				isNeedRetry = false;
@@ -188,23 +190,26 @@ public class MonitorStrongPointConsumer {
 			// 账户余额已经亏损完，计算超出的部分
 			BigDecimal loss = totalProfitOrLoss.add(account.getAvailableBalance());
 			for (FuturesContractOrder order : orderList) {
-				BigDecimal strongMoney = order.getStrongMoney();
-				if (loss.abs().compareTo(strongMoney) >= 0) {
-					// 强平
-					FuturesContract contract = order.getContract();
-					BigDecimal buyUpQuantity = order.getBuyUpCanUnwindQuantity();
-					BigDecimal buyFallQuantity = order.getBuyFallCanUnwindQuantity();
-					if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
-						orderService.doUnwind(contract, order, FuturesOrderType.BuyUp, buyUpQuantity,
-								FuturesTradePriceType.MKT, null, order.getPublisherId(),
-								FuturesWindControlType.ReachStrongPoint, false, false, null);
+				FuturesContract contract = order.getContract();
+				if (orderService.isTradeTime(contract.getCommodity().getExchange().getTimeZoneGap(), contract,
+						FuturesTradeActionType.CLOSE)) {
+					BigDecimal strongMoney = order.getStrongMoney();
+					if (loss.abs().compareTo(strongMoney) >= 0) {
+						// 强平
+						BigDecimal buyUpQuantity = order.getBuyUpCanUnwindQuantity();
+						BigDecimal buyFallQuantity = order.getBuyFallCanUnwindQuantity();
+						if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
+							orderService.doUnwind(contract, order, FuturesOrderType.BuyUp, buyUpQuantity,
+									FuturesTradePriceType.MKT, null, order.getPublisherId(),
+									FuturesWindControlType.ReachStrongPoint, false, false, null);
+						}
+						if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
+							orderService.doUnwind(contract, order, FuturesOrderType.BuyFall, buyFallQuantity,
+									FuturesTradePriceType.MKT, null, order.getPublisherId(),
+									FuturesWindControlType.ReachStrongPoint, false, false, null);
+						}
+						loss = loss.add(strongMoney);
 					}
-					if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
-						orderService.doUnwind(contract, order, FuturesOrderType.BuyFall, buyFallQuantity,
-								FuturesTradePriceType.MKT, null, order.getPublisherId(),
-								FuturesWindControlType.ReachStrongPoint, false, false, null);
-					}
-					loss = loss.add(strongMoney);
 				}
 			}
 		}

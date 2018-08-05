@@ -134,40 +134,46 @@ public class FuturesTradeEntrustService {
 		if (FuturesTradeEntrustState.Queuing != entrust.getState()) {
 			throw new ServiceException(ExceptionConstant.FUTURESORDER_STATE_NOTMATCH_EXCEPTION);
 		}
-		// step 1 : 更新委托状态
-		entrust.setState(FuturesTradeEntrustState.Canceled);
-		entrust.setUpdateTime(new Date());
-		dao.update(entrust);
-		// step 2 : 更新开平仓记录和订单状态
+		// step 1 : 更新开平仓记录和订单状态
+		FuturesContract contract = entrust.getContract();
+		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract, publisherId);
 		List<FuturesTradeAction> actionList = actionDao.retrieveByTradeEntrust(entrust);
 		for (FuturesTradeAction action : actionList) {
-			// step 2.1 : 更新开平仓记录状态
+			// step 1.1 : 更新开平仓记录状态
+			action.setRemaining(BigDecimal.ZERO);
 			action.setState(FuturesTradeEntrustState.Canceled);
 			action.setUpdateTime(new Date());
-			// step 2.2 : 更新订单状态
+			// step 1.2 : 更新订单状态
 			FuturesOrder order = action.getOrder();
 			order.setCloseRemaining(order.getCloseRemaining().subtract(action.getRemaining()));
 			if (entrust.getTradeActionType() == FuturesTradeActionType.OPEN) {
 				order.setState(FuturesOrderState.BuyingCanceled);
 			} else {
+				if (order.getOrderType() == FuturesOrderType.BuyUp) {
+					contractOrder.setBuyUpCanUnwindQuantity(
+							contractOrder.getBuyUpCanUnwindQuantity().add(action.getQuantity()));
+					contractOrderDao.doUpdate(contractOrder);
+				} else {
+					contractOrder.setBuyFallCanUnwindQuantity(
+							contractOrder.getBuyFallCanUnwindQuantity().add(action.getQuantity()));
+					contractOrderDao.doUpdate(contractOrder);
+				}
 				if (order.getCloseRemaining().compareTo(BigDecimal.ZERO) > 0
 						|| order.getCloseFilled().compareTo(BigDecimal.ZERO) > 0) {
 					order.setState(FuturesOrderState.PartUnwind);
 				} else {
-					order.setState(FuturesOrderState.Unwind);
+					order.setState(FuturesOrderState.Position);
 				}
 			}
 			order.setUpdateTime(new Date());
 			orderDao.update(order);
-			// step 2.3 : 退回交易综合费
+			// step 1.3 : 退回交易综合费
 			if (entrust.getTradeActionType() == FuturesTradeActionType.OPEN) {
 				BigDecimal returnServiceFee = action.getOrder().getServiceFee();
 				accountBusiness.futuresOrderRevoke(publisherId, order.getId(), returnServiceFee);
 			}
 		}
-		// step 3 : 更新合约订单状态
-		FuturesContract contract = entrust.getContract();
-		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract, publisherId);
+		// step 2 : 更新合约订单状态
 		if (entrust.getTradeActionType() == FuturesTradeActionType.OPEN) {
 			BigDecimal buyUpNum = contractOrder.getBuyUpTotalQuantity();
 			BigDecimal buyFallNum = contractOrder.getBuyFallTotalQuantity();
@@ -178,22 +184,28 @@ public class FuturesTradeEntrustService {
 				singleEdgeMax = preBuyUpNum.compareTo(buyFallNum) >= 0 ? preBuyUpNum : buyFallNum;
 			} else {
 				BigDecimal prebuyFallNum = buyFallNum.subtract(entrust.getQuantity());
-				contractOrder.setBuyUpTotalQuantity(prebuyFallNum);
+				contractOrder.setBuyFallTotalQuantity(prebuyFallNum);
 				singleEdgeMax = prebuyFallNum.compareTo(buyUpNum) >= 0 ? prebuyFallNum : buyUpNum;
 			}
 			contractOrderDao.doUpdate(contractOrder);
 			this.monitorContractOrder(contractOrder);
 			BigDecimal expectReserveFund = contract.getCommodity().getPerUnitReserveFund().multiply(singleEdgeMax);
-			// step 4 : 退款保证金，计算需要退款的保证金
+			// step 3 : 退款保证金，计算需要退款的保证金
 			BigDecimal returnReserveFund = BigDecimal.ZERO;
 			if (contractOrder.getReserveFund().compareTo(expectReserveFund) > 0) {
 				returnReserveFund = contractOrder.getReserveFund().subtract(expectReserveFund);
+				contractOrder.setReserveFund(contractOrder.getReserveFund().subtract(returnReserveFund));
+				accountBusiness.futuresReturnReserveFund(publisherId, contractOrder.getId(), returnReserveFund);
+				contractOrderDao.doUpdate(contractOrder);
 			}
 			entrust.setReturnReserveFund(returnReserveFund);
-			accountBusiness.futuresReturnReserveFund(publisherId, contractOrder.getId(), returnReserveFund);
-			// step 5 : 发送站外消息
+			// step 4 : 发送站外消息
 			sendOutsideMessage(entrust);
 		}
+		// step 5 : 更新委托状态
+		entrust.setState(FuturesTradeEntrustState.Canceled);
+		entrust.setUpdateTime(new Date());
+		dao.update(entrust);
 		return entrust;
 	}
 
@@ -392,10 +404,13 @@ public class FuturesTradeEntrustService {
 					BigDecimal returnReserveFund = BigDecimal.ZERO;
 					if (contractOrder.getReserveFund().compareTo(expectReserveFund) > 0) {
 						returnReserveFund = contractOrder.getReserveFund().subtract(expectReserveFund);
+						contractOrder.setReserveFund(contractOrder.getReserveFund().subtract(returnReserveFund));
+						accountBusiness.futuresReturnReserveFund(entrust.getPublisherId(), contractOrder.getId(),
+								returnReserveFund);
+						contractOrderDao.doUpdate(contractOrder);
 					}
 					entrust.setReturnReserveFund(returnReserveFund);
-					accountBusiness.futuresReturnReserveFund(entrust.getPublisherId(), contractOrder.getId(),
-							returnReserveFund);
+					futuresTradeEntrustDao.update(entrust);
 					// step 2.2 : 给用户结算盈亏
 					BigDecimal rate = rateService.findByCurrency(currency).getRate();
 					entrust.setSettlementTime(date);

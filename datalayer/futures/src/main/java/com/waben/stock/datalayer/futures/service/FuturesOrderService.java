@@ -512,9 +512,9 @@ public class FuturesOrderService {
 			this.monitorContractOrder(contractOrder);
 		} else {
 			contractOrder = new FuturesContractOrder();
-			contractOrder.setBuyFallQuantity(BigDecimal.ZERO);
 			contractOrder.setBuyUpQuantity(BigDecimal.ZERO);
 			contractOrder.setBuyUpCanUnwindQuantity(BigDecimal.ZERO);
+			contractOrder.setBuyFallQuantity(BigDecimal.ZERO);
 			contractOrder.setBuyFallCanUnwindQuantity(BigDecimal.ZERO);
 			if (orderType == FuturesOrderType.BuyUp) {
 				contractOrder.setBuyUpTotalQuantity(totalQuantity);
