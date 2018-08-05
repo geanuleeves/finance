@@ -23,9 +23,9 @@ import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
-import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.service.FuturesCommodityService;
+import com.waben.stock.datalayer.futures.service.FuturesContractOrderService;
 import com.waben.stock.datalayer.futures.service.FuturesOrderService;
 import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
 import com.waben.stock.datalayer.futures.service.FuturesTradeActionService;
@@ -108,6 +108,9 @@ public class FuturesTradeController implements FuturesTradeInterface {
 	@Qualifier("organizationInterface")
 	private OrganizationInterface organizationInterface;
 
+	@Autowired
+	private FuturesContractOrderService futuresContractOrderService;
+
 	SimpleDateFormat dateFm = new SimpleDateFormat("HH:mm:ss");
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -150,11 +153,11 @@ public class FuturesTradeController implements FuturesTradeInterface {
 
 	@Override
 	public Response<PageInfo<FuturesOrderAdminDto>> adminPagesByQuery(@RequestBody FuturesTradeAdminQuery query) {
-		Page<FuturesOrder> page = futuresOrderService.pagesOrderAdmin(query);
+		Page<FuturesContractOrder> page = futuresContractOrderService.pages(query);
 		PageInfo<FuturesOrderAdminDto> result = PageToPageInfo.pageToPageInfo(page, FuturesOrderAdminDto.class);
 		for (int i = 0; i < page.getContent().size(); i++) {
-			FuturesOrder order = page.getContent().get(i);
-			result.getContent().get(i).setSymbol(order.getCommoditySymbol());
+			FuturesContractOrder order = page.getContent().get(i);
+			result.getContent().get(i).setSymbol(order.getCommodityNo());
 			result.getContent().get(i).setName(order.getCommodityName());
 			List<FuturesOvernightRecord> recordList = overnightService.findAll(order);
 			double count = 0.00;
@@ -173,12 +176,13 @@ public class FuturesTradeController implements FuturesTradeInterface {
 			// if (order.getSellingTime() != null) {
 			// result.getContent().get(i).setPositionEndTime(order.getSellingTime());
 			// }
-			if (order.getOrderType() != null) {
-				result.getContent().get(i).setOrderType(order.getOrderType().getType());
-			}
-			if (order.getState() != null) {
-				result.getContent().get(i).setState(order.getState().getType());
-			}
+			/*
+			 * if (order.getOrderType() != null) {
+			 * result.getContent().get(i).setOrderType(order.getOrderType().
+			 * getType()); } if (order.getState() != null) {
+			 * result.getContent().get(i).setState(order.getState().getType());
+			 * }
+			 */
 			// if (order.getBuyingTime() != null) {
 			// Long date = order.getBuyingTime().getTime();
 			// Long current = new Date().getTime();
@@ -193,36 +197,28 @@ public class FuturesTradeController implements FuturesTradeInterface {
 			// "分钟");
 			// }
 			// }
-			if (order.getState().getIndex().equals("9")) {
-				// result.getContent().get(i).setProfit(order.getProfitOrLoss());
-				// result.getContent().get(i).setSellingProfit(order.getProfitOrLoss());
-				// if (order.getSellingTime() != null) {
-				// Long laseDate = order.getSellingTime().getTime();
-				// Long date = order.getBuyingTime().getTime();
-				// Long hours = ((laseDate - date) % (1000 * 60 * 60 * 24)) /
-				// (1000 * 60);
-				// if (Math.abs(hours.intValue()) > 60) {
-				// Long stime = hours / 60;
-				// result.getContent().get(i).setPositionDays(stime.toString() +
-				// "小时");
-				// } else {
-				// result.getContent().get(i).setPositionDays(hours.toString() +
-				// "分钟");
-				// }
-				// }
-			} else {
-				List<FuturesTradeLimit> limit = limitService.findByContractId(order.getContract().getId());
-				if (limit != null) {
-					for (int j = 0; j < limit.size(); j++) {
-						// TODO 需求修改，风控限制关联到合约，开始和结束时间精确到日、时、分、秒
-						if (result.getContent().get(i).getWindControlState() == null
-								&& "".equals(result.getContent().get(i).getWindControlState())) {
-							result.getContent().get(i).setWindControlState("正常");
-						}
-					}
-				}
-
-			}
+			/*
+			 * if (order.getState().getIndex().equals("9")) { //
+			 * result.getContent().get(i).setProfit(order.getProfitOrLoss()); //
+			 * result.getContent().get(i).setSellingProfit(order.getProfitOrLoss
+			 * ()); // if (order.getSellingTime() != null) { // Long laseDate =
+			 * order.getSellingTime().getTime(); // Long date =
+			 * order.getBuyingTime().getTime(); // Long hours = ((laseDate -
+			 * date) % (1000 * 60 * 60 * 24)) / // (1000 * 60); // if
+			 * (Math.abs(hours.intValue()) > 60) { // Long stime = hours / 60;
+			 * // result.getContent().get(i).setPositionDays(stime.toString() +
+			 * // "小时"); // } else { //
+			 * result.getContent().get(i).setPositionDays(hours.toString() + //
+			 * "分钟"); // } // } } else { List<FuturesTradeLimit> limit =
+			 * limitService.findByContractId(order.getContract().getId()); if
+			 * (limit != null) { for (int j = 0; j < limit.size(); j++) { //
+			 * TODO 需求修改，风控限制关联到合约，开始和结束时间精确到日、时、分、秒 if
+			 * (result.getContent().get(i).getWindControlState() == null &&
+			 * "".equals(result.getContent().get(i).getWindControlState())) {
+			 * result.getContent().get(i).setWindControlState("正常"); } } }
+			 * 
+			 * }
+			 */
 		}
 		return new Response<>(result);
 	}

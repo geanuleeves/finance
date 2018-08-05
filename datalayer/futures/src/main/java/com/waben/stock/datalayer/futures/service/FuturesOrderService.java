@@ -1220,7 +1220,7 @@ public class FuturesOrderService {
 		return orderDao.update(order);
 	}
 
-	private void unwindReturnOvernightReserveFund(FuturesOrder order) {
+	private void unwindReturnOvernightReserveFund(FuturesContractOrder order) {
 		try {
 			// 平仓时退还隔夜保证金
 			FuturesOvernightRecord record = overnightService.findNewestOvernightRecord(order);

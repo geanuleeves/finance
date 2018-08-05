@@ -758,8 +758,7 @@ public class FuturesTradeEntrustService {
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
-				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("tradeTime").as(Date.class)),
-						criteriaBuilder.desc(root.get("entrustTime").as(Date.class)));
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("entrustTime").as(Date.class)));
 				return criteriaQuery.getRestriction();
 			}
 		}, pageable);
@@ -804,8 +803,7 @@ public class FuturesTradeEntrustService {
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
-				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("tradeTime").as(Date.class)),
-						criteriaBuilder.desc(root.get("entrustTime").as(Date.class)));
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("tradeTime").as(Date.class)));
 				return criteriaQuery.getRestriction();
 			}
 		}, pageable);
