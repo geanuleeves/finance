@@ -1,8 +1,9 @@
 package com.waben.stock.datalayer.futures.repository.impl;
 
-import java.math.BigDecimal;
-import java.util.List;
-
+import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
+import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
+import com.waben.stock.datalayer.futures.repository.FuturesOvernightRecordDao;
+import com.waben.stock.datalayer.futures.repository.impl.jpa.FuturesOvernightRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,10 +13,8 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
-import com.waben.stock.datalayer.futures.entity.FuturesOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
-import com.waben.stock.datalayer.futures.repository.FuturesOvernightRecordDao;
-import com.waben.stock.datalayer.futures.repository.impl.jpa.FuturesOvernightRecordRepository;
+import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 期货订单过夜记录 Impl
@@ -65,7 +64,7 @@ public class FuturesOvernightRecordDaoImpl implements FuturesOvernightRecordDao 
 	}
 
 	@Override
-	public List<FuturesOvernightRecord> retrieveByOrder(FuturesOrder order) {
+	public List<FuturesOvernightRecord> retrieveByOrder(FuturesContractOrder order) {
 		Sort sort = new Sort(new Sort.Order(Direction.DESC, "deferredTime"));
 		return repository.findByOrder(order, sort);
 	}

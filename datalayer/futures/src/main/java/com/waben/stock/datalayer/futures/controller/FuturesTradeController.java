@@ -1,43 +1,12 @@
 package com.waben.stock.datalayer.futures.controller;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.waben.stock.datalayer.futures.business.ProfileBusiness;
-import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
-import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
-import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
+import com.waben.stock.datalayer.futures.entity.*;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
-import com.waben.stock.datalayer.futures.service.FuturesCommodityService;
-import com.waben.stock.datalayer.futures.service.FuturesOrderService;
-import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
-import com.waben.stock.datalayer.futures.service.FuturesTradeActionService;
-import com.waben.stock.datalayer.futures.service.FuturesTradeLimitService;
+import com.waben.stock.datalayer.futures.service.*;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
-import com.waben.stock.interfaces.dto.admin.futures.AgentOrderRecordDto;
-import com.waben.stock.interfaces.dto.admin.futures.FutresOrderEntrustDto;
-import com.waben.stock.interfaces.dto.admin.futures.FuturesHoldPositionAgentDto;
-import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderAdminDto;
-import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
-import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeActionAgentDto;
+import com.waben.stock.interfaces.dto.admin.futures.*;
 import com.waben.stock.interfaces.dto.futures.FuturesCurrencyRateDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationDto;
 import com.waben.stock.interfaces.dto.organization.OrganizationPublisherDto;
@@ -57,6 +26,23 @@ import com.waben.stock.interfaces.service.publisher.PublisherInterface;
 import com.waben.stock.interfaces.service.publisher.RealNameInterface;
 import com.waben.stock.interfaces.util.PageToPageInfo;
 import com.waben.stock.interfaces.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/futuresTrade")
@@ -108,6 +94,10 @@ public class FuturesTradeController implements FuturesTradeInterface {
 	@Qualifier("organizationInterface")
 	private OrganizationInterface organizationInterface;
 
+	@Autowired
+	private FuturesContractOrderService futuresContractOrderService;
+
+
 	SimpleDateFormat dateFm = new SimpleDateFormat("HH:mm:ss");
 
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -150,11 +140,11 @@ public class FuturesTradeController implements FuturesTradeInterface {
 
 	@Override
 	public Response<PageInfo<FuturesOrderAdminDto>> adminPagesByQuery(@RequestBody FuturesTradeAdminQuery query) {
-		Page<FuturesOrder> page = futuresOrderService.pagesOrderAdmin(query);
+		Page<FuturesContractOrder> page = futuresContractOrderService.pages(query);
 		PageInfo<FuturesOrderAdminDto> result = PageToPageInfo.pageToPageInfo(page, FuturesOrderAdminDto.class);
 		for (int i = 0; i < page.getContent().size(); i++) {
-			FuturesOrder order = page.getContent().get(i);
-			result.getContent().get(i).setSymbol(order.getCommoditySymbol());
+			FuturesContractOrder order = page.getContent().get(i);
+			result.getContent().get(i).setSymbol(order.getCommodityNo());
 			result.getContent().get(i).setName(order.getCommodityName());
 			List<FuturesOvernightRecord> recordList = overnightService.findAll(order);
 			double count = 0.00;
@@ -173,12 +163,12 @@ public class FuturesTradeController implements FuturesTradeInterface {
 			// if (order.getSellingTime() != null) {
 			// result.getContent().get(i).setPositionEndTime(order.getSellingTime());
 			// }
-			if (order.getOrderType() != null) {
+			/*if (order.getOrderType() != null) {
 				result.getContent().get(i).setOrderType(order.getOrderType().getType());
 			}
 			if (order.getState() != null) {
 				result.getContent().get(i).setState(order.getState().getType());
-			}
+			}*/
 			// if (order.getBuyingTime() != null) {
 			// Long date = order.getBuyingTime().getTime();
 			// Long current = new Date().getTime();
@@ -193,7 +183,7 @@ public class FuturesTradeController implements FuturesTradeInterface {
 			// "分钟");
 			// }
 			// }
-			if (order.getState().getIndex().equals("9")) {
+			/*if (order.getState().getIndex().equals("9")) {
 				// result.getContent().get(i).setProfit(order.getProfitOrLoss());
 				// result.getContent().get(i).setSellingProfit(order.getProfitOrLoss());
 				// if (order.getSellingTime() != null) {
@@ -222,7 +212,7 @@ public class FuturesTradeController implements FuturesTradeInterface {
 					}
 				}
 
-			}
+			}*/
 		}
 		return new Response<>(result);
 	}

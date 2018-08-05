@@ -9,6 +9,7 @@ import java.util.TimerTask;
 
 import javax.annotation.PostConstruct;
 
+import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,10 +81,10 @@ public class BuyingEntrustOrderMonitorSchedule {
 							continue;
 						}
 						// step 4 : 是否触发隔夜时间
-						if (orderService.isTradeTime(timeZoneGap, contract) && isTriggerOvernight(order, timeZoneGap)) {
+						/*if (orderService.isTradeTime(timeZoneGap, contract) && isTriggerOvernight(order, timeZoneGap)) {
 							// TODO
 							continue;
-						}
+						}*/
 					}
 				}
 			} catch (Exception ex) {
@@ -121,7 +122,7 @@ public class BuyingEntrustOrderMonitorSchedule {
 	 *            订单
 	 * @return 是否触发隔夜
 	 */
-	private boolean isTriggerOvernight(FuturesOrder order, Integer timeZoneGap) {
+	private boolean isTriggerOvernight(FuturesContractOrder order, Integer timeZoneGap) {
 		SimpleDateFormat daySdf = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		FuturesOvernightRecord record = overnightService.findNewestOvernightRecord(order);

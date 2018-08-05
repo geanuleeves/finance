@@ -1,39 +1,39 @@
 package com.waben.stock.datalayer.futures.rabbitmq.consumer;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.RabbitHandler;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
-import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
-import com.waben.stock.datalayer.futures.entity.FuturesContract;
-import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
+import com.waben.stock.datalayer.futures.business.CapitalFlowBusiness;
+import com.waben.stock.datalayer.futures.entity.*;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqProducer;
 import com.waben.stock.datalayer.futures.rabbitmq.message.MonitorStrongPointMessage;
 import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
+import com.waben.stock.datalayer.futures.repository.FuturesOvernightRecordDao;
 import com.waben.stock.datalayer.futures.service.FuturesOrderService;
 import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
+import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
+import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
+import com.waben.stock.interfaces.enums.CapitalFlowExtendType;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.enums.FuturesWindControlType;
+import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.util.JacksonUtil;
 import com.waben.stock.interfaces.util.RandomUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitHandler;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.util.*;
 
 @Component
 @RabbitListener(queues = { RabbitmqConfiguration.monitorStrongPointQueueName })
@@ -61,6 +61,13 @@ public class MonitorStrongPointConsumer {
 
 	@Autowired
 	private QuoteContainer quoteContainer;
+
+	@Autowired
+	private FuturesOvernightRecordDao recordDao;
+
+	@Autowired
+	private CapitalFlowBusiness flowBusiness;
+
 
 	private List<Long> monitorPublisherList = Collections.synchronizedList(new ArrayList<Long>());
 
@@ -108,8 +115,13 @@ public class MonitorStrongPointConsumer {
 				if (!hasQuatity) {
 					isNeedRetry = false;
 				} else {
-					// 执行强平逻辑
-					doStongPoint(orderList, account);
+					if (isEnoughOvernight(orderList, account)) {
+						//隔夜
+						overnight(orderList, account);
+					} else {
+						// 执行强平逻辑
+						doStongPoint(orderList, account);
+					}
 				}
 			} else {
 				isNeedRetry = false;
@@ -124,6 +136,123 @@ public class MonitorStrongPointConsumer {
 			retry(messgeObj);
 		}
 	}
+
+
+	/**
+	 * 判断是否足够过夜
+	 *
+	 * <p>
+	 * 计算公式：账户余额 +浮动盈亏+交易保证金+隔夜手续费>=隔夜保证金
+	 * </p>
+	 *
+	 * @param orderList
+	 *            订单列表
+	 * @param account
+	 *            资金账户
+	 * @return 是否足够过夜
+	 */
+	private boolean isEnoughOvernight(List<FuturesContractOrder> orderList, CapitalAccountDto account) {
+		BigDecimal totalTradeReserveFund = BigDecimal.ZERO;
+		BigDecimal totalOvernightDeferredFee = BigDecimal.ZERO;
+		BigDecimal totalOvernightReserveFund = BigDecimal.ZERO;
+		for (FuturesContractOrder order : orderList) {
+			//计算交易保证金
+			totalTradeReserveFund = totalTradeReserveFund.add(order.getReserveFund());
+			//隔夜保证金=单边最大*每笔隔夜保证金
+			BigDecimal quantity = order.getBuyUpQuantity().compareTo(order.getBuyFallQuantity()) > 0 ?
+					order.getBuyUpQuantity() : order.getBuyFallQuantity();
+			totalOvernightReserveFund = totalOvernightReserveFund.add(quantity.multiply(order.getContract()
+					.getCommodity().getOvernightPerUnitReserveFund()));
+			//隔夜递延费
+			totalOvernightDeferredFee = totalOvernightDeferredFee.add(order.getBuyUpCanUnwindQuantity().add(
+					order.getBuyFallCanUnwindQuantity()).multiply(order.getContract().getCommodity()
+					.getOvernightPerUnitDeferredFee()));
+		}
+		//隔夜保证金小于交易保证金
+		if (totalOvernightReserveFund.compareTo(totalTradeReserveFund) < 0) {
+			return true;
+		}
+		//账号余额+交易保证金>=隔夜保证金+隔夜手续费
+		if (account.getAvailableBalance().add(totalTradeReserveFund)
+				.compareTo(totalOvernightReserveFund.add(totalOvernightDeferredFee)) >= 0) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 隔夜
+	 *
+	 * @param orderList
+	 *            订单
+	 * @return 订单
+	 */
+	@Transactional
+	public boolean overnight(List<FuturesContractOrder> orderList, CapitalAccountDto account) {
+		for (FuturesContractOrder order : orderList) {
+			//保存隔夜记录
+			FuturesOvernightRecord overnightRecord = new FuturesOvernightRecord();
+			BigDecimal overnightDeferredFee = order.getBuyUpCanUnwindQuantity().add(
+					order.getBuyFallCanUnwindQuantity()).multiply(order.getContract().getCommodity()
+					.getOvernightPerUnitDeferredFee());
+			overnightRecord.setContractOrder(order);
+			overnightRecord.setOvernightDeferredFee(overnightDeferredFee);
+			BigDecimal quantity = order.getBuyUpQuantity().compareTo(order.getBuyFallQuantity()) > 0 ?
+					order.getBuyUpQuantity() : order.getBuyFallQuantity();
+			//隔夜保证金
+			BigDecimal overnightReserveFund = quantity.multiply(order.getContract()
+					.getCommodity().getOvernightPerUnitReserveFund());
+			//冻结金额=隔夜保证金-保证金
+			BigDecimal frozenDeposit = overnightReserveFund.subtract(order.getReserveFund());
+			overnightRecord.setOvernightReserveFund(overnightReserveFund);
+			overnightRecord.setPublisherId(order.getPublisherId());
+			overnightRecord.setReduceTime(new Date());
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(retriveExchangeTime(new Date(), order.getContract().getCommodity().getExchange().getTimeZoneGap()));
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MILLISECOND, 0);
+			overnightRecord.setDeferredTime(cal.getTime());
+			overnightRecord = recordDao.create(overnightRecord);
+			//修改订单状态
+			order.setUpdateTime(new Date());
+			contractOrderDao.update(order);
+			//扣除递延费，冻结保证金
+			try {
+				accountBusiness.futuresOrderOvernight(order.getPublisherId(), overnightRecord.getId(), overnightDeferredFee,
+						frozenDeposit);
+			} catch (ServiceException e) {
+				if (ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION.equals(e.getType())) {
+					// step 1.1 : 余额不足，强制平仓
+					doStongPoint(orderList, account);
+					recordDao.delete(overnightRecord.getId());
+					return false;
+				} else {
+					List<CapitalFlowDto> list = flowBusiness.fetchByExtendTypeAndExtendId(
+							CapitalFlowExtendType.FUTURESOVERNIGHTRECORD, overnightRecord.getId());
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * 获取交易所的对应时间
+	 *
+	 * @param localTime
+	 *            日期
+	 * @param timeZoneGap
+	 *            和交易所的时差
+	 * @return 交易所的对应时间
+	 */
+	public Date retriveExchangeTime(Date localTime, Integer timeZoneGap) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(localTime);
+		cal.add(Calendar.HOUR_OF_DAY, timeZoneGap * -1);
+		return cal.getTime();
+	}
+
 
 	private BigDecimal computeFloatProfitOrLoss(FuturesContractOrder contractOrder) {
 		Long publisherId = contractOrder.getPublisherId();
@@ -262,5 +391,9 @@ public class MonitorStrongPointConsumer {
 			}
 		}).start();
 	}
+
+
+
+
 
 }
