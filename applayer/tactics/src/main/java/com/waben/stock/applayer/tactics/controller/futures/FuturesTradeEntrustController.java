@@ -49,7 +49,7 @@ public class FuturesTradeEntrustController {
 	}
 
 	@GetMapping("/pages/action")
-	@ApiOperation(value = "交易委托列表")
+	@ApiOperation(value = "结算列表")
 	public Response<PageInfo<FuturesTradeEntrustDto>> pagesAction(int page, int size) {
 		FuturesTradeEntrustQuery query = new FuturesTradeEntrustQuery();
 		query.setPage(page);

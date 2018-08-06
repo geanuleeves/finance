@@ -85,8 +85,12 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 	private BigDecimal quantityNow;
 
 	/** 已成交部分均价：已成交部分总费用/已成交总手数 累计 */
-	@ApiModelProperty(value = "已成交部分均价")
-	private BigDecimal avgFillPrice;
+	@ApiModelProperty(value = "已成交部分均价（开仓）")
+	private BigDecimal openAvgFillPrice;
+
+	/** 已成交部分均价：已成交部分总费用/已成交总手数 累计 */
+	@ApiModelProperty(value = "已成交部分均价（平仓）")
+	private BigDecimal closeAvgFillPrice;
 
 
 	/** 浮动盈亏=（最新价格-成交价格）/ 最小波动 * 最小波动价格* 手数 */
@@ -286,13 +290,6 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 		this.quantityNow = quantityNow;
 	}
 
-	public BigDecimal getAvgFillPrice() {
-		return avgFillPrice;
-	}
-
-	public void setAvgFillPrice(BigDecimal avgFillPrice) {
-		this.avgFillPrice = avgFillPrice;
-	}
 
 	public BigDecimal getFloatingProfitAndLoss() {
 		return floatingProfitAndLoss;
@@ -399,6 +396,22 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 
 	public void setAskPrice(BigDecimal askPrice) {
 		this.askPrice = askPrice;
+	}
+
+	public BigDecimal getOpenAvgFillPrice() {
+		return openAvgFillPrice;
+	}
+
+	public void setOpenAvgFillPrice(BigDecimal openAvgFillPrice) {
+		this.openAvgFillPrice = openAvgFillPrice;
+	}
+
+	public BigDecimal getCloseAvgFillPrice() {
+		return closeAvgFillPrice;
+	}
+
+	public void setCloseAvgFillPrice(BigDecimal closeAvgFillPrice) {
+		this.closeAvgFillPrice = closeAvgFillPrice;
 	}
 
 	/**

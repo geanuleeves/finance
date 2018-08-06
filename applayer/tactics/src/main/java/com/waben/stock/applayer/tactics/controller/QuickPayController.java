@@ -1,40 +1,12 @@
 package com.waben.stock.applayer.tactics.controller;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.waben.stock.applayer.tactics.business.BindCardBusiness;
-import com.waben.stock.applayer.tactics.business.CapitalAccountBusiness;
-import com.waben.stock.applayer.tactics.business.PaymentBusiness;
-import com.waben.stock.applayer.tactics.business.PublisherBusiness;
-import com.waben.stock.applayer.tactics.business.QuickPayBusiness;
+import com.waben.stock.applayer.tactics.business.*;
 import com.waben.stock.applayer.tactics.business.futures.FuturesOrderBusiness;
 import com.waben.stock.applayer.tactics.business.futures.FuturesTradeLimitBusiness;
 import com.waben.stock.applayer.tactics.payapi.wbpay.config.WBConfig;
 import com.waben.stock.applayer.tactics.security.SecurityUtil;
 import com.waben.stock.interfaces.commonapi.wabenpay.common.WabenBankType;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
-import com.waben.stock.interfaces.dto.admin.futures.FuturesGlobalConfigDto;
 import com.waben.stock.interfaces.dto.admin.futures.PutForwardDto;
 import com.waben.stock.interfaces.dto.publisher.BindCardDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
@@ -44,8 +16,24 @@ import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.util.PasswordCrypt;
-
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
 
 
 @Controller
@@ -80,6 +68,15 @@ public class QuickPayController {
     
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     private SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
+    @RequestMapping("/alipay")
+    @ApiOperation(value = "支付宝支付")
+    @ResponseBody
+    public Response<Map<String, String>> alipay(@RequestParam(required = true) BigDecimal amount, HttpServletRequest request) {
+        String endType = request.getHeader("endType");
+        Response<Map<String, String>> result = quickPayBusiness.wabenPayforalipay(amount, SecurityUtil.getUserId(), endType);
+        return result;
+    }
 
     @GetMapping("/sdquickpay")
     @ApiOperation(value = "杉德快捷支付")

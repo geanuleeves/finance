@@ -144,21 +144,19 @@ public interface FuturesOrderDao extends BaseDao<FuturesOrder, Long> {
      * 已成交部分均价
      *
      * @param publisherId 用户ID
-     * @param contractNo  合约编号
-     * @param commodityNo 产品编号
+     * @param contractId  合约Id
      * @param orderType   订单类型
      * @return 已成交部分均价
      */
-    BigDecimal getOpenAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType);
+    BigDecimal getOpenAvgFillPrice(Long publisherId, Long contractId, String orderType);
 
     /**
      * @param publisherId 用户ID
-     * @param contractNo 合约编号
-     * @param commodityNo 产品编号
+     * @param contractId 合约Id
      * @param orderType 订单类型
      * @return
      */
-    BigDecimal getCloseAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType);
+    BigDecimal getCloseAvgFillPrice(Long publisherId, Long contractId, String orderType);
 
 	/**
 	 * 根据合约订单获取订单列表

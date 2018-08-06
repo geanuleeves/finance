@@ -2227,47 +2227,34 @@ public class FuturesOrderService {
 		return orderDao.countByPublisherId(publisherId);
 	}
 
-	/**
-	 * 已成交部分均价
-	 * 
-	 * @param publisherId
-	 *            用户ID
-	 * @param contractNo
-	 *            合约编号
-	 * @param commodityNo
-	 *            产品编号
-	 * @param orderType
-	 *            订单类型
-	 * @return
-	 */
-	public BigDecimal getOpenAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
-		FuturesCommodity futuresCommodity = commodityDao.retrieveByCommodityNo(commodityNo);
-		BigDecimal minwave = futuresCommodity.getMinWave();
-		int length = minwave.toPlainString().length();
-		BigDecimal openAvgFillPrice = orderDao.getOpenAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
-		openAvgFillPrice = openAvgFillPrice != null ? openAvgFillPrice.setScale(length, BigDecimal.ROUND_HALF_DOWN)
-				: BigDecimal.ZERO;
+	public BigDecimal getOpenAvgFillPrice(Long publisherId, Long contractId, String orderType) {
+		FuturesContract futuresContract = contractDao.retrieve(contractId);
+		BigDecimal openAvgFillPrice = BigDecimal.ZERO;
+		if (futuresContract != null) {
+			FuturesCommodity futuresCommodity = futuresContract.getCommodity();
+			BigDecimal minwave = futuresCommodity.getMinWave();
+			int length = minwave.toPlainString().length();
+			openAvgFillPrice = orderDao.getOpenAvgFillPrice(publisherId, contractId, orderType);
+			openAvgFillPrice = openAvgFillPrice != null ?
+					openAvgFillPrice.setScale(length, BigDecimal.ROUND_HALF_DOWN) : BigDecimal.ZERO;
+		}
 		return openAvgFillPrice;
 	}
-
-	public BigDecimal getOpenAvgFillPrice(Long publisherId, Long contractId, String orderType) {
-		return BigDecimal.ZERO;
-	}
-
-	public BigDecimal getCloseAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
-		FuturesCommodity futuresCommodity = commodityDao.retrieveByCommodityNo(commodityNo);
-		BigDecimal minwave = futuresCommodity.getMinWave();
-		int length = minwave.toPlainString().length();
-		BigDecimal closeAvgFillPrice = orderDao.getCloseAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
-		closeAvgFillPrice = closeAvgFillPrice != null ? closeAvgFillPrice.setScale(length, BigDecimal.ROUND_HALF_DOWN)
-				: BigDecimal.ZERO;
+	
+	public BigDecimal getCloseAvgFillPrice(Long publisherId, Long contractId, String orderType) {
+		FuturesContract futuresContract = contractDao.retrieve(contractId);
+		BigDecimal closeAvgFillPrice = BigDecimal.ZERO;
+		if (futuresContract != null) {
+			FuturesCommodity futuresCommodity = futuresContract.getCommodity();
+			BigDecimal minwave = futuresCommodity.getMinWave();
+			int length = minwave.toPlainString().length();
+			closeAvgFillPrice = orderDao.getCloseAvgFillPrice(publisherId, contractId, orderType);
+			closeAvgFillPrice = closeAvgFillPrice != null ?
+					closeAvgFillPrice.setScale(length, BigDecimal.ROUND_HALF_DOWN) : BigDecimal.ZERO;
+		}
 		return closeAvgFillPrice;
 	}
-
-	public BigDecimal getCloseAvgFillPrice(Long publisherId, Long contractId, String orderType) {
-		return BigDecimal.ZERO;
-	}
-
+	
 	public Page<FuturesTradeActionAgentDto> pagesOrderAgentDealRecord(FuturesTradeAdminQuery query) {
 		String publisherNameCondition = "";
 		if (!StringUtil.isEmpty(query.getPublisherName())) {
