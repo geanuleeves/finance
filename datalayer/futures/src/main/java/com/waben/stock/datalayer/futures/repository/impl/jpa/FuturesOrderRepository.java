@@ -111,7 +111,7 @@ public interface FuturesOrderRepository extends CustomJpaRepository<FuturesOrder
      * @param orderType   订单类型
      * @return
      */
-    @Query(value = "SELECT sum(open_total_fill_cost)/sum(open_filled)  FROM f_futures_order t " +
+    @Query(value = "SELECT sum(open_avg_fill_price*(open_filled-close_filled))/sum(open_filled-close_filled)  FROM f_futures_order t " +
             "LEFT JOIN f_futures_contract contract ON contract.id = t.contract_id " +
             "WHERE t.publisher_id = ?1 AND t.contract_id = ?2 " +
             "AND t.order_type = ?3 AND t.state IN(5,6,7,8)", nativeQuery = true)
