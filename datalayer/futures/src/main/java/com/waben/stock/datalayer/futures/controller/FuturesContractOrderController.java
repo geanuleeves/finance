@@ -225,7 +225,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                         FuturesCurrencyRate rate = rateService.findByCurrency(futuresCommodity.getCurrency());
                         sellDto.setRate(rate.getRate());
                         sellDto.setCurrencySign(rate.getCurrencySign());
-                        sellDto.setFloatingProfitAndLoss(lastPrice.subtract(avgFallFillPrice).divide(futuresCommodity.getMinWave())
+                        sellDto.setFloatingProfitAndLoss(avgFallFillPrice.subtract(lastPrice).divide(futuresCommodity.getMinWave())
                                 .multiply(futuresCommodity.getPerWaveMoney().multiply(futuresContractOrder.getBuyFallQuantity()))
                                 .multiply(rate.getRate()));
                         sellDto.setServiceFee(futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee()).multiply(buyFallQuantity));
