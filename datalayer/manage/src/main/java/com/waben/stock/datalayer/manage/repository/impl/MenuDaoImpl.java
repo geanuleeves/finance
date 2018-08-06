@@ -29,7 +29,7 @@ public class MenuDaoImpl implements MenuDao {
 
     @Override
     public List<Menu> retrieveByRole(Long role) {
-        return repository.findAllByRolesOrderById(role);
+        return repository.findAllByRolesOrderBySortAsc(role);
     }
 
     @Override
