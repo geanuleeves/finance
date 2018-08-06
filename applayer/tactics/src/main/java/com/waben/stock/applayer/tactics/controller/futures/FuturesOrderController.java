@@ -616,14 +616,8 @@ public class FuturesOrderController {
 		}
 		result.setTotalIncome(totalIncome);
 		//冻结保证金
-		FuturesContractOrderQuery futuresContractOrderQuery = new FuturesContractOrderQuery();
-		futuresContractOrderQuery.setPublisherId(SecurityUtil.getUserId());
-		PageInfo<FuturesContractOrderViewDto> contractOrderPageInfo = futuresContractOrderBusiness.pages(futuresContractOrderQuery);
-		BigDecimal reserveFund = new BigDecimal(0);
-		for (FuturesContractOrderViewDto futuresContractOrderViewDto : contractOrderPageInfo.getContent()) {
-			reserveFund = reserveFund.add(futuresContractOrderViewDto.getReserveFund());
-		}
-		result.setReserveFund(reserveFund);
+		CapitalAccountDto capitalAccountDto = capitalAccountBusiness.findByPublisherId(SecurityUtil.getUserId());
+		result.setReserveFund(capitalAccountDto.getFrozenCapital());
 		return new Response<>(result);
 	}
 

@@ -47,6 +47,7 @@ import com.waben.stock.interfaces.enums.FuturesTradeActionType;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.enums.FuturesWindControlType;
 import com.waben.stock.interfaces.exception.ServiceException;
+import com.waben.stock.interfaces.util.CopyBeanUtils;
 import com.waben.stock.interfaces.util.JacksonUtil;
 import com.waben.stock.interfaces.util.RandomUtil;
 import com.waben.stock.interfaces.util.StringUtil;
@@ -403,6 +404,8 @@ public class MonitorStrongPointConsumer {
 	private void doStongPoint(List<FuturesContractOrder> orderList, CapitalAccountDto account) {
 		BigDecimal totalStrong = BigDecimal.ZERO;
 		BigDecimal totalProfitOrLoss = BigDecimal.ZERO;
+
+		List<FuturesContractOrderTemp> tempOrderList = new ArrayList<>();
 		for (FuturesContractOrder order : orderList) {
 			BigDecimal strongMoney = orderService.getStrongMoney(order);
 			BigDecimal floatProfitOrLoss = computeFloatProfitOrLoss(order);
@@ -412,14 +415,20 @@ public class MonitorStrongPointConsumer {
 			totalStrong = totalStrong.add(strongMoney);
 			// 计算浮动盈亏
 			totalProfitOrLoss = totalProfitOrLoss.add(floatProfitOrLoss);
+
+			FuturesContractOrderTemp tempOrder = CopyBeanUtils.copyBeanProperties(FuturesContractOrderTemp.class, order,
+					false);
+			tempOrder.setContract(order.getContract());
+			tempOrder.setOriginOrder(order);
+			tempOrderList.add(tempOrder);
 		}
 		if (totalProfitOrLoss.compareTo(BigDecimal.ZERO) < 0
 				&& totalProfitOrLoss.abs().compareTo(account.getAvailableBalance()) < 0) {
 			// 根据盈亏值进行排序
-			Collections.sort(orderList, new FuturesContractOrderComparator());
+			Collections.sort(tempOrderList, new FuturesContractOrderComparator());
 			// 账户余额已经亏损完，计算超出的部分
 			BigDecimal loss = totalProfitOrLoss.add(account.getAvailableBalance());
-			for (FuturesContractOrder order : orderList) {
+			for (FuturesContractOrderTemp order : tempOrderList) {
 				FuturesContract contract = order.getContract();
 				if (orderService.isTradeTime(contract.getCommodity().getExchange().getTimeZoneGap(), contract,
 						FuturesTradeActionType.CLOSE)) {
@@ -429,12 +438,12 @@ public class MonitorStrongPointConsumer {
 						BigDecimal buyUpQuantity = order.getBuyUpCanUnwindQuantity();
 						BigDecimal buyFallQuantity = order.getBuyFallCanUnwindQuantity();
 						if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
-							orderService.doUnwind(contract, order, FuturesOrderType.BuyUp, buyUpQuantity,
+							orderService.doUnwind(contract, order.getOriginOrder(), FuturesOrderType.BuyUp, buyUpQuantity,
 									FuturesTradePriceType.MKT, null, order.getPublisherId(),
 									FuturesWindControlType.ReachStrongPoint, false, false, null);
 						}
 						if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
-							orderService.doUnwind(contract, order, FuturesOrderType.BuyFall, buyFallQuantity,
+							orderService.doUnwind(contract, order.getOriginOrder(), FuturesOrderType.BuyFall, buyFallQuantity,
 									FuturesTradePriceType.MKT, null, order.getPublisherId(),
 									FuturesWindControlType.ReachStrongPoint, false, false, null);
 						}
@@ -498,9 +507,9 @@ public class MonitorStrongPointConsumer {
 		}).start();
 	}
 
-	private class FuturesContractOrderComparator implements Comparator<FuturesContractOrder> {
+	private class FuturesContractOrderComparator implements Comparator<FuturesContractOrderTemp> {
 		@Override
-		public int compare(FuturesContractOrder o1, FuturesContractOrder o2) {
+		public int compare(FuturesContractOrderTemp o1, FuturesContractOrderTemp o2) {
 			return o1.getFloatProfitOrLoss().compareTo(o2.getFloatProfitOrLoss());
 		}
 	}

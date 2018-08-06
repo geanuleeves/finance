@@ -742,6 +742,97 @@ public class QuickPayBusiness {
         return resp;
     }
 
+    public Response<Map<String, String>> wabenPayforalipay(BigDecimal amount, Long userId, String endType) {
+        CapitalAccountDto account = accountBusiness.findByPublisherId(userId);
+        if (account.getState() != null && account.getState() == 2) {
+            throw new ServiceException(ExceptionConstant.CAPITALACCOUNT_FROZEN_EXCEPTION);
+        }
+        PublisherDto publisher = publisherBusiness.findById(userId);
+        RealNameDto realNameDto = realNameBusiness.fetch(ResourceType.PUBLISHER, userId);
+        //创建订单
+        PaymentOrderDto paymentOrder = new PaymentOrderDto();
+        paymentOrder.setAmount(amount);
+        String paymentNo = UniqueCodeGenerator.generatePaymentNo();
+        paymentOrder.setPaymentNo(paymentNo);
+        paymentOrder.setType(PaymentType.QuickPay);
+        paymentOrder.setState(PaymentState.Unpaid);
+        paymentOrder.setPublisherId(publisher.getId());
+        paymentOrder.setCreateTime(new Date());
+        paymentOrder.setUpdateTime(new Date());
+        paymentOrder = this.savePaymentOrder(paymentOrder);
+        // 封装请求参数
+        /* 以下注释的代码为旧网贝支付系统
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddhhmmss");
+        String timeStamp = format.format(new Date());
+        Map<String, String> map = new TreeMap<>();
+        String url = WBConfig.quick_bank_url;
+        map.put("merchantNo", wbConfig.getMerchantNo());
+        map.put("notifyUrl", wbConfig.getNotifyUrl());
+        map.put("amount", (amount.movePointRight(2)).toString());
+        map.put("name", realNameDto.getName());
+        map.put("tradeType", WBConfig.tradeType);
+        map.put("payment", "auth");
+        map.put("timeStart", timeStamp);
+        map.put("outTradeNo", paymentNo);
+        map.put("frontUrl", "H5".equals(endType) ? wbConfig.getH5ProxyfrontUrl() : wbConfig.getFrontUrl());
+        map.put("idCard", realNameDto.getIdCard());
+        String signStr = "";
+        map.put("sign", "001");
+        logger.info("请求的参数是{}:", map.toString());
+        String result = FormRequest.doPost(map, url);
+        JSONObject jsStr = JSONObject.parseObject(result);
+        JSONObject result1 = jsStr.getJSONObject("result");
+        logger.info("请求的结果是{}:", jsStr.toString());
+        Response<Map> resp = new Response<Map>();
+        if ("200".equals(jsStr.getString("code"))) {
+            resp.setCode("200");
+            resp.setMessage(jsStr.getString("message"));
+            Map<String, String> resultUrl = new HashMap<>();
+            resultUrl.put("url", WBConfig.domain + result1.getString("redirectURL"));
+            resp.setResult(resultUrl);
+        } else {
+            resp.setCode(jsStr.getString("code"));
+            resp.setMessage(jsStr.getString("message"));
+        }
+        return resp;
+        */
+        // 封装请求参数
+        SwiftPayParam param = new SwiftPayParam();
+        param.setAppId(wbConfig.getMerchantNo());
+        param.setSubject(userId + "充值");
+        param.setBody(userId + "充值" + amount + "元");
+        param.setTotalFee(isProd ? amount : new BigDecimal("0.01"));
+        param.setOutOrderNo(paymentNo);
+        param.setFrontSkipUrl("H5".equals(endType) ? wbConfig.getH5ProxyfrontUrl() : wbConfig.getFrontUrl());
+        param.setReturnUrl(wbConfig.getNotifyUrl());
+        param.setTimestamp(sdf.format(new Date()));
+        param.setUserId(String.valueOf(userId));
+        param.setVersion("1.0");
+        param.setAcctName(realNameDto.getName());
+        param.setIdNum(realNameDto.getIdCard());
+        SwiftPayRet payRet = WabenPayOverHttp.alipay(param, wbConfig.getKey());
+
+        if(payRet != null && payRet.getTradeNo() != null) {
+            paymentOrder.setThirdPaymentNo(payRet.getTradeNo());
+            this.modifyPaymentOrder(paymentOrder);
+        }
+        Response<Map<String, String>> resp = new Response<Map<String, String>>();
+        if (payRet.getCode() == 1) {
+            Map<String, String> resultUrl = new HashMap<>();
+            resultUrl.put("url", payRet.getPayUrl());
+            resp.setResult(resultUrl);
+            // 支付请求成功，使用队列查询
+//        	PayQueryMessage message = new PayQueryMessage();
+//    		message.setAppId(wbConfig.getMerchantNo());
+//    		message.setOutOrderNo(paymentOrder.getPaymentNo());
+//    		message.setOrderNo(paymentOrder.getThirdPaymentNo());
+//    		producer.sendMessage(RabbitmqConfiguration.payQueryQueueName, message);
+        } else {
+            throw new ServiceException(ExceptionConstant.REQUEST_RECHARGE_EXCEPTION);
+        }
+        return resp;
+    }
+
 
     public Response<Map> platform(BigDecimal amount, Long userId,String paytype){
         PublisherDto publisher = publisherBusiness.findById(userId);

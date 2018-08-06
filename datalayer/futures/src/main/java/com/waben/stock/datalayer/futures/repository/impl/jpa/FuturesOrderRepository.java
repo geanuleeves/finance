@@ -107,33 +107,29 @@ public interface FuturesOrderRepository extends CustomJpaRepository<FuturesOrder
      * 已成交部分均价（开仓）
      *
      * @param publisherId 用户ID
-     * @param contractNo  合约编号
-     * @param commodityNo 产品编号
+     * @param contractId  合约ID
      * @param orderType   订单类型
      * @return
      */
-    @Query(value = "SELECT sum(open_total_fill_cost)/sum(open_filled)  FROM f_futures_order t " +
+    @Query(value = "SELECT sum(open_avg_fill_price*(open_filled-close_filled))/sum(open_filled-close_filled)  FROM f_futures_order t " +
             "LEFT JOIN f_futures_contract contract ON contract.id = t.contract_id " +
-            "LEFT JOIN f_futures_commodity commodity ON commodity.id = contract.commodity_id " +
-            "WHERE t.publisher_id = ?1 AND contract.contract_no = ?2 AND commodity.symbol = ?3 " +
-            "AND t.order_type = ?4 AND t.state IN(5,6,7,8)", nativeQuery = true)
-    BigDecimal getOpenAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType);
+            "WHERE t.publisher_id = ?1 AND t.contract_id = ?2 " +
+            "AND t.order_type = ?3 AND t.state IN(5,6,7,8)", nativeQuery = true)
+    BigDecimal getOpenAvgFillPrice(Long publisherId, Long contractId, String orderType);
 
     /**
      * 已成交部分均价（平仓）
      *
      * @param publisherId 用户id
-     * @param contractNo  合约编号
-     * @param commodityNo 产品编号
+     * @param contractId  合约Id
      * @param orderType   订单类型
      * @return
      */
     @Query(value = "SELECT sum(close_total_fill_cost)/sum(close_filled)  FROM f_futures_order t " +
             "LEFT JOIN f_futures_contract contract ON contract.id = t.contract_id " +
-            "LEFT JOIN f_futures_commodity commodity ON commodity.id = contract.commodity_id " +
-            "WHERE t.publisher_id = ?1 AND contract.contract_no = ?2 AND commodity.symbol = ?3 " +
-            "AND t.order_type = ?4 AND t.state IN(8,9)", nativeQuery = true)
-    BigDecimal getCloseAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType);
+            "WHERE t.publisher_id = ?1 AND t.contract_id = ?2 " +
+            "AND t.order_type = ?3 AND t.state IN(8,9)", nativeQuery = true)
+    BigDecimal getCloseAvgFillPrice(Long publisherId, Long contractId, String orderType);
 
 
     List<FuturesOrder> findByContractOrder(FuturesContractOrder contractOrder, Sort sort);

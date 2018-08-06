@@ -1,11 +1,18 @@
 package com.waben.stock.datalayer.futures.entity;
 
-import javax.persistence.*;
-
-import org.hibernate.annotations.Formula;
-
 import java.math.BigDecimal;
 import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.Formula;
 
 /**
  * 合约订单
@@ -96,6 +103,8 @@ public class FuturesContractOrder {
 	private BigDecimal buyFallPerUnitLimitLossAmount;
 	/** 更新时间 */
 	private Date updateTime;
+	/** 监控的时候是否需要日志（监控使用，与业务无关） */
+	private Boolean isNeedLog;
 
 	/** 浮动的盈亏 */
 	@Transient
@@ -324,6 +333,14 @@ public class FuturesContractOrder {
 
 	public void setStrongMoney(BigDecimal strongMoney) {
 		this.strongMoney = strongMoney;
+	}
+
+	public Boolean getIsNeedLog() {
+		return isNeedLog;
+	}
+
+	public void setIsNeedLog(Boolean isNeedLog) {
+		this.isNeedLog = isNeedLog;
 	}
 
 }
