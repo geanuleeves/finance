@@ -1,22 +1,14 @@
 package com.waben.stock.applayer.promotion.controller;
 
-import com.waben.stock.applayer.promotion.business.futures.FuturesTradeBusiness;
-import com.waben.stock.applayer.promotion.security.SecurityUtil;
-import com.waben.stock.applayer.promotion.util.PoiUtil;
-import com.waben.stock.interfaces.constants.ExceptionConstant;
-import com.waben.stock.interfaces.dto.admin.futures.*;
-import com.waben.stock.interfaces.dto.organization.FuturesFowDto;
-import com.waben.stock.interfaces.enums.CapitalFlowType;
-import com.waben.stock.interfaces.enums.FuturesOrderState;
-import com.waben.stock.interfaces.enums.FuturesOrderType;
-import com.waben.stock.interfaces.enums.FuturesTradeActionType;
-import com.waben.stock.interfaces.exception.ServiceException;
-import com.waben.stock.interfaces.pojo.Response;
-import com.waben.stock.interfaces.pojo.query.PageInfo;
-import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
-import com.waben.stock.interfaces.pojo.query.organization.FuturesFowQuery;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,13 +16,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
+import com.waben.stock.applayer.promotion.business.futures.FuturesTradeBusiness;
+import com.waben.stock.applayer.promotion.security.SecurityUtil;
+import com.waben.stock.applayer.promotion.util.PoiUtil;
+import com.waben.stock.interfaces.constants.ExceptionConstant;
+import com.waben.stock.interfaces.dto.admin.futures.AgentOrderRecordDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesHoldPositionAgentDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeActionAgentDto;
+import com.waben.stock.interfaces.dto.admin.futures.FuturesTradeDto;
+import com.waben.stock.interfaces.dto.organization.FuturesFowDto;
+import com.waben.stock.interfaces.enums.CapitalFlowType;
+import com.waben.stock.interfaces.enums.FuturesOrderState;
+import com.waben.stock.interfaces.enums.FuturesOrderType;
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
+import com.waben.stock.interfaces.enums.FuturesTradePriceType;
+import com.waben.stock.interfaces.enums.FuturesWindControlType;
+import com.waben.stock.interfaces.exception.ServiceException;
+import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
+import com.waben.stock.interfaces.pojo.query.organization.FuturesFowQuery;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/futures")
@@ -214,15 +223,15 @@ public class FuturesTradeController {
 			}
 			String tradeActionType = "";
 			if (dto.getTradeActionType() != null) {
-				tradeActionType = FuturesOrderState.getByIndex(dto.getTradeActionType().toString()).getType();
+				tradeActionType = FuturesTradeActionType.getByIndex(dto.getTradeActionType().toString()).getType();
 			}
 			String priceType = "";
 			if (dto.getPriceType() != null) {
-				tradeActionType = FuturesOrderState.getByIndex(dto.getPriceType().toString()).getType();
+				priceType = FuturesTradePriceType.getByIndex(dto.getPriceType().toString()).getType();
 			}
 			String windControlType = "";
 			if (dto.getWindControlType() != null) {
-				tradeActionType = FuturesOrderState.getByIndex(dto.getWindControlType().toString()).getType();
+				windControlType = FuturesWindControlType.getByIndex(dto.getWindControlType().toString()).getType();
 			}
 
 			if (type == 0) {
