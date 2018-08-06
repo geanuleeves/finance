@@ -1,38 +1,58 @@
 package com.waben.stock.interfaces.commonapi.wabenpay;
 
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-import java.util.TreeMap;
 
+import com.waben.stock.interfaces.commonapi.wabenpay.bean.*;
+import com.waben.stock.interfaces.util.JacksonUtil;
+import com.waben.stock.interfaces.util.Md5Util;
+import com.waben.stock.interfaces.util.RequestParamBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestTemplate;
 
-import com.waben.stock.interfaces.commonapi.wabenpay.bean.GatewayPayParam;
-import com.waben.stock.interfaces.commonapi.wabenpay.bean.GatewayPayRet;
-import com.waben.stock.interfaces.commonapi.wabenpay.bean.PayQueryOrderParam;
-import com.waben.stock.interfaces.commonapi.wabenpay.bean.PayQueryOrderRet;
-import com.waben.stock.interfaces.commonapi.wabenpay.bean.SwiftPayParam;
-import com.waben.stock.interfaces.commonapi.wabenpay.bean.SwiftPayRet;
-import com.waben.stock.interfaces.commonapi.wabenpay.bean.UnionPayParam;
-import com.waben.stock.interfaces.commonapi.wabenpay.bean.UnionPayRet;
-import com.waben.stock.interfaces.commonapi.wabenpay.bean.WithdrawParam;
-import com.waben.stock.interfaces.commonapi.wabenpay.bean.WithdrawQueryOrderParam;
-import com.waben.stock.interfaces.commonapi.wabenpay.bean.WithdrawQueryOrderRet;
-import com.waben.stock.interfaces.commonapi.wabenpay.bean.WithdrawRet;
-import com.waben.stock.interfaces.util.JacksonUtil;
-import com.waben.stock.interfaces.util.Md5Util;
-import com.waben.stock.interfaces.util.RequestParamBuilder;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class WabenPayOverHttp {
 
 	public static RestTemplate restTemplate = new RestTemplate();
 
 	private static final Logger logger = LoggerFactory.getLogger(WabenPayOverHttp.class);
+
+	/**
+	 * 支付宝支付
+	 *
+	 * @param param
+	 *            请求参数
+	 * @param appSecret
+	 *            秘钥
+	 * @return 响应结果
+	 */
+	@SuppressWarnings("unchecked")
+	public static SwiftPayRet alipay(SwiftPayParam param, String appSecret) {
+		String requestUrl = "http://47.106.62.170:8080/PAY/V1/aliH5Pay";
+		// 签名
+		String sign = Md5Util.md5(param.getAppId() + appSecret + param.getTimestamp() + param.getOutOrderNo())
+				.toUpperCase();
+		param.setSign(sign);
+		// 请求参数
+		Map<String, Object> paramMap = (Map<String, Object>) JacksonUtil.decode(JacksonUtil.encode(param), Map.class);
+		TreeMap<String, Object> sortParamMap = new TreeMap<>(paramMap);
+		String queryString = RequestParamBuilder.build(sortParamMap);
+		// 发送请求
+		HttpHeaders requestHeaders = new HttpHeaders();
+		requestHeaders.set("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+		logger.info("请求网贝支付快捷支付接口请求:querystring:{}", queryString);
+		HttpEntity<String> requestEntity = new HttpEntity<String>(queryString, requestHeaders);
+		String response = restTemplate.postForObject(requestUrl, requestEntity, String.class);
+		logger.info("请求网贝支付快捷支付接口响应:response:{}", response);
+		return JacksonUtil.decode(response, SwiftPayRet.class);
+	}
+
 
 	/**
 	 * 快捷支付
@@ -194,25 +214,25 @@ public class WabenPayOverHttp {
 	 * @return 响应结果
 	 */
 	@SuppressWarnings("unchecked")
-	public static WithdrawQueryOrderRet withdrawQuery(WithdrawQueryOrderParam param, String appSecret) {
-		String requestUrl = "http://47.106.62.170:8080/PAY/daifu/getDaifuInfo";
-		// 签名
-		String sign = Md5Util.md5(param.getAppId() + appSecret + param.getTimestamp() + param.getOutOrderNo())
-				.toUpperCase();
-		param.setSign(sign);
-		// 请求参数
-		Map<String, Object> paramMap = (Map<String, Object>) JacksonUtil.decode(JacksonUtil.encode(param), Map.class);
-		TreeMap<String, Object> sortParamMap = new TreeMap<>(paramMap);
-		String queryString = RequestParamBuilder.build(sortParamMap);
-		// 发送请求
-		HttpHeaders requestHeaders = new HttpHeaders();
-		requestHeaders.set("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-		logger.info("请求网贝支付代付接口请求:querystring:{}", queryString);
-		HttpEntity<String> requestEntity = new HttpEntity<String>(queryString, requestHeaders);
-		String response = restTemplate.postForObject(requestUrl, requestEntity, String.class);
-		logger.info("请求网贝支付代付接口响应:response:{}", response);
-		return JacksonUtil.decode(response, WithdrawQueryOrderRet.class);
-	}
+    public static WithdrawQueryOrderRet withdrawQuery(WithdrawQueryOrderParam param, String appSecret) {
+        String requestUrl = "http://47.106.62.170:8080/PAY/daifu/getDaifuInfo";
+        // 签名
+        String sign = Md5Util.md5(param.getAppId() + appSecret + param.getTimestamp() + param.getOutOrderNo())
+                .toUpperCase();
+        param.setSign(sign);
+        // 请求参数
+        Map<String, Object> paramMap = (Map<String, Object>) JacksonUtil.decode(JacksonUtil.encode(param), Map.class);
+        TreeMap<String, Object> sortParamMap = new TreeMap<>(paramMap);
+        String queryString = RequestParamBuilder.build(sortParamMap);
+        // 发送请求
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.set("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+        logger.info("请求网贝支付代付接口请求:querystring:{}", queryString);
+        HttpEntity<String> requestEntity = new HttpEntity<String>(queryString, requestHeaders);
+        String response = restTemplate.postForObject(requestUrl, requestEntity, String.class);
+        logger.info("请求网贝支付代付接口响应:response:{}", response);
+        return JacksonUtil.decode(response, WithdrawQueryOrderRet.class);
+    }
 
 	public static void testSwiftPay() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
