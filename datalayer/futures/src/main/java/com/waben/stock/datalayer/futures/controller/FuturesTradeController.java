@@ -451,7 +451,7 @@ public class FuturesTradeController implements FuturesTradeInterface {
 						if (futuresCommodity != null) {
 							sellDto.setQuantityNow(new BigDecimal(findFallFilledNow == null ? 0 : findFallFilledNow));
 							// 成交价格
-							BigDecimal avgFallFillPrice = futuresOrderService.getCloseAvgFillPrice(
+							BigDecimal avgFallFillPrice = futuresOrderService.getOpenAvgFillPrice(
 									futuresContractOrder.getPublisherId(), futuresContractOrder.getId(), FuturesOrderType.BuyFall.getIndex());
 							avgFallFillPrice = avgFallFillPrice == null ? new BigDecimal(0) : avgFallFillPrice;
 							sellDto.setAvgFillPrice(avgFallFillPrice);
