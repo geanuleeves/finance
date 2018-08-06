@@ -41,7 +41,7 @@ public interface FuturesTradeActionRepository extends CustomJpaRepository<Future
 			+ "WHERE actions.publisher_id = ?1 AND entrust.commodity_no = ?2 "
 			+ "AND entrust.contract_no = ?3 and DATEDIFF(actions.trade_time,NOW())=0 "
 			+ "AND actions.trade_action_type = ?4 AND entrust.order_type = ?5 "
-			+ "AND (actions.state = '4' OR actions.state = '5') "
+			+ "AND actions.state = '5' "
 			+ "ORDER BY sort ASC ", nativeQuery = true)
 	Integer findFilledNow(Long publisherId, String commodityNo, String contractNo, String tradeActionType, String orderType);
 
