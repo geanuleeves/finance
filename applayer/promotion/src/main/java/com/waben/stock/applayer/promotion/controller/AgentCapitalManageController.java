@@ -137,11 +137,9 @@ public class AgentCapitalManageController {
 	@RequestMapping(value = "/export", method = RequestMethod.GET)
 	@ApiOperation(value = "资金流水及佣金结算导出")
 	@ApiImplicitParam(paramType = "query", dataType = "int", name = "queryType", value = "1 资金流水，2 佣金结算", required = true)
-	public void export(Integer queryType, HttpServletResponse svrResponse) {
-		AgentCapitalManageQuery query = new AgentCapitalManageQuery();
+	public void export(Integer queryType, AgentCapitalManageQuery query, HttpServletResponse svrResponse) {
 		query.setPage(0);
 		query.setSize(Integer.MAX_VALUE);
-		// query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
 		query.setCurrentOrgId(SecurityUtil.getUserDetails().getOrgId());
 		PageInfo<AgentCapitalManageDto> result = agentCapitalManageBusiness.pageAgentCapitalManage(query);
 		File file = null;
