@@ -191,7 +191,7 @@ public class FuturesOrderService {
 
 			@Override
 			public Predicate toPredicate(Root<FuturesOrder> root, CriteriaQuery<?> criteriaQuery,
-					CriteriaBuilder criteriaBuilder) {
+										 CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
 
 				if (query.getPublisherIds().size() > 0) {
@@ -359,7 +359,7 @@ public class FuturesOrderService {
 		Page<FuturesOrder> pages = orderDao.page(new Specification<FuturesOrder>() {
 			@Override
 			public Predicate toPredicate(Root<FuturesOrder> root, CriteriaQuery<?> criteriaQuery,
-					CriteriaBuilder criteriaBuilder) {
+										 CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
 				Join<FuturesOrder, FuturesContract> join = root.join("contract", JoinType.LEFT).join("commodity",
 						JoinType.LEFT);
@@ -749,7 +749,7 @@ public class FuturesOrderService {
 
 	/**
 	 * 判断当前下单手数是否满足条件
-	 * 
+	 *
 	 * @param buyUpNum
 	 *            买涨数量
 	 * @param buyFullNum
@@ -764,7 +764,7 @@ public class FuturesOrderService {
 	 *            当前合约详情
 	 */
 	public void checkBuyUpAndFullSum(BigDecimal buyUpNum, BigDecimal buyFallNum, BigDecimal perNum,
-			BigDecimal userMaxNum, FuturesOrderType orderType, BigDecimal quantity, FuturesContract contract) {
+									 BigDecimal userMaxNum, FuturesOrderType orderType, BigDecimal quantity, FuturesContract contract) {
 		BigDecimal buyUpTotal = BigDecimal.ZERO;
 		BigDecimal buyFallTotal = BigDecimal.ZERO;
 		if (orderType == FuturesOrderType.BuyUp) {
@@ -803,9 +803,9 @@ public class FuturesOrderService {
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void doUnwind(FuturesContract contract, FuturesContractOrder contractOrder, FuturesOrderType orderType,
-			BigDecimal quantity, FuturesTradePriceType priceType, BigDecimal entrustPrice, Long publisherId,
-			FuturesWindControlType windControlType, boolean isBackhand, boolean isStopLossOrProfit,
-			BigDecimal stopLossOrProfitPrice) {
+						 BigDecimal quantity, FuturesTradePriceType priceType, BigDecimal entrustPrice, Long publisherId,
+						 FuturesWindControlType windControlType, boolean isBackhand, boolean isStopLossOrProfit,
+						 BigDecimal stopLossOrProfitPrice) {
 		Date date = new Date();
 		// step 1 : 创建平仓委托
 		FuturesTradeEntrust tradeEntrust = new FuturesTradeEntrust();
@@ -945,7 +945,7 @@ public class FuturesOrderService {
 
 	/**
 	 * 用户申请平仓
-	 * 
+	 *
 	 * @param contractId
 	 *            合约ID
 	 * @param orderType
@@ -959,7 +959,7 @@ public class FuturesOrderService {
 	 */
 	@Transactional
 	public void applyUnwind(Long contractId, FuturesOrderType orderType, FuturesTradePriceType priceType,
-			BigDecimal entrustPrice, Long publisherId) {
+							BigDecimal entrustPrice, Long publisherId) {
 		FuturesContract contract = contractDao.retrieve(contractId);
 		if (contract == null) {
 			throw new ServiceException(ExceptionConstant.DATANOTFOUND_EXCEPTION);
@@ -1004,7 +1004,7 @@ public class FuturesOrderService {
 
 	@Transactional
 	public void backhandUnwind(Long contractId, FuturesOrderType orderType, FuturesTradePriceType priceType,
-			BigDecimal entrustPrice, Long publisherId) {
+							   BigDecimal entrustPrice, Long publisherId) {
 		FuturesContract contract = contractDao.retrieve(contractId);
 		if (contract == null) {
 			throw new ServiceException(ExceptionConstant.DATANOTFOUND_EXCEPTION);
@@ -1028,7 +1028,7 @@ public class FuturesOrderService {
 
 	@Transactional
 	public void balanceUnwind(Long contractId, FuturesOrderType orderType, FuturesTradePriceType sellingPriceType,
-			BigDecimal sellingEntrustPrice, Long publisherId, BigDecimal quantity) {
+							  BigDecimal sellingEntrustPrice, Long publisherId, BigDecimal quantity) {
 		FuturesContract contract = contractDao.retrieve(contractId);
 		if (contract == null) {
 			throw new ServiceException(ExceptionConstant.DATANOTFOUND_EXCEPTION);
@@ -1054,8 +1054,8 @@ public class FuturesOrderService {
 	}
 
 	public void settingProfitAndLossLimit(Long publisherId, Long contractId, FuturesOrderType orderType,
-			Integer limitProfitType, BigDecimal perUnitLimitProfitAmount, Integer limitLossType,
-			BigDecimal perUnitLimitLossAmount) {
+										  Integer limitProfitType, BigDecimal perUnitLimitProfitAmount, Integer limitLossType,
+										  BigDecimal perUnitLimitLossAmount) {
 		FuturesContract contract = contractDao.retrieve(contractId);
 		if (contract == null) {
 			throw new ServiceException(ExceptionConstant.DATANOTFOUND_EXCEPTION);
@@ -1215,7 +1215,7 @@ public class FuturesOrderService {
 	 */
 	@Transactional
 	public FuturesOrder partPositionOrder(Long id, BigDecimal filled, BigDecimal remaining, BigDecimal avgFillPrice,
-			BigDecimal totalFillCost) {
+										  BigDecimal totalFillCost) {
 		FuturesOrder order = orderDao.retrieve(id);
 		if (!(order.getState() == FuturesOrderState.Posted || order.getState() == FuturesOrderState.BuyingEntrust
 				|| order.getState() == FuturesOrderState.PartPosition)) {
@@ -1282,7 +1282,7 @@ public class FuturesOrderService {
 	 * @return 盈利或者亏损值
 	 */
 	public BigDecimal computeProfitOrLoss(FuturesOrderType orderType, BigDecimal totalQuantity, BigDecimal buyingPrice,
-			BigDecimal sellingPrice, BigDecimal minWave, BigDecimal perWaveMoney) {
+										  BigDecimal sellingPrice, BigDecimal minWave, BigDecimal perWaveMoney) {
 		BigDecimal waveMoney = sellingPrice.subtract(buyingPrice).divide(minWave, 4, RoundingMode.DOWN)
 				.multiply(perWaveMoney).multiply(totalQuantity);
 		if (orderType == FuturesOrderType.BuyUp) {
@@ -1670,7 +1670,7 @@ public class FuturesOrderService {
 	}
 
 	public BigDecimal getProfitOrLossCurrency(FuturesContract contract, FuturesOrderType orderType,
-			BigDecimal totalQuantity, BigDecimal buyingPrice, BigDecimal lastPrice) {
+											  BigDecimal totalQuantity, BigDecimal buyingPrice, BigDecimal lastPrice) {
 		// 计算浮动盈亏
 		if (lastPrice != null) {
 			if (orderType == FuturesOrderType.BuyUp) {
@@ -1766,7 +1766,7 @@ public class FuturesOrderService {
 	 * @return 市场均价
 	 */
 	public MarketAveragePrice computeMktAvgPrice(String commodityNo, String contractNo, FuturesActionType actionType,
-			BigDecimal totalQuantity) {
+												 BigDecimal totalQuantity) {
 		FuturesCommodity commodity = commodityDao.retrieveByCommodityNo(commodityNo);
 		FuturesContractMarket mkt = allQuote.getQuote(commodityNo, contractNo);
 		if (mkt == null) {
@@ -1874,7 +1874,7 @@ public class FuturesOrderService {
 	 * @return 市场均价
 	 */
 	public MarketAveragePrice computeLmtAvgPrice(String commodityNo, String contractNo, FuturesActionType actionType,
-			BigDecimal totalQuantity, BigDecimal entrustPrice) {
+												 BigDecimal totalQuantity, BigDecimal entrustPrice) {
 		FuturesCommodity commodity = commodityDao.retrieveByCommodityNo(commodityNo);
 		FuturesContractMarket mkt = allQuote.getQuote(commodityNo, contractNo);
 		if (mkt == null) {
@@ -2240,7 +2240,7 @@ public class FuturesOrderService {
 		}
 		return openAvgFillPrice;
 	}
-	
+
 	public BigDecimal getCloseAvgFillPrice(Long publisherId, Long contractId, String orderType) {
 		FuturesContract futuresContract = contractDao.retrieve(contractId);
 		BigDecimal closeAvgFillPrice = BigDecimal.ZERO;
@@ -2254,7 +2254,7 @@ public class FuturesOrderService {
 		}
 		return closeAvgFillPrice;
 	}
-	
+
 	public Page<FuturesTradeActionAgentDto> pagesOrderAgentDealRecord(FuturesTradeAdminQuery query) {
 		String publisherNameCondition = "";
 		if (!StringUtil.isEmpty(query.getPublisherName())) {
@@ -2353,7 +2353,7 @@ public class FuturesOrderService {
 		Page<FuturesContractOrder> page = futuresContractOrderDao.page(new Specification<FuturesContractOrder>() {
 			@Override
 			public Predicate toPredicate(Root<FuturesContractOrder> root, CriteriaQuery<?> criteriaQuery,
-					CriteriaBuilder criteriaBuilder) {
+										 CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
 				if (query.getPublisherIds().size() > 0) {
 					predicateList.add(criteriaBuilder.in(root.get("publisherId")).value(query.getPublisherIds()));
