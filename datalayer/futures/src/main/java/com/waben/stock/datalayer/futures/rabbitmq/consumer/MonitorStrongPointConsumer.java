@@ -132,7 +132,7 @@ public class MonitorStrongPointConsumer {
 					isNeedRetry = false;
 				} else {
 					// 执行强平逻辑
-					// doStongPoint(orderList, account);
+					doStongPoint(orderList, account);
 					List<FuturesContractOrder> overnightOrderList = triggerOvernightOrderList(orderList);
 					if (isEnoughOvernight(orderList, account)) {
 						// 隔夜
@@ -411,11 +411,6 @@ public class MonitorStrongPointConsumer {
 			BigDecimal floatProfitOrLoss = computeFloatProfitOrLoss(order);
 			order.setStrongMoney(strongMoney);
 			order.setFloatProfitOrLoss(floatProfitOrLoss);
-			
-			if(order.getPublisherId() == 41) {
-				System.out.println("订单" + order.getId() + ", 强平金额" + strongMoney + ", 浮动盈亏" + floatProfitOrLoss);
-			}
-			
 			// 计算强平金额
 			totalStrong = totalStrong.add(strongMoney);
 			// 计算浮动盈亏
@@ -427,12 +422,9 @@ public class MonitorStrongPointConsumer {
 			tempOrder.setOriginOrder(order);
 			tempOrderList.add(tempOrder);
 		}
-		if(orderList != null && orderList.size() > 0 && orderList.get(0).getPublisherId() == 41) {
-			System.out.println("总浮动盈亏" + totalProfitOrLoss);
-		}
 		
 		if (totalProfitOrLoss.compareTo(BigDecimal.ZERO) < 0
-				&& totalProfitOrLoss.abs().compareTo(account.getAvailableBalance()) < 0) {
+				&& totalProfitOrLoss.abs().compareTo(account.getAvailableBalance()) > 0) {
 			// 根据盈亏值进行排序
 			Collections.sort(tempOrderList, new FuturesContractOrderComparator());
 			// 账户余额已经亏损完，计算超出的部分
