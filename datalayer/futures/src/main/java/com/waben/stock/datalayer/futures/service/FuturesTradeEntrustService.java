@@ -880,11 +880,11 @@ public class FuturesTradeEntrustService {
 	public Page<FuturesTradeDto> pageTradeAdmin(FuturesTradeAdminQuery query) {
 
 		String publisherNameCondition = "";
-		if (!StringUtil.isEmpty(query.getPublisherName())) {
+		if (!StringUtil.isEmpty(query.getPublisherPhone())) {
 			publisherNameCondition = " and f4.phone like '%" + query.getPublisherPhone() + "%' ";
 		}
 		String publisherPhoneCondition = "";
-		if (!StringUtil.isEmpty(query.getPublisherPhone())) {
+		if (!StringUtil.isEmpty(query.getPublisherName())) {
 			publisherPhoneCondition = " and f5.name like '%" + query.getPublisherName() + "%' ";
 		}
 		String contractNameCondition = "";

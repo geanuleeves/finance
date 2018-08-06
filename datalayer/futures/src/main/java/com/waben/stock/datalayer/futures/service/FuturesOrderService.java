@@ -2229,13 +2229,16 @@ public class FuturesOrderService {
 	 * @return
 	 */
 	public BigDecimal getOpenAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
+	    logger.info("publisherId:{},contractNo:{},commodityNo:{},orderType:{}",publisherId,contractNo,commodityNo,orderType);
 		FuturesCommodity futuresCommodity = commodityDao.retrieveByCommodityNo(commodityNo);
 		BigDecimal minwave = futuresCommodity.getMinWave();
-		int length = minwave.toPlainString().length();
+        logger.info("minwave:{}",minwave);
+        int length = minwave.toPlainString().length();
 		BigDecimal openAvgFillPrice = orderDao.getOpenAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
 		openAvgFillPrice = openAvgFillPrice != null ?
 				openAvgFillPrice.setScale(length, BigDecimal.ROUND_HALF_DOWN) : BigDecimal.ZERO;
-		return openAvgFillPrice;
+        logger.info("openAvgFillPrice:{}",openAvgFillPrice);
+        return openAvgFillPrice;
 	}
 	
 	public BigDecimal getOpenAvgFillPrice(Long publisherId, Long contractId, String orderType) {
