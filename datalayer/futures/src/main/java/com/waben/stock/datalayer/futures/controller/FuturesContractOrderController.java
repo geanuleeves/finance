@@ -163,7 +163,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                         BigDecimal avgUpFillPrice = futuresOrderService.getOpenAvgFillPrice(futuresContractOrder.getPublisherId(),
                                 futuresContractOrder.getId(), FuturesOrderType.BuyUp.getIndex());
                         avgUpFillPrice = avgUpFillPrice == null ? new BigDecimal(0) : avgUpFillPrice;
-                        buyDto.setOpenAvgFillPrice(avgUpFillPrice);
+                        buyDto.setAvgFillPrice(avgUpFillPrice);
                         //最新价
                         buyDto.setLastPrice(lastPrice);
                         //买方对手价
@@ -212,7 +212,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                         BigDecimal avgFallFillPrice = futuresOrderService.getCloseAvgFillPrice(futuresContractOrder.getPublisherId(),
                                 futuresContractOrder.getId(), FuturesOrderType.BuyFall.getIndex());
                         avgFallFillPrice = avgFallFillPrice == null ? new BigDecimal(0) : avgFallFillPrice;
-                        sellDto.setCloseAvgFillPrice(avgFallFillPrice);
+                        sellDto.setAvgFillPrice(avgFallFillPrice);
                         sellDto.setLastPrice(lastPrice);
                         //卖方对手价
                         sellDto.setAskPrice(quoteContainer.getAskPrice(futuresContractOrder.getCommodityNo(),
@@ -297,7 +297,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                     // 成交价格
                     BigDecimal avgUpFillPrice = futuresOrderService.getOpenAvgFillPrice(
                             futuresContractOrder.getPublisherId(), futuresContractOrder.getId(), FuturesOrderType.BuyUp.getIndex());
-                    buyDto.setOpenAvgFillPrice(avgUpFillPrice);
+                    buyDto.setAvgFillPrice(avgUpFillPrice);
                     buyDto.setLastPrice(lastPrice);
                     // 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格
                     if (futuresCommodity != null) {
@@ -338,7 +338,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                     // 成交价格
                     BigDecimal avgFallFillPrice = futuresOrderService.getCloseAvgFillPrice(
                             futuresContractOrder.getPublisherId(), futuresContractOrder.getId(), FuturesOrderType.BuyFall.getIndex());
-                    sellDto.setCloseAvgFillPrice(avgFallFillPrice);
+                    sellDto.setAvgFillPrice(avgFallFillPrice);
                     sellDto.setLastPrice(lastPrice);
                     if (avgFallFillPrice == null) {
                         avgFallFillPrice = new BigDecimal(0);

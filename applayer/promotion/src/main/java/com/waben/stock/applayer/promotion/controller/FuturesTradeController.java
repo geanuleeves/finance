@@ -352,7 +352,7 @@ public class FuturesTradeController {
 			data.add(totalHolding);
 			data.add(String.valueOf(trade.getQuantityNow() == null ? "" : trade.getQuantityNow()));
 			data.add(String.valueOf(trade.getQuantityNow() == null ? "" : trade.getQuantityNow()));
-			data.add(String.valueOf(trade.getOpenAvgFillPrice() == null ? "" : trade.getCloseAvgFillPrice()));
+			data.add(String.valueOf(trade.getAvgFillPrice()));
 			data.add(String.valueOf(trade.getLastPrice() == null ? "" : trade.getLastPrice()));
 			data.add(String.valueOf(trade.getFloatingProfitAndLoss() == null ? "" : trade.getFloatingProfitAndLoss()));
 			data.add(

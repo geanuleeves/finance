@@ -13,10 +13,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 
 import io.swagger.annotations.ApiModelProperty;
-import io.swagger.models.auth.In;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class FuturesContractOrderViewDto implements Serializable,Cloneable {
+public class FuturesContractOrderViewDto implements Serializable, Cloneable {
 
 	private Long id;
 	/** 发布人ID */
@@ -86,46 +85,41 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 
 	/** 已成交部分均价：已成交部分总费用/已成交总手数 累计 */
 	@ApiModelProperty(value = "已成交部分均价（开仓）")
-	private BigDecimal openAvgFillPrice;
-
-	/** 已成交部分均价：已成交部分总费用/已成交总手数 累计 */
-	@ApiModelProperty(value = "已成交部分均价（平仓）")
-	private BigDecimal closeAvgFillPrice;
-
+	private BigDecimal avgFillPrice;
 
 	/** 浮动盈亏=（最新价格-成交价格）/ 最小波动 * 最小波动价格* 手数 */
 	@ApiModelProperty(value = "浮动盈亏")
 	private BigDecimal floatingProfitAndLoss;
 
-	/** 交易综合费 :累计*/
+	/** 交易综合费 :累计 */
 	@ApiModelProperty(value = "交易综合费")
 	private BigDecimal serviceFee;
 
-	/** 保证金 :累计*/
+	/** 保证金 :累计 */
 	@ApiModelProperty(value = "保证金")
 	private BigDecimal reserveFund;
 
-	/** 当前价*/
+	/** 当前价 */
 	@ApiModelProperty(value = "当前价")
 	private BigDecimal lastPrice;
 
-	/** 最小波动*/
+	/** 最小波动 */
 	@ApiModelProperty(value = "最小波动")
 	private BigDecimal minWave;
 
-	/** 汇率*/
+	/** 汇率 */
 	@ApiModelProperty(value = "汇率")
 	private BigDecimal rate;
 
-	/** 货币标识*/
+	/** 货币标识 */
 	@ApiModelProperty(value = "货币标识")
 	private String currencySign;
 
-	/** 最小浮动价格*/
+	/** 最小浮动价格 */
 	@ApiModelProperty(value = "最小浮动价格")
 	private BigDecimal perWaveMoney;
 
-	/** 合约id*/
+	/** 合约id */
 	@ApiModelProperty(value = "合约id")
 	private Long contractId;
 
@@ -152,7 +146,6 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 	 */
 	@ApiModelProperty(value = "卖方对手价")
 	private BigDecimal askPrice;
-
 
 	public Long getId() {
 		return id;
@@ -290,7 +283,6 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 		this.quantityNow = quantityNow;
 	}
 
-
 	public BigDecimal getFloatingProfitAndLoss() {
 		return floatingProfitAndLoss;
 	}
@@ -324,7 +316,7 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 	}
 
 	public BigDecimal getMinWave() {
-		if(minWave != null) {
+		if (minWave != null) {
 			return minWave.stripTrailingZeros();
 		}
 		return minWave;
@@ -398,35 +390,28 @@ public class FuturesContractOrderViewDto implements Serializable,Cloneable {
 		this.askPrice = askPrice;
 	}
 
-	public BigDecimal getOpenAvgFillPrice() {
-		return openAvgFillPrice;
+	public BigDecimal getAvgFillPrice() {
+		return avgFillPrice;
 	}
 
-	public void setOpenAvgFillPrice(BigDecimal openAvgFillPrice) {
-		this.openAvgFillPrice = openAvgFillPrice;
-	}
-
-	public BigDecimal getCloseAvgFillPrice() {
-		return closeAvgFillPrice;
-	}
-
-	public void setCloseAvgFillPrice(BigDecimal closeAvgFillPrice) {
-		this.closeAvgFillPrice = closeAvgFillPrice;
+	public void setAvgFillPrice(BigDecimal avgFillPrice) {
+		this.avgFillPrice = avgFillPrice;
 	}
 
 	/**
 	 * 使用序列化技术实现深拷贝
+	 * 
 	 * @return
 	 */
-	public FuturesContractOrderViewDto deepClone() throws IOException,ClassNotFoundException{
-		//将对象写入流中
+	public FuturesContractOrderViewDto deepClone() throws IOException, ClassNotFoundException {
+		// 将对象写入流中
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
 		objectOutputStream.writeObject(this);
-		//从流中取出
+		// 从流中取出
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 		ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-		return (FuturesContractOrderViewDto)objectInputStream.readObject();
+		return (FuturesContractOrderViewDto) objectInputStream.readObject();
 	}
 
 }
