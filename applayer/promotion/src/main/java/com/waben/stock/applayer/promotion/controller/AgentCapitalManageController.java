@@ -226,8 +226,8 @@ public class AgentCapitalManageController {
 			if (trade.getType() != null) {
 				type = OrganizationAccountFlowType.getByIndex(trade.getType().toString()).getType();
 			}
-			data.add(String.valueOf(trade.getId() == null ? "" : trade.getId()));
 			data.add(trade.getoTradeNo() == null ? "" : trade.getoTradeNo());
+			data.add(trade.getFlowNo() == null ? "" : trade.getFlowNo());
 			data.add(trade.getoPublisherName() == null ? "" : trade.getoPublisherName());
 			data.add(trade.getoPublisherPhone() == null ? "" : trade.getoPublisherPhone());
 			data.add(trade.getCommoditySymbol() == null ? "" : trade.getCommoditySymbol());
