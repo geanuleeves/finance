@@ -12,8 +12,8 @@ import java.util.List;
  */
 public interface MenuRepository extends CustomJpaRepository<Menu, Long> {
 
-    @Query("select m from Menu as m join m.roles as r where r.id =:role order by m.id")
-    List<Menu> findAllByRolesOrderById(@Param("role") Long role);
+    @Query("select m from Menu as m join m.roles as r where r.id =:role order by m.sort asc")
+    List<Menu> findAllByRolesOrderBySortAsc(@Param("role") Long role);
 
     List<Menu> findAllByVariety(Long variety);
 
