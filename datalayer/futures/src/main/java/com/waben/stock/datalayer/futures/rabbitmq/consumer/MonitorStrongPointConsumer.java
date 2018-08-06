@@ -253,8 +253,8 @@ public class MonitorStrongPointConsumer {
 			} catch (ServiceException e) {
 				if (ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION.equals(e.getType())) {
 					// step 1.1 : 余额不足，强制平仓
-					doStongPoint(orderList, account);
 					recordDao.delete(overnightRecord.getId());
+					doUnwind(orderList);
 					return false;
 				} else {
 					List<CapitalFlowDto> list = flowBusiness.fetchByExtendTypeAndExtendId(
