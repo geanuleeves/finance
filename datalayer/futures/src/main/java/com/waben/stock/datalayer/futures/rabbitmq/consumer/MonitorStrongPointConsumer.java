@@ -1,8 +1,33 @@
 package com.waben.stock.datalayer.futures.rabbitmq.consumer;
 
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitHandler;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
 import com.waben.stock.datalayer.futures.business.CapitalFlowBusiness;
-import com.waben.stock.datalayer.futures.entity.*;
+import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
+import com.waben.stock.datalayer.futures.entity.FuturesContract;
+import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
+import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqProducer;
@@ -16,24 +41,15 @@ import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractM
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
-import com.waben.stock.interfaces.enums.*;
+import com.waben.stock.interfaces.enums.CapitalFlowExtendType;
+import com.waben.stock.interfaces.enums.FuturesOrderType;
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
+import com.waben.stock.interfaces.enums.FuturesTradePriceType;
+import com.waben.stock.interfaces.enums.FuturesWindControlType;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.util.JacksonUtil;
 import com.waben.stock.interfaces.util.RandomUtil;
 import com.waben.stock.interfaces.util.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.RabbitHandler;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.PostConstruct;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 @Component
 @RabbitListener(queues = { RabbitmqConfiguration.monitorStrongPointQueueName })
@@ -67,7 +83,6 @@ public class MonitorStrongPointConsumer {
 
 	@Autowired
 	private CapitalFlowBusiness flowBusiness;
-
 
 	private List<Long> monitorPublisherList = Collections.synchronizedList(new ArrayList<Long>());
 
@@ -119,7 +134,7 @@ public class MonitorStrongPointConsumer {
 					doStongPoint(orderList, account);
 					List<FuturesContractOrder> overnightOrderList = triggerOvernightOrderList(orderList);
 					if (isEnoughOvernight(orderList, account)) {
-						//隔夜
+						// 隔夜
 						overnight(overnightOrderList, account);
 					} else {
 						doUnwind(orderList);
@@ -149,12 +164,10 @@ public class MonitorStrongPointConsumer {
 				quantity = order.getBuyFallQuantity();
 				orderType = FuturesOrderType.BuyFall;
 			}
-			orderService.doUnwind(order.getContract(), order, orderType,
-					quantity, FuturesTradePriceType.MKT, null, order.getPublisherId(),
-					FuturesWindControlType.DayUnwind ,false, false, null);
+			orderService.doUnwind(order.getContract(), order, orderType, quantity, FuturesTradePriceType.MKT, null,
+					order.getPublisherId(), FuturesWindControlType.DayUnwind, false, false, null);
 		}
 	}
-
 
 	/**
 	 * 判断是否足够过夜
@@ -177,23 +190,23 @@ public class MonitorStrongPointConsumer {
 			if (order.getContract().getCommodity().getOvernightPerUnitReserveFund() == null) {
 				continue;
 			}
-			//计算交易保证金
+			// 计算交易保证金
 			totalTradeReserveFund = totalTradeReserveFund.add(order.getReserveFund());
-			//隔夜保证金=单边最大*每笔隔夜保证金
-			BigDecimal quantity = order.getBuyUpQuantity().compareTo(order.getBuyFallQuantity()) > 0 ?
-					order.getBuyUpQuantity() : order.getBuyFallQuantity();
-			totalOvernightReserveFund = totalOvernightReserveFund.add(quantity.multiply(order.getContract()
-					.getCommodity().getOvernightPerUnitReserveFund()));
-			//隔夜递延费
-			totalOvernightDeferredFee = totalOvernightDeferredFee.add(order.getBuyUpCanUnwindQuantity().add(
-					order.getBuyFallCanUnwindQuantity()).multiply(order.getContract().getCommodity()
-					.getOvernightPerUnitDeferredFee()));
+			// 隔夜保证金=单边最大*每笔隔夜保证金
+			BigDecimal quantity = order.getBuyUpQuantity().compareTo(order.getBuyFallQuantity()) > 0
+					? order.getBuyUpQuantity() : order.getBuyFallQuantity();
+			totalOvernightReserveFund = totalOvernightReserveFund
+					.add(quantity.multiply(order.getContract().getCommodity().getOvernightPerUnitReserveFund()));
+			// 隔夜递延费
+			totalOvernightDeferredFee = totalOvernightDeferredFee
+					.add(order.getBuyUpCanUnwindQuantity().add(order.getBuyFallCanUnwindQuantity())
+							.multiply(order.getContract().getCommodity().getOvernightPerUnitDeferredFee()));
 		}
-		//隔夜保证金小于交易保证金
+		// 隔夜保证金小于交易保证金
 		if (totalOvernightReserveFund.compareTo(totalTradeReserveFund) < 0) {
 			return true;
 		}
-		//账号余额+交易保证金>=隔夜保证金+隔夜手续费
+		// 账号余额+交易保证金>=隔夜保证金+隔夜手续费
 		if (account.getAvailableBalance().add(totalTradeReserveFund)
 				.compareTo(totalOvernightReserveFund.add(totalOvernightDeferredFee)) >= 0) {
 			return true;
@@ -214,42 +227,42 @@ public class MonitorStrongPointConsumer {
 			if (order.getContract().getCommodity().getOvernightPerUnitReserveFund() == null) {
 				continue;
 			}
-			//保存隔夜记录
+			// 保存隔夜记录
 			FuturesOvernightRecord overnightRecord = new FuturesOvernightRecord();
-			BigDecimal overnightDeferredFee = order.getBuyUpCanUnwindQuantity().add(
-					order.getBuyFallCanUnwindQuantity()).multiply(order.getContract().getCommodity()
-					.getOvernightPerUnitDeferredFee());
-			overnightRecord.setContractOrder(order);
+			BigDecimal overnightDeferredFee = order.getBuyUpCanUnwindQuantity().add(order.getBuyFallCanUnwindQuantity())
+					.multiply(order.getContract().getCommodity().getOvernightPerUnitDeferredFee());
+			overnightRecord.setOrder(order);
 			overnightRecord.setOvernightDeferredFee(overnightDeferredFee);
-			BigDecimal quantity = order.getBuyUpQuantity().compareTo(order.getBuyFallQuantity()) > 0 ?
-					order.getBuyUpQuantity() : order.getBuyFallQuantity();
-			//隔夜保证金
-			BigDecimal overnightReserveFund = quantity.multiply(order.getContract()
-					.getCommodity().getOvernightPerUnitReserveFund());
-			//冻结金额=隔夜保证金-保证金
-			BigDecimal frozenDeposit = overnightReserveFund.compareTo(order.getReserveFund()) < 0 ?
-					BigDecimal.ZERO : overnightReserveFund.subtract(order.getReserveFund());
+			BigDecimal quantity = order.getBuyUpQuantity().compareTo(order.getBuyFallQuantity()) > 0
+					? order.getBuyUpQuantity() : order.getBuyFallQuantity();
+			// 隔夜保证金
+			BigDecimal overnightReserveFund = quantity
+					.multiply(order.getContract().getCommodity().getOvernightPerUnitReserveFund());
+			// 冻结金额=隔夜保证金-保证金
+			BigDecimal frozenDeposit = overnightReserveFund.compareTo(order.getReserveFund()) < 0 ? BigDecimal.ZERO
+					: overnightReserveFund.subtract(order.getReserveFund());
 			overnightRecord.setOvernightReserveFund(overnightReserveFund);
 			overnightRecord.setPublisherId(order.getPublisherId());
 			overnightRecord.setReduceTime(new Date());
 			Calendar cal = Calendar.getInstance();
-			cal.setTime(retriveExchangeTime(new Date(), order.getContract().getCommodity().getExchange().getTimeZoneGap()));
+			cal.setTime(
+					retriveExchangeTime(new Date(), order.getContract().getCommodity().getExchange().getTimeZoneGap()));
 			cal.set(Calendar.HOUR_OF_DAY, 0);
 			cal.set(Calendar.MINUTE, 0);
 			cal.set(Calendar.SECOND, 0);
 			cal.set(Calendar.MILLISECOND, 0);
 			overnightRecord.setDeferredTime(cal.getTime());
 			overnightRecord = recordDao.create(overnightRecord);
-			//修改订单状态
+			// 修改订单状态
 			order.setUpdateTime(new Date());
 			contractOrderDao.update(order);
 			if (frozenDeposit.compareTo(BigDecimal.ZERO) == 0) {
 				continue;
 			}
-			//扣除递延费，冻结保证金
+			// 扣除递延费，冻结保证金
 			try {
-				accountBusiness.futuresOrderOvernight(order.getPublisherId(), overnightRecord.getId(), overnightDeferredFee,
-						frozenDeposit);
+				accountBusiness.futuresOrderOvernight(order.getPublisherId(), overnightRecord.getId(),
+						overnightDeferredFee, frozenDeposit);
 			} catch (ServiceException e) {
 				if (ExceptionConstant.AVAILABLE_BALANCE_NOTENOUGH_EXCEPTION.equals(e.getType())) {
 					// step 1.1 : 余额不足，强制平仓
@@ -333,7 +346,6 @@ public class MonitorStrongPointConsumer {
 		return timeZoneGap + "-" + overnightTime;
 	}
 
-
 	/**
 	 * 获取交易所的对应时间
 	 *
@@ -349,7 +361,6 @@ public class MonitorStrongPointConsumer {
 		cal.add(Calendar.HOUR_OF_DAY, timeZoneGap * -1);
 		return cal.getTime();
 	}
-
 
 	private BigDecimal computeFloatProfitOrLoss(FuturesContractOrder contractOrder) {
 		Long publisherId = contractOrder.getPublisherId();
@@ -405,12 +416,7 @@ public class MonitorStrongPointConsumer {
 		if (totalProfitOrLoss.compareTo(BigDecimal.ZERO) < 0
 				&& totalProfitOrLoss.abs().compareTo(account.getAvailableBalance()) < 0) {
 			// 根据盈亏值进行排序
-			Collections.sort(orderList, new Comparator<FuturesContractOrder>() {
-				@Override
-				public int compare(FuturesContractOrder o1, FuturesContractOrder o2) {
-					return o1.getFloatProfitOrLoss().compareTo(o2.getFloatProfitOrLoss());
-				}
-			});
+			Collections.sort(orderList, new FuturesContractOrderComparator());
 			// 账户余额已经亏损完，计算超出的部分
 			BigDecimal loss = totalProfitOrLoss.add(account.getAvailableBalance());
 			for (FuturesContractOrder order : orderList) {
@@ -492,8 +498,11 @@ public class MonitorStrongPointConsumer {
 		}).start();
 	}
 
-
-
-
+	private class FuturesContractOrderComparator implements Comparator<FuturesContractOrder> {
+		@Override
+		public int compare(FuturesContractOrder o1, FuturesContractOrder o2) {
+			return o1.getFloatProfitOrLoss().compareTo(o2.getFloatProfitOrLoss());
+		}
+	}
 
 }

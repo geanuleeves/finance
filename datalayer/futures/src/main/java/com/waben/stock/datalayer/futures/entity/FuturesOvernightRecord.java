@@ -1,8 +1,16 @@
 package com.waben.stock.datalayer.futures.entity;
 
-import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
 /**
  * 期货订单过夜记录
@@ -26,7 +34,7 @@ public class FuturesOvernightRecord {
 	 */
 	@ManyToOne
 	@JoinColumn(name = "order_id")
-	private FuturesOrder order;
+	private FuturesContractOrder order;
 	/**
 	 * 隔夜保证金
 	 */
@@ -43,10 +51,6 @@ public class FuturesOvernightRecord {
 	 * 扣费日期
 	 */
 	private Date reduceTime;
-
-	@ManyToOne
-	@JoinColumn(name = "contract_order_id")
-	private FuturesContractOrder contractOrder;
 
 	/***************** 分割线，以下字段为非数据库字段 ********************/
 	/**
@@ -81,11 +85,11 @@ public class FuturesOvernightRecord {
 		this.publisherId = publisherId;
 	}
 
-	public FuturesOrder getOrder() {
+	public FuturesContractOrder getOrder() {
 		return order;
 	}
 
-	public void setOrder(FuturesOrder order) {
+	public void setOrder(FuturesContractOrder order) {
 		this.order = order;
 	}
 
@@ -122,7 +126,7 @@ public class FuturesOvernightRecord {
 	}
 
 	public String getCommodityName() {
-		if(order != null) {
+		if (order != null) {
 			return order.getCommodityName();
 		}
 		return commodityName;
@@ -134,7 +138,7 @@ public class FuturesOvernightRecord {
 
 	public String getCommoditySymbol() {
 		if (order != null) {
-			return order.getCommoditySymbol();
+			return order.getCommodityNo();
 		}
 		return commoditySymbol;
 	}
@@ -154,11 +158,4 @@ public class FuturesOvernightRecord {
 		this.contractNo = contractNo;
 	}
 
-	public FuturesContractOrder getContractOrder() {
-		return contractOrder;
-	}
-
-	public void setContractOrder(FuturesContractOrder contractOrder) {
-		this.contractOrder = contractOrder;
-	}
 }
