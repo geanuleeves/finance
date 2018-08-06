@@ -732,6 +732,73 @@ public class FuturesTradeEntrustService {
 		return page;
 	}
 
+	public Page<FuturesTradeEntrust> pagesAction(final FuturesTradeEntrustQuery query) {
+		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
+		Page<FuturesTradeEntrust> page = futuresTradeEntrustDao.page(new Specification<FuturesTradeEntrust>() {
+			@Override
+			public Predicate toPredicate(Root<FuturesTradeEntrust> root, CriteriaQuery<?> criteriaQuery,
+										 CriteriaBuilder criteriaBuilder) {
+				List<Predicate> predicateList = new ArrayList<Predicate>();
+
+				// 委托编号
+				if (!StringUtils.isEmpty(query.getEntrustNo())) {
+					predicateList
+							.add(criteriaBuilder.equal(root.get("entrustNo").as(String.class), query.getEntrustNo()));
+				}
+
+				// 用户ID
+				if (query.getPublisherId() != null && query.getPublisherId() != 0) {
+					predicateList
+							.add(criteriaBuilder.equal(root.get("publisherId").as(Long.class), query.getPublisherId()));
+				}
+				// 品种编号
+				if (!StringUtils.isEmpty(query.getCommodityNo())) {
+					predicateList.add(
+							criteriaBuilder.equal(root.get("commodityNo").as(String.class), query.getCommodityNo()));
+				}
+				// 合约编号
+				if (!StringUtils.isEmpty(query.getContractNo())) {
+					predicateList
+							.add(criteriaBuilder.equal(root.get("contractNo").as(String.class), query.getContractNo()));
+				}
+				// 订单类型
+				if (!StringUtils.isEmpty(query.getOrderType())) {
+					predicateList
+							.add(criteriaBuilder.equal(root.get("orderType").as(String.class), query.getOrderType()));
+				}
+				// 价格类型
+				if (!StringUtils.isEmpty(query.getPriceType())) {
+					predicateList
+							.add(criteriaBuilder.equal(root.get("priceType").as(String.class), query.getPriceType()));
+				}
+				// 交易开平仓 类型
+				if (!StringUtils.isEmpty(query.getTradeActionType())) {
+					predicateList.add(criteriaBuilder.equal(root.get("tradeActionType").as(String.class),
+							query.getTradeActionType()));
+				}
+				// 委托状态
+				if (!StringUtils.isEmpty(query.getState())) {
+					predicateList.add(criteriaBuilder.equal(root.get("state").as(String.class), query.getState()));
+				}
+				if (query.getStartTime() != null) {
+					predicateList.add(criteriaBuilder.greaterThanOrEqualTo(root.get("tradeTime").as(Date.class),
+							query.getStartTime()));
+				}
+				if (query.getEndTime() != null) {
+					predicateList
+							.add(criteriaBuilder.lessThan(root.get("tradeTime").as(Date.class), query.getEndTime()));
+				}
+				if (predicateList.size() > 0) {
+					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
+				}
+				// 以委托时间排序
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("entrustTime").as(Date.class)));
+				return criteriaQuery.getRestriction();
+			}
+		}, pageable);
+		return page;
+	}
+
 	public Page<FuturesTradeEntrust> pagesPhoneEntrust(final FuturesTradeEntrustQuery query) {
 		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
 		Page<FuturesTradeEntrust> page = futuresTradeEntrustDao.page(new Specification<FuturesTradeEntrust>() {

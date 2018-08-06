@@ -82,7 +82,15 @@ public interface FuturesTradeEntrustInterface {
 	 */
 	@RequestMapping(value = "/pages", method = RequestMethod.POST, consumes = "application/json")
 	Response<PageInfo<FuturesTradeEntrustDto>> pages(@RequestBody FuturesTradeEntrustQuery query);
-	
+
+	/**
+	 * 根据条件查询成交记录
+	 * @param query
+	 * @return
+	 */
+	@RequestMapping(value = "/pages/action", method = RequestMethod.POST, consumes = "application/json")
+	public Response<PageInfo<FuturesTradeEntrustDto>> pagesAction(@RequestBody FuturesTradeEntrustQuery query);
+
 	/**
 	 * 根据条件查询交易委托
 	 * @param query

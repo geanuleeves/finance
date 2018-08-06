@@ -48,6 +48,18 @@ public class FuturesTradeEntrustController {
 		return new Response<>(futuresTradeEntrustBusiness.pages(query));
 	}
 
+	@GetMapping("/pages/action")
+	@ApiOperation(value = "交易委托列表")
+	public Response<PageInfo<FuturesTradeEntrustDto>> pagesAction(int page, int size) {
+		FuturesTradeEntrustQuery query = new FuturesTradeEntrustQuery();
+		query.setPage(page);
+		query.setSize(size);
+		query.setPublisherId(SecurityUtil.getUserId());
+		return new Response<>(futuresTradeEntrustBusiness.pagesAction(query));
+	}
+
+
+
 	@GetMapping("/pages_phone/entrust")
 	@ApiOperation(value = "移动端交易委托列表", notes = "startTime和endTime格式(yyyy-MM-dd HH:mm:ss)")
 	public Response<PageInfo<FuturesTradeEntrustDto>> pagesPhoneEntrust(int page, int size, String name, String startTime,

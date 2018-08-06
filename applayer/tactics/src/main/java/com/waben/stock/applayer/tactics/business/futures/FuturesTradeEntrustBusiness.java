@@ -42,6 +42,14 @@ public class FuturesTradeEntrustBusiness {
         throw new ServiceException(response.getCode());
     }
 
+    public PageInfo<FuturesTradeEntrustDto> pagesAction(FuturesTradeEntrustQuery query) {
+        Response<PageInfo<FuturesTradeEntrustDto>> response = reference.pagesAction(query);
+        if ("200".equals(response.getCode())) {
+            return response.getResult();
+        }
+        throw new ServiceException(response.getCode());
+    }
+
     public PageInfo<FuturesTradeEntrustDto> pagesPhoneEntrust(FuturesTradeEntrustQuery query) {
         Response<PageInfo<FuturesTradeEntrustDto>> response = reference.pagesPhoneEntrust(query);
         if ("200".equals(response.getCode())) {
