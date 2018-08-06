@@ -95,11 +95,11 @@ public class MonitorStopLossOrProfitConsumer {
 					if (buyUpCanUnwind != null && buyUpCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
 						BigDecimal buyUpLimitProfit = order.getBuyUpPerUnitLimitProfitAmount();
 						BigDecimal buyUpLimitLoss = order.getBuyUpPerUnitLimitLossAmount();
+						BigDecimal buyUpAvgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
+								contractNo, commodityNo, FuturesOrderType.BuyUp.getIndex());
 						// step 1.1 : 买涨是否止盈
 						if (buyUpLimitProfit != null) {
-							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
-									contractNo, commodityNo, FuturesOrderType.BuyUp.getIndex());
-							if (buyUpLimitProfit.compareTo(avgFillPrice) > 0
+							if (buyUpLimitProfit.compareTo(buyUpAvgFillPrice) > 0
 									&& market.getBidPrice().compareTo(buyUpLimitProfit) >= 0) {
 								logger.info("{}买涨订单{}手达到止盈，止盈价格{}，此时的行情{}", order.getId(),
 										order.getBuyUpCanUnwindQuantity(), buyUpLimitProfit,
@@ -116,9 +116,7 @@ public class MonitorStopLossOrProfitConsumer {
 						}
 						// step 1.2 : 买涨是否止损
 						if (buyUpLimitLoss != null) {
-							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
-									contractNo, commodityNo, FuturesOrderType.BuyUp.getIndex());
-							if (buyUpLimitLoss.compareTo(avgFillPrice) < 0
+							if (buyUpLimitLoss.compareTo(buyUpAvgFillPrice) < 0
 									&& market.getBidPrice().compareTo(buyUpLimitLoss) <= 0) {
 								logger.info("{}买涨订单{}手达到止损，止损价格{}，此时的行情{}", order.getId(),
 										order.getBuyUpCanUnwindQuantity(), buyUpLimitLoss, JacksonUtil.encode(market));
@@ -132,7 +130,11 @@ public class MonitorStopLossOrProfitConsumer {
 								needMonitorBuyUp = false;
 							}
 						}
-
+						if (order.getIsNeedLog() != null && order.getIsNeedLog()) {
+							logger.info(
+									"订单日志{}，buyUpCanUnwind:{}，buyUpAvgFillPrice{}，buyUpLimitProfit：{}，buyUpLimitLoss：{}",
+									order.getId(), buyUpCanUnwind, buyUpAvgFillPrice, buyUpLimitProfit, buyUpLimitLoss);
+						}
 					} else {
 						needMonitorBuyUp = false;
 					}
@@ -140,11 +142,11 @@ public class MonitorStopLossOrProfitConsumer {
 					BigDecimal buyFallLimitProfit = order.getBuyFallPerUnitLimitProfitAmount();
 					BigDecimal buyFallLimitLoss = order.getBuyFallPerUnitLimitLossAmount();
 					if (buyFallCanUnwind != null && buyFallCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
+						BigDecimal buyFallAvgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
+								contractNo, commodityNo, FuturesOrderType.BuyFall.getIndex());
 						// step 2.1 : 买跌是否止盈
 						if (buyFallLimitProfit != null) {
-							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
-									contractNo, commodityNo, FuturesOrderType.BuyFall.getIndex());
-							if (buyFallLimitProfit.compareTo(avgFillPrice) < 0
+							if (buyFallLimitProfit.compareTo(buyFallAvgFillPrice) < 0
 									&& market.getAskPrice().compareTo(buyFallLimitProfit) <= 0) {
 								logger.info("{}买跌订单{}手达到止盈，止盈价格{}，此时的行情{}", order.getId(),
 										order.getBuyFallCanUnwindQuantity(), buyFallLimitProfit,
@@ -161,9 +163,7 @@ public class MonitorStopLossOrProfitConsumer {
 						}
 						// step 2.2 : 买跌是否止损
 						if (buyFallLimitLoss != null) {
-							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
-									contractNo, commodityNo, FuturesOrderType.BuyFall.getIndex());
-							if (buyFallLimitLoss.compareTo(avgFillPrice) > 0
+							if (buyFallLimitLoss.compareTo(buyFallAvgFillPrice) > 0
 									&& market.getAskPrice().compareTo(buyFallLimitLoss) >= 0) {
 								logger.info("{}买跌订单{}手达到止损，止损价格{}，此时的行情{}", order.getId(),
 										order.getBuyUpCanUnwindQuantity(), buyFallLimitLoss,
@@ -177,6 +177,12 @@ public class MonitorStopLossOrProfitConsumer {
 										stopLossOrProfitPrice);
 								needMonitorBuyFall = false;
 							}
+						}
+						if (order.getIsNeedLog() != null && order.getIsNeedLog()) {
+							logger.info(
+									"订单日志{}，buyFallCanUnwind:{}，buyFallAvgFillPrice{}，buyFallLimitProfit：{}，buyFallLimitLoss：{}",
+									order.getId(), buyFallCanUnwind, buyFallAvgFillPrice, buyFallLimitProfit,
+									buyFallLimitLoss);
 						}
 					} else {
 						needMonitorBuyFall = false;

@@ -921,9 +921,21 @@ public class FuturesOrderService {
 		boolean needMonitor = false;
 		if (buyUpCanUnwind != null && buyUpCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
 			needMonitor = true;
+		} else {
+			contractOrder.setBuyUpLimitLossType(null);
+			contractOrder.setBuyUpLimitProfitType(null);
+			contractOrder.setBuyUpPerUnitLimitLossAmount(null);
+			contractOrder.setBuyUpPerUnitLimitProfitAmount(null);
+			contractOrderDao.update(contractOrder);
 		}
 		if (buyFallCanUnwind != null && buyFallCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
 			needMonitor = true;
+		} else {
+			contractOrder.setBuyFallLimitLossType(null);
+			contractOrder.setBuyFallLimitProfitType(null);
+			contractOrder.setBuyFallPerUnitLimitLossAmount(null);
+			contractOrder.setBuyFallPerUnitLimitProfitAmount(null);
+			contractOrderDao.update(contractOrder);
 		}
 		if (needMonitor) {
 			monitorStopLossOrProfit.monitorContractOrder(contractOrder.getId());
@@ -2233,11 +2245,11 @@ public class FuturesOrderService {
 		BigDecimal minwave = futuresCommodity.getMinWave();
 		int length = minwave.toPlainString().length();
 		BigDecimal openAvgFillPrice = orderDao.getOpenAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
-		openAvgFillPrice = openAvgFillPrice != null ?
-				openAvgFillPrice.setScale(length, BigDecimal.ROUND_HALF_DOWN) : BigDecimal.ZERO;
+		openAvgFillPrice = openAvgFillPrice != null ? openAvgFillPrice.setScale(length, BigDecimal.ROUND_HALF_DOWN)
+				: BigDecimal.ZERO;
 		return openAvgFillPrice;
 	}
-	
+
 	public BigDecimal getOpenAvgFillPrice(Long publisherId, Long contractId, String orderType) {
 		return BigDecimal.ZERO;
 	}
@@ -2247,11 +2259,11 @@ public class FuturesOrderService {
 		BigDecimal minwave = futuresCommodity.getMinWave();
 		int length = minwave.toPlainString().length();
 		BigDecimal closeAvgFillPrice = orderDao.getCloseAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
-		closeAvgFillPrice = closeAvgFillPrice != null ?
-				closeAvgFillPrice.setScale(length, BigDecimal.ROUND_HALF_DOWN) : BigDecimal.ZERO;
+		closeAvgFillPrice = closeAvgFillPrice != null ? closeAvgFillPrice.setScale(length, BigDecimal.ROUND_HALF_DOWN)
+				: BigDecimal.ZERO;
 		return closeAvgFillPrice;
 	}
-	
+
 	public BigDecimal getCloseAvgFillPrice(Long publisherId, Long contractId, String orderType) {
 		return BigDecimal.ZERO;
 	}

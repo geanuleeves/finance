@@ -215,9 +215,21 @@ public class FuturesTradeEntrustService {
 		boolean needMonitor = false;
 		if (buyUpCanUnwind != null && buyUpCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
 			needMonitor = true;
+		} else {
+			contractOrder.setBuyUpLimitLossType(null);
+			contractOrder.setBuyUpLimitProfitType(null);
+			contractOrder.setBuyUpPerUnitLimitLossAmount(null);
+			contractOrder.setBuyUpPerUnitLimitProfitAmount(null);
+			contractOrderDao.update(contractOrder);
 		}
 		if (buyFallCanUnwind != null && buyFallCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
 			needMonitor = true;
+		} else {
+			contractOrder.setBuyFallLimitLossType(null);
+			contractOrder.setBuyFallLimitProfitType(null);
+			contractOrder.setBuyFallPerUnitLimitLossAmount(null);
+			contractOrder.setBuyFallPerUnitLimitProfitAmount(null);
+			contractOrderDao.update(contractOrder);
 		}
 		if (needMonitor) {
 			monitorStopLossOrProfit.monitorContractOrder(contractOrder.getId());
@@ -737,7 +749,7 @@ public class FuturesTradeEntrustService {
 		Page<FuturesTradeEntrust> page = futuresTradeEntrustDao.page(new Specification<FuturesTradeEntrust>() {
 			@Override
 			public Predicate toPredicate(Root<FuturesTradeEntrust> root, CriteriaQuery<?> criteriaQuery,
-										 CriteriaBuilder criteriaBuilder) {
+					CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
 
 				// 委托编号
