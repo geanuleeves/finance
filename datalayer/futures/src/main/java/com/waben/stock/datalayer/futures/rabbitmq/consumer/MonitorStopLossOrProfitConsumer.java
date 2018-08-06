@@ -98,7 +98,7 @@ public class MonitorStopLossOrProfitConsumer {
 						// step 1.1 : 买涨是否止盈
 						if (buyUpLimitProfit != null) {
 							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
-									contractNo, commodityNo, FuturesOrderType.BuyUp.getIndex());
+									contract.getId(), FuturesOrderType.BuyUp.getIndex());
 							if (buyUpLimitProfit.compareTo(avgFillPrice) > 0
 									&& market.getBidPrice().compareTo(buyUpLimitProfit) >= 0) {
 								logger.info("{}买涨订单{}手达到止盈，止盈价格{}，此时的行情{}", order.getId(),
@@ -117,7 +117,7 @@ public class MonitorStopLossOrProfitConsumer {
 						// step 1.2 : 买涨是否止损
 						if (buyUpLimitLoss != null) {
 							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
-									contractNo, commodityNo, FuturesOrderType.BuyUp.getIndex());
+									contract.getId(), FuturesOrderType.BuyUp.getIndex());
 							if (buyUpLimitLoss.compareTo(avgFillPrice) < 0
 									&& market.getBidPrice().compareTo(buyUpLimitLoss) <= 0) {
 								logger.info("{}买涨订单{}手达到止损，止损价格{}，此时的行情{}", order.getId(),
@@ -143,7 +143,7 @@ public class MonitorStopLossOrProfitConsumer {
 						// step 2.1 : 买跌是否止盈
 						if (buyFallLimitProfit != null) {
 							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
-									contractNo, commodityNo, FuturesOrderType.BuyFall.getIndex());
+									contract.getId(), FuturesOrderType.BuyFall.getIndex());
 							if (buyFallLimitProfit.compareTo(avgFillPrice) < 0
 									&& market.getAskPrice().compareTo(buyFallLimitProfit) <= 0) {
 								logger.info("{}买跌订单{}手达到止盈，止盈价格{}，此时的行情{}", order.getId(),
@@ -162,7 +162,7 @@ public class MonitorStopLossOrProfitConsumer {
 						// step 2.2 : 买跌是否止损
 						if (buyFallLimitLoss != null) {
 							BigDecimal avgFillPrice = orderService.getOpenAvgFillPrice(order.getPublisherId(),
-									contractNo, commodityNo, FuturesOrderType.BuyFall.getIndex());
+									contract.getId(), FuturesOrderType.BuyFall.getIndex());
 							if (buyFallLimitLoss.compareTo(avgFillPrice) > 0
 									&& market.getAskPrice().compareTo(buyFallLimitLoss) >= 0) {
 								logger.info("{}买跌订单{}手达到止损，止损价格{}，此时的行情{}", order.getId(),
