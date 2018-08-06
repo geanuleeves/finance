@@ -66,17 +66,20 @@ public class EntrustQueryConsumer {
 			if (entrustType == 1) {
 				if (orderService.isTradeTime(timeZoneGap, contract, FuturesTradeActionType.OPEN)) {
 					// 开仓
-					isNeedRetry = handleEntrust(tradeEntrust, entrustType);
+					isNeedRetry = handleEntrust(tradeEntrust, entrustType, messgeObj.isStopLossOrProfit(),
+							messgeObj.getStopLossOrProfitPrice());
 				}
 			} else if (entrustType == 2) {
 				if (orderService.isTradeTime(timeZoneGap, contract, FuturesTradeActionType.CLOSE)) {
 					// 平仓
-					isNeedRetry = handleEntrust(tradeEntrust, entrustType);
+					isNeedRetry = handleEntrust(tradeEntrust, entrustType, messgeObj.isStopLossOrProfit(),
+							messgeObj.getStopLossOrProfitPrice());
 				}
 			} else if (entrustType == 3) {
 				if (orderService.isTradeTime(timeZoneGap, contract, FuturesTradeActionType.CLOSE)) {
 					// 反手
-					isNeedRetry = handleEntrust(tradeEntrust, entrustType);
+					isNeedRetry = handleEntrust(tradeEntrust, entrustType, messgeObj.isStopLossOrProfit(),
+							messgeObj.getStopLossOrProfitPrice());
 				}
 			} else {
 				logger.error("错误的委托类型!");
@@ -98,7 +101,8 @@ public class EntrustQueryConsumer {
 	 *            交易委托
 	 * @return 是否成功
 	 */
-	private boolean handleEntrust(FuturesTradeEntrust tradeEntrust, Integer entrustType) {
+	private boolean handleEntrust(FuturesTradeEntrust tradeEntrust, Integer entrustType, boolean isStopLossOrProfit,
+			BigDecimal stopLossOrProfitPrice) {
 		// step 1 : 获取基本参数
 		FuturesContract contract = tradeEntrust.getContract();
 		FuturesCommodity commodity = contract.getCommodity();
@@ -139,32 +143,40 @@ public class EntrustQueryConsumer {
 		FuturesTradePriceType priceType = tradeEntrust.getPriceType();
 		boolean isNeedRetry = true;
 		// step 3 : 处理委托
-		if (tradeEntrust.getState() == FuturesTradeEntrustState.Queuing
-				|| tradeEntrust.getState() == FuturesTradeEntrustState.PartSuccess) {
-			MarketAveragePrice avgPrice = null;
-			if (priceType == FuturesTradePriceType.MKT) {
-				// 市价
-				avgPrice = orderService.computeMktAvgPrice(commodityNo, contractNo, actionType, totalQuantity);
-			} else {
-				// 限价
-				avgPrice = orderService.computeLmtAvgPrice(commodityNo, contractNo, actionType, totalQuantity,
-						tradeEntrust.getEntrustPrice());
-			}
-			if (avgPrice.getFilled().compareTo(BigDecimal.ZERO) > 0
-					&& avgPrice.getRemaining().compareTo(BigDecimal.ZERO) == 0) {
-				logger.info("交易委托{}【{}】成功，买入成功时候的行情为{}", tradeEntrust.getId(), entrustType,
-						avgPrice.getMarket() != null ? JacksonUtil.encode(avgPrice.getMarket()) : "");
-				BigDecimal price = avgPrice.getAvgFillPrice();
+		if (tradeEntrust.getState() == FuturesTradeEntrustState.Queuing) {
+			if (isStopLossOrProfit) {
+				logger.info("交易委托{}【{}】成功，平仓类型是止损止盈类型", tradeEntrust.getId(), entrustType);
+				BigDecimal price = stopLossOrProfitPrice;
 				if (slipPoint != null && slipPoint > 0) {
 					price = price.add(new BigDecimal(slipPoint).multiply(minWave).multiply(reverse));
 				}
-				entrustService.success(tradeEntrust.getId(), avgPrice.getFilled(), avgPrice.getRemaining(), price,
-						avgPrice.getMarket() != null ? avgPrice.getMarket().getTime() : null);
-				if (entrustType == 3) {
-					// 反手开仓
-					orderService.backhandPlaceOrder(tradeEntrust.getId());
+				entrustService.success(tradeEntrust.getId(), tradeEntrust.getQuantity(), BigDecimal.ZERO, price, null);
+			} else {
+				MarketAveragePrice avgPrice = null;
+				if (priceType == FuturesTradePriceType.MKT) {
+					// 市价
+					avgPrice = orderService.computeMktAvgPrice(commodityNo, contractNo, actionType, totalQuantity);
+				} else {
+					// 限价
+					avgPrice = orderService.computeLmtAvgPrice(commodityNo, contractNo, actionType, totalQuantity,
+							tradeEntrust.getEntrustPrice());
 				}
-				isNeedRetry = false;
+				if (avgPrice.getFilled().compareTo(totalQuantity) == 0
+						&& avgPrice.getRemaining().compareTo(BigDecimal.ZERO) == 0) {
+					logger.info("交易委托{}【{}】成功，买入成功时候的行情为{}", tradeEntrust.getId(), entrustType,
+							avgPrice.getMarket() != null ? JacksonUtil.encode(avgPrice.getMarket()) : "");
+					BigDecimal price = avgPrice.getAvgFillPrice();
+					if (slipPoint != null && slipPoint > 0) {
+						price = price.add(new BigDecimal(slipPoint).multiply(minWave).multiply(reverse));
+					}
+					entrustService.success(tradeEntrust.getId(), avgPrice.getFilled(), avgPrice.getRemaining(), price,
+							null);
+					if (entrustType == 3) {
+						// 反手开仓
+						orderService.backhandPlaceOrder(tradeEntrust.getId());
+					}
+					isNeedRetry = false;
+				}
 			}
 		} else {
 			isNeedRetry = false;
@@ -187,7 +199,8 @@ public class EntrustQueryConsumer {
 		}
 	}
 
-	public void entrustQuery(final Long entrustId, final Integer entrustType) {
+	public void entrustQuery(final Long entrustId, final Integer entrustType, boolean isStopLossOrProfit,
+			BigDecimal stopLossOrProfitPrice) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -199,6 +212,8 @@ public class EntrustQueryConsumer {
 				EntrustQueryMessage msg = new EntrustQueryMessage();
 				msg.setEntrustId(entrustId);
 				msg.setEntrustType(entrustType);
+				msg.setStopLossOrProfit(isStopLossOrProfit);
+				msg.setStopLossOrProfitPrice(stopLossOrProfitPrice);
 				producer.sendMessage(RabbitmqConfiguration.entrustQueryQueueName, msg);
 			}
 		}).start();

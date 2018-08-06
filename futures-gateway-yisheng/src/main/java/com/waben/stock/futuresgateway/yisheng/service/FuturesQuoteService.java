@@ -31,6 +31,11 @@ public class FuturesQuoteService {
 	public FuturesQuote getFuturesQuoteInfo(String commodityNo, String contractNo, String id) {
 		return quoteDao.retrieveFuturesQuoteById(commodityNo, contractNo, id);
 	}
+	
+	public void init() {
+		String dateTimeStamp = "2018-08-03 11:00:00.000";
+		deleteQuoteByDateTimeStampLessThan(dateTimeStamp);
+	}
 
 	public void deleteQuoteByDateTimeStampLessThan(String dateTimeStamp) {
 		List<FuturesContract> contractList = contractDao.retriveByEnable(true);

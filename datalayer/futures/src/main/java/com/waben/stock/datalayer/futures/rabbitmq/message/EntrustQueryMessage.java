@@ -1,5 +1,7 @@
 package com.waben.stock.datalayer.futures.rabbitmq.message;
 
+import java.math.BigDecimal;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
@@ -24,6 +26,14 @@ public class EntrustQueryMessage {
 	 * </ul>
 	 */
 	private Integer entrustType;
+	/**
+	 * 是否达到止损止盈价格
+	 */
+	private boolean isStopLossOrProfit;
+	/**
+	 * 止损止盈价格
+	 */
+	private BigDecimal stopLossOrProfitPrice;
 	/**
 	 * 当前消息消费次数
 	 */
@@ -69,6 +79,22 @@ public class EntrustQueryMessage {
 
 	public void setMaxConsumeCount(int maxConsumeCount) {
 		this.maxConsumeCount = maxConsumeCount;
+	}
+
+	public boolean isStopLossOrProfit() {
+		return isStopLossOrProfit;
+	}
+
+	public void setStopLossOrProfit(boolean isStopLossOrProfit) {
+		this.isStopLossOrProfit = isStopLossOrProfit;
+	}
+
+	public BigDecimal getStopLossOrProfitPrice() {
+		return stopLossOrProfitPrice;
+	}
+
+	public void setStopLossOrProfitPrice(BigDecimal stopLossOrProfitPrice) {
+		this.stopLossOrProfitPrice = stopLossOrProfitPrice;
 	}
 
 }

@@ -1,11 +1,11 @@
 package com.waben.stock.datalayer.futures.rabbitmq.message;
 
-public class MonitorPublisherFuturesOrderMessage {
+public class MonitorStopLossOrProfitMessage {
 
 	/**
-	 * 用户ID
+	 * 合约订单ID
 	 */
-	private Long publisherId;
+	private Long contractOrderId;
 	/**
 	 * 当前消息消费次数
 	 */
@@ -18,12 +18,12 @@ public class MonitorPublisherFuturesOrderMessage {
 	 */
 	private int maxConsumeCount;
 
-	public Long getPublisherId() {
-		return publisherId;
+	public Long getContractOrderId() {
+		return contractOrderId;
 	}
 
-	public void setPublisherId(Long publisherId) {
-		this.publisherId = publisherId;
+	public void setContractOrderId(Long contractOrderId) {
+		this.contractOrderId = contractOrderId;
 	}
 
 	public int getConsumeCount() {

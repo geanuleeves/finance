@@ -1,13 +1,12 @@
 package com.waben.stock.datalayer.futures.repository.impl.jpa;
 
-import java.math.BigDecimal;
-import java.util.List;
-
+import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
+import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 
-import com.waben.stock.datalayer.futures.entity.FuturesOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
+import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 期货订单隔夜记录 Reopsitory
@@ -17,7 +16,7 @@ import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
  */
 public interface FuturesOvernightRecordRepository extends CustomJpaRepository<FuturesOvernightRecord, Long> {
 
-	List<FuturesOvernightRecord> findByOrder(FuturesOrder order, Sort sort);
+	List<FuturesOvernightRecord> findByOrder(FuturesContractOrder order, Sort sort);
 
 	@Query("select SUM(f.overnightDeferredFee) from FuturesOvernightRecord f where f.order.id = ?1")
 	BigDecimal getSUMOvernightRecord(Long orderId);

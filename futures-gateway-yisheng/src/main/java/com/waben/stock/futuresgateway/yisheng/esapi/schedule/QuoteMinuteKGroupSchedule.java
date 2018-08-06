@@ -112,12 +112,13 @@ public class QuoteMinuteKGroupSchedule {
 				// step 3.5 : 保存计算出来的分K数据
 				minuteKGroupServcie.addFuturesQuoteMinuteKGroup(minuteKGroup);
 				// step 3.6 : 删除分K的行情数据
-//				for (MongoFuturesQuoteMinuteK minuteK : minuteKList) {
-//					EsDeleteQuoteMessage delQuote = new EsDeleteQuoteMessage();
-//					delQuote.setQuoteId(String.valueOf(minuteK.getId()));
-//					delQuote.setType(2);
-//					producer.sendMessage(RabbitmqConfiguration.deleteQuoteQueueName, delQuote);
-//				}
+				// for (MongoFuturesQuoteMinuteK minuteK : minuteKList) {
+				// EsDeleteQuoteMessage delQuote = new EsDeleteQuoteMessage();
+				// delQuote.setQuoteId(String.valueOf(minuteK.getId()));
+				// delQuote.setType(2);
+				// producer.sendMessage(RabbitmqConfiguration.deleteQuoteQueueName,
+				// delQuote);
+				// }
 			}
 		}
 		logger.info("计算分K组合数据结束:" + fullSdf.format(new Date()));

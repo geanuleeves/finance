@@ -105,6 +105,20 @@ public class FuturesTradeEntrustDto {
 	/** 货币缩写 */
 	@ApiModelProperty(value = "货币缩写")
 	private String currency;
+	/** 服务费 */
+	@ApiModelProperty(value = "服务费")
+	private BigDecimal serviceFee;
+	@ApiModelProperty(value = "发布人盈亏（人民币）")
+	private BigDecimal publisherProfitOrLoss;
+	/** 结算时的汇率 */
+	@ApiModelProperty(value = "结算时的汇率")
+	private BigDecimal settlementRate;
+	/** 结算时间 */
+	@ApiModelProperty(value = "结算时间")
+	private Date settlementTime;
+	/** 开仓成交均价 */
+	@ApiModelProperty(value = "开仓成交均价")
+	private BigDecimal openAvgFillPrice;
 
 	public Long getId() {
 		return id;
@@ -349,4 +363,43 @@ public class FuturesTradeEntrustDto {
 		this.currency = currency;
 	}
 
+	public BigDecimal getServiceFee() {
+		return serviceFee;
+	}
+
+	public void setServiceFee(BigDecimal serviceFee) {
+		this.serviceFee = serviceFee;
+	}
+
+	public BigDecimal getPublisherProfitOrLoss() {
+		return publisherProfitOrLoss;
+	}
+
+	public void setPublisherProfitOrLoss(BigDecimal publisherProfitOrLoss) {
+		this.publisherProfitOrLoss = publisherProfitOrLoss;
+	}
+
+	public BigDecimal getSettlementRate() {
+		return settlementRate;
+	}
+
+	public void setSettlementRate(BigDecimal settlementRate) {
+		this.settlementRate = settlementRate;
+	}
+
+	public Date getSettlementTime() {
+		return settlementTime;
+	}
+
+	public void setSettlementTime(Date settlementTime) {
+		this.settlementTime = settlementTime;
+	}
+
+	public BigDecimal getOpenAvgFillPrice() {
+		return openAvgFillPrice;
+	}
+
+	public void setOpenAvgFillPrice(BigDecimal openAvgFillPrice) {
+		this.openAvgFillPrice = openAvgFillPrice;
+	}
 }

@@ -30,6 +30,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
@@ -40,7 +41,6 @@ import com.waben.stock.datalayer.futures.business.PublisherBusiness;
 import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.entity.FuturesHoliday;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
@@ -51,8 +51,8 @@ import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesOrderStateC
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControlTypeConverter;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.EntrustQueryConsumer;
-import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorPublisherFuturesOrderConsumer;
-import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorSingleFuturesOrderConsumer;
+import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorStopLossOrProfitConsumer;
+import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorStrongPointConsumer;
 import com.waben.stock.datalayer.futures.repository.DynamicQuerySqlDao;
 import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
@@ -143,9 +143,11 @@ public class FuturesOrderService {
 	@Autowired
 	private QuoteContainer allQuote;
 
-	private MonitorPublisherFuturesOrderConsumer monitorPublisher;
+	@Autowired
+	private MonitorStopLossOrProfitConsumer monitorStopLossOrProfit;
 
-	private MonitorSingleFuturesOrderConsumer monitorOrder;
+	@Autowired
+	private MonitorStrongPointConsumer monitorStrongPoint;
 
 	@Autowired
 	private EntrustQueryConsumer entrueQuery;
@@ -506,12 +508,13 @@ public class FuturesOrderService {
 				}
 			}
 			contractOrder.setUpdateTime(new Date());
-			contractOrderDao.update(contractOrder);
+			contractOrderDao.doUpdate(contractOrder);
+			this.monitorContractOrder(contractOrder);
 		} else {
 			contractOrder = new FuturesContractOrder();
-			contractOrder.setBuyFallQuantity(BigDecimal.ZERO);
 			contractOrder.setBuyUpQuantity(BigDecimal.ZERO);
 			contractOrder.setBuyUpCanUnwindQuantity(BigDecimal.ZERO);
+			contractOrder.setBuyFallQuantity(BigDecimal.ZERO);
 			contractOrder.setBuyFallCanUnwindQuantity(BigDecimal.ZERO);
 			if (orderType == FuturesOrderType.BuyUp) {
 				contractOrder.setBuyUpTotalQuantity(totalQuantity);
@@ -643,10 +646,11 @@ public class FuturesOrderService {
 			}
 		}
 		// step 8 : 放入委托查询队列（开仓）
-		entrueQuery.entrustQuery(tradeEntrust.getId(), 1);
+		entrueQuery.entrustQuery(tradeEntrust.getId(), 1, false, null);
 		return tradeEntrust;
 	}
 
+	@Transactional
 	public FuturesTradeEntrust backhandPlaceOrder(Long entrustId) {
 		logger.info("反手下单，源委托ID：{}", entrustId);
 		FuturesTradeEntrust originEntrust = tradeEntrustDao.retrieve(entrustId);
@@ -797,9 +801,11 @@ public class FuturesOrderService {
 		}
 	}
 
-	private void doUnwind(FuturesContract contract, FuturesContractOrder contractOrder, FuturesOrderType orderType,
+	@Transactional(propagation = Propagation.REQUIRED)
+	public void doUnwind(FuturesContract contract, FuturesContractOrder contractOrder, FuturesOrderType orderType,
 			BigDecimal quantity, FuturesTradePriceType priceType, BigDecimal entrustPrice, Long publisherId,
-			FuturesWindControlType windControlType, boolean isBackhand) {
+			FuturesWindControlType windControlType, boolean isBackhand, boolean isStopLossOrProfit,
+			BigDecimal stopLossOrProfitPrice) {
 		Date date = new Date();
 		// step 1 : 创建平仓委托
 		FuturesTradeEntrust tradeEntrust = new FuturesTradeEntrust();
@@ -833,7 +839,8 @@ public class FuturesOrderService {
 		if (orderList != null && orderList.size() > 0) {
 			int sort = 1;
 			for (FuturesOrder order : orderList) {
-				if (!(order.getState() == FuturesOrderState.Position || order.getState() == FuturesOrderState.PartUnwind
+				if (order.getOrderType() != orderType || !(order.getState() == FuturesOrderState.Position
+						|| order.getState() == FuturesOrderState.PartUnwind
 						|| order.getState() == FuturesOrderState.SellingEntrust)) {
 					continue;
 				}
@@ -898,12 +905,29 @@ public class FuturesOrderService {
 			contractOrder.setBuyFallCanUnwindQuantity(contractOrder.getBuyFallCanUnwindQuantity().subtract(quantity));
 		}
 		contractOrder.setUpdateTime(date);
-		contractOrderDao.update(contractOrder);
+		contractOrderDao.doUpdate(contractOrder);
+		this.monitorContractOrder(contractOrder);
 		// step 4 : 放入委托查询队列（平仓）
 		if (isBackhand) {
-			entrueQuery.entrustQuery(tradeEntrust.getId(), 3);
+			entrueQuery.entrustQuery(tradeEntrust.getId(), 3, isStopLossOrProfit, stopLossOrProfitPrice);
 		} else {
-			entrueQuery.entrustQuery(tradeEntrust.getId(), 2);
+			entrueQuery.entrustQuery(tradeEntrust.getId(), 2, isStopLossOrProfit, stopLossOrProfitPrice);
+		}
+	}
+
+	private void monitorContractOrder(FuturesContractOrder contractOrder) {
+		BigDecimal buyUpCanUnwind = contractOrder.getBuyUpCanUnwindQuantity();
+		BigDecimal buyFallCanUnwind = contractOrder.getBuyFallCanUnwindQuantity();
+		boolean needMonitor = false;
+		if (buyUpCanUnwind != null && buyUpCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
+			needMonitor = true;
+		}
+		if (buyFallCanUnwind != null && buyFallCanUnwind.compareTo(BigDecimal.ZERO) > 0) {
+			needMonitor = true;
+		}
+		if (needMonitor) {
+			monitorStopLossOrProfit.monitorContractOrder(contractOrder.getId());
+			monitorStrongPoint.monitorPublisher(contractOrder.getPublisherId());
 		}
 	}
 
@@ -942,9 +966,10 @@ public class FuturesOrderService {
 			return;
 		}
 		doUnwind(contract, contractOrder, orderType, quantity, priceType, entrustPrice, publisherId,
-				FuturesWindControlType.UserApplyUnwind, false);
+				FuturesWindControlType.UserApplyUnwind, false, false, null);
 	}
 
+	@Transactional
 	public void applyUnwindAll(Long publisherId) {
 		List<FuturesContractOrder> contractOrderList = contractOrderDao.retrieveByPublisherId(publisherId);
 		if (contractOrderList != null && contractOrderList.size() > 0) {
@@ -954,17 +979,18 @@ public class FuturesOrderService {
 				BigDecimal buyFallQuantity = contractOrder.getBuyFallCanUnwindQuantity();
 				if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
 					doUnwind(contract, contractOrder, FuturesOrderType.BuyUp, buyUpQuantity, FuturesTradePriceType.MKT,
-							null, publisherId, FuturesWindControlType.UserApplyUnwind, false);
+							null, publisherId, FuturesWindControlType.UserApplyUnwind, false, false, null);
 				}
 				if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
 					doUnwind(contract, contractOrder, FuturesOrderType.BuyFall, buyFallQuantity,
-							FuturesTradePriceType.MKT, null, publisherId, FuturesWindControlType.UserApplyUnwind,
-							false);
+							FuturesTradePriceType.MKT, null, publisherId, FuturesWindControlType.UserApplyUnwind, false,
+							false, null);
 				}
 			}
 		}
 	}
 
+	@Transactional
 	public void backhandUnwind(Long contractId, FuturesOrderType orderType, FuturesTradePriceType priceType,
 			BigDecimal entrustPrice, Long publisherId) {
 		FuturesContract contract = contractDao.retrieve(contractId);
@@ -985,9 +1011,10 @@ public class FuturesOrderService {
 			return;
 		}
 		doUnwind(contract, contractOrder, orderType, quantity, priceType, entrustPrice, publisherId,
-				FuturesWindControlType.BackhandUnwind, true);
+				FuturesWindControlType.BackhandUnwind, true, false, null);
 	}
 
+	@Transactional
 	public void balanceUnwind(Long contractId, FuturesOrderType orderType, FuturesTradePriceType sellingPriceType,
 			BigDecimal sellingEntrustPrice, Long publisherId, BigDecimal quantity) {
 		FuturesContract contract = contractDao.retrieve(contractId);
@@ -1011,7 +1038,7 @@ public class FuturesOrderService {
 			throw new ServiceException(ExceptionConstant.UNWINDQUANTITY_NOTENOUGH_EXCEPTION);
 		}
 		doUnwind(contract, contractOrder, orderType, quantity, FuturesTradePriceType.MKT, null, publisherId,
-				FuturesWindControlType.UserApplyUnwind, false);
+				FuturesWindControlType.UserApplyUnwind, false, false, null);
 	}
 
 	public void settingProfitAndLossLimit(Long publisherId, Long contractId, FuturesOrderType orderType,
@@ -1037,7 +1064,7 @@ public class FuturesOrderService {
 			contractOrder.setBuyFallPerUnitLimitProfitAmount(perUnitLimitProfitAmount);
 		}
 		contractOrder.setUpdateTime(new Date());
-		contractOrderDao.update(contractOrder);
+		contractOrderDao.doUpdate(contractOrder);
 	}
 
 	/**************************************** 分割线 ************************************************/
@@ -1193,7 +1220,7 @@ public class FuturesOrderService {
 		return orderDao.update(order);
 	}
 
-	private void unwindReturnOvernightReserveFund(FuturesOrder order) {
+	private void unwindReturnOvernightReserveFund(FuturesContractOrder order) {
 		try {
 			// 平仓时退还隔夜保证金
 			FuturesOvernightRecord record = overnightService.findNewestOvernightRecord(order);
@@ -1646,36 +1673,42 @@ public class FuturesOrderService {
 		}
 	}
 
-	public BigDecimal getStrongMoney(FuturesOrder order) {
-		FuturesCurrencyRate rate = rateService.findByCurrency(order.getCommodityCurrency());
+	private BigDecimal computeSingleMax(FuturesContractOrder order) {
+		BigDecimal result = BigDecimal.ZERO;
+		if (order.getBuyUpCanUnwindQuantity().compareTo(result) > 0) {
+			result = order.getBuyUpCanUnwindQuantity();
+		}
+		if (order.getBuyFallCanUnwindQuantity().compareTo(result) > 0) {
+			result = order.getBuyFallCanUnwindQuantity();
+		}
+		return result;
+	}
+
+	public BigDecimal getStrongMoney(FuturesContractOrder order) {
+		FuturesContract contract = order.getContract();
+		FuturesCommodity commodity = contract.getCommodity();
+		BigDecimal singleMax = computeSingleMax(order);
 		// 合约设置
-		// Integer unwindPointType = order.getUnwindPointType();
-		// BigDecimal perUnitUnwindPoint = order.getPerUnitUnwindPoint();
-		// if (unwindPointType != null && perUnitUnwindPoint != null &&
-		// unwindPointType == 1) {
-		// if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(new
-		// BigDecimal(100)) < 0
-		// && perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
-		// return order.getReserveFund()
-		// .multiply(new BigDecimal(100).subtract(perUnitUnwindPoint).divide(new
-		// BigDecimal(100)));
-		// }
-		// } else if (unwindPointType != null && perUnitUnwindPoint != null &&
-		// unwindPointType == 2) {
-		// if (perUnitUnwindPoint != null &&
-		// perUnitUnwindPoint.compareTo(BigDecimal.ZERO) >= 0
-		// && perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
-		// BigDecimal strongMoney =
-		// order.getReserveFund().subtract(perUnitUnwindPoint
-		// .multiply(order.getTotalQuantity()).multiply(rate.getRate()).setScale(2,
-		// RoundingMode.DOWN));
-		// if (strongMoney.compareTo(BigDecimal.ZERO) <= 0) {
-		// return order.getReserveFund();
-		// } else {
-		// return strongMoney;
-		// }
-		// }
-		// }
+		Integer unwindPointType = commodity.getUnwindPointType();
+		BigDecimal perUnitUnwindPoint = commodity.getPerUnitUnwindPoint();
+		if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 1) {
+			if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(new BigDecimal(100)) < 0
+					&& perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
+				return singleMax.multiply(commodity.getPerUnitReserveFund())
+						.multiply(new BigDecimal(100).subtract(perUnitUnwindPoint).divide(new BigDecimal(100)));
+			}
+		} else if (unwindPointType != null && perUnitUnwindPoint != null && unwindPointType == 2) {
+			if (perUnitUnwindPoint != null && perUnitUnwindPoint.compareTo(BigDecimal.ZERO) >= 0
+					&& perUnitUnwindPoint.compareTo(new BigDecimal(0)) > 0) {
+				BigDecimal strongMoney = commodity.getPerUnitReserveFund().subtract(perUnitUnwindPoint)
+						.multiply(singleMax).setScale(2, RoundingMode.DOWN);
+				if (strongMoney.compareTo(BigDecimal.ZERO) <= 0) {
+					return order.getReserveFund();
+				} else {
+					return strongMoney;
+				}
+			}
+		}
 		return order.getReserveFund();
 	}
 
@@ -2191,10 +2224,36 @@ public class FuturesOrderService {
 	 *            合约编号
 	 * @param commodityNo
 	 *            产品编号
+	 * @param orderType
+	 *            订单类型
 	 * @return
 	 */
-	public BigDecimal getAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
-		return orderDao.getAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
+	public BigDecimal getOpenAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
+		FuturesCommodity futuresCommodity = commodityDao.retrieveByCommodityNo(commodityNo);
+		BigDecimal minwave = futuresCommodity.getMinWave();
+		int length = minwave.toPlainString().length();
+		BigDecimal openAvgFillPrice = orderDao.getOpenAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
+		openAvgFillPrice = openAvgFillPrice != null ?
+				openAvgFillPrice.setScale(length, BigDecimal.ROUND_HALF_DOWN) : BigDecimal.ZERO;
+		return openAvgFillPrice;
+	}
+	
+	public BigDecimal getOpenAvgFillPrice(Long publisherId, Long contractId, String orderType) {
+		return BigDecimal.ZERO;
+	}
+
+	public BigDecimal getCloseAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
+		FuturesCommodity futuresCommodity = commodityDao.retrieveByCommodityNo(commodityNo);
+		BigDecimal minwave = futuresCommodity.getMinWave();
+		int length = minwave.toPlainString().length();
+		BigDecimal closeAvgFillPrice = orderDao.getCloseAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
+		closeAvgFillPrice = closeAvgFillPrice != null ?
+				closeAvgFillPrice.setScale(length, BigDecimal.ROUND_HALF_DOWN) : BigDecimal.ZERO;
+		return closeAvgFillPrice;
+	}
+	
+	public BigDecimal getCloseAvgFillPrice(Long publisherId, Long contractId, String orderType) {
+		return BigDecimal.ZERO;
 	}
 
 	public Page<FuturesTradeActionAgentDto> pagesOrderAgentDealRecord(FuturesTradeAdminQuery query) {
@@ -2299,6 +2358,14 @@ public class FuturesOrderService {
 				List<Predicate> predicateList = new ArrayList<Predicate>();
 				if (query.getPublisherIds().size() > 0) {
 					predicateList.add(criteriaBuilder.in(root.get("publisherId")).value(query.getPublisherIds()));
+				}
+				if (!StringUtil.isEmpty(query.getPublisherName())) {
+					predicateList.add(criteriaBuilder.equal(root.get("publisherName").as(String.class),
+							query.getPublisherName()));
+				}
+				if (!StringUtil.isEmpty(query.getPublisherPhone())) {
+					predicateList
+							.add(criteriaBuilder.equal(root.get("phone").as(String.class), query.getPublisherPhone()));
 				}
 				if (!StringUtil.isEmpty(query.getSymbol())) {
 					predicateList.add(criteriaBuilder.or(

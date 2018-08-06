@@ -121,12 +121,6 @@ public class FuturesOrderDaoImpl implements FuturesOrderDao {
 	}
 
 	@Override
-	public List<FuturesOrder> retrieveByBackhandSourceOrderId(Long backhandSourceOrderId) {
-//		return repository.findByBackhandSourceOrderId(backhandSourceOrderId);
-		return null;
-	}
-
-	@Override
 	public List<Object> queryByState(List<Integer> state) {
 		return repository.queryByState(state);
 	}
@@ -142,8 +136,12 @@ public class FuturesOrderDaoImpl implements FuturesOrderDao {
 	}
 
 	@Override
-	public BigDecimal getAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
-		return repository.getAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
+	public BigDecimal getOpenAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
+		return repository.getOpenAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
+	}
+
+	public BigDecimal getCloseAvgFillPrice(Long publisherId, String contractNo, String commodityNo, String orderType) {
+		return repository.getCloseAvgFillPrice(publisherId, contractNo, commodityNo, orderType);
 	}
 
 	@Override

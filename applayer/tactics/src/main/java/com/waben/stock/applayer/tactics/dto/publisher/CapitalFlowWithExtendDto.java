@@ -1,11 +1,10 @@
 package com.waben.stock.applayer.tactics.dto.publisher;
 
+import com.waben.stock.interfaces.enums.CapitalFlowType;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.math.BigDecimal;
 import java.util.Date;
-
-import com.waben.stock.interfaces.enums.CapitalFlowType;
-
-import io.swagger.annotations.ApiModelProperty;
 
 public class CapitalFlowWithExtendDto {
 
@@ -85,6 +84,10 @@ public class CapitalFlowWithExtendDto {
 	 */
 	@ApiModelProperty(value = "合约代码")
 	private String contractNo;
+
+	/** 保证金（人民币） */
+	@ApiModelProperty(value = "保证金（人民币）")
+	private BigDecimal reserveFund;
 
 	public Long getId() {
 		return id;
@@ -218,4 +221,11 @@ public class CapitalFlowWithExtendDto {
 		this.contractNo = contractNo;
 	}
 
+	public BigDecimal getReserveFund() {
+		return reserveFund;
+	}
+
+	public void setReserveFund(BigDecimal reserveFund) {
+		this.reserveFund = reserveFund;
+	}
 }

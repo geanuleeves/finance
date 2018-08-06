@@ -19,9 +19,9 @@ public class RabbitmqConfiguration {
 
 	public static final String entrustQueryQueueName = "futures-entrustQuery";
 
-	public static final String monitorPublisherFuturesOrderQueueName = "futures-monitorPublisherFuturesOrder";
+	public static final String monitorStrongPointQueueName = "futures-monitorStrongPoint";
 
-	public static final String monitorSingleFuturesOrderQueueName = "futures-monitorSingleFuturesOrder";
+	public static final String monitorStopLossOrProfitQueueName = "futures-monitorStopLossOrProfit";
 
 	@Autowired
 	private ConnectionFactory connectionFactory;
@@ -34,8 +34,8 @@ public class RabbitmqConfiguration {
 		return rabbitTemplate;
 	}
 
-	@Bean(name = { "monitorSingleOrderContainerFactory" })
-	public SimpleRabbitListenerContainerFactory monitorSingleOrderContainerFactory() {
+	@Bean(name = { "monitorStopLossOrProfitContainerFactory" })
+	public SimpleRabbitListenerContainerFactory monitorStopLossOrProfitContainerFactory() {
 		SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
 		factory.setConnectionFactory(connectionFactory);
 		factory.setConcurrentConsumers(5);
@@ -52,19 +52,19 @@ public class RabbitmqConfiguration {
 	}
 
 	/**
-	 * 创建 监控用户期货订单 队列
+	 * 创建 监控强平 队列
 	 */
 	@Bean
-	public Queue monitorPublisherFuturesOrderQueue() {
-		return new Queue(monitorPublisherFuturesOrderQueueName);
+	public Queue monitorStrongPointQueue() {
+		return new Queue(monitorStrongPointQueueName);
 	}
 
 	/**
-	 * 创建 监控单个期货订单 队列
+	 * 创建 监控止损止盈 队列
 	 */
 	@Bean
-	public Queue monitorSingleFuturesOrderQueue() {
-		return new Queue(monitorSingleFuturesOrderQueueName);
+	public Queue monitorStopLossOrProfitQueue() {
+		return new Queue(monitorStopLossOrProfitQueueName);
 	}
 
 }

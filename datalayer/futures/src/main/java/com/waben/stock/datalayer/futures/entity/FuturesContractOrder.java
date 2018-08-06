@@ -1,6 +1,9 @@
 package com.waben.stock.datalayer.futures.entity;
 
 import javax.persistence.*;
+
+import org.hibernate.annotations.Formula;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -93,6 +96,19 @@ public class FuturesContractOrder {
 	private BigDecimal buyFallPerUnitLimitLossAmount;
 	/** 更新时间 */
 	private Date updateTime;
+
+	/** 浮动的盈亏 */
+	@Transient
+	private BigDecimal floatProfitOrLoss;
+
+	@Transient
+	private BigDecimal strongMoney;
+
+	@Formula("(select r.name from real_name r where r.resource_id = publisher_id limit 1)")
+	private String publisherName;
+
+	@Formula("(select p.phone from publisher p where p.id = publisher_id limit 1)")
+	private String publisherPhone;
 
 	public Long getId() {
 		return id;
@@ -276,6 +292,38 @@ public class FuturesContractOrder {
 
 	public void setBuyFallCanUnwindQuantity(BigDecimal buyFallCanUnwindQuantity) {
 		this.buyFallCanUnwindQuantity = buyFallCanUnwindQuantity;
+	}
+
+	public String getPublisherName() {
+		return publisherName;
+	}
+
+	public void setPublisherName(String publisherName) {
+		this.publisherName = publisherName;
+	}
+
+	public String getPublisherPhone() {
+		return publisherPhone;
+	}
+
+	public void setPublisherPhone(String publisherPhone) {
+		this.publisherPhone = publisherPhone;
+	}
+
+	public BigDecimal getFloatProfitOrLoss() {
+		return floatProfitOrLoss;
+	}
+
+	public void setFloatProfitOrLoss(BigDecimal floatProfitOrLoss) {
+		this.floatProfitOrLoss = floatProfitOrLoss;
+	}
+
+	public BigDecimal getStrongMoney() {
+		return strongMoney;
+	}
+
+	public void setStrongMoney(BigDecimal strongMoney) {
+		this.strongMoney = strongMoney;
 	}
 
 }

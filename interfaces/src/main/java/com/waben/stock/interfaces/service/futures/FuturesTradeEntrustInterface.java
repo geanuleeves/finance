@@ -82,7 +82,15 @@ public interface FuturesTradeEntrustInterface {
 	 */
 	@RequestMapping(value = "/pages", method = RequestMethod.POST, consumes = "application/json")
 	Response<PageInfo<FuturesTradeEntrustDto>> pages(@RequestBody FuturesTradeEntrustQuery query);
-	
+
+	/**
+	 * 根据条件查询成交记录
+	 * @param query
+	 * @return
+	 */
+	@RequestMapping(value = "/pages/action", method = RequestMethod.POST, consumes = "application/json")
+	public Response<PageInfo<FuturesTradeEntrustDto>> pagesAction(@RequestBody FuturesTradeEntrustQuery query);
+
 	/**
 	 * 根据条件查询交易委托
 	 * @param query
@@ -90,5 +98,26 @@ public interface FuturesTradeEntrustInterface {
 	 */
 	@RequestMapping(value = "/pagesEntrust", method = RequestMethod.POST, consumes = "application/json")
 	Response<PageInfo<FuturesTradeDto>> pagesEntrust(@RequestBody FuturesTradeAdminQuery query);
+
+	/**
+	 *  移动端查询交易委托
+	 * @param query
+	 * @return
+	 */
+	@RequestMapping(value = "/pagesPhoneEntrust", method = RequestMethod.POST, consumes = "application/json")
+	Response<PageInfo<FuturesTradeEntrustDto>> pagesPhoneEntrust(@RequestBody FuturesTradeEntrustQuery query);
+
+
+	/**
+	 *  移动端查询开平仓记录
+	 * @param query
+	 * @return
+	 */
+	@RequestMapping(value = "/pagesPhoneAction", method = RequestMethod.POST, consumes = "application/json")
+	Response<PageInfo<FuturesTradeEntrustDto>> pagesPhoneAction(@RequestBody FuturesTradeEntrustQuery query);
+
+
+	@RequestMapping(value = "/detail/{id}", method = RequestMethod.GET)
+	Response<FuturesTradeEntrustDto> detail(@PathVariable("id") Long id);
 
 }

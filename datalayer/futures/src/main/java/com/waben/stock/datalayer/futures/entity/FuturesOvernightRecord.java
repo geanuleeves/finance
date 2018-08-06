@@ -34,7 +34,7 @@ public class FuturesOvernightRecord {
 	 */
 	@ManyToOne
 	@JoinColumn(name = "order_id")
-	private FuturesOrder order;
+	private FuturesContractOrder order;
 	/**
 	 * 隔夜保证金
 	 */
@@ -85,11 +85,11 @@ public class FuturesOvernightRecord {
 		this.publisherId = publisherId;
 	}
 
-	public FuturesOrder getOrder() {
+	public FuturesContractOrder getOrder() {
 		return order;
 	}
 
-	public void setOrder(FuturesOrder order) {
+	public void setOrder(FuturesContractOrder order) {
 		this.order = order;
 	}
 
@@ -126,7 +126,7 @@ public class FuturesOvernightRecord {
 	}
 
 	public String getCommodityName() {
-		if(order != null) {
+		if (order != null) {
 			return order.getCommodityName();
 		}
 		return commodityName;
@@ -138,7 +138,7 @@ public class FuturesOvernightRecord {
 
 	public String getCommoditySymbol() {
 		if (order != null) {
-			return order.getCommoditySymbol();
+			return order.getCommodityNo();
 		}
 		return commoditySymbol;
 	}
