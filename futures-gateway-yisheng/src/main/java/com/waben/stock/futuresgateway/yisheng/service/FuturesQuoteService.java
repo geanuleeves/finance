@@ -36,7 +36,7 @@ public class FuturesQuoteService {
 	
 	// @PostConstruct
 	public void init() {
-		String dateTimeStamp = "2018-08-07 11:00:00.000";
+		String dateTimeStamp = "2018-08-07 22:00:00.000";
 		deleteQuoteByDateTimeStampLessThan(dateTimeStamp);
 	}
 
