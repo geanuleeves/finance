@@ -485,7 +485,7 @@ public class FuturesTradeEntrustService {
 
 					}
 					// 计算开仓的均价
-					BigDecimal openAvgFillPrice = totalOpenCost.divide(totalUnwindQuantity);
+					BigDecimal openAvgFillPrice = totalOpenCost.divide(totalUnwindQuantity, 10, RoundingMode.DOWN);
 					BigDecimal[] divideArr = openAvgFillPrice.divideAndRemainder(minWave);
 					openAvgFillPrice = divideArr[0].multiply(minWave);
 					entrust.setOpenAvgFillPrice(openAvgFillPrice);
