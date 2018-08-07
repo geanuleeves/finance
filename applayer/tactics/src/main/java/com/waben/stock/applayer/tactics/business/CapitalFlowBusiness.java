@@ -5,6 +5,7 @@ import com.waben.stock.applayer.tactics.business.futures.FuturesOrderBusiness;
 import com.waben.stock.applayer.tactics.dto.publisher.CapitalFlowWithExtendDto;
 import com.waben.stock.applayer.tactics.security.SecurityUtil;
 import com.waben.stock.interfaces.dto.buyrecord.BuyRecordDto;
+import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractOrderDto;
 import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
 import com.waben.stock.interfaces.dto.futures.FuturesOvernightRecordDto;
@@ -18,6 +19,7 @@ import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.CapitalFlowQuery;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.service.futures.FuturesCommodityInterface;
 import com.waben.stock.interfaces.service.futures.FuturesOrderInterface;
 import com.waben.stock.interfaces.service.publisher.CapitalFlowInterface;
 import com.waben.stock.interfaces.service.stockcontent.StrategyTypeInterface;
@@ -64,6 +66,10 @@ public class CapitalFlowBusiness {
 	@Autowired
 	@Qualifier("futuresOrderInterface")
 	private FuturesOrderInterface futuresOrderInterface;
+
+	@Autowired
+	private FuturesCommodityInterface futuresCommodityInterface;
+
 
 	@Autowired
 	private FuturesContractOrderBusiness futuresContractOrderBusiness;
@@ -122,6 +128,14 @@ public class CapitalFlowBusiness {
 					flowWithExtend.setCommodityName(orderDto.getCommodityName());
 					flowWithExtend.setCommoditySymbol(orderDto.getCommoditySymbol());
 					flowWithExtend.setContractNo(orderDto.getContractNo());
+					Response<FuturesCommodityDto> futuresCommodityDto = futuresCommodityInterface
+							.getFuturesByCommodityId(orderDto.getCommodityId());
+					FuturesCommodityDto commodityDto = futuresCommodityDto.getResult();
+					if (commodityDto != null) {
+						BigDecimal quantity = orderDto.getOpenFilled().compareTo(orderDto.getCloseFilled()) > 0 ?
+								orderDto.getOpenFilled() : orderDto.getCloseFilled();
+						flowWithExtend.setReserveFund(commodityDto.getPerUnitReserveFund().multiply(quantity));
+					}
 					FuturesContractOrderDto futuresContractOrderViewDto = futuresContractOrderBusiness
 							.fetchByContractIdAndPublisherId(SecurityUtil.getUserId(), orderDto.getContractId());
 					flowWithExtend.setReserveFund(futuresContractOrderViewDto != null ?

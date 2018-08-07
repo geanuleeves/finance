@@ -459,13 +459,19 @@ public class FuturesTradeEntrustService {
 							logger.info("代理分成自动平仓内, actionNo:{}, state:{}", action.getActionNo(),
 									action.getState().getType());
 							// 递延费
-							BigDecimal deferredFee = BigDecimal.ZERO;
+							BigDecimal deferredFee = action.getOrder().getContract().getCommodity()
+									.getOvernightPerUnitDeferredFee().multiply(action.getQuantity());
+							// action.getOrder().getContractOrder().getBuyUpCanUnwindQuantity()
+							// .add(action.getOrder().getContractOrder().getBuyFallCanUnwindQuantity())
+							// .multiply(action.getOrder().getContract().getCommodity()
+							// .getOvernightPerUnitDeferredFee());
 							if (deferredFee == null) {
 								deferredFee = BigDecimal.ZERO;
 							}
 							// 当前拆分的服务费
 							BigDecimal currentServiceFee = action.getOrder().getServiceFee()
 									.divide(action.getOrder().getTotalQuantity()).multiply(action.getQuantity());
+
 							// 结算
 							orgBusiness.futuresRatioSettlement(action.getPublisherId(), action.getContractId(),
 									action.getId(), action.getActionNo(), action.getOrder().getTotalQuantity(),

@@ -1,14 +1,8 @@
 package com.waben.stock.datalayer.futures.controller;
 
-import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
-import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
+import com.waben.stock.datalayer.futures.entity.*;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
-import com.waben.stock.datalayer.futures.service.FuturesCommodityService;
-import com.waben.stock.datalayer.futures.service.FuturesContractOrderService;
-import com.waben.stock.datalayer.futures.service.FuturesOrderService;
-import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
+import com.waben.stock.datalayer.futures.service.*;
 import com.waben.stock.interfaces.dto.futures.*;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
@@ -54,6 +48,9 @@ public class FuturesOrderController implements FuturesOrderInterface {
 
 	@Autowired
 	private FuturesContractOrderService futuresContractOrderService;
+
+	@Autowired
+	private FuturesCurrencyRateService rateService;
 
 	@Override
 	public Response<PageInfo<FuturesOrderDto>> pagesOrder(@RequestBody FuturesOrderQuery orderQuery) {
@@ -177,6 +174,7 @@ public class FuturesOrderController implements FuturesOrderInterface {
 				FuturesContractOrder futuresContractOrder = page.getContent().get(i);
 				FuturesCommodity futuresCommodity = futuresCommodityService
 						.retrieveByCommodityNo(futuresContractOrder.getCommodityNo());
+				FuturesCurrencyRate rate = rateService.findByCurrency(futuresCommodity.getCurrency());
 				// 已成交部分最新均价
 				BigDecimal lastPrice = quoteContainer.getLastPrice(futuresContractOrder.getCommodityNo(),
 						futuresContractOrder.getContractNo());
@@ -191,13 +189,15 @@ public class FuturesOrderController implements FuturesOrderInterface {
 						// 买涨浮动盈亏
 						buyUpFloatingProfitAndLoss = lastPrice.subtract(avgUpFillPrice)
 								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
-								.multiply(futuresContractOrder.getBuyUpQuantity()).setScale(2, RoundingMode.HALF_UP);
+								.multiply(futuresContractOrder.getBuyUpQuantity())
+								.multiply(rate.getRate()).setScale(2, RoundingMode.HALF_UP);
 					}
 					if (avgFallFillPrice != null && avgFallFillPrice.compareTo(new BigDecimal(0)) > 0) {
 						// 买跌浮动盈亏
-						buyFallFloatingProfitAndLoss = lastPrice.subtract(avgFallFillPrice)
+						buyFallFloatingProfitAndLoss = avgFallFillPrice.subtract(lastPrice)
 								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
-								.multiply(futuresContractOrder.getBuyFallQuantity()).setScale(2, RoundingMode.HALF_UP);
+								.multiply(futuresContractOrder.getBuyFallQuantity())
+								.multiply(rate.getRate()).setScale(2, RoundingMode.HALF_UP);
 					}
 					totalFloatingProfitAndLoss = totalFloatingProfitAndLoss.add(buyUpFloatingProfitAndLoss)
 							.add(buyFallFloatingProfitAndLoss);
