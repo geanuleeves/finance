@@ -436,7 +436,7 @@ public class FuturesTradeEntrustService {
 					BigDecimal totalPublisherProfitOrLoss = BigDecimal.ZERO;
 					for (FuturesTradeAction action : actionList) {
 						totalUnwindQuantity = totalUnwindQuantity.add(action.getQuantity());
-						totalOpenCost = action.getQuantity().multiply(action.getOpenAvgFillPrice());
+						totalOpenCost = totalOpenCost.add(action.getQuantity().multiply(action.getOpenAvgFillPrice()));
 						CapitalAccountDto account = accountBusiness.futuresOrderSettlement(action.getPublisherId(),
 								action.getOrder().getId(), action.getProfitOrLoss());
 						// 发布人盈亏（人民币）、平台盈亏（人民币）
