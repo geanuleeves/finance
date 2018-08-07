@@ -1,25 +1,35 @@
 package com.waben.stock.datalayer.futures.controller;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.service.FuturesCommodityService;
 import com.waben.stock.datalayer.futures.service.FuturesContractOrderService;
+import com.waben.stock.datalayer.futures.service.FuturesCurrencyRateService;
 import com.waben.stock.datalayer.futures.service.FuturesOrderService;
 import com.waben.stock.datalayer.futures.service.FuturesTradeActionService;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesHoldPositionAgentDto;
-import com.waben.stock.datalayer.futures.service.*;
 import com.waben.stock.interfaces.dto.futures.FuturesContractOrderDto;
 import com.waben.stock.interfaces.dto.futures.FuturesContractOrderViewDto;
-import com.waben.stock.interfaces.dto.futures.FuturesCurrencyRateDto;
-import com.waben.stock.interfaces.dto.organization.OrganizationDto;
-import com.waben.stock.interfaces.dto.organization.OrganizationPublisherDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
 import com.waben.stock.interfaces.dto.publisher.RealNameDto;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
-import com.waben.stock.interfaces.enums.FuturesTradeActionType;
-import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
@@ -32,25 +42,8 @@ import com.waben.stock.interfaces.service.publisher.PublisherInterface;
 import com.waben.stock.interfaces.service.publisher.RealNameInterface;
 import com.waben.stock.interfaces.util.CopyBeanUtils;
 import com.waben.stock.interfaces.util.PageToPageInfo;
-import com.waben.stock.interfaces.util.StringUtil;
 
 import io.swagger.annotations.Api;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 合约订单
@@ -180,8 +173,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 					// 今持仓
 					Integer findUpFilledNow = futuresTradeActionService.findFilledNow(
 							futuresContractOrder.getPublisherId(), futuresContractOrder.getCommodityNo(),
-							futuresContractOrder.getContractNo(), FuturesOrderType.BuyUp.getIndex(),
-							FuturesTradeActionType.OPEN.getIndex());
+							futuresContractOrder.getContractNo(), FuturesOrderType.BuyUp.getIndex());
 					// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
 					if (futuresCommodity != null && buyUpQuantity != null
 							&& buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
@@ -235,8 +227,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 					// 今持仓
 					Integer findFallFilledNow = futuresTradeActionService.findFilledNow(
 							futuresContractOrder.getPublisherId(), futuresContractOrder.getCommodityNo(),
-							futuresContractOrder.getContractNo(), FuturesOrderType.BuyFall.getIndex(),
-							FuturesTradeActionType.CLOSE.getIndex());
+							futuresContractOrder.getContractNo(), FuturesOrderType.BuyFall.getIndex());
 					// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
 					if (futuresCommodity != null && buyFallQuantity != null
 							&& buyFallQuantity.compareTo(new BigDecimal(0)) > 0) {
@@ -267,7 +258,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 								.add(futuresCommodity.getUnwindServiceFee()).multiply(buyFallQuantity));
 						// 保证金
 						sellDto.setReserveFund(futuresCommodity.getPerUnitReserveFund()
-								.multiply(futuresContractOrder.getBuyUpQuantity()));
+								.multiply(futuresContractOrder.getBuyFallQuantity()));
 						sellDto.setLimitProfitType(futuresContractOrder.getBuyFallLimitProfitType());
 						sellDto.setPerUnitLimitProfitAmount(futuresContractOrder.getBuyFallPerUnitLimitProfitAmount());
 						sellDto.setLimitLossType(futuresContractOrder.getBuyFallLimitLossType());
@@ -290,38 +281,13 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 		Page<FuturesContractOrder> page = futuresOrderService.pages(query);
 		PageInfo<FuturesHoldPositionAgentDto> result = PageToPageInfo.pageToPageInfo(page,
 				FuturesHoldPositionAgentDto.class);
-		List<FuturesHoldPositionAgentDto> orderList = result.getContent();
-		List<FuturesHoldPositionAgentDto> positionAgentList = new ArrayList<FuturesHoldPositionAgentDto>();
-		for (FuturesHoldPositionAgentDto positionAgent : orderList) {
-			if (!StringUtil.isEmpty(query.getPublisherName())) {
-				if (positionAgent.getPublisherName().equals(query.getPublisherName())) {
-					positionAgentList.add(positionAgent);
-				}
-			}
-			if (!StringUtil.isEmpty(query.getPublisherPhone())) {
-				if (positionAgent.getPublisherPhone().equals(query.getPublisherPhone())) {
-					positionAgentList.add(positionAgent);
-				}
-
-			}
-			if (query.getPublisherPhone() == null && query.getPublisherName() == null) {
-				positionAgentList.add(positionAgent);
-			}
-		}
-		result.setContent(positionAgentList);
-		List<FuturesHoldPositionAgentDto> futuresContractOrderViewDtos = new ArrayList<FuturesHoldPositionAgentDto>();
+		List<FuturesHoldPositionAgentDto> futuresContractOrderViewDtos = new ArrayList<>();
 		if (result != null && result.getContent() != null) {
-			// 封装汇率
-			Map<String, FuturesCurrencyRateDto> rateMap = new HashMap<String, FuturesCurrencyRateDto>();
-			List<FuturesCurrencyRateDto> rateList = getListCurrencyRate();
-			for (FuturesCurrencyRateDto futuresCurrencyRateDto : rateList) {
-				rateMap.put(futuresCurrencyRateDto.getCurrency(), futuresCurrencyRateDto);
-			}
 			for (int i = 0; i < result.getContent().size(); i++) {
 				FuturesHoldPositionAgentDto futuresContractOrderViewDto = result.getContent().get(i);
 				FuturesContractOrder futuresContractOrder = page.getContent().get(i);
-				// 合约id
-				futuresContractOrderViewDto.setContractId(futuresContractOrder.getContract().getId());
+				// 合约名称
+				// futuresContractOrderViewDto.setContractName(futuresContractOrder.getContract().getContractName());
 				// 拷贝两份出来
 				try {
 					FuturesCommodity futuresCommodity = futuresCommodityService
@@ -330,157 +296,98 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 							.fetchByResourceId(futuresContractOrderViewDto.getPublisherId()).getResult();
 					PublisherDto publisher = publisherInterface.fetchById(futuresContractOrderViewDto.getPublisherId())
 							.getResult();
-					OrganizationPublisherDto orgPublisher = organizationPublisherInterface
-							.fetchOrgPublisher(futuresContractOrderViewDto.getPublisherId()).getResult();
-					// 合约名称
-					futuresContractOrderViewDto
-							.setCommodityName(futuresCommodity != null ? futuresCommodity.getName() : "");
-					futuresContractOrderViewDto
-							.setUnwindPointType(futuresCommodity != null ? futuresCommodity.getUnwindPointType() : 0);
-					futuresContractOrderViewDto.setPerUnitUnwindPoint(
-							futuresCommodity != null ? futuresCommodity.getPerUnitUnwindPoint() : new BigDecimal(0));
 					// 已成交部分最新均价
 					BigDecimal lastPrice = quoteContainer.getLastPrice(futuresContractOrder.getCommodityNo(),
 							futuresContractOrder.getContractNo());
-					lastPrice = lastPrice == null ? new BigDecimal(0) : lastPrice;
-					if (query.getOrderType() == null
-							|| (query.getOrderType() != null && query.getOrderType().equals("1"))) {
-						// 买涨
-						FuturesHoldPositionAgentDto buyDto = futuresContractOrderViewDto.deepClone();
-						if (realName != null) {
-							buyDto.setPublisherName(realName.getName());
-						}
-						if (publisher != null) {
-							buyDto.setPublisherPhone(publisher.getPhone());
-						}
-						if (orgPublisher != null) {
-							OrganizationDto org = organizationInterface.fetchByOrgId(orgPublisher.getOrgId())
-									.getResult();
-							if (org != null) {
-								buyDto.setCode(org.getCode());
-								buyDto.setOrgName(org.getName());
-							}
-						}
+					// 买涨
+					FuturesHoldPositionAgentDto buyDto = futuresContractOrderViewDto.deepClone();
+					if (realName != null) {
+						buyDto.setPublisherName(realName.getName());
+					}
+					if (publisher != null) {
+						buyDto.setPublisherPhone(publisher.getPhone());
+					}
+					buyDto.setCommodityName(futuresCommodity.getName());
+					buyDto.setCommodityCurrency(futuresCommodity.getCurrency());
+					buyDto.setCommoditySymbol(futuresCommodity.getSymbol());
+					buyDto.setContractId(futuresContractOrder.getContract().getId());
 
-						buyDto.setCommodityName(futuresCommodity.getName());
-						buyDto.setCommodityCurrency(futuresCommodity.getCurrency());
-						buyDto.setCommoditySymbol(futuresCommodity.getSymbol());
-						buyDto.setContractId(futuresContractOrder.getContract().getId());
-
-						buyDto.setPerUnitLimitLossAmount(futuresContractOrder.getBuyUpPerUnitLimitLossAmount());
-						buyDto.setPerUnitLimitProfitAmount(futuresContractOrder.getBuyUpPerUnitLimitProfitAmount());
-
-						// 订单类型
-						buyDto.setOrderType(FuturesOrderType.BuyUp);
-						// 买涨手数
-						buyDto.setBuyUpQuantity(futuresContractOrder.getBuyUpQuantity());
-						// 今持仓
-						Integer findUpFilledNow = futuresTradeActionService.findFilledNow(
-								futuresContractOrder.getPublisherId(), futuresContractOrder.getCommodityNo(),
-								futuresContractOrder.getContractNo(), FuturesTradeActionType.OPEN.getIndex(),
-								FuturesOrderType.BuyUp.getIndex());
-						// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
-						if (futuresCommodity != null) {
-							buyDto.setQuantityNow(new BigDecimal(findUpFilledNow == null ? 0 : findUpFilledNow));
-							// 成交价格
-							BigDecimal avgUpFillPrice = futuresOrderService.getOpenAvgFillPrice(
-									futuresContractOrder.getPublisherId(), futuresContractOrder.getContract().getId(),
-									FuturesOrderType.BuyUp.getIndex());
-							avgUpFillPrice = avgUpFillPrice == null ? new BigDecimal(0) : avgUpFillPrice;
-
-							buyDto.setAvgFillPrice(avgUpFillPrice);
-							// 最新价
-							buyDto.setLastPrice(lastPrice);
-							// 最小波动
-							buyDto.setMinWave(futuresCommodity.getMinWave());
-							// 最小波动价格
-							buyDto.setPerWaveMoney(futuresCommodity.getPerWaveMoney());
-							// 查询汇率
-							FuturesCurrencyRateDto rate = rateMap.get(futuresCommodity.getCurrency());
-							buyDto.setRate(rate.getRate());
-							buyDto.setCurrencySign(rate.getCurrencySign());
-							buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice)
-									.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
+					buyDto.setOrderType(FuturesOrderType.getByIndex("1"));
+					// 已持仓
+					buyDto.setBuyUpQuantity(futuresContractOrder.getBuyUpQuantity());
+					// 今持仓
+					Integer findUpFilledNow = futuresTradeActionService.findFilledNow(
+							futuresContractOrder.getPublisherId(), futuresContractOrder.getCommodityNo(),
+							futuresContractOrder.getContractNo(), FuturesOrderType.BuyUp.getIndex());
+					if (findUpFilledNow != null) {
+						buyDto.setQuantityNow(new BigDecimal(findUpFilledNow == null ? 0 : findUpFilledNow));
+					}
+					// 成交价格
+					BigDecimal avgUpFillPrice = futuresOrderService.getOpenAvgFillPrice(
+							futuresContractOrder.getPublisherId(), futuresContractOrder.getContract().getId(),
+							FuturesOrderType.BuyUp.getIndex());
+					buyDto.setAvgFillPrice(avgUpFillPrice);
+					buyDto.setLastPrice(lastPrice);
+					// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格
+					if (futuresCommodity != null) {
+						buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice)
+								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
+								.multiply(futuresContractOrder.getBuyUpQuantity()));
+						buyDto.setServiceFee(
+								futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee()));
+						if (futuresContractOrder.getBuyUpQuantity()
+								.compareTo(futuresContractOrder.getBuyFallQuantity()) > 0) {
+							buyDto.setReserveFund(futuresCommodity.getPerUnitReserveFund()
 									.multiply(futuresContractOrder.getBuyUpQuantity()));
-							buyDto.setServiceFee(futuresCommodity.getOpenwindServiceFee()
-									.add(futuresCommodity.getUnwindServiceFee()));
-							if (futuresContractOrder.getBuyUpQuantity()
-									.compareTo(futuresContractOrder.getBuyFallQuantity()) > 0) {
-								buyDto.setReserveFund(futuresCommodity.getPerUnitReserveFund()
-										.multiply(futuresContractOrder.getBuyUpQuantity()));
-							}
-							futuresContractOrderViewDtos.add(buyDto);
-
 						}
 					}
 
-					if (query.getOrderType() == null
-							|| (query.getOrderType() != null && query.getOrderType().equals("2"))) {
-						// 买跌
-						FuturesHoldPositionAgentDto sellDto = futuresContractOrderViewDto.deepClone();
-						if (realName != null) {
-							sellDto.setPublisherName(realName.getName());
-						}
-						if (publisher != null) {
-							sellDto.setPublisherPhone(publisher.getPhone());
-						}
-						if (orgPublisher != null) {
-							OrganizationDto org = organizationInterface.fetchByOrgId(orgPublisher.getOrgId())
-									.getResult();
-							if (org != null) {
-								sellDto.setCode(org.getCode());
-								sellDto.setOrgName(org.getName());
-							}
-						}
-
-						sellDto.setCommodityName(futuresCommodity.getName());
-						sellDto.setCommodityCurrency(futuresCommodity.getCurrency());
-						sellDto.setCommoditySymbol(futuresCommodity.getSymbol());
-						sellDto.setContractId(futuresContractOrder.getContract().getId());
-
-						sellDto.setPerUnitLimitLossAmount(futuresContractOrder.getBuyFallPerUnitLimitLossAmount());
-						sellDto.setPerUnitLimitProfitAmount(futuresContractOrder.getBuyFallPerUnitLimitProfitAmount());
-
-						sellDto.setOrderType(FuturesOrderType.BuyFall);
-						sellDto.setBuyFallQuantity(futuresContractOrder.getBuyFallQuantity());
-						// 今持仓
-						Integer findFallFilledNow = futuresTradeActionService.findFilledNow(
-								futuresContractOrder.getPublisherId(), futuresContractOrder.getCommodityNo(),
-								futuresContractOrder.getContractNo(), FuturesTradeActionType.CLOSE.getIndex(),
-								FuturesOrderType.BuyFall.getIndex());
-						// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
-						if (futuresCommodity != null) {
-							sellDto.setQuantityNow(new BigDecimal(findFallFilledNow == null ? 0 : findFallFilledNow));
-							// 成交价格
-							BigDecimal avgFallFillPrice = futuresOrderService.getOpenAvgFillPrice(
-									futuresContractOrder.getPublisherId(), futuresContractOrder.getContract().getId(),
-									FuturesOrderType.BuyFall.getIndex());
-							avgFallFillPrice = avgFallFillPrice == null ? new BigDecimal(0) : avgFallFillPrice;
-							sellDto.setAvgFillPrice(avgFallFillPrice);
-							sellDto.setLastPrice(lastPrice);
-							// 最小波动
-							sellDto.setMinWave(futuresCommodity.getMinWave());
-							// 最小波动价格
-							sellDto.setPerWaveMoney(futuresCommodity.getPerWaveMoney());
-							// 查询汇率
-							FuturesCurrencyRateDto rate = rateMap.get(futuresCommodity.getCurrency());
-							sellDto.setRate(rate.getRate());
-							sellDto.setCurrencySign(rate.getCurrencySign());
-							sellDto.setFloatingProfitAndLoss(lastPrice.subtract(avgFallFillPrice)
-									.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney()
-											.multiply(futuresContractOrder.getBuyFallQuantity())));
-							sellDto.setServiceFee(futuresCommodity.getOpenwindServiceFee()
-									.add(futuresCommodity.getUnwindServiceFee()));
-							if (futuresContractOrder.getBuyFallQuantity()
-									.compareTo(futuresContractOrder.getBuyUpQuantity()) > 0) {
-								sellDto.setReserveFund(futuresCommodity.getPerUnitReserveFund()
-										.multiply(futuresContractOrder.getBuyUpQuantity()));
-							}
-
-							futuresContractOrderViewDtos.add(sellDto);
-						}
-
+					// 买跌
+					FuturesHoldPositionAgentDto sellDto = futuresContractOrderViewDto.deepClone();
+					if (realName != null) {
+						sellDto.setPublisherName(realName.getName());
 					}
+					if (publisher != null) {
+						sellDto.setPublisherPhone(publisher.getPhone());
+					}
+					sellDto.setCommodityName(futuresCommodity.getName());
+					sellDto.setCommodityCurrency(futuresCommodity.getCurrency());
+					sellDto.setCommoditySymbol(futuresCommodity.getSymbol());
+					sellDto.setContractId(futuresContractOrder.getContract().getId());
+
+					sellDto.setOrderType(FuturesOrderType.getByIndex("2"));
+					sellDto.setBuyFallQuantity(futuresContractOrder.getBuyFallQuantity());
+					// 今持仓
+					Integer findFallFilledNow = futuresTradeActionService.findFilledNow(
+							futuresContractOrder.getPublisherId(), futuresContractOrder.getCommodityNo(),
+							futuresContractOrder.getContractNo(), FuturesOrderType.BuyFall.getIndex());
+					if (findFallFilledNow != null) {
+						sellDto.setQuantityNow(new BigDecimal(findFallFilledNow));
+					}
+					// 成交价格
+					BigDecimal avgFallFillPrice = futuresOrderService.getOpenAvgFillPrice(
+							futuresContractOrder.getPublisherId(), futuresContractOrder.getContract().getId(),
+							FuturesOrderType.BuyFall.getIndex());
+					sellDto.setAvgFillPrice(avgFallFillPrice);
+					sellDto.setLastPrice(lastPrice);
+					if (avgFallFillPrice == null) {
+						avgFallFillPrice = new BigDecimal(0);
+					}
+					// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格
+					if (futuresCommodity != null) {
+						sellDto.setFloatingProfitAndLoss(lastPrice.subtract(avgFallFillPrice)
+								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
+								.multiply(futuresContractOrder.getBuyFallQuantity()));
+						sellDto.setServiceFee(
+								futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee()));
+						if (futuresContractOrder.getBuyFallQuantity()
+								.compareTo(futuresContractOrder.getBuyUpQuantity()) > 0) {
+							sellDto.setReserveFund(futuresCommodity.getPerUnitReserveFund()
+									.multiply(futuresContractOrder.getBuyFallQuantity()));
+						}
+					}
+					futuresContractOrderViewDtos.add(buyDto);
+					futuresContractOrderViewDtos.add(sellDto);
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (ClassNotFoundException e) {
@@ -491,13 +398,4 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 		result.setContent(futuresContractOrderViewDtos);
 		return new Response<>(result);
 	}
-
-	public List<FuturesCurrencyRateDto> getListCurrencyRate() {
-		Response<PageInfo<FuturesCurrencyRateDto>> response = futuresCurrencyRateInterface.list();
-		if ("200".equals(response.getCode())) {
-			return response.getResult().getContent();
-		}
-		throw new ServiceException(response.getCode());
-	}
-
 }

@@ -97,7 +97,7 @@ public enum OutsideMessageType implements CommonalityEnum {
 	
 	Account_FuturesReturnOvernightReserveFund("34", "退回期货隔夜保证金"),
 	
-	Account_FuturesLoss("35", "期货亏损"),
+	Account_FuturesLoss("35", "期货盈亏"),
 	
 	Account_FuturesProfit("36", "期货盈利"),
 	

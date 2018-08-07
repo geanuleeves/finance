@@ -3,6 +3,8 @@ package com.waben.stock.futuresgateway.yisheng.service;
 import java.util.Date;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -34,7 +36,7 @@ public class FuturesQuoteService {
 	
 	// @PostConstruct
 	public void init() {
-		String dateTimeStamp = "2018-08-06 12:00:00.000";
+		String dateTimeStamp = "2018-08-07 11:00:00.000";
 		deleteQuoteByDateTimeStampLessThan(dateTimeStamp);
 	}
 

@@ -53,7 +53,8 @@ import com.waben.stock.interfaces.util.RandomUtil;
 import com.waben.stock.interfaces.util.StringUtil;
 
 @Component
-@RabbitListener(queues = { RabbitmqConfiguration.monitorStrongPointQueueName })
+@RabbitListener(queues = {
+		RabbitmqConfiguration.monitorStrongPointQueueName }, containerFactory = "monitorStrongPointContainerFactory")
 public class MonitorStrongPointConsumer {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
@@ -109,6 +110,10 @@ public class MonitorStrongPointConsumer {
 			logger.info("监控强平点:{}", message);
 		}
 		MonitorStrongPointMessage messgeObj = JacksonUtil.decode(message, MonitorStrongPointMessage.class);
+		if(messgeObj.getConsumeCount() == 0) {
+			// 第一次消费消息，输出日志
+			logger.info("第一次消费监控强平点消息:{}", message);
+		}
 		try {
 			Long publisherId = messgeObj.getPublisherId();
 			// step 1 : 获取资金账号
@@ -145,6 +150,8 @@ public class MonitorStrongPointConsumer {
 				isNeedRetry = false;
 			}
 			if (isNeedRetry) {
+				retry(messgeObj);
+			} else if(messgeObj.getConsumeCount() < 5) {
 				retry(messgeObj);
 			} else {
 				monitorPublisherList.remove(messgeObj.getPublisherId());
@@ -374,19 +381,19 @@ public class MonitorStrongPointConsumer {
 		BigDecimal buyUpCanUnwind = contractOrder.getBuyUpCanUnwindQuantity();
 		BigDecimal buyFallCanUnwind = contractOrder.getBuyFallCanUnwindQuantity();
 		if (buyUpCanUnwind != null && buyUpCanUnwind.compareTo(BigDecimal.ZERO) > 0
-				&& market.getBidPrice().compareTo(BigDecimal.ZERO) > 0) {
+				&& market.getLastPrice().compareTo(BigDecimal.ZERO) > 0) {
 			BigDecimal buyUpOpenAvgFillPrice = orderService.getOpenAvgFillPrice(publisherId, contractId,
 					FuturesOrderType.BuyUp.getIndex());
 			floatProfitOrLoss = floatProfitOrLoss
 					.add(orderService.computeProfitOrLoss(FuturesOrderType.BuyUp, buyUpCanUnwind, buyUpOpenAvgFillPrice,
-							market.getBidPrice(), commotidy.getMinWave(), commotidy.getPerWaveMoney()));
+							market.getLastPrice(), commotidy.getMinWave(), commotidy.getPerWaveMoney()));
 		}
 		if (buyFallCanUnwind != null && buyFallCanUnwind.compareTo(BigDecimal.ZERO) > 0
-				&& market.getAskPrice().compareTo(BigDecimal.ZERO) > 0) {
+				&& market.getLastPrice().compareTo(BigDecimal.ZERO) > 0) {
 			BigDecimal buyFallOpenAvgFillPrice = orderService.getOpenAvgFillPrice(publisherId, contractId,
 					FuturesOrderType.BuyFall.getIndex());
 			floatProfitOrLoss = floatProfitOrLoss.add(orderService.computeProfitOrLoss(FuturesOrderType.BuyFall,
-					buyFallCanUnwind, buyFallOpenAvgFillPrice, market.getAskPrice(), commotidy.getMinWave(),
+					buyFallCanUnwind, buyFallOpenAvgFillPrice, market.getLastPrice(), commotidy.getMinWave(),
 					commotidy.getPerWaveMoney()));
 		}
 		return floatProfitOrLoss;
@@ -422,8 +429,9 @@ public class MonitorStrongPointConsumer {
 			tempOrder.setOriginOrder(order);
 			tempOrderList.add(tempOrder);
 		}
+
 		if (totalProfitOrLoss.compareTo(BigDecimal.ZERO) < 0
-				&& totalProfitOrLoss.abs().compareTo(account.getAvailableBalance()) < 0) {
+				&& totalProfitOrLoss.abs().compareTo(account.getAvailableBalance()) > 0) {
 			// 根据盈亏值进行排序
 			Collections.sort(tempOrderList, new FuturesContractOrderComparator());
 			// 账户余额已经亏损完，计算超出的部分
@@ -438,13 +446,13 @@ public class MonitorStrongPointConsumer {
 						BigDecimal buyUpQuantity = order.getBuyUpCanUnwindQuantity();
 						BigDecimal buyFallQuantity = order.getBuyFallCanUnwindQuantity();
 						if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
-							orderService.doUnwind(contract, order.getOriginOrder(), FuturesOrderType.BuyUp, buyUpQuantity,
-									FuturesTradePriceType.MKT, null, order.getPublisherId(),
+							orderService.doUnwind(contract, order.getOriginOrder(), FuturesOrderType.BuyUp,
+									buyUpQuantity, FuturesTradePriceType.MKT, null, order.getPublisherId(),
 									FuturesWindControlType.ReachStrongPoint, false, false, null);
 						}
 						if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
-							orderService.doUnwind(contract, order.getOriginOrder(), FuturesOrderType.BuyFall, buyFallQuantity,
-									FuturesTradePriceType.MKT, null, order.getPublisherId(),
+							orderService.doUnwind(contract, order.getOriginOrder(), FuturesOrderType.BuyFall,
+									buyFallQuantity, FuturesTradePriceType.MKT, null, order.getPublisherId(),
 									FuturesWindControlType.ReachStrongPoint, false, false, null);
 						}
 						loss = loss.add(strongMoney);

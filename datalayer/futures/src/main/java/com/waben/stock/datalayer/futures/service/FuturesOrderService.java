@@ -509,7 +509,6 @@ public class FuturesOrderService {
 			}
 			contractOrder.setUpdateTime(new Date());
 			contractOrderDao.doUpdate(contractOrder);
-			this.monitorContractOrder(contractOrder);
 		} else {
 			contractOrder = new FuturesContractOrder();
 			contractOrder.setBuyUpQuantity(BigDecimal.ZERO);
@@ -968,6 +967,9 @@ public class FuturesOrderService {
 		if (contractOrder == null) {
 			return;
 		}
+		if (!this.isTradeTime(contract.getCommodity().getTimeZoneGap(), contract, FuturesTradeActionType.CLOSE)) {
+			throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
+		}
 		BigDecimal quantity = BigDecimal.ZERO;
 		if (orderType == FuturesOrderType.BuyUp) {
 			quantity = contractOrder.getBuyUpCanUnwindQuantity();
@@ -987,16 +989,18 @@ public class FuturesOrderService {
 		if (contractOrderList != null && contractOrderList.size() > 0) {
 			for (FuturesContractOrder contractOrder : contractOrderList) {
 				FuturesContract contract = contractOrder.getContract();
-				BigDecimal buyUpQuantity = contractOrder.getBuyUpCanUnwindQuantity();
-				BigDecimal buyFallQuantity = contractOrder.getBuyFallCanUnwindQuantity();
-				if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
-					doUnwind(contract, contractOrder, FuturesOrderType.BuyUp, buyUpQuantity, FuturesTradePriceType.MKT,
-							null, publisherId, FuturesWindControlType.UserApplyUnwind, false, false, null);
-				}
-				if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
-					doUnwind(contract, contractOrder, FuturesOrderType.BuyFall, buyFallQuantity,
-							FuturesTradePriceType.MKT, null, publisherId, FuturesWindControlType.UserApplyUnwind, false,
-							false, null);
+				if (this.isTradeTime(contract.getCommodity().getTimeZoneGap(), contract, FuturesTradeActionType.CLOSE)) {
+					BigDecimal buyUpQuantity = contractOrder.getBuyUpCanUnwindQuantity();
+					BigDecimal buyFallQuantity = contractOrder.getBuyFallCanUnwindQuantity();
+					if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
+						doUnwind(contract, contractOrder, FuturesOrderType.BuyUp, buyUpQuantity, FuturesTradePriceType.MKT,
+								null, publisherId, FuturesWindControlType.UserApplyUnwind, false, false, null);
+					}
+					if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
+						doUnwind(contract, contractOrder, FuturesOrderType.BuyFall, buyFallQuantity,
+								FuturesTradePriceType.MKT, null, publisherId, FuturesWindControlType.UserApplyUnwind, false,
+								false, null);
+					}
 				}
 			}
 		}
@@ -1037,6 +1041,9 @@ public class FuturesOrderService {
 		if (contractOrder == null) {
 			return;
 		}
+		if (!this.isTradeTime(contract.getCommodity().getTimeZoneGap(), contract, FuturesTradeActionType.CLOSE)) {
+			throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
+		}
 		BigDecimal canQuantity = BigDecimal.ZERO;
 		if (orderType == FuturesOrderType.BuyUp) {
 			canQuantity = contractOrder.getBuyUpCanUnwindQuantity();
@@ -1063,6 +1070,9 @@ public class FuturesOrderService {
 		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract, publisherId);
 		if (contractOrder == null) {
 			return;
+		}
+		if (!this.isTradeTime(contract.getCommodity().getTimeZoneGap(), contract, FuturesTradeActionType.CLOSE)) {
+			throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
 		}
 		if (orderType == FuturesOrderType.BuyUp) {
 			contractOrder.setBuyUpLimitLossType(limitLossType);

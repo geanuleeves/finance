@@ -377,8 +377,7 @@ public class FuturesTradeController implements FuturesTradeInterface {
 						// 今持仓
 						Integer findUpFilledNow = futuresTradeActionService.findFilledNow(
 								futuresContractOrder.getPublisherId(), futuresContractOrder.getCommodityNo(),
-								futuresContractOrder.getContractNo(), FuturesTradeActionType.OPEN.getIndex(),
-								FuturesOrderType.BuyUp.getIndex());
+								futuresContractOrder.getContractNo(), FuturesOrderType.BuyUp.getIndex());
 						// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
 						if (futuresCommodity != null) {
 							buyDto.setQuantityNow(new BigDecimal(findUpFilledNow == null ? 0 : findUpFilledNow));
@@ -445,8 +444,7 @@ public class FuturesTradeController implements FuturesTradeInterface {
 						// 今持仓
 						Integer findFallFilledNow = futuresTradeActionService.findFilledNow(
 								futuresContractOrder.getPublisherId(), futuresContractOrder.getCommodityNo(),
-								futuresContractOrder.getContractNo(), FuturesTradeActionType.CLOSE.getIndex(),
-								FuturesOrderType.BuyFall.getIndex());
+								futuresContractOrder.getContractNo(), FuturesOrderType.BuyFall.getIndex());
 						// 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
 						if (futuresCommodity != null) {
 							sellDto.setQuantityNow(new BigDecimal(findFallFilledNow == null ? 0 : findFallFilledNow));

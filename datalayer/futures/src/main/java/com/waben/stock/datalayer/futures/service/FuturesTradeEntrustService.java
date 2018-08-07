@@ -87,6 +87,9 @@ public class FuturesTradeEntrustService {
 	private FuturesOrderDao orderDao;
 
 	@Autowired
+	private FuturesOrderService orderService;
+
+	@Autowired
 	private FuturesCurrencyRateService rateService;
 
 	@Autowired
@@ -136,6 +139,9 @@ public class FuturesTradeEntrustService {
 		}
 		// step 1 : 更新开平仓记录和订单状态
 		FuturesContract contract = entrust.getContract();
+		if (!orderService.isTradeTime(contract.getCommodity().getTimeZoneGap(), contract, FuturesTradeActionType.OPEN)) {
+			throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
+		}
 		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract, publisherId);
 		List<FuturesTradeAction> actionList = actionDao.retrieveByTradeEntrust(entrust);
 		for (FuturesTradeAction action : actionList) {
@@ -432,7 +438,7 @@ public class FuturesTradeEntrustService {
 					BigDecimal totalPublisherProfitOrLoss = BigDecimal.ZERO;
 					for (FuturesTradeAction action : actionList) {
 						totalUnwindQuantity = totalUnwindQuantity.add(action.getQuantity());
-						totalOpenCost = totalUnwindQuantity.multiply(action.getOpenAvgFillPrice());
+						totalOpenCost = action.getQuantity().multiply(action.getOpenAvgFillPrice());
 						CapitalAccountDto account = accountBusiness.futuresOrderSettlement(action.getPublisherId(),
 								action.getOrder().getId(), action.getProfitOrLoss());
 						// 发布人盈亏（人民币）、平台盈亏（人民币）
