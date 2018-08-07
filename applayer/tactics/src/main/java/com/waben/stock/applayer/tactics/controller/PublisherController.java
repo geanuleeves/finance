@@ -1,28 +1,6 @@
 package com.waben.stock.applayer.tactics.controller;
 
-import java.math.BigDecimal;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.waben.stock.applayer.tactics.business.BindCardBusiness;
-import com.waben.stock.applayer.tactics.business.CapitalAccountBusiness;
-import com.waben.stock.applayer.tactics.business.OrganizationBusiness;
-import com.waben.stock.applayer.tactics.business.OrganizationPublisherBusiness;
-import com.waben.stock.applayer.tactics.business.PublisherBusiness;
-import com.waben.stock.applayer.tactics.business.RealNameBusiness;
-import com.waben.stock.applayer.tactics.business.SmsBusiness;
+import com.waben.stock.applayer.tactics.business.*;
 import com.waben.stock.applayer.tactics.business.futures.FuturesOrderBusiness;
 import com.waben.stock.applayer.tactics.dto.publisher.PublisherCapitalAccountDto;
 import com.waben.stock.applayer.tactics.dto.publisher.SettingRemindDto;
@@ -44,9 +22,17 @@ import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.util.PasswordCrypt;
 import com.waben.stock.interfaces.util.StringUtil;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @author Created by yuyidi on 2017/11/3.
@@ -165,7 +151,7 @@ public class PublisherController {
 	public Response<PublisherCapitalAccountDto> getCurrent() {
 		PublisherDto publisher = publisherBusiness.findById(SecurityUtil.getUserId());
 		CapitalAccountDto account = accountBusiness.findByPublisherId(SecurityUtil.getUserId());
-		BigDecimal unsettledProfitOrLoss = orderBusiness.getUnsettledProfitOrLoss(SecurityUtil.getUserId());
+		BigDecimal unsettledProfitOrLoss = orderBusiness.getTotalFloatingProfitAndLoss(SecurityUtil.getUserId());
 		if (unsettledProfitOrLoss != null && unsettledProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
 			if (unsettledProfitOrLoss.abs().compareTo(account.getAvailableBalance()) > 0) {
 				account.setFloatAvailableBalance(BigDecimal.ZERO);
