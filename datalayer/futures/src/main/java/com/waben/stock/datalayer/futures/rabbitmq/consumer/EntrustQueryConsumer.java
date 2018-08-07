@@ -51,6 +51,10 @@ public class EntrustQueryConsumer {
 			logger.info("消费期货委托查询消息:{}", message);
 		}
 		EntrustQueryMessage messgeObj = JacksonUtil.decode(message, EntrustQueryMessage.class);
+		if(messgeObj.getConsumeCount() == 0) {
+			// 第一次消费消息，输出日志
+			logger.info("第一次消费期货委托查询消息:{}", message);
+		}
 		try {
 			Long entrustId = messgeObj.getEntrustId();
 			FuturesTradeEntrust tradeEntrust = entrustDao.retrieve(entrustId);
@@ -86,6 +90,8 @@ public class EntrustQueryConsumer {
 				isNeedRetry = false;
 			}
 			if (isNeedRetry) {
+				retry(messgeObj);
+			} else if(messgeObj.getConsumeCount() < 5) {
 				retry(messgeObj);
 			}
 		} catch (Exception ex) {

@@ -110,6 +110,10 @@ public class MonitorStrongPointConsumer {
 			logger.info("监控强平点:{}", message);
 		}
 		MonitorStrongPointMessage messgeObj = JacksonUtil.decode(message, MonitorStrongPointMessage.class);
+		if(messgeObj.getConsumeCount() == 0) {
+			// 第一次消费消息，输出日志
+			logger.info("第一次消费监控强平点消息:{}", message);
+		}
 		try {
 			Long publisherId = messgeObj.getPublisherId();
 			// step 1 : 获取资金账号
@@ -146,6 +150,8 @@ public class MonitorStrongPointConsumer {
 				isNeedRetry = false;
 			}
 			if (isNeedRetry) {
+				retry(messgeObj);
+			} else if(messgeObj.getConsumeCount() < 5) {
 				retry(messgeObj);
 			} else {
 				monitorPublisherList.remove(messgeObj.getPublisherId());
