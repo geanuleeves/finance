@@ -155,7 +155,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                     //今持仓
                     Integer findUpFilledNow = futuresTradeActionService.findFilledNow(futuresContractOrder.getPublisherId(),
                             futuresContractOrder.getCommodityNo(), futuresContractOrder.getContractNo(),
-                            FuturesOrderType.BuyUp.getIndex(), FuturesTradeActionType.OPEN.getIndex());
+                            FuturesOrderType.BuyUp.getIndex());
                     //浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
                     if (futuresCommodity != null && buyUpQuantity != null && buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
                         buyDto.setQuantityNow(new BigDecimal(findUpFilledNow != null ? findUpFilledNow : 0));
@@ -204,7 +204,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                     //今持仓
                     Integer findFallFilledNow = futuresTradeActionService.findFilledNow(futuresContractOrder.getPublisherId(),
                             futuresContractOrder.getCommodityNo(), futuresContractOrder.getContractNo(),
-                            FuturesOrderType.BuyFall.getIndex(), FuturesTradeActionType.CLOSE.getIndex());
+                            FuturesOrderType.BuyFall.getIndex());
                     //浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格*手数
                     if (futuresCommodity != null && buyFallQuantity != null && buyFallQuantity.compareTo(new BigDecimal(0)) > 0) {
                         sellDto.setQuantityNow(new BigDecimal(findFallFilledNow == null ? 0 : findFallFilledNow));
@@ -290,7 +290,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                     // 今持仓
                     Integer findUpFilledNow = futuresTradeActionService.findFilledNow(
                             futuresContractOrder.getPublisherId(), futuresContractOrder.getCommodityNo(),
-                            futuresContractOrder.getContractNo(), FuturesTradeActionType.OPEN.getIndex(), FuturesOrderType.BuyUp.getIndex());
+                            futuresContractOrder.getContractNo(), FuturesOrderType.BuyUp.getIndex());
                     if (findUpFilledNow != null) {
                         buyDto.setQuantityNow(new BigDecimal(findUpFilledNow == null ? 0 : findUpFilledNow));
                     }
@@ -330,8 +330,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                     // 今持仓
                     Integer findFallFilledNow = futuresTradeActionService.findFilledNow(
                             futuresContractOrder.getPublisherId(), futuresContractOrder.getCommodityNo(),
-                            futuresContractOrder.getContractNo(), FuturesTradeActionType.CLOSE.getIndex()
-                            , FuturesOrderType.BuyFall.getIndex());
+                            futuresContractOrder.getContractNo(), FuturesOrderType.BuyFall.getIndex());
                     if (findFallFilledNow != null) {
                         sellDto.setQuantityNow(new BigDecimal(findFallFilledNow));
                     }

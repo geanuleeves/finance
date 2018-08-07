@@ -257,12 +257,10 @@ public class FuturesTradeActionService {
 	 *            品种编号
 	 * @param contractNo
 	 *            合约编号
-	 * @param tradeActionType
-	 *            交易开平仓类型
 	 * @return
 	 */
-	public Integer findFilledNow(Long publisherId, String commodityNo, String contractNo, String tradeActionType, String orderType) {
-		return futuresTradeActionDao.findFilledNow(publisherId, commodityNo, contractNo, tradeActionType, orderType);
+	public Integer findFilledNow(Long publisherId, String commodityNo, String contractNo, String orderType) {
+		return futuresTradeActionDao.findFilledNow(publisherId, commodityNo, contractNo, orderType);
 	}
 
 }

@@ -32,15 +32,12 @@ public interface FuturesTradeActionRepository extends CustomJpaRepository<Future
 	 *            品种编号
 	 * @param contractNo
 	 *            合约编号
-	 * @param tradeActionType
-	 *            交易开平仓类型
 	 * @return
 	 */
-	@Query(value = "SELECT sum(entrust.filled) FROM f_futures_trade_entrust entrust "
-			+ "WHERE entrust.publisher_id = ?1 AND entrust.commodity_no = ?2 "
-			+ "AND entrust.contract_no = ?3 and DATEDIFF(entrust.trade_time,NOW())=0 "
-			+ "AND entrust.trade_action_type = ?4 AND entrust.order_type = ?5 "
-			+ "AND entrust.state = '5' ", nativeQuery = true)
-	Integer findFilledNow(Long publisherId, String commodityNo, String contractNo, String tradeActionType, String orderType);
+	@Query(value = "SELECT sum(o.open_filled - o.close_filled) FROM f_futures_order o " +
+			"WHERE o.publisher_id = ?1 and DATEDIFF(o.open_trade_time,NOW())=0 " +
+			" and o.commodity_symbol = ?2 AND o.contract_no = ?3 " +
+			"AND o.order_type = ?4 AND o.state in ('5','6') ", nativeQuery = true)
+	Integer findFilledNow(Long publisherId, String commodityNo, String contractNo, String orderType);
 
 }

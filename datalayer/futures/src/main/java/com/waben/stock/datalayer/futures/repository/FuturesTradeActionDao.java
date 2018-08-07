@@ -30,13 +30,11 @@ public interface FuturesTradeActionDao extends BaseDao<FuturesTradeAction, Long>
 	 *            品种编号
 	 * @param contractNo
 	 *            合约编号
-	 * @param tradeActionType
-	 *            交易开平仓类型
 	 *
 	 *@param orderType
 	 *
 	 * @return 今持仓数量
 	 */
-	Integer findFilledNow(Long publisherId, String commodityNo, String contractNo, String tradeActionType, String orderType);
+	Integer findFilledNow(Long publisherId, String commodityNo, String contractNo, String orderType);
 
 }
