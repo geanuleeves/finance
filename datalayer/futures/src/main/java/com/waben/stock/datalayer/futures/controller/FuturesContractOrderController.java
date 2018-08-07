@@ -230,7 +230,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                                 .multiply(rate.getRate()));
                         sellDto.setServiceFee(futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee()).multiply(buyFallQuantity));
                         //保证金
-                        sellDto.setReserveFund(futuresCommodity.getPerUnitReserveFund().multiply(futuresContractOrder.getBuyUpQuantity()));
+                        sellDto.setReserveFund(futuresCommodity.getPerUnitReserveFund().multiply(futuresContractOrder.getBuyFallQuantity()));
                         sellDto.setLimitProfitType(futuresContractOrder.getBuyFallLimitProfitType());
                         sellDto.setPerUnitLimitProfitAmount(futuresContractOrder.getBuyFallPerUnitLimitProfitAmount());
                         sellDto.setLimitLossType(futuresContractOrder.getBuyFallLimitLossType());

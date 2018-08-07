@@ -195,7 +195,7 @@ public class FuturesOrderController implements FuturesOrderInterface {
 					}
 					if (avgFallFillPrice != null && avgFallFillPrice.compareTo(new BigDecimal(0)) > 0) {
 						// 买跌浮动盈亏
-						buyFallFloatingProfitAndLoss = lastPrice.subtract(avgFallFillPrice)
+						buyFallFloatingProfitAndLoss = avgFallFillPrice.subtract(lastPrice)
 								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
 								.multiply(futuresContractOrder.getBuyFallQuantity()).setScale(2, RoundingMode.HALF_UP);
 					}
