@@ -61,7 +61,7 @@ public enum CapitalFlowType implements CommonalityEnum {
 
 	FuturesReturnOvernightReserveFund("21", "退回期货隔夜保证金"),
 
-	FuturesLoss("22", "期货亏损"),
+	FuturesLoss("22", "期货盈亏"),
 
 	FuturesProfit("23", "期货盈利"),
 	
