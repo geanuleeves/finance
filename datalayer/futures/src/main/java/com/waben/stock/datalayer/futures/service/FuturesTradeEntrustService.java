@@ -164,8 +164,7 @@ public class FuturesTradeEntrustService {
 							contractOrder.getBuyFallCanUnwindQuantity().add(action.getQuantity()));
 					contractOrderDao.doUpdate(contractOrder);
 				}
-				if (order.getCloseRemaining().compareTo(BigDecimal.ZERO) > 0
-						|| order.getCloseFilled().compareTo(BigDecimal.ZERO) > 0) {
+				if (order.getCloseFilled().compareTo(BigDecimal.ZERO) > 0) {
 					order.setState(FuturesOrderState.PartUnwind);
 				} else {
 					order.setState(FuturesOrderState.Position);
@@ -486,7 +485,7 @@ public class FuturesTradeEntrustService {
 
 					}
 					// 计算开仓的均价
-					BigDecimal openAvgFillPrice = totalOpenCost.multiply(totalUnwindQuantity);
+					BigDecimal openAvgFillPrice = totalOpenCost.divide(totalUnwindQuantity);
 					BigDecimal[] divideArr = openAvgFillPrice.divideAndRemainder(minWave);
 					openAvgFillPrice = divideArr[0].multiply(minWave);
 					entrust.setOpenAvgFillPrice(openAvgFillPrice);
