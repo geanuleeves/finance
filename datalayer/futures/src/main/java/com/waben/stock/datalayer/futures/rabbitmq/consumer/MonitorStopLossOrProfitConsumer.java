@@ -72,6 +72,10 @@ public class MonitorStopLossOrProfitConsumer {
 			logger.info("监控止损止盈:{}", message);
 		}
 		MonitorStopLossOrProfitMessage messgeObj = JacksonUtil.decode(message, MonitorStopLossOrProfitMessage.class);
+		if(messgeObj.getConsumeCount() == 0) {
+			// 第一次消费消息，输出日志
+			logger.info("第一次消费监控止损止盈消息:{}", message);
+		}
 		try {
 			FuturesContractOrder order = contractOrderDao.retrieve(messgeObj.getContractOrderId());
 			if (order == null) {
@@ -195,6 +199,8 @@ public class MonitorStopLossOrProfitConsumer {
 				isNeedRetry = false;
 			}
 			if (isNeedRetry) {
+				retry(messgeObj);
+			} else if(messgeObj.getConsumeCount() < 5) {
 				retry(messgeObj);
 			} else {
 				monitorContractOrderIdList.remove(messgeObj.getContractOrderId());
