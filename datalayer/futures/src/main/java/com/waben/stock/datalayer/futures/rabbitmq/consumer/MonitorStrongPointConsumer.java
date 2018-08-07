@@ -53,7 +53,8 @@ import com.waben.stock.interfaces.util.RandomUtil;
 import com.waben.stock.interfaces.util.StringUtil;
 
 @Component
-@RabbitListener(queues = { RabbitmqConfiguration.monitorStrongPointQueueName })
+@RabbitListener(queues = {
+		RabbitmqConfiguration.monitorStrongPointQueueName }, containerFactory = "monitorStrongPointContainerFactory")
 public class MonitorStrongPointConsumer {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
@@ -422,7 +423,7 @@ public class MonitorStrongPointConsumer {
 			tempOrder.setOriginOrder(order);
 			tempOrderList.add(tempOrder);
 		}
-		
+
 		if (totalProfitOrLoss.compareTo(BigDecimal.ZERO) < 0
 				&& totalProfitOrLoss.abs().compareTo(account.getAvailableBalance()) > 0) {
 			// 根据盈亏值进行排序
@@ -439,13 +440,13 @@ public class MonitorStrongPointConsumer {
 						BigDecimal buyUpQuantity = order.getBuyUpCanUnwindQuantity();
 						BigDecimal buyFallQuantity = order.getBuyFallCanUnwindQuantity();
 						if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
-							orderService.doUnwind(contract, order.getOriginOrder(), FuturesOrderType.BuyUp, buyUpQuantity,
-									FuturesTradePriceType.MKT, null, order.getPublisherId(),
+							orderService.doUnwind(contract, order.getOriginOrder(), FuturesOrderType.BuyUp,
+									buyUpQuantity, FuturesTradePriceType.MKT, null, order.getPublisherId(),
 									FuturesWindControlType.ReachStrongPoint, false, false, null);
 						}
 						if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
-							orderService.doUnwind(contract, order.getOriginOrder(), FuturesOrderType.BuyFall, buyFallQuantity,
-									FuturesTradePriceType.MKT, null, order.getPublisherId(),
+							orderService.doUnwind(contract, order.getOriginOrder(), FuturesOrderType.BuyFall,
+									buyFallQuantity, FuturesTradePriceType.MKT, null, order.getPublisherId(),
 									FuturesWindControlType.ReachStrongPoint, false, false, null);
 						}
 						loss = loss.add(strongMoney);

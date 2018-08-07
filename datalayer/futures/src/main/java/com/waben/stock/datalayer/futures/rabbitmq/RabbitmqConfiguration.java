@@ -42,6 +42,15 @@ public class RabbitmqConfiguration {
 		factory.setMaxConcurrentConsumers(10);
 		return factory;
 	}
+	
+	@Bean(name = { "monitorStrongPointContainerFactory" })
+	public SimpleRabbitListenerContainerFactory monitorStrongPointContainerFactory() {
+		SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+		factory.setConnectionFactory(connectionFactory);
+		factory.setConcurrentConsumers(5);
+		factory.setMaxConcurrentConsumers(10);
+		return factory;
+	}
 
 	/**
 	 * 创建 查询委托 队列

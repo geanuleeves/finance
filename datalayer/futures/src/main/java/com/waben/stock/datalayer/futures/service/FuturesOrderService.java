@@ -509,7 +509,6 @@ public class FuturesOrderService {
 			}
 			contractOrder.setUpdateTime(new Date());
 			contractOrderDao.doUpdate(contractOrder);
-			this.monitorContractOrder(contractOrder);
 		} else {
 			contractOrder = new FuturesContractOrder();
 			contractOrder.setBuyUpQuantity(BigDecimal.ZERO);

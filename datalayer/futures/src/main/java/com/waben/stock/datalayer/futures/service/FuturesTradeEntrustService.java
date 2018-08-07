@@ -87,6 +87,9 @@ public class FuturesTradeEntrustService {
 	private FuturesOrderDao orderDao;
 
 	@Autowired
+	private FuturesOrderService orderService;
+
+	@Autowired
 	private FuturesCurrencyRateService rateService;
 
 	@Autowired
@@ -136,6 +139,9 @@ public class FuturesTradeEntrustService {
 		}
 		// step 1 : 更新开平仓记录和订单状态
 		FuturesContract contract = entrust.getContract();
+		if (!orderService.isTradeTime(contract.getCommodity().getTimeZoneGap(), contract, FuturesTradeActionType.OPEN)) {
+			throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
+		}
 		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract, publisherId);
 		List<FuturesTradeAction> actionList = actionDao.retrieveByTradeEntrust(entrust);
 		for (FuturesTradeAction action : actionList) {
