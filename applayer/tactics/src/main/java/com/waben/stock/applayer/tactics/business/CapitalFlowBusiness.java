@@ -27,6 +27,7 @@ import com.waben.stock.interfaces.util.CopyBeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -128,16 +129,8 @@ public class CapitalFlowBusiness {
 					flowWithExtend.setCommodityName(orderDto.getCommodityName());
 					flowWithExtend.setCommoditySymbol(orderDto.getCommoditySymbol());
 					flowWithExtend.setContractNo(orderDto.getContractNo());
-					Response<FuturesCommodityDto> futuresCommodityDto = futuresCommodityInterface
-							.getFuturesByCommodityId(orderDto.getCommodityId());
-					FuturesCommodityDto commodityDto = futuresCommodityDto.getResult();
-					if (commodityDto != null) {
-						BigDecimal quantity = orderDto.getOpenFilled().compareTo(orderDto.getCloseFilled()) > 0 ?
-								orderDto.getOpenFilled() : orderDto.getCloseFilled();
-						flowWithExtend.setReserveFund(commodityDto.getPerUnitReserveFund().multiply(quantity));
-					}
 					FuturesContractOrderDto futuresContractOrderViewDto = futuresContractOrderBusiness
-							.fetchByContractIdAndPublisherId(SecurityUtil.getUserId(), orderDto.getContractId());
+							.fetchByContractIdAndPublisherId(orderDto.getContractId(), SecurityUtil.getUserId());
 					flowWithExtend.setReserveFund(futuresContractOrderViewDto != null ?
 							futuresContractOrderViewDto.getReserveFund() : BigDecimal.ZERO);
 				} else if (flow.getExtendType() == CapitalFlowExtendType.FUTURESOVERNIGHTRECORD) {
