@@ -72,13 +72,16 @@ public class MonitorStopLossOrProfitConsumer {
 			logger.info("监控止损止盈:{}", message);
 		}
 		MonitorStopLossOrProfitMessage messgeObj = JacksonUtil.decode(message, MonitorStopLossOrProfitMessage.class);
-		if(messgeObj.getConsumeCount() == 0) {
+		if (messgeObj.getConsumeCount() == 0) {
 			// 第一次消费消息，输出日志
 			logger.info("第一次消费监控止损止盈消息:{}", message);
 		}
 		try {
 			FuturesContractOrder order = contractOrderDao.retrieve(messgeObj.getContractOrderId());
 			if (order == null) {
+				if (messgeObj.getConsumeCount() < 10) {
+					retry(messgeObj);
+				}
 				return;
 			}
 			BigDecimal buyUpCanUnwind = order.getBuyUpCanUnwindQuantity();
@@ -105,16 +108,14 @@ public class MonitorStopLossOrProfitConsumer {
 						if (buyUpLimitProfit != null) {
 							if (buyUpLimitProfit.compareTo(buyUpAvgFillPrice) > 0
 									&& market.getLastPrice().compareTo(buyUpLimitProfit) >= 0) {
-								logger.info("{}买涨订单{}手达到止盈，止盈价格{}，此时的行情{}", order.getId(),
-										buyUpCanUnwind, buyUpLimitProfit,
-										JacksonUtil.encode(market));
+								logger.info("{}买涨订单{}手达到止盈，止盈价格{}，此时的行情{}", order.getId(), buyUpCanUnwind,
+										buyUpLimitProfit, JacksonUtil.encode(market));
 								BigDecimal stopLossOrProfitPrice = BigDecimal.ZERO;
 								BigDecimal[] divideArr = buyUpLimitProfit.divideAndRemainder(minWave);
 								stopLossOrProfitPrice = divideArr[0].multiply(minWave);
-								orderService.doUnwind(contract, order, FuturesOrderType.BuyUp,
-										buyUpCanUnwind, FuturesTradePriceType.MKT, null,
-										order.getPublisherId(), FuturesWindControlType.ReachProfitPoint, false, true,
-										stopLossOrProfitPrice);
+								orderService.doUnwind(contract, order, FuturesOrderType.BuyUp, buyUpCanUnwind,
+										FuturesTradePriceType.MKT, null, order.getPublisherId(),
+										FuturesWindControlType.ReachProfitPoint, false, true, stopLossOrProfitPrice);
 								needMonitorBuyUp = false;
 							}
 						}
@@ -122,15 +123,14 @@ public class MonitorStopLossOrProfitConsumer {
 						if (buyUpLimitLoss != null) {
 							if (buyUpLimitLoss.compareTo(buyUpAvgFillPrice) < 0
 									&& market.getLastPrice().compareTo(buyUpLimitLoss) <= 0) {
-								logger.info("{}买涨订单{}手达到止损，止损价格{}，此时的行情{}", order.getId(),
-										buyUpCanUnwind, buyUpLimitLoss, JacksonUtil.encode(market));
+								logger.info("{}买涨订单{}手达到止损，止损价格{}，此时的行情{}", order.getId(), buyUpCanUnwind,
+										buyUpLimitLoss, JacksonUtil.encode(market));
 								BigDecimal stopLossOrProfitPrice = BigDecimal.ZERO;
 								BigDecimal[] divideArr = buyUpLimitLoss.divideAndRemainder(minWave);
 								stopLossOrProfitPrice = divideArr[0].multiply(minWave);
-								orderService.doUnwind(contract, order, FuturesOrderType.BuyUp,
-										buyUpCanUnwind, FuturesTradePriceType.MKT, null,
-										order.getPublisherId(), FuturesWindControlType.ReachLossPoint, false, true,
-										stopLossOrProfitPrice);
+								orderService.doUnwind(contract, order, FuturesOrderType.BuyUp, buyUpCanUnwind,
+										FuturesTradePriceType.MKT, null, order.getPublisherId(),
+										FuturesWindControlType.ReachLossPoint, false, true, stopLossOrProfitPrice);
 								needMonitorBuyUp = false;
 							}
 						}
@@ -152,16 +152,14 @@ public class MonitorStopLossOrProfitConsumer {
 						if (buyFallLimitProfit != null) {
 							if (buyFallLimitProfit.compareTo(buyFallAvgFillPrice) < 0
 									&& market.getLastPrice().compareTo(buyFallLimitProfit) <= 0) {
-								logger.info("{}买跌订单{}手达到止盈，止盈价格{}，此时的行情{}", order.getId(),
-										buyFallCanUnwind, buyFallLimitProfit,
-										JacksonUtil.encode(market));
+								logger.info("{}买跌订单{}手达到止盈，止盈价格{}，此时的行情{}", order.getId(), buyFallCanUnwind,
+										buyFallLimitProfit, JacksonUtil.encode(market));
 								BigDecimal stopLossOrProfitPrice = BigDecimal.ZERO;
 								BigDecimal[] divideArr = buyFallLimitProfit.divideAndRemainder(minWave);
 								stopLossOrProfitPrice = divideArr[0].multiply(minWave);
-								orderService.doUnwind(contract, order, FuturesOrderType.BuyFall,
-										buyFallCanUnwind, FuturesTradePriceType.MKT, null,
-										order.getPublisherId(), FuturesWindControlType.ReachProfitPoint, false, true,
-										stopLossOrProfitPrice);
+								orderService.doUnwind(contract, order, FuturesOrderType.BuyFall, buyFallCanUnwind,
+										FuturesTradePriceType.MKT, null, order.getPublisherId(),
+										FuturesWindControlType.ReachProfitPoint, false, true, stopLossOrProfitPrice);
 								needMonitorBuyFall = false;
 							}
 						}
@@ -169,16 +167,14 @@ public class MonitorStopLossOrProfitConsumer {
 						if (buyFallLimitLoss != null) {
 							if (buyFallLimitLoss.compareTo(buyFallAvgFillPrice) > 0
 									&& market.getLastPrice().compareTo(buyFallLimitLoss) >= 0) {
-								logger.info("{}买跌订单{}手达到止损，止损价格{}，此时的行情{}", order.getId(),
-										buyFallCanUnwind, buyFallLimitLoss,
-										JacksonUtil.encode(market));
+								logger.info("{}买跌订单{}手达到止损，止损价格{}，此时的行情{}", order.getId(), buyFallCanUnwind,
+										buyFallLimitLoss, JacksonUtil.encode(market));
 								BigDecimal stopLossOrProfitPrice = BigDecimal.ZERO;
 								BigDecimal[] divideArr = buyFallLimitLoss.divideAndRemainder(minWave);
 								stopLossOrProfitPrice = divideArr[0].multiply(minWave);
-								orderService.doUnwind(contract, order, FuturesOrderType.BuyFall,
-										buyFallCanUnwind, FuturesTradePriceType.MKT, null,
-										order.getPublisherId(), FuturesWindControlType.ReachLossPoint, false, true,
-										stopLossOrProfitPrice);
+								orderService.doUnwind(contract, order, FuturesOrderType.BuyFall, buyFallCanUnwind,
+										FuturesTradePriceType.MKT, null, order.getPublisherId(),
+										FuturesWindControlType.ReachLossPoint, false, true, stopLossOrProfitPrice);
 								needMonitorBuyFall = false;
 							}
 						}
@@ -200,7 +196,7 @@ public class MonitorStopLossOrProfitConsumer {
 			}
 			if (isNeedRetry) {
 				retry(messgeObj);
-			} else if(messgeObj.getConsumeCount() < 5) {
+			} else if (messgeObj.getConsumeCount() < 5) {
 				retry(messgeObj);
 			} else {
 				monitorContractOrderIdList.remove(messgeObj.getContractOrderId());

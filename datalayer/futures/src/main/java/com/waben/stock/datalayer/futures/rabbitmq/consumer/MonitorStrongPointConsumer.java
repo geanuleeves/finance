@@ -138,7 +138,7 @@ public class MonitorStrongPointConsumer {
 			}
 			if (isNeedRetry) {
 				retry(messgeObj);
-			} else if(messgeObj.getConsumeCount() < 5) {
+			} else if(messgeObj.getConsumeCount() < 10) {
 				retry(messgeObj);
 			} else {
 				monitorPublisherList.remove(messgeObj.getPublisherId());
