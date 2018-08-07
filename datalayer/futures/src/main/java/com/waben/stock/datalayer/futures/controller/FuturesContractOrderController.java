@@ -302,7 +302,8 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                     // 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格
                     if (futuresCommodity != null) {
                         buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice)
-                                .divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney()));
+                                .divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
+                                .multiply(futuresContractOrder.getBuyUpQuantity()));
                         buyDto.setServiceFee(
                                 futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee()));
                         if (futuresContractOrder.getBuyUpQuantity()
@@ -345,11 +346,11 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                     // 浮动盈亏 (最新价格-成交价格)/波动*每笔波动价格
                     if (futuresCommodity != null) {
                         sellDto.setFloatingProfitAndLoss(lastPrice.subtract(avgFallFillPrice)
-                                .divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney()));
+                                .divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
+                                .multiply(futuresContractOrder.getBuyFallQuantity()));
                         sellDto.setServiceFee(
                                 futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee()));
-                        if (futuresContractOrder.getBuyFallQuantity()
-                                .compareTo(futuresContractOrder.getBuyUpQuantity()) > 0) {
+                        if (futuresContractOrder.getBuyFallQuantity().compareTo(futuresContractOrder.getBuyUpQuantity()) > 0) {
                             sellDto.setReserveFund(futuresCommodity.getPerUnitReserveFund()
                                     .multiply(futuresContractOrder.getBuyFallQuantity()));
                         }
