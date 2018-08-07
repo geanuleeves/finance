@@ -172,7 +172,7 @@ public class CapitalFlowController {
 	@GetMapping("/pcPagesTrade")
 	@ApiOperation(value = "用户交易流水（时间范围统计，PC桌面端）", notes = "range表示统计范围，0全部，1最近一周，2最近一个月，3最近半年")
 	public Response<PageInfo<CapitalFlowWithExtendDto>> pcTradeCapitalFlow(int page, int size, String startTime,
-			String endTime, String type) {
+			String endTime, String type, String commodityName) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		CapitalFlowQuery query = new CapitalFlowQuery(page, size);
 		Date startTimeObj = null;
@@ -205,6 +205,7 @@ public class CapitalFlowController {
 		query.setStartTime(startTimeObj);
 		query.setEndTime(endTimeObj);
 		query.setPublisherId(SecurityUtil.getUserId());
+		query.setCommodityName(commodityName);
 		return new Response<>(capitalFlowBusiness.pages(query));
 	}
 

@@ -24,12 +24,15 @@ import com.waben.stock.interfaces.service.futures.FuturesOrderInterface;
 import com.waben.stock.interfaces.service.publisher.CapitalFlowInterface;
 import com.waben.stock.interfaces.service.stockcontent.StrategyTypeInterface;
 import com.waben.stock.interfaces.util.CopyBeanUtils;
+import com.waben.stock.interfaces.util.StringUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -71,7 +74,6 @@ public class CapitalFlowBusiness {
 	@Autowired
 	private FuturesCommodityInterface futuresCommodityInterface;
 
-
 	@Autowired
 	private FuturesContractOrderBusiness futuresContractOrderBusiness;
 
@@ -80,9 +82,6 @@ public class CapitalFlowBusiness {
 		if ("200".equals(response.getCode())) {
 			List<CapitalFlowWithExtendDto> content = CopyBeanUtils
 					.copyListBeanPropertiesToList(response.getResult().getContent(), CapitalFlowWithExtendDto.class);
-			PageInfo<CapitalFlowWithExtendDto> result = new PageInfo<>(content, response.getResult().getTotalPages(),
-					response.getResult().getLast(), response.getResult().getTotalElements(),
-					response.getResult().getSize(), response.getResult().getNumber(), response.getResult().getFrist());
 			// 获取策略类型列表
 			Response<List<StrategyTypeDto>> strategyTypeResponse = strategyTypeReference.lists(true);
 			if (!"200".equals(strategyTypeResponse.getCode())) {
@@ -129,10 +128,20 @@ public class CapitalFlowBusiness {
 					flowWithExtend.setCommodityName(orderDto.getCommodityName());
 					flowWithExtend.setCommoditySymbol(orderDto.getCommoditySymbol());
 					flowWithExtend.setContractNo(orderDto.getContractNo());
+					if (orderDto.getCommodityId() != null) {
+						Response<FuturesCommodityDto> futuresCommodityDto = futuresCommodityInterface
+								.getFuturesByCommodityId(orderDto.getCommodityId());
+						FuturesCommodityDto commodityDto = futuresCommodityDto.getResult();
+						if (commodityDto != null) {
+							BigDecimal quantity = orderDto.getOpenFilled().compareTo(orderDto.getCloseFilled()) > 0
+									? orderDto.getOpenFilled() : orderDto.getCloseFilled();
+							flowWithExtend.setReserveFund(commodityDto.getPerUnitReserveFund().multiply(quantity));
+						}
+					}
 					FuturesContractOrderDto futuresContractOrderViewDto = futuresContractOrderBusiness
 							.fetchByContractIdAndPublisherId(orderDto.getContractId(), SecurityUtil.getUserId());
-					flowWithExtend.setReserveFund(futuresContractOrderViewDto != null ?
-							futuresContractOrderViewDto.getReserveFund() : BigDecimal.ZERO);
+					flowWithExtend.setReserveFund(futuresContractOrderViewDto != null
+							? futuresContractOrderViewDto.getReserveFund() : BigDecimal.ZERO);
 				} else if (flow.getExtendType() == CapitalFlowExtendType.FUTURESOVERNIGHTRECORD) {
 					Response<FuturesOvernightRecordDto> recordDto = futuresOrderInterface
 							.fetchByOvernightId(flow.getExtendId());
@@ -146,6 +155,25 @@ public class CapitalFlowBusiness {
 					}
 				}
 			}
+			PageInfo<CapitalFlowWithExtendDto> result = null;
+			List<CapitalFlowWithExtendDto> contentList = new ArrayList<CapitalFlowWithExtendDto>();
+			if (!StringUtil.isEmpty(query.getCommodityName())) {
+				for (CapitalFlowWithExtendDto flowWithExtend : content) {
+					if (query.getCommodityName().equals(flowWithExtend.getCommodityName())
+							|| query.getCommodityName().equals(flowWithExtend.getContractNo())) {
+						contentList.add(flowWithExtend);
+					}
+				}
+				result = new PageInfo<>(contentList, response.getResult().getTotalPages(),
+						response.getResult().getLast(), response.getResult().getTotalElements(),
+						response.getResult().getSize(), response.getResult().getNumber(),
+						response.getResult().getFrist());
+			} else {
+				result = new PageInfo<>(content, response.getResult().getTotalPages(), response.getResult().getLast(),
+						response.getResult().getTotalElements(), response.getResult().getSize(),
+						response.getResult().getNumber(), response.getResult().getFrist());
+			}
+
 			return result;
 		}
 		throw new ServiceException(response.getCode());
