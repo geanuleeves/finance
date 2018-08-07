@@ -155,8 +155,8 @@ public class FuturesTradeEntrustController implements FuturesTradeEntrustInterfa
 				dto.setServiceFee(openwindServiceFee.add(unwindServiceFee));
 				BigDecimal perUnitReserveFund = futuresCommodity.getPerUnitReserveFund() != null ?
 						futuresCommodity.getPerUnitReserveFund() : new BigDecimal(0);
-				BigDecimal filled = dto.getFilled() != null ? dto.getFilled() : new BigDecimal(0);
-				dto.setReserveFund(perUnitReserveFund.multiply(filled));
+				BigDecimal quantity = dto.getQuantity() != null ? dto.getQuantity() : new BigDecimal(0);
+				dto.setReserveFund(perUnitReserveFund.multiply(quantity));
 				String contractNo = dto.getContractNo();
 				dto.setLastPrice(quoteContainer.getLastPrice(commodityNo, contractNo));
 				FuturesCurrencyRate rate = rateMap.get(dto.getCurrency());

@@ -168,9 +168,9 @@ public class FuturesOrderController implements FuturesOrderInterface {
 				FuturesContractOrderViewDto.class);
 		BigDecimal totalFloatingProfitAndLoss = new BigDecimal(0);
 		if (result != null && result.getContent() != null) {
-			BigDecimal buyUpFloatingProfitAndLoss = new BigDecimal(0);
-			BigDecimal buyFallFloatingProfitAndLoss = new BigDecimal(0);
 			for (int i = 0; i < result.getContent().size(); i++) {
+				BigDecimal buyUpFloatingProfitAndLoss = new BigDecimal(0);
+				BigDecimal buyFallFloatingProfitAndLoss = new BigDecimal(0);
 				FuturesContractOrder futuresContractOrder = page.getContent().get(i);
 				FuturesCommodity futuresCommodity = futuresCommodityService
 						.retrieveByCommodityNo(futuresContractOrder.getCommodityNo());
@@ -185,14 +185,16 @@ public class FuturesOrderController implements FuturesOrderInterface {
 					// 成交价格-买跌
 					BigDecimal avgFallFillPrice = futuresOrderService.getOpenAvgFillPrice(
 							futuresContractOrder.getPublisherId(), futuresContractOrder.getContract().getId(), FuturesOrderType.BuyFall.getIndex());
-					if (avgUpFillPrice != null && avgUpFillPrice.compareTo(new BigDecimal(0)) > 0) {
+					if (avgUpFillPrice != null && avgUpFillPrice.compareTo(new BigDecimal(0)) > 0
+							&& futuresContractOrder.getBuyUpQuantity().compareTo(BigDecimal.ZERO) > 0) {
 						// 买涨浮动盈亏
 						buyUpFloatingProfitAndLoss = lastPrice.subtract(avgUpFillPrice)
 								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
 								.multiply(futuresContractOrder.getBuyUpQuantity())
 								.multiply(rate.getRate()).setScale(2, RoundingMode.HALF_UP);
 					}
-					if (avgFallFillPrice != null && avgFallFillPrice.compareTo(new BigDecimal(0)) > 0) {
+					if (avgFallFillPrice != null && avgFallFillPrice.compareTo(new BigDecimal(0)) > 0 &&
+							futuresContractOrder.getBuyFallQuantity().compareTo(BigDecimal.ZERO) > 0) {
 						// 买跌浮动盈亏
 						buyFallFloatingProfitAndLoss = avgFallFillPrice.subtract(lastPrice)
 								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
