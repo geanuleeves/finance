@@ -193,9 +193,10 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                         FuturesCurrencyRate rate = rateService.findByCurrency(futuresCommodity.getCurrency());
                         buyDto.setRate(rate.getRate());
                         buyDto.setCurrencySign(rate.getCurrencySign());
-                        BigDecimal remainder = lastPrice.subtract(avgUpFillPrice).divideAndRemainder(futuresCommodity.getMinWave())[1];
+                        BigDecimal remainder = (lastPrice.subtract(avgUpFillPrice)).divideAndRemainder(futuresCommodity.getMinWave())[1];
                         if (remainder.compareTo(BigDecimal.ZERO) > 0) {
-                            buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice).add(BigDecimal.ONE).divide(futuresCommodity.getMinWave())
+                            buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice).divide(futuresCommodity.getMinWave())
+									.add(futuresCommodity.getMinWave())
                                     .multiply(futuresCommodity.getPerWaveMoney()).multiply(futuresContractOrder.getBuyUpQuantity())
                                     .multiply(rate.getRate()));
                         } else {
