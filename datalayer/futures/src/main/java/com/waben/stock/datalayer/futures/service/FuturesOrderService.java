@@ -987,9 +987,11 @@ public class FuturesOrderService {
 	public void applyUnwindAll(Long publisherId) {
 		List<FuturesContractOrder> contractOrderList = contractOrderDao.retrieveByPublisherId(publisherId);
 		if (contractOrderList != null && contractOrderList.size() > 0) {
+			boolean isAllNotTradeTime = true;
 			for (FuturesContractOrder contractOrder : contractOrderList) {
 				FuturesContract contract = contractOrder.getContract();
 				if (this.isTradeTime(contract.getCommodity().getTimeZoneGap(), contract, FuturesTradeActionType.CLOSE)) {
+					isAllNotTradeTime = false;
 					BigDecimal buyUpQuantity = contractOrder.getBuyUpCanUnwindQuantity();
 					BigDecimal buyFallQuantity = contractOrder.getBuyFallCanUnwindQuantity();
 					if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
@@ -1002,6 +1004,9 @@ public class FuturesOrderService {
 								false, null);
 					}
 				}
+			}
+			if(isAllNotTradeTime) {
+				throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
 			}
 		}
 	}
