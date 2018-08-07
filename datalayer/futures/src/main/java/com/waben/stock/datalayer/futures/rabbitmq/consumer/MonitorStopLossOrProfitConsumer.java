@@ -102,13 +102,13 @@ public class MonitorStopLossOrProfitConsumer {
 							if (buyUpLimitProfit.compareTo(buyUpAvgFillPrice) > 0
 									&& market.getBidPrice().compareTo(buyUpLimitProfit) >= 0) {
 								logger.info("{}买涨订单{}手达到止盈，止盈价格{}，此时的行情{}", order.getId(),
-										order.getBuyUpCanUnwindQuantity(), buyUpLimitProfit,
+										buyUpCanUnwind, buyUpLimitProfit,
 										JacksonUtil.encode(market));
 								BigDecimal stopLossOrProfitPrice = BigDecimal.ZERO;
 								BigDecimal[] divideArr = buyUpLimitProfit.divideAndRemainder(minWave);
 								stopLossOrProfitPrice = divideArr[0].multiply(minWave);
 								orderService.doUnwind(contract, order, FuturesOrderType.BuyUp,
-										order.getBuyUpCanUnwindQuantity(), FuturesTradePriceType.MKT, null,
+										buyUpCanUnwind, FuturesTradePriceType.MKT, null,
 										order.getPublisherId(), FuturesWindControlType.ReachProfitPoint, false, true,
 										stopLossOrProfitPrice);
 								needMonitorBuyUp = false;
@@ -119,12 +119,12 @@ public class MonitorStopLossOrProfitConsumer {
 							if (buyUpLimitLoss.compareTo(buyUpAvgFillPrice) < 0
 									&& market.getBidPrice().compareTo(buyUpLimitLoss) <= 0) {
 								logger.info("{}买涨订单{}手达到止损，止损价格{}，此时的行情{}", order.getId(),
-										order.getBuyUpCanUnwindQuantity(), buyUpLimitLoss, JacksonUtil.encode(market));
+										buyUpCanUnwind, buyUpLimitLoss, JacksonUtil.encode(market));
 								BigDecimal stopLossOrProfitPrice = BigDecimal.ZERO;
 								BigDecimal[] divideArr = buyUpLimitLoss.divideAndRemainder(minWave);
 								stopLossOrProfitPrice = divideArr[0].multiply(minWave);
 								orderService.doUnwind(contract, order, FuturesOrderType.BuyUp,
-										order.getBuyUpCanUnwindQuantity(), FuturesTradePriceType.MKT, null,
+										buyUpCanUnwind, FuturesTradePriceType.MKT, null,
 										order.getPublisherId(), FuturesWindControlType.ReachLossPoint, false, true,
 										stopLossOrProfitPrice);
 								needMonitorBuyUp = false;
@@ -149,13 +149,13 @@ public class MonitorStopLossOrProfitConsumer {
 							if (buyFallLimitProfit.compareTo(buyFallAvgFillPrice) < 0
 									&& market.getAskPrice().compareTo(buyFallLimitProfit) <= 0) {
 								logger.info("{}买跌订单{}手达到止盈，止盈价格{}，此时的行情{}", order.getId(),
-										order.getBuyFallCanUnwindQuantity(), buyFallLimitProfit,
+										buyFallCanUnwind, buyFallLimitProfit,
 										JacksonUtil.encode(market));
 								BigDecimal stopLossOrProfitPrice = BigDecimal.ZERO;
 								BigDecimal[] divideArr = buyFallLimitProfit.divideAndRemainder(minWave);
 								stopLossOrProfitPrice = divideArr[0].multiply(minWave);
 								orderService.doUnwind(contract, order, FuturesOrderType.BuyFall,
-										order.getBuyUpCanUnwindQuantity(), FuturesTradePriceType.MKT, null,
+										buyFallCanUnwind, FuturesTradePriceType.MKT, null,
 										order.getPublisherId(), FuturesWindControlType.ReachProfitPoint, false, true,
 										stopLossOrProfitPrice);
 								needMonitorBuyFall = false;
@@ -166,13 +166,13 @@ public class MonitorStopLossOrProfitConsumer {
 							if (buyFallLimitLoss.compareTo(buyFallAvgFillPrice) > 0
 									&& market.getAskPrice().compareTo(buyFallLimitLoss) >= 0) {
 								logger.info("{}买跌订单{}手达到止损，止损价格{}，此时的行情{}", order.getId(),
-										order.getBuyUpCanUnwindQuantity(), buyFallLimitLoss,
+										buyFallCanUnwind, buyFallLimitLoss,
 										JacksonUtil.encode(market));
 								BigDecimal stopLossOrProfitPrice = BigDecimal.ZERO;
 								BigDecimal[] divideArr = buyFallLimitLoss.divideAndRemainder(minWave);
 								stopLossOrProfitPrice = divideArr[0].multiply(minWave);
 								orderService.doUnwind(contract, order, FuturesOrderType.BuyFall,
-										order.getBuyUpCanUnwindQuantity(), FuturesTradePriceType.MKT, null,
+										buyFallCanUnwind, FuturesTradePriceType.MKT, null,
 										order.getPublisherId(), FuturesWindControlType.ReachLossPoint, false, true,
 										stopLossOrProfitPrice);
 								needMonitorBuyFall = false;
