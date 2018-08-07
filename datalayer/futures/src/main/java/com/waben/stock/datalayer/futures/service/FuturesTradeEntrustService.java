@@ -384,7 +384,6 @@ public class FuturesTradeEntrustService {
 				contractOrder.setLightQuantity(contractOrder.getLightQuantity().add(currentFilled));
 			}
 			contractOrderDao.doUpdate(contractOrder);
-			this.monitorContractOrder(contractOrder);
 			// step 1.4 : 如果没有的剩余，停止循环
 			totalFilled = totalFilled.add(currentFilled);
 			if (filled.compareTo(BigDecimal.ZERO) <= 0) {
@@ -495,6 +494,8 @@ public class FuturesTradeEntrustService {
 				sendOutsideMessage(entrust);
 			}
 		}
+		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(entrust.getContract(), entrust.getPublisherId());
+		this.monitorContractOrder(contractOrder);
 		return entrust;
 	}
 
