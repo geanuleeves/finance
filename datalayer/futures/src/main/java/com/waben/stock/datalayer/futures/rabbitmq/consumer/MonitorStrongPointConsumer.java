@@ -126,11 +126,11 @@ public class MonitorStrongPointConsumer {
 					// 执行强平逻辑
 					doStongPoint(orderList, account);
 					List<FuturesContractOrder> overnightOrderList = triggerOvernightOrderList(orderList);
-					if (isEnoughOvernight(orderList, account)) {
+					if (isEnoughOvernight(overnightOrderList, account)) {
 						// 隔夜
 						overnight(overnightOrderList, account);
 					} else {
-						doUnwind(orderList);
+						doUnwind(overnightOrderList);
 					}
 				}
 			} else {

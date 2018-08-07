@@ -37,7 +37,7 @@ public interface FuturesTradeActionRepository extends CustomJpaRepository<Future
 	@Query(value = "SELECT sum(o.open_filled - o.close_filled) FROM f_futures_order o " +
 			"WHERE o.publisher_id = ?1 AND DATEDIFF(o.open_trade_time,NOW())=0 " +
 			"AND o.commodity_symbol = ?2 AND o.contract_no = ?3 " +
-			"AND o.order_type = ?4 AND o.state IN ('5','6','8') ", nativeQuery = true)
+			"AND o.order_type = ?4 ", nativeQuery = true)
 	Integer findFilledNow(Long publisherId, String commodityNo, String contractNo, String orderType);
 
 }
