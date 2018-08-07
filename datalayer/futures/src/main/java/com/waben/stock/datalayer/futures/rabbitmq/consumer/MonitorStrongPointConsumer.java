@@ -1,27 +1,5 @@
 package com.waben.stock.datalayer.futures.rabbitmq.consumer;
 
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.RabbitHandler;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
 import com.waben.stock.datalayer.futures.business.CapitalFlowBusiness;
 import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
@@ -41,16 +19,25 @@ import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractM
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
-import com.waben.stock.interfaces.enums.CapitalFlowExtendType;
-import com.waben.stock.interfaces.enums.FuturesOrderType;
-import com.waben.stock.interfaces.enums.FuturesTradeActionType;
-import com.waben.stock.interfaces.enums.FuturesTradePriceType;
-import com.waben.stock.interfaces.enums.FuturesWindControlType;
+import com.waben.stock.interfaces.enums.*;
 import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.util.CopyBeanUtils;
 import com.waben.stock.interfaces.util.JacksonUtil;
 import com.waben.stock.interfaces.util.RandomUtil;
 import com.waben.stock.interfaces.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitHandler;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Component
 @RabbitListener(queues = {
@@ -158,16 +145,19 @@ public class MonitorStrongPointConsumer {
 
 	private void doUnwind(List<FuturesContractOrder> orderList) {
 		for (FuturesContractOrder order : orderList) {
-			BigDecimal quantity = BigDecimal.ZERO;
-			FuturesOrderType orderType = FuturesOrderType.BuyUp;
-			if (order.getBuyUpQuantity().compareTo(order.getBuyFallQuantity()) > 0) {
-				quantity = order.getBuyUpQuantity();
-			} else {
-				quantity = order.getBuyFallQuantity();
-				orderType = FuturesOrderType.BuyFall;
+			if (orderService.isTradeTime(order.getContract().getCommodity().getTimeZoneGap(), order.getContract(),
+					FuturesTradeActionType.CLOSE)) {
+				if (order.getBuyUpQuantity().compareTo(BigDecimal.ZERO) > 0) {
+					orderService.doUnwind(order.getContract(), order, FuturesOrderType.BuyUp, order.getBuyUpQuantity(),
+							FuturesTradePriceType.MKT, null, order.getPublisherId(),
+							FuturesWindControlType.DayUnwind, false, false, null);
+				}
+				if (order.getBuyFallQuantity().compareTo(BigDecimal.ZERO) > 0) {
+					orderService.doUnwind(order.getContract(), order, FuturesOrderType.BuyFall, order.getBuyFallQuantity(),
+							FuturesTradePriceType.MKT, null, order.getPublisherId(),
+							FuturesWindControlType.DayUnwind, false, false, null);
+				}
 			}
-			orderService.doUnwind(order.getContract(), order, orderType, quantity, FuturesTradePriceType.MKT, null,
-					order.getPublisherId(), FuturesWindControlType.DayUnwind, false, false, null);
 		}
 	}
 

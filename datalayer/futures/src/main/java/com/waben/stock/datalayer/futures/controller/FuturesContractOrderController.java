@@ -179,8 +179,8 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                         buyDto.setCurrencySign(rate.getCurrencySign());
                         BigDecimal remainder = lastPrice.subtract(avgUpFillPrice).divideAndRemainder(futuresCommodity.getMinWave())[1];
                         if (remainder.compareTo(BigDecimal.ZERO) > 0) {
-                            buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice).add(BigDecimal.ONE).divide(futuresCommodity.getMinWave()).
-                                    multiply(futuresCommodity.getPerWaveMoney()).multiply(futuresContractOrder.getBuyUpQuantity())
+                            buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice).add(BigDecimal.ONE).divide(futuresCommodity.getMinWave())
+                                    .multiply(futuresCommodity.getPerWaveMoney()).multiply(futuresContractOrder.getBuyUpQuantity())
                                     .multiply(rate.getRate()));
                         } else {
                             buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice).divide(futuresCommodity.getMinWave())

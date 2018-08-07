@@ -129,10 +129,8 @@ public class CapitalFlowBusiness {
 					flowWithExtend.setCommodityName(orderDto.getCommodityName());
 					flowWithExtend.setCommoditySymbol(orderDto.getCommoditySymbol());
 					flowWithExtend.setContractNo(orderDto.getContractNo());
-					FuturesContractOrderDto futuresContractOrderViewDto = futuresContractOrderBusiness
-							.fetchByContractIdAndPublisherId(orderDto.getContractId(), SecurityUtil.getUserId());
-					flowWithExtend.setReserveFund(futuresContractOrderViewDto != null ?
-							futuresContractOrderViewDto.getReserveFund() : BigDecimal.ZERO);
+					flowWithExtend.setReserveFund(orderDto != null ?
+							orderDto.getReserveFund() : BigDecimal.ZERO);
 				} else if (flow.getExtendType() == CapitalFlowExtendType.FUTURESOVERNIGHTRECORD) {
 					Response<FuturesOvernightRecordDto> recordDto = futuresOrderInterface
 							.fetchByOvernightId(flow.getExtendId());
