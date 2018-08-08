@@ -60,6 +60,8 @@ public class OrganizationDto {
 	 */
 	private BigDecimal billCharge;
 
+	private String treeCode;
+
 	public Long getId() {
 		return id;
 	}
@@ -154,6 +156,14 @@ public class OrganizationDto {
 
 	public void setBillCharge(BigDecimal billCharge) {
 		this.billCharge = billCharge;
+	}
+
+	public String getTreeCode() {
+		return treeCode;
+	}
+
+	public void setTreeCode(String treeCode) {
+		this.treeCode = treeCode;
 	}
 
 }

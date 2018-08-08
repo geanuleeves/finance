@@ -61,9 +61,8 @@ public class JwtTokenUtil {
 		return Jwts.builder().claim("authorities", grantedAuthStr).claim("userId", customUserDetails.getUserId())
 				.claim("nickname", customUserDetails.getNickname()).claim("orgId", customUserDetails.getOrgId())
 				.claim("orgCode", customUserDetails.getOrgCode()).claim("orgName", customUserDetails.getOrgName())
-				.claim("orgLevel", customUserDetails.getOrgLevel())
-				.claim("roleId", customUserDetails.getRoleId())
-				.setSubject(customUserDetails.getUsername())
+				.claim("orgLevel", customUserDetails.getOrgLevel()).claim("roleId", customUserDetails.getRoleId())
+				.claim("treeCode", customUserDetails.getTreeCode()).setSubject(customUserDetails.getUsername())
 				.setExpiration(new Date(System.currentTimeMillis() + EXPIRATIONTIME))
 				.signWith(SignatureAlgorithm.HS512, SECRET).compact();
 	}
@@ -83,6 +82,7 @@ public class JwtTokenUtil {
 		result.put("orgLevel", claims.get("orgLevel"));
 		result.put("roleId", claims.get("roleId"));
 		result.put("exp", claims.getExpiration());
+		result.put("treeCode", claims.get("treeCode"));
 		return result;
 	}
 
