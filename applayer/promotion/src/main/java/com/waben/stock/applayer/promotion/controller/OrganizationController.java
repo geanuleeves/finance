@@ -319,6 +319,12 @@ public class OrganizationController {
 			if (type != null) {
 				busType = type.getType();
 			}
+			String isTest = "";
+			if (trade.getIsTest() != null && trade.getIsTest()) {
+				isTest = "是";
+			} else {
+				isTest = "否";
+			}
 			List<String> data = new ArrayList<>();
 			data.add(String.valueOf(trade.getId() == null ? "" : trade.getId()));
 			data.add(trade.getCustomerName() == null ? "" : trade.getCustomerName());
@@ -331,6 +337,7 @@ public class OrganizationController {
 			data.add(trade.getStockCode() == null ? "" : trade.getStockCode());
 			data.add(trade.getMarkedStock() == null ? "" : trade.getMarkedStock());
 			data.add(trade.getAgentCode() + "/" + trade.getAgentCodeName());
+			data.add(isTest);
 			result.add(data);
 		}
 		return result;
@@ -349,6 +356,7 @@ public class OrganizationController {
 		result.add("股票代码");
 		result.add("标的股票");
 		result.add("所属代理商代码/名称");
+		result.add("是否测试账户");
 		return result;
 	}
 
