@@ -85,6 +85,12 @@ public class StockOptionTradeDto implements Comparable<StockOptionTradeDto> {
 	 * 成交时间
 	 */
 	private Date buyingTime;
+
+	/**
+	 * 买入时最新价格
+	 */
+	private BigDecimal buyingLastPrice;
+
 	/**
 	 * 成交价格
 	 */
@@ -396,4 +402,11 @@ public class StockOptionTradeDto implements Comparable<StockOptionTradeDto> {
 		this.numberOfStrand = numberOfStrand;
 	}
 
+	public BigDecimal getBuyingLastPrice() {
+		return buyingLastPrice;
+	}
+
+	public void setBuyingLastPrice(BigDecimal buyingLastPrice) {
+		this.buyingLastPrice = buyingLastPrice;
+	}
 }
