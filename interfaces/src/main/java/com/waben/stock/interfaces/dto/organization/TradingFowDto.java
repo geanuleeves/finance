@@ -78,6 +78,8 @@ public class TradingFowDto {
 	 * 产生流水的对象ID
 	 *//*
 	private Long extendId;*/
+	/** 是否测试（0或null为正式，1为测试） **/
+	private Boolean isTest;
 
 	public Long getId() {
 		return id;
@@ -189,6 +191,14 @@ public class TradingFowDto {
 
 	public void setAgentCode(String agentCode) {
 		this.agentCode = agentCode;
+	}
+
+	public Boolean getIsTest() {
+		return isTest;
+	}
+
+	public void setIsTest(Boolean isTest) {
+		this.isTest = isTest;
 	}
 
 }

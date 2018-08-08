@@ -29,7 +29,7 @@ public class OrganizationPublisherService {
 
 	@Autowired
 	private OrganizationDao orgDao;
-	
+
 	@Autowired
 	private StockOptionTradeBusiness tradeBusiness;
 
@@ -46,7 +46,7 @@ public class OrganizationPublisherService {
 		if (count > 0) {
 			throw new ServiceException(ExceptionConstant.MODIFY_DISABLED_EXCEPITON);
 		}
-		
+
 		OrganizationPublisher orgPublisher = dao.retrieveByPublisherId(publisherId);
 		if (orgPublisher != null) {
 			if (orgPublisher.getOrgCode().equals(orgCode)) {
@@ -57,20 +57,22 @@ public class OrganizationPublisherService {
 		}
 		orgPublisher = new OrganizationPublisher();
 		orgPublisher.setOrgCode(orgCode);
+		orgPublisher.setTreeCode(org.getTreeCode());
 		orgPublisher.setOrgId(org.getId());
 		orgPublisher.setPublisherId(publisherId);
 		orgPublisher.setCreateTime(new Date());
 		return dao.create(orgPublisher);
 	}
 
-    public List<OrganizationPublisher> findOrganizationPublishersByCode(String code) {
+	public List<OrganizationPublisher> findOrganizationPublishersByCode(String code) {
 		return dao.retrieveOrganizationPublishersByOrgCode(code);
-    }
+	}
+
 	public OrganizationPublisher findOrgPulisher(Long publisherId) {
 		return dao.retrieveByPublisherId(publisherId);
 	}
 
-    public List<OrganizationPublisher> findAll() {
+	public List<OrganizationPublisher> findAll() {
 		return dao.list();
-    }
+	}
 }
