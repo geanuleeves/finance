@@ -16,6 +16,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import com.waben.stock.datalayer.stockoption.web.StockQuotationHttp;
+import com.waben.stock.interfaces.pojo.stock.quotation.StockMarket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,6 +87,10 @@ public class StockOptionTradeService {
 
 	@Autowired
 	private StockOptionOrgDao optionOrgDao;
+
+
+	@Autowired
+	private StockQuotationHttp stockQuotationHttp;
 
 	public Page<StockOptionTrade> pagesByUserQuery(final StockOptionTradeUserQuery query) {
 		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
@@ -157,6 +163,7 @@ public class StockOptionTradeService {
 		return stockOptionTrade;
 	}
 
+	@Transactional
 	public StockOptionTrade userRight(Long publisherId, Long id) {
 		StockOptionTrade trade = findById(id);
 		if (trade.getState() != StockOptionTradeState.TURNOVER) {
@@ -295,24 +302,6 @@ public class StockOptionTradeService {
 		return result;
 	}
 
-	/**
-	 * 监控到自动到期，状态变成为“自动到期”
-	 * 
-	 * @param id
-	 *            期权交易ID
-	 * @return 期权交易
-	 */
-	@Transactional
-	public StockOptionTrade exercise(Long id) {
-		StockOptionTrade stockOptionTrade = stockOptionTradeDao.retrieve(id);
-		// 申购信息
-		stockOptionTrade.setState(StockOptionTradeState.AUTOEXPIRE);
-		stockOptionTrade.setUpdateTime(new Date());
-		StockOptionTrade result = stockOptionTradeDao.update(stockOptionTrade);
-		// 站外消息推送
-		sendOutsideMessage(result);
-		return result;
-	}
 
 	@Transactional
 	public StockOptionTrade modify(Long id) {
@@ -851,5 +840,79 @@ public class StockOptionTradeService {
 		sendOutsideMessage(trade);
 		return trade;
 	}
+
+
+	@Transactional
+	public StockOptionTrade autoSettlement(Long publisherId,Long id) {
+		StockOptionTrade trade = stockOptionTradeDao.retrieve(id);
+		if (trade.getState() != StockOptionTradeState.TURNOVER) {
+			throw new ServiceException(ExceptionConstant.STOCKOPTION_STATE_NOTMATCH_OPERATION_NOTSUPPORT_EXCEPTION);
+		}
+		if (!trade.getPublisherId().equals(publisherId)) {
+			throw new ServiceException(ExceptionConstant.STOCKOPTION_PUBLISHERID_NOTMATCH_EXCEPTION);
+		}
+		StockMarket stockMarket = stockQuotationHttp.fetQuotationByCode(trade.getStockCode());
+		BigDecimal sellingPrice = stockMarket.getLastPrice();
+		trade.setState(StockOptionTradeState.SETTLEMENTED);
+		trade.setUpdateTime(new Date());
+		trade.setSellingPrice(sellingPrice);
+		trade.setSellingTime(new Date());
+		BigDecimal profit = BigDecimal.ZERO;
+		if (sellingPrice.compareTo(trade.getBuyingPrice()) > 0) {
+			profit = sellingPrice.subtract(trade.getBuyingPrice()).divide(trade.getBuyingPrice(), 10, RoundingMode.DOWN)
+					.multiply(trade.getNominalAmount()).setScale(2, RoundingMode.HALF_EVEN);
+		}
+		trade.setProfit(profit);
+		stockOptionTradeDao.update(trade);
+		// 线下期权交易结算
+		settlementOfflineTrade(trade);
+		if (profit.compareTo(BigDecimal.ZERO) > 0) {
+			// 用户收益
+			accountBusiness.optionProfit(trade.getPublisherId(), trade.getId(), profit);
+		}
+		// 站外消息推送
+		sendOutsideMessage(trade);
+		return trade;
+	}
+
+	/**
+	 * 监控到自动到期，状态变成为“自动到期”
+	 *
+	 * @param id
+	 *            期权交易ID
+	 * @return 期权交易
+	 */
+	@Transactional
+	public StockOptionTrade exercise(Long id) {
+		StockOptionTrade trade = stockOptionTradeDao.retrieve(id);
+		if (trade.getState() != StockOptionTradeState.TURNOVER) {
+			throw new ServiceException(ExceptionConstant.STOCKOPTION_STATE_NOTMATCH_OPERATION_NOTSUPPORT_EXCEPTION);
+		}
+		StockMarket stockMarket = stockQuotationHttp.fetQuotationByCode(trade.getStockCode());
+
+		BigDecimal sellingPrice = stockMarket.getLastPrice();
+		trade.setState(StockOptionTradeState.SETTLEMENTED);
+		trade.setUpdateTime(new Date());
+		trade.setSellingPrice(sellingPrice);
+		trade.setSellingTime(new Date());
+		BigDecimal profit = BigDecimal.ZERO;
+		if (sellingPrice.compareTo(trade.getBuyingPrice()) > 0) {
+			profit = sellingPrice.subtract(trade.getBuyingPrice()).divide(trade.getBuyingPrice(), 10, RoundingMode.DOWN)
+					.multiply(trade.getNominalAmount()).setScale(2, RoundingMode.HALF_EVEN);
+		}
+		trade.setProfit(profit);
+		trade.setRightTime(new Date());
+		StockOptionTrade result = stockOptionTradeDao.update(trade);
+		// 线下期权交易结算
+		settlementOfflineTrade(trade);
+		if (profit.compareTo(BigDecimal.ZERO) > 0) {
+			// 用户收益
+			accountBusiness.optionProfit(trade.getPublisherId(), trade.getId(), profit);
+		}
+		// 站外消息推送
+		sendOutsideMessage(result);
+		return result;
+	}
+
 
 }

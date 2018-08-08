@@ -1,8 +1,6 @@
 package com.waben.stock.applayer.tactics.business;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,13 +95,13 @@ public class StockOptionTradeBusiness {
 	public StockOptionTradeDto userRight(Long publisherId, Long id) {
 		StockOptionTradeDto trade = this.findById(id);
 		Date buyingTime = trade.getBuyingTime();
-		// 计算最近的能申请行权的时间，T+3
+		// 计算最近的能申请行权的时间，T+1
 		Date now = new Date();
 		boolean isTradeDay = holidayBusiness.isTradeDay(now);
 		if (!isTradeDay) {
 			throw new ServiceException(ExceptionConstant.NONTRADINGDAY_EXCEPTION);
 		}
-		Date date = holidayBusiness.getAfterTradeDate(buyingTime, 3);
+		Date date = holidayBusiness.getAfterTradeDate(buyingTime, 1);
 		// 持仓中的才能申请行权
 		if (trade.getState() == StockOptionTradeState.TURNOVER && now.getTime() > date.getTime()) {
 			Response<StockOptionTradeDto> response = tradeReference.userRight(publisherId, id);
@@ -172,6 +170,9 @@ public class StockOptionTradeBusiness {
 							StockOptionTradeState.INSETTLEMENT });
 			PageInfo<StockOptionTradeDto> pageInfo = pagesByUserQuery(bQuery);
 			int total = sResponse.getResult().getContent().size() + pageInfo.getContent().size();
+			//降序
+			descByProfit(sResponse.getResult().getContent());
+			descByNominalAmount(pageInfo.getContent());
 			List<StockOptionTradeDynamicDto> content = new ArrayList<>();
 			boolean isSettlement = true;
 			for (int n = 0; n < total; n++) {
@@ -236,4 +237,38 @@ public class StockOptionTradeBusiness {
 		throw new ServiceException(sResponse.getCode());
 	}
 
+	private void descByNominalAmount(List<StockOptionTradeDto> list) {
+		Collections.sort(list, new Comparator<StockOptionTradeDto>() {
+
+			@Override
+			public int compare(StockOptionTradeDto o1, StockOptionTradeDto o2) {
+				// 按照学生的年龄进行升序排列
+				if (o1.getNominalAmount().compareTo(o2.getNominalAmount())>0) {
+					return -1;
+				}
+				if (o1.getNominalAmount().compareTo(o2.getNominalAmount())==0) {
+					return 0;
+				}
+				return 1;
+			}
+		});
+	}
+
+
+	private void descByProfit(List<StockOptionTradeDto> list) {
+		Collections.sort(list, new Comparator<StockOptionTradeDto>() {
+
+			@Override
+			public int compare(StockOptionTradeDto o1, StockOptionTradeDto o2) {
+				// 按照学生的年龄进行升序排列
+				if (o1.getProfit().compareTo(o2.getProfit())>0) {
+					return -1;
+				}
+				if (o1.getProfit().compareTo(o2.getProfit())==0) {
+					return 0;
+				}
+				return 1;
+			}
+		});
+	}
 }
