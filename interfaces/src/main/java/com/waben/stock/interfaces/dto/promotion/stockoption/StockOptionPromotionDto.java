@@ -115,6 +115,11 @@ public class StockOptionPromotionDto {
 	 */
 	private String orgName;
 
+	/**
+	 * 申购价格
+	 */
+	private BigDecimal buyingLastPrice;
+
 	public Long getId() {
 		return id;
 	}
@@ -321,6 +326,14 @@ public class StockOptionPromotionDto {
 
 	public void setOrgName(String orgName) {
 		this.orgName = orgName;
+	}
+
+	public BigDecimal getBuyingLastPrice() {
+		return buyingLastPrice;
+	}
+
+	public void setBuyingLastPrice(BigDecimal buyingLastPrice) {
+		this.buyingLastPrice = buyingLastPrice;
 	}
 
 }
