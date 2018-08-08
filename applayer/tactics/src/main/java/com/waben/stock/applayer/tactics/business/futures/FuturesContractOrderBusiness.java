@@ -14,6 +14,8 @@ import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesContractOrderQuery;
 import com.waben.stock.interfaces.service.futures.FuturesContractOrderInterface;
 
+import java.util.List;
+
 @Service
 public class FuturesContractOrderBusiness {
 	
@@ -39,5 +41,12 @@ public class FuturesContractOrderBusiness {
 		throw new ServiceException(response.getCode());
 	}
 
-	
+	public List<FuturesContractOrderDto> fetchByPublisherId(Long publisherId) {
+		Response<List<FuturesContractOrderDto>> response = reference.fetchByPublisherId(publisherId);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
 }

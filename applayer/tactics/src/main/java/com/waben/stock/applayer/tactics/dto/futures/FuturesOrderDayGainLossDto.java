@@ -1,8 +1,8 @@
 package com.waben.stock.applayer.tactics.dto.futures;
 
-import java.math.BigDecimal;
-
 import io.swagger.annotations.ApiModelProperty;
+
+import java.math.BigDecimal;
 
 /**
  * PC端当天持仓、平仓盈亏（计算当天开仓、当天平仓）
@@ -38,18 +38,27 @@ public class FuturesOrderDayGainLossDto {
 	 */
 	@ApiModelProperty(value = "冻结资金")
 	private BigDecimal frozenCapital;
-
 	/**
 	 * 总强平金额
 	 */
 	@ApiModelProperty(value = "总强平金额")
 	private BigDecimal totalBalance;
-
 	/**
 	 * 账户浮动可用余额
 	 */
 	@ApiModelProperty(value = "账户浮动可用余额")
 	private BigDecimal floatAvailableBalance;
+	/**
+	 * 持仓盈亏
+	 */
+	@ApiModelProperty(value = "持仓盈亏")
+	private BigDecimal totalFloatingProfitAndLoss;
+	/**
+	 * 今持仓盈亏
+	 */
+	@ApiModelProperty(value = "今持仓盈亏")
+	private BigDecimal totalFloatingProfitAndLossNow;
+
 
 	public BigDecimal getPositionFee() {
 		return positionFee;
@@ -107,4 +116,19 @@ public class FuturesOrderDayGainLossDto {
 		this.floatAvailableBalance = floatAvailableBalance;
 	}
 
+	public BigDecimal getTotalFloatingProfitAndLoss() {
+		return totalFloatingProfitAndLoss;
+	}
+
+	public void setTotalFloatingProfitAndLoss(BigDecimal totalFloatingProfitAndLoss) {
+		this.totalFloatingProfitAndLoss = totalFloatingProfitAndLoss;
+	}
+
+	public BigDecimal getTotalFloatingProfitAndLossNow() {
+		return totalFloatingProfitAndLossNow;
+	}
+
+	public void setTotalFloatingProfitAndLossNow(BigDecimal totalFloatingProfitAndLossNow) {
+		this.totalFloatingProfitAndLossNow = totalFloatingProfitAndLossNow;
+	}
 }

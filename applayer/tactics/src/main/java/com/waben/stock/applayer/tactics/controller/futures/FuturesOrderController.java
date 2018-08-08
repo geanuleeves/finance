@@ -98,10 +98,6 @@ public class FuturesOrderController {
 	@Autowired
 	private FuturesTradeActionBusiness futuresTradeActionBusiness;
 
-	@Autowired
-	private FuturesContractOrderBusiness futuresContractOrderBusiness;
-
-
 	private SimpleDateFormat exprotSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@PostMapping("/buy")
@@ -691,41 +687,11 @@ public class FuturesOrderController {
 	@ApiOperation(value = "获取当前用户的账户资金及当天持仓、平仓盈亏")
 	public Response<FuturesOrderDayGainLossDto> capitalAccountAndDayGainLoss() {
 		FuturesOrderDayGainLossDto gainLoss = new FuturesOrderDayGainLossDto();
-		// 获取当天平仓金额
-		FuturesOrderQuery orderQuery = new FuturesOrderQuery();
-		FuturesOrderState[] states = { FuturesOrderState.Unwind };
-		orderQuery.setStates(states);
-		orderQuery.setPage(0);
-		orderQuery.setSize(Integer.MAX_VALUE);
-		orderQuery.setStartBuyingTime(getCurrentDay());
-		orderQuery.setPublisherId(SecurityUtil.getUserId());
-		List<FuturesOrderMarketDto> list = futuresOrderBusiness.pageOrderMarket(orderQuery).getContent();
-		BigDecimal totalIncome = new BigDecimal(0);
-		for (FuturesOrderMarketDto futuresOrderMarketDto : list) {
-			// totalIncome =
-			// totalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss());
-		}
-		gainLoss.setUnwindProFee(totalIncome.setScale(2, RoundingMode.DOWN));
-
-		// 获取持仓浮动盈亏
-		FuturesOrderQuery positionOrderQuery = new FuturesOrderQuery();
-		FuturesOrderState[] positionState = { FuturesOrderState.Position };
-		positionOrderQuery.setStates(positionState);
-		positionOrderQuery.setPage(0);
-		positionOrderQuery.setSize(Integer.MAX_VALUE);
-		positionOrderQuery.setPublisherId(SecurityUtil.getUserId());
-		List<FuturesOrderMarketDto> positionList = futuresOrderBusiness.pageOrderMarket(positionOrderQuery)
-				.getContent();
-		BigDecimal positionTotalIncome = new BigDecimal(0);
-		for (FuturesOrderMarketDto futuresOrderMarketDto : positionList) {
-			// positionTotalIncome =
-			// positionTotalIncome.add(futuresOrderMarketDto.getPublisherProfitOrLoss()
-			// == null
-			// ? new BigDecimal(0) :
-			// futuresOrderMarketDto.getPublisherProfitOrLoss());
-		}
-		gainLoss.setPositionFee(positionTotalIncome.setScale(2, RoundingMode.DOWN));
-
+		// 获得合计浮动盈亏
+		BigDecimal totalFloatingProfitAndLoss = futuresOrderBusiness.getTotalFloatingProfitAndLoss(SecurityUtil.getUserId());
+		BigDecimal totalFloatingProfitAndLossNow = futuresOrderBusiness.getTotalFloatingProfitAndLossNow(SecurityUtil.getUserId());
+		gainLoss.setTotalFloatingProfitAndLoss(totalFloatingProfitAndLoss);
+		gainLoss.setTotalFloatingProfitAndLossNow(totalFloatingProfitAndLossNow);
 		// 获取用户账户资金
 		CapitalAccountDto result = capitalAccountBusiness.findByPublisherId(SecurityUtil.getUserId());
 		BigDecimal unsettledProfitOrLoss = orderBusiness.getUnsettledProfitOrLoss(SecurityUtil.getUserId());

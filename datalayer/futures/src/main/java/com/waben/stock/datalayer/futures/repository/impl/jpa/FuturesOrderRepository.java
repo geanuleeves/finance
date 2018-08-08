@@ -104,7 +104,7 @@ public interface FuturesOrderRepository extends CustomJpaRepository<FuturesOrder
     Integer countByPublisherId(Long publisherId);
 
     /**
-     * 已成交部分均价（开仓）
+     * 已成交部分均价
      *
      * @param publisherId 用户ID
      * @param contractId  合约ID
@@ -116,6 +116,24 @@ public interface FuturesOrderRepository extends CustomJpaRepository<FuturesOrder
             "WHERE t.publisher_id = ?1 AND t.contract_id = ?2 " +
             "AND t.order_type = ?3 AND t.state IN(5,6,7,8)", nativeQuery = true)
     BigDecimal getOpenAvgFillPrice(Long publisherId, Long contractId, String orderType);
+
+
+
+    /**
+     * 今天已成交部分均价
+     *
+     * @param publisherId 用户ID
+     * @param contractId  合约ID
+     * @param orderType   订单类型
+     * @return
+     */
+    @Query(value = "SELECT sum(open_avg_fill_price*(open_filled-close_filled))/sum(open_filled-close_filled)  FROM f_futures_order t " +
+            "LEFT JOIN f_futures_contract contract ON contract.id = t.contract_id " +
+            "WHERE t.publisher_id = ?1 AND t.contract_id = ?2 " +
+            "AND t.order_type = ?3 AND DATEDIFF(o.open_trade_time,NOW())=0 " +
+            "AND t.state IN(5,6,7,8)", nativeQuery = true)
+    BigDecimal getOpenAvgFillPriceNow(Long publisherId, Long contractId, String orderType);
+
 
     /**
      * 已成交部分均价（平仓）

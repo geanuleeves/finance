@@ -416,6 +416,14 @@ public class FuturesOrderBusiness {
 		throw new ServiceException(response.getCode());
 	}
 
+	public BigDecimal getTotalFloatingProfitAndLossNow(Long publisherId) {
+		Response<BigDecimal> response = futuresOrderInterface.getTotalFloatingProfitAndLossNow(publisherId);
+		if (response.getCode().equals("200")) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
 	/**
 	 * 获取总强平金额
 	 * 
