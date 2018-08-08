@@ -139,7 +139,8 @@ public class FuturesTradeEntrustService {
 		}
 		// step 1 : 更新开平仓记录和订单状态
 		FuturesContract contract = entrust.getContract();
-		if (!orderService.isTradeTime(contract.getCommodity().getTimeZoneGap(), contract, FuturesTradeActionType.OPEN)) {
+		if (!orderService.isTradeTime(contract.getCommodity().getTimeZoneGap(), contract,
+				FuturesTradeActionType.OPEN)) {
 			throw new ServiceException(ExceptionConstant.CONTRACT_ISNOTIN_TRADE_EXCEPTION);
 		}
 		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract, publisherId);
@@ -151,7 +152,6 @@ public class FuturesTradeEntrustService {
 			action.setUpdateTime(new Date());
 			// step 1.2 : 更新订单状态
 			FuturesOrder order = action.getOrder();
-			order.setCloseRemaining(order.getCloseRemaining().subtract(action.getRemaining()));
 			if (entrust.getTradeActionType() == FuturesTradeActionType.OPEN) {
 				order.setState(FuturesOrderState.BuyingCanceled);
 			} else {
@@ -164,7 +164,10 @@ public class FuturesTradeEntrustService {
 							contractOrder.getBuyFallCanUnwindQuantity().add(action.getQuantity()));
 					contractOrderDao.doUpdate(contractOrder);
 				}
-				if (order.getCloseFilled().compareTo(BigDecimal.ZERO) > 0) {
+				order.setCloseRemaining(order.getCloseRemaining().subtract(action.getQuantity()));
+				if (order.getCloseRemaining().compareTo(BigDecimal.ZERO) > 0) {
+					order.setState(FuturesOrderState.SellingEntrust);
+				} else if (order.getCloseFilled().compareTo(BigDecimal.ZERO) > 0) {
 					order.setState(FuturesOrderState.PartUnwind);
 				} else {
 					order.setState(FuturesOrderState.Position);
@@ -494,7 +497,8 @@ public class FuturesTradeEntrustService {
 				sendOutsideMessage(entrust);
 			}
 		}
-		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(entrust.getContract(), entrust.getPublisherId());
+		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(entrust.getContract(),
+				entrust.getPublisherId());
 		this.monitorContractOrder(contractOrder);
 		return entrust;
 	}
