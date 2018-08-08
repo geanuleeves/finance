@@ -164,7 +164,7 @@ public class FuturesTradeEntrust {
 	}
 
 	public BigDecimal getEntrustPrice() {
-		return entrustPrice = entrustPrice != null ? entrustPrice.setScale(2, BigDecimal.ROUND_DOWN) : BigDecimal.ZERO;
+		return entrustPrice = entrustPrice != null ? entrustPrice.stripTrailingZeros() : BigDecimal.ZERO;
 	}
 
 	public void setEntrustPrice(BigDecimal entrustPrice) {
@@ -228,7 +228,7 @@ public class FuturesTradeEntrust {
 	}
 
 	public BigDecimal getTradePrice() {
-		return tradePrice = tradePrice != null ? tradePrice.setScale(2, BigDecimal.ROUND_DOWN) : BigDecimal.ZERO;
+		return tradePrice = tradePrice != null ? tradePrice.stripTrailingZeros() : BigDecimal.ZERO;
 	}
 
 	public void setTradePrice(BigDecimal tradePrice) {
