@@ -2,10 +2,7 @@ package com.waben.stock.datalayer.futures.rabbitmq.consumer;
 
 import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
 import com.waben.stock.datalayer.futures.business.CapitalFlowBusiness;
-import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
-import com.waben.stock.datalayer.futures.entity.FuturesContract;
-import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
+import com.waben.stock.datalayer.futures.entity.*;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqConfiguration;
 import com.waben.stock.datalayer.futures.rabbitmq.RabbitmqProducer;
@@ -13,6 +10,7 @@ import com.waben.stock.datalayer.futures.rabbitmq.message.MonitorStrongPointMess
 import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
 import com.waben.stock.datalayer.futures.repository.FuturesOvernightRecordDao;
+import com.waben.stock.datalayer.futures.service.FuturesCurrencyRateService;
 import com.waben.stock.datalayer.futures.service.FuturesOrderService;
 import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
@@ -63,6 +61,9 @@ public class MonitorStrongPointConsumer {
 
 	@Autowired
 	private FuturesOvernightRecordService overnightService;
+
+	@Autowired
+	private FuturesCurrencyRateService rateService;
 
 	@Autowired
 	private QuoteContainer quoteContainer;
@@ -367,7 +368,7 @@ public class MonitorStrongPointConsumer {
 		FuturesCommodity commotidy = contractOrder.getContract().getCommodity();
 		FuturesContractMarket market = quoteContainer.getQuote(commotidy.getSymbol(),
 				contractOrder.getContract().getContractNo());
-
+		FuturesCurrencyRate rate = rateService.findByCurrency(commotidy.getCurrency());
 		BigDecimal buyUpCanUnwind = contractOrder.getBuyUpCanUnwindQuantity();
 		BigDecimal buyFallCanUnwind = contractOrder.getBuyFallCanUnwindQuantity();
 		if (buyUpCanUnwind != null && buyUpCanUnwind.compareTo(BigDecimal.ZERO) > 0
@@ -376,7 +377,7 @@ public class MonitorStrongPointConsumer {
 					FuturesOrderType.BuyUp.getIndex());
 			floatProfitOrLoss = floatProfitOrLoss
 					.add(orderService.computeProfitOrLoss(FuturesOrderType.BuyUp, buyUpCanUnwind, buyUpOpenAvgFillPrice,
-							market.getLastPrice(), commotidy.getMinWave(), commotidy.getPerWaveMoney()));
+							market.getLastPrice(), commotidy.getMinWave(), commotidy.getPerWaveMoney()).multiply(rate.getRate()));
 		}
 		if (buyFallCanUnwind != null && buyFallCanUnwind.compareTo(BigDecimal.ZERO) > 0
 				&& market.getLastPrice().compareTo(BigDecimal.ZERO) > 0) {
@@ -384,7 +385,7 @@ public class MonitorStrongPointConsumer {
 					FuturesOrderType.BuyFall.getIndex());
 			floatProfitOrLoss = floatProfitOrLoss.add(orderService.computeProfitOrLoss(FuturesOrderType.BuyFall,
 					buyFallCanUnwind, buyFallOpenAvgFillPrice, market.getLastPrice(), commotidy.getMinWave(),
-					commotidy.getPerWaveMoney()));
+					commotidy.getPerWaveMoney()).multiply(rate.getRate()));
 		}
 		return floatProfitOrLoss;
 	}
