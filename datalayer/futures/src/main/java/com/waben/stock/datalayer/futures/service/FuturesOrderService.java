@@ -991,14 +991,15 @@ public class FuturesOrderService {
 			for (FuturesContractOrder contractOrder : contractOrderList) {
 				FuturesContract contract = contractOrder.getContract();
 				if (this.isTradeTime(contract.getCommodity().getTimeZoneGap(), contract, FuturesTradeActionType.CLOSE)) {
-					isAllNotTradeTime = false;
 					BigDecimal buyUpQuantity = contractOrder.getBuyUpCanUnwindQuantity();
 					BigDecimal buyFallQuantity = contractOrder.getBuyFallCanUnwindQuantity();
 					if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
+						isAllNotTradeTime = false;
 						doUnwind(contract, contractOrder, FuturesOrderType.BuyUp, buyUpQuantity, FuturesTradePriceType.MKT,
 								null, publisherId, FuturesWindControlType.UserApplyUnwind, false, false, null);
 					}
 					if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
+						isAllNotTradeTime = false;
 						doUnwind(contract, contractOrder, FuturesOrderType.BuyFall, buyFallQuantity,
 								FuturesTradePriceType.MKT, null, publisherId, FuturesWindControlType.UserApplyUnwind, false,
 								false, null);

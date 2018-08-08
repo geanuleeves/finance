@@ -97,7 +97,7 @@ public class MonitorStrongPointConsumer {
 			logger.info("监控强平点:{}", message);
 		}
 		MonitorStrongPointMessage messgeObj = JacksonUtil.decode(message, MonitorStrongPointMessage.class);
-		if(messgeObj.getConsumeCount() == 0) {
+		if (messgeObj.getConsumeCount() == 0) {
 			// 第一次消费消息，输出日志
 			logger.info("第一次消费监控强平点消息:{}", message);
 		}
@@ -138,7 +138,7 @@ public class MonitorStrongPointConsumer {
 			}
 			if (isNeedRetry) {
 				retry(messgeObj);
-			} else if(messgeObj.getConsumeCount() < 10) {
+			} else if (messgeObj.getConsumeCount() < 10) {
 				retry(messgeObj);
 			} else {
 				monitorPublisherList.remove(messgeObj.getPublisherId());
@@ -155,12 +155,12 @@ public class MonitorStrongPointConsumer {
 					FuturesTradeActionType.CLOSE)) {
 				if (order.getBuyUpQuantity().compareTo(BigDecimal.ZERO) > 0) {
 					orderService.doUnwind(order.getContract(), order, FuturesOrderType.BuyUp, order.getBuyUpQuantity(),
-							FuturesTradePriceType.MKT, null, order.getPublisherId(),
-							FuturesWindControlType.DayUnwind, false, false, null);
+							FuturesTradePriceType.MKT, null, order.getPublisherId(), FuturesWindControlType.DayUnwind,
+							false, false, null);
 				}
 				if (order.getBuyFallQuantity().compareTo(BigDecimal.ZERO) > 0) {
-					orderService.doUnwind(order.getContract(), order, FuturesOrderType.BuyFall, order.getBuyFallQuantity(),
-							FuturesTradePriceType.MKT, null, order.getPublisherId(),
+					orderService.doUnwind(order.getContract(), order, FuturesOrderType.BuyFall,
+							order.getBuyFallQuantity(), FuturesTradePriceType.MKT, null, order.getPublisherId(),
 							FuturesWindControlType.DayUnwind, false, false, null);
 				}
 			}
@@ -408,6 +408,10 @@ public class MonitorStrongPointConsumer {
 			BigDecimal floatProfitOrLoss = computeFloatProfitOrLoss(order);
 			order.setStrongMoney(strongMoney);
 			order.setFloatProfitOrLoss(floatProfitOrLoss);
+			if (order.getIsNeedLog() != null && order.getIsNeedLog()) {
+				logger.info("监控强平订单日志{}，strongMoney:{}，floatProfitOrLoss{}", order.getId(), strongMoney,
+						floatProfitOrLoss);
+			}
 			// 计算强平金额
 			totalStrong = totalStrong.add(strongMoney);
 			// 计算浮动盈亏
