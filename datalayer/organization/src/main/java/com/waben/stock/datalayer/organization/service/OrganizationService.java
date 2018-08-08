@@ -77,8 +77,8 @@ public class OrganizationService {
 	@Autowired
 	private SettlementMethodDao settlementMethodDao;
 
-//	@Autowired
-//	private StockOptionTradeBusiness tradeBusiness;
+	// @Autowired
+	// private StockOptionTradeBusiness tradeBusiness;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -105,25 +105,24 @@ public class OrganizationService {
 		if (checkName != null && checkName.size() > 0) {
 			throw new ServiceException(ExceptionConstant.ORGNAME_EXIST_EXCEPTION);
 		}
-		// 生成机构代码
-		// List<Organization> childList =
-		// organizationDao.listByParentOrderByCodeDesc(parent);
-		// String code = parent.getCode();
-		// if (childList != null && childList.size() > 0) {
-		// Organization max = childList.get(0);
-		// String suffix = max.getCode().substring(code.length());
-		// Long seria = Long.parseLong(suffix) + 1;
-		// String seriaStr = seria.toString();
-		// if (seriaStr.length() < suffix.length()) {
-		// int lack = suffix.length() - seriaStr.length();
-		// for (int i = 0; i < lack; i++) {
-		// seriaStr = "0" + seriaStr;
-		// }
-		// }
-		// code += seriaStr;
-		// } else {
-		// code += "001";
-		// }
+		// 生成树结构代码
+		List<Organization> childList = organizationDao.listByParentOrderByCodeDesc(parent);
+		String treeCode = parent.getTreeCode();
+		if (childList != null && childList.size() > 0) {
+			Organization max = childList.get(0);
+			String suffix = max.getTreeCode().substring(treeCode.length());
+			Long seria = Long.parseLong(suffix) + 1;
+			String seriaStr = seria.toString();
+			if (seriaStr.length() < suffix.length()) {
+				int lack = suffix.length() - seriaStr.length();
+				for (int i = 0; i < lack; i++) {
+					seriaStr = "0" + seriaStr;
+				}
+			}
+			treeCode += seriaStr;
+		} else {
+			treeCode += "001";
+		}
 		// 生成机构代码
 		Organization newest = organizationDao.getNewestOrg();
 		Integer currentIndex = 0;
@@ -151,6 +150,7 @@ public class OrganizationService {
 		// 保存机构
 		Organization org = new Organization();
 		org.setCode(code);
+		org.setTreeCode(treeCode);
 		org.setCreateTime(new Date());
 		org.setLevel(level);
 		org.setName(orgForm.getName());
@@ -355,12 +355,13 @@ public class OrganizationService {
 		if (settlementType != null) {
 			SettlementMethod smethod = new SettlementMethod();
 			List<SettlementMethod> menthod = settlementMethodDao.list();
-//			if (menthod.get(0).getSettlementType() != settlementType) {
-//				Integer count = tradeBusiness.countStockOptionTradeState();
-//				if (count > 0) {
-//					throw new ServiceException(ExceptionConstant.SETTLEMENT_METHOD_EXCEPITON);
-//				}
-//			}
+			// if (menthod.get(0).getSettlementType() != settlementType) {
+			// Integer count = tradeBusiness.countStockOptionTradeState();
+			// if (count > 0) {
+			// throw new
+			// ServiceException(ExceptionConstant.SETTLEMENT_METHOD_EXCEPITON);
+			// }
+			// }
 			if (menthod != null && menthod.size() > 0) {
 				smethod = menthod.get(0);
 			}
@@ -582,24 +583,34 @@ public class OrganizationService {
 					+ query.getOrgCodeOrName() + "%')";
 		}
 
-		String sql = String.format(
-				"select t1.id, t4.name as publisher_name, t5.phone, t1.flow_no, t1.occurrence_time, t1.type, t1.amount, t1.available_balance, "
+		String isTest = "";
+		if (!StringUtil.isEmpty(query.getIsTest())) {
+			if (query.getIsTest().equals("1")) {
+				isTest = " AND t3.is_test = 1";
+			}
+			if (query.getIsTest().equals("0")) {
+				isTest = " AND (t3.is_test IS NULL OR t3.is_test = 0)";
+			}
+		}
+		String sql = String
+				.format("select t1.id, t4.name as publisher_name, t5.phone, t1.flow_no, t1.occurrence_time, t1.type, t1.amount, t1.available_balance, "
 						+ " IF(t3.stock_code IS NULL,t2.stock_code,t3.stock_code) AS stock_code,  IF(t3.stock_name IS NULL,t2.stock_name,t3.stock_name) AS stcode_name,"
-						+ " t10.code,t10.name AS agentName " + " from capital_flow t1 "
+						+ " t10.code,t10.name AS agentName, t3.is_test  from capital_flow t1 "
+						+ " LEFT JOIN p_organization_publisher t9 ON t9.publisher_id = t1.publisher_id"
 						+ " LEFT JOIN buy_record t2 on t1.extend_type=1 and t1.extend_id=t2.id "
 						+ " LEFT JOIN stock_option_trade t3 on t1.extend_type=3 and t1.extend_id=t3.id "
 						+ " LEFT JOIN real_name t4 on t4.resource_type=2 and t1.publisher_id=t4.resource_id "
 						+ " LEFT JOIN publisher t5 on t5.id=t1.publisher_id "
 						+ " LEFT JOIN payment_order t6 on t1.extend_type=4 and t1.extend_id=t6.id"
 						+ " LEFT JOIN withdrawals_order t7 on t1.extend_type=5 and t1.extend_id=t7.id "
-						+ " LEFT JOIN bind_card t8 on t7.bank_card=t8.bank_card"
-						+ " LEFT JOIN p_organization_publisher t9 ON t9.publisher_id = t5.id"
+						// + " LEFT JOIN bind_card t8 on
+						// t7.bank_card=t8.bank_card"
 						+ " LEFT JOIN p_organization t10 ON t10.code = t9.org_code"
 						+ " LEFT JOIN p_organization t11 on t11.id=" + query.getCurrentOrgId() + ""
-						+ " WHERE 1=1 and t10.id is not null and (t11.level=1 or (t11.level>1 and (t11.id=t10.id or t11.id=t10.parent_id))) %s %s %s %s %s %s %s order by t1.occurrence_time desc limit "
-						+ query.getPage() * query.getSize() + "," + query.getSize(),
-				customerNameQuery, tradingNumberQuery, startTimeCondition, endTimeCondition, typeQuery, stockCodeQuery,
-				agentCodeNameQuery);
+						+ " WHERE 1=1 and t10.id is not null and (t11.level=1 or (t11.level>1 and (t11.id=t10.id or t11.id=t10.parent_id))) %s %s %s %s %s %s %s %s order by t1.occurrence_time desc limit "
+						+ query.getPage() * query.getSize() + "," + query.getSize(), customerNameQuery,
+						tradingNumberQuery, startTimeCondition, endTimeCondition, typeQuery, stockCodeQuery,
+						agentCodeNameQuery, isTest);
 		String countSql = "select count(*) from (" + sql.substring(0, sql.indexOf("limit")) + ") c";
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setId", new Class<?>[] { Long.class })); // ID
@@ -614,6 +625,7 @@ public class OrganizationService {
 		setMethodMap.put(new Integer(9), new MethodDesc("setMarkedStock", new Class<?>[] { String.class }));// 股票名称
 		setMethodMap.put(new Integer(10), new MethodDesc("setAgentCode", new Class<?>[] { String.class })); // 代理商代码
 		setMethodMap.put(new Integer(11), new MethodDesc("setAgentCodeName", new Class<?>[] { String.class }));// 代理商名称
+		setMethodMap.put(new Integer(12), new MethodDesc("setIsTest", new Class<?>[] { Boolean.class }));
 		List<TradingFowDto> content = sqlDao.execute(TradingFowDto.class, sql, setMethodMap);
 		BigInteger totalElements = sqlDao.executeComputeSql(countSql);
 		return new PageImpl<>(content, new PageRequest(query.getPage(), query.getSize()),

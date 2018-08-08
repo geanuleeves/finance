@@ -80,6 +80,11 @@ public class Organization {
 	 */
 	private BigDecimal billCharge;
 
+	/**
+	 * 树结构代码
+	 */
+	private String treeCode;
+
 	public Long getId() {
 		return id;
 	}
@@ -187,6 +192,14 @@ public class Organization {
 
 	public void setBillCharge(BigDecimal billCharge) {
 		this.billCharge = billCharge;
+	}
+
+	public String getTreeCode() {
+		return treeCode;
+	}
+
+	public void setTreeCode(String treeCode) {
+		this.treeCode = treeCode;
 	}
 
 }
