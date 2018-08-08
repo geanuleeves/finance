@@ -2259,7 +2259,7 @@ public class FuturesOrderService {
 
     public BigDecimal getOpenAvgFillPriceNow(Long publisherId, String extendType) {
         BigDecimal openAvgFillPrice = orderDao.getOpenAvgFillPriceNow(publisherId, extendType);
-        openAvgFillPrice = openAvgFillPrice != null ? openAvgFillPrice.setScale(2, BigDecimal.ROUND_DOWN)
+        openAvgFillPrice = openAvgFillPrice != null ? openAvgFillPrice.stripTrailingZeros()
                 : BigDecimal.ZERO;
         return openAvgFillPrice;
     }

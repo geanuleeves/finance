@@ -207,10 +207,11 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                         buyDto.setCurrencySign(rate.getCurrencySign());
                         buyDto.setFloatingProfitAndLoss(lastPrice.subtract(avgUpFillPrice).divide(futuresCommodity.getMinWave())
                                 .multiply(futuresCommodity.getPerWaveMoney()).multiply(futuresContractOrder.getBuyUpQuantity())
-                                .multiply(rate.getRate()).setScale(2, BigDecimal.ROUND_DOWN));
-                        buyDto.setServiceFee(futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee()).multiply(buyUpQuantity));
+                                .multiply(rate.getRate()).stripTrailingZeros());
+                        buyDto.setServiceFee(futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee())
+								.multiply(buyUpQuantity).stripTrailingZeros());
                         //保证金
-                        buyDto.setReserveFund(futuresCommodity.getPerUnitReserveFund().multiply(futuresContractOrder.getBuyUpQuantity()));
+                        buyDto.setReserveFund(futuresCommodity.getPerUnitReserveFund().multiply(futuresContractOrder.getBuyUpQuantity()).stripTrailingZeros());
                         buyDto.setLimitProfitType(futuresContractOrder.getBuyUpLimitProfitType());
                         buyDto.setPerUnitLimitProfitAmount(futuresContractOrder.getBuyUpPerUnitLimitProfitAmount());
                         buyDto.setLimitLossType(futuresContractOrder.getBuyUpLimitLossType());
@@ -248,10 +249,11 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                         sellDto.setCurrencySign(rate.getCurrencySign());
                         sellDto.setFloatingProfitAndLoss(avgFallFillPrice.subtract(lastPrice).divide(futuresCommodity.getMinWave())
                                 .multiply(futuresCommodity.getPerWaveMoney().multiply(futuresContractOrder.getBuyFallQuantity()))
-                                .multiply(rate.getRate()).setScale(2, BigDecimal.ROUND_DOWN));
-                        sellDto.setServiceFee(futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee()).multiply(buyFallQuantity));
+                                .multiply(rate.getRate()).stripTrailingZeros());
+                        sellDto.setServiceFee(futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee())
+								.multiply(buyFallQuantity).stripTrailingZeros());
                         //保证金
-                        sellDto.setReserveFund(futuresCommodity.getPerUnitReserveFund().multiply(futuresContractOrder.getBuyFallQuantity()));
+                        sellDto.setReserveFund(futuresCommodity.getPerUnitReserveFund().multiply(futuresContractOrder.getBuyFallQuantity()).stripTrailingZeros());
                         sellDto.setLimitProfitType(futuresContractOrder.getBuyFallLimitProfitType());
                         sellDto.setPerUnitLimitProfitAmount(futuresContractOrder.getBuyFallPerUnitLimitProfitAmount());
                         sellDto.setLimitLossType(futuresContractOrder.getBuyFallLimitLossType());
