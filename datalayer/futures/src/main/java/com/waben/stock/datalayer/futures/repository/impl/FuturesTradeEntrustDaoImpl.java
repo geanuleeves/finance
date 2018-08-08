@@ -3,6 +3,8 @@ package com.waben.stock.datalayer.futures.repository.impl;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeEntrust;
 import com.waben.stock.datalayer.futures.repository.FuturesTradeEntrustDao;
 import com.waben.stock.datalayer.futures.repository.impl.jpa.FuturesTradeEntrustRepository;
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
+import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -66,4 +68,10 @@ public class FuturesTradeEntrustDaoImpl implements FuturesTradeEntrustDao {
 	public List<FuturesTradeEntrust> retrieveByBackhandEntrustId(Long entrustId) {
 		return repository.findByBackhandEntrustId(entrustId);
 	}
+
+    @Override
+    public List<FuturesTradeEntrust> retrieveByTradeActionTypeAndState(FuturesTradeActionType tradeActionType, FuturesTradeEntrustState state) {
+        return repository.findByTradeActionTypeAndState(tradeActionType, state);
+    }
+
 }

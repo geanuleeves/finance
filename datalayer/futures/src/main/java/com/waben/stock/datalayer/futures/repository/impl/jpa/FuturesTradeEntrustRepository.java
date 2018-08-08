@@ -1,6 +1,8 @@
 package com.waben.stock.datalayer.futures.repository.impl.jpa;
 
 import com.waben.stock.datalayer.futures.entity.FuturesTradeEntrust;
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
+import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
 
 import java.util.List;
 
@@ -14,4 +16,5 @@ public interface FuturesTradeEntrustRepository extends CustomJpaRepository<Futur
 
 	List<FuturesTradeEntrust> findByBackhandEntrustId(Long backhandEntrustId);
 
+    List<FuturesTradeEntrust> findByTradeActionTypeAndState(FuturesTradeActionType tradeActionType, FuturesTradeEntrustState state);
 }
