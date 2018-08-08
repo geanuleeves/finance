@@ -2251,7 +2251,7 @@ public class FuturesOrderService {
 			int length = minwave.toPlainString().length();
 			openAvgFillPrice = orderDao.getOpenAvgFillPrice(publisherId, contractId, orderType);
 			openAvgFillPrice = openAvgFillPrice != null ?
-					openAvgFillPrice.setScale(length, BigDecimal.ROUND_HALF_DOWN) : BigDecimal.ZERO;
+					openAvgFillPrice.setScale(length, BigDecimal.ROUND_DOWN) : BigDecimal.ZERO;
 		}
 		return openAvgFillPrice;
 	}
@@ -2265,7 +2265,7 @@ public class FuturesOrderService {
 			int length = minwave.toPlainString().length();
 			closeAvgFillPrice = orderDao.getCloseAvgFillPrice(publisherId, contractId, orderType);
 			closeAvgFillPrice = closeAvgFillPrice != null ?
-					closeAvgFillPrice.setScale(length, BigDecimal.ROUND_HALF_DOWN) : BigDecimal.ZERO;
+					closeAvgFillPrice.setScale(length, BigDecimal.ROUND_DOWN) : BigDecimal.ZERO;
 		}
 		return closeAvgFillPrice;
 	}
