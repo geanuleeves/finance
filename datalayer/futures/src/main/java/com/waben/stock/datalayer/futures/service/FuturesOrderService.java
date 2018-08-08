@@ -2249,7 +2249,7 @@ public class FuturesOrderService {
 		if (futuresContract != null) {
 			FuturesCommodity futuresCommodity = futuresContract.getCommodity();
 			BigDecimal minwave = futuresCommodity.getMinWave();
-			int length = minwave.toPlainString().length() + 1;
+			int length = minwave.toPlainString().length() - 2;
 			openAvgFillPrice = orderDao.getOpenAvgFillPrice(publisherId, contractId, orderType);
 			openAvgFillPrice = openAvgFillPrice != null ?
 					openAvgFillPrice.setScale(length, BigDecimal.ROUND_DOWN) : BigDecimal.ZERO;

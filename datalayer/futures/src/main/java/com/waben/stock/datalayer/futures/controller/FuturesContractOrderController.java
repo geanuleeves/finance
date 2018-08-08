@@ -209,7 +209,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                                 .multiply(futuresCommodity.getPerWaveMoney()).multiply(futuresContractOrder.getBuyUpQuantity())
                                 .multiply(rate.getRate()).stripTrailingZeros());
                         buyDto.setServiceFee(futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee())
-								.multiply(buyUpQuantity).stripTrailingZeros());
+								.stripTrailingZeros());
                         //保证金
                         buyDto.setReserveFund(futuresCommodity.getPerUnitReserveFund().stripTrailingZeros());
                         buyDto.setLimitProfitType(futuresContractOrder.getBuyUpLimitProfitType());
@@ -251,7 +251,7 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
                                 .multiply(futuresCommodity.getPerWaveMoney().multiply(futuresContractOrder.getBuyFallQuantity()))
                                 .multiply(rate.getRate()).stripTrailingZeros());
                         sellDto.setServiceFee(futuresCommodity.getOpenwindServiceFee().add(futuresCommodity.getUnwindServiceFee())
-								.multiply(buyFallQuantity).stripTrailingZeros());
+								.stripTrailingZeros());
                         //保证金
                         sellDto.setReserveFund(futuresCommodity.getPerUnitReserveFund().stripTrailingZeros());
                         sellDto.setLimitProfitType(futuresContractOrder.getBuyFallLimitProfitType());
