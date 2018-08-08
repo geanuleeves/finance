@@ -3,7 +3,11 @@ package com.waben.stock.datalayer.futures.controller;
 import com.waben.stock.datalayer.futures.entity.*;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.service.*;
-import com.waben.stock.interfaces.dto.futures.*;
+import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
+import com.waben.stock.interfaces.dto.futures.FuturesOvernightRecordDto;
+import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
+import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
+import com.waben.stock.interfaces.enums.CapitalFlowExtendType;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.enums.FuturesTradePriceType;
 import com.waben.stock.interfaces.pojo.Response;
@@ -208,49 +212,8 @@ public class FuturesOrderController implements FuturesOrderInterface {
 	}
 
 	public Response<BigDecimal> getTotalFloatingProfitAndLossNow(@PathVariable Long publisherId) {
-		FuturesContractOrderQuery futuresContractOrderQuery = new FuturesContractOrderQuery();
-		futuresContractOrderQuery.setPublisherId(publisherId);
-		List<FuturesContractOrder> futuresContractOrders = futuresContractOrderService.findByPublisherId(publisherId);
-		BigDecimal totalFloatingProfitAndLoss = new BigDecimal(0);
-		if (futuresContractOrders != null && !futuresContractOrders.isEmpty()) {
-			for (FuturesContractOrder futuresContractOrder : futuresContractOrders) {
-				BigDecimal buyUpFloatingProfitAndLoss = new BigDecimal(0);
-				BigDecimal buyFallFloatingProfitAndLoss = new BigDecimal(0);
-				FuturesCommodity futuresCommodity = futuresCommodityService
-						.retrieveByCommodityNo(futuresContractOrder.getCommodityNo());
-				FuturesCurrencyRate rate = rateService.findByCurrency(futuresCommodity.getCurrency());
-				// 已成交部分最新均价
-				BigDecimal lastPrice = quoteContainer.getLastPrice(futuresContractOrder.getCommodityNo(),
-						futuresContractOrder.getContractNo());
-				if (futuresCommodity != null) {
-					// 成交价格-买涨
-					BigDecimal avgUpFillPrice = futuresOrderService.getOpenAvgFillPriceNow(
-							futuresContractOrder.getPublisherId(), futuresContractOrder.getContract().getId(), FuturesOrderType.BuyUp.getIndex());
-					// 成交价格-买跌
-					BigDecimal avgFallFillPrice = futuresOrderService.getOpenAvgFillPriceNow(
-							futuresContractOrder.getPublisherId(), futuresContractOrder.getContract().getId(), FuturesOrderType.BuyFall.getIndex());
-					if (avgUpFillPrice != null && avgUpFillPrice.compareTo(new BigDecimal(0)) > 0
-							&& futuresContractOrder.getBuyUpQuantity().compareTo(BigDecimal.ZERO) > 0) {
-						// 买涨浮动盈亏
-						buyUpFloatingProfitAndLoss = lastPrice.subtract(avgUpFillPrice)
-								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
-								.multiply(futuresContractOrder.getBuyUpQuantity())
-								.multiply(rate.getRate()).setScale(2, RoundingMode.HALF_DOWN);
-					}
-					if (avgFallFillPrice != null && avgFallFillPrice.compareTo(new BigDecimal(0)) > 0 &&
-							futuresContractOrder.getBuyFallQuantity().compareTo(BigDecimal.ZERO) > 0) {
-						// 买跌浮动盈亏
-						buyFallFloatingProfitAndLoss = avgFallFillPrice.subtract(lastPrice)
-								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
-								.multiply(futuresContractOrder.getBuyFallQuantity())
-								.multiply(rate.getRate()).setScale(2, RoundingMode.HALF_DOWN);
-					}
-					totalFloatingProfitAndLoss = totalFloatingProfitAndLoss.add(buyUpFloatingProfitAndLoss)
-							.add(buyFallFloatingProfitAndLoss);
-				}
-			}
-		}
-		return new Response<>(totalFloatingProfitAndLoss);
+		return new Response<>(futuresOrderService.getOpenAvgFillPriceNow(
+				publisherId, CapitalFlowExtendType.FUTURESRECORD.getIndex()));
 	}
 
 

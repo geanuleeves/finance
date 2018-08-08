@@ -689,6 +689,7 @@ public class FuturesOrderController {
 		FuturesOrderDayGainLossDto gainLoss = new FuturesOrderDayGainLossDto();
 		// 获得合计浮动盈亏
 		BigDecimal totalFloatingProfitAndLoss = futuresOrderBusiness.getTotalFloatingProfitAndLoss(SecurityUtil.getUserId());
+		//计算今平仓盈亏
 		BigDecimal totalFloatingProfitAndLossNow = futuresOrderBusiness.getTotalFloatingProfitAndLossNow(SecurityUtil.getUserId());
 		gainLoss.setTotalFloatingProfitAndLoss(totalFloatingProfitAndLoss);
 		gainLoss.setTotalFloatingProfitAndLossNow(totalFloatingProfitAndLossNow);
