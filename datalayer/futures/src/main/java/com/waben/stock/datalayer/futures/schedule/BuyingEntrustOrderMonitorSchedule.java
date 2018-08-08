@@ -9,16 +9,17 @@ import java.util.TimerTask;
 
 import javax.annotation.PostConstruct;
 
-import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
+import com.waben.stock.datalayer.futures.entity.*;
+import com.waben.stock.datalayer.futures.repository.FuturesTradeEntrustDao;
+import com.waben.stock.datalayer.futures.service.FuturesTradeEntrustService;
+import com.waben.stock.interfaces.enums.FuturesTradeActionType;
+import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import com.waben.stock.datalayer.futures.entity.FuturesContract;
-import com.waben.stock.datalayer.futures.entity.FuturesOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
 import com.waben.stock.datalayer.futures.service.FuturesOrderService;
 import com.waben.stock.datalayer.futures.service.FuturesOvernightRecordService;
 import com.waben.stock.interfaces.enums.FuturesOrderState;
@@ -35,7 +36,7 @@ import com.waben.stock.interfaces.util.RandomUtil;
  * @author lma
  *
  */
-// @Component
+@Component
 public class BuyingEntrustOrderMonitorSchedule {
 
 	/**
@@ -52,6 +53,12 @@ public class BuyingEntrustOrderMonitorSchedule {
 	private FuturesOrderService orderService;
 
 	@Autowired
+	private FuturesTradeEntrustDao entrustDao;
+
+	@Autowired
+	private FuturesTradeEntrustService entrustService;
+
+	@Autowired
 	private FuturesOvernightRecordService overnightService;
 
 	@PostConstruct
@@ -65,26 +72,26 @@ public class BuyingEntrustOrderMonitorSchedule {
 		public void run() {
 			try {
 				// step 1 : 获取所有买入委托中的订单
-				List<FuturesOrder> content = retriveBuyingEntrustOrders();
+				List<FuturesTradeEntrust> content = retriveQueueingEntrustOrders();
 				if (RandomUtil.getRandomInt(100) % 51 == 0 && RandomUtil.getRandomInt(100) % 51 == 0) {
 					logger.info("监控买入委托中的订单数量：" + content.size());
 				}
 				// step 2 : 遍历所有订单，判断是否达到风控平仓条件
 				if (content != null && content.size() > 0) {
-					for (FuturesOrder order : content) {
-						Integer timeZoneGap = orderService.retriveTimeZoneGap(order);
+					for (FuturesTradeEntrust order : content) {
+						Integer timeZoneGap = order.getContract().getCommodity().getTimeZoneGap();
 						FuturesContract contract = order.getContract();
 						// step 3 : 是否合约到期
-						if (orderService.isTradeTime(timeZoneGap, contract)
+						if (orderService.isTradeTime(timeZoneGap, contract, FuturesTradeActionType.OPEN)
 								&& isReachContractExpiration(timeZoneGap, contract)) {
-							// TODO
+							entrustService.cancelEntrust(order.getId(), order.getPublisherId());
 							continue;
 						}
 						// step 4 : 是否触发隔夜时间
-						/*if (orderService.isTradeTime(timeZoneGap, contract) && isTriggerOvernight(order, timeZoneGap)) {
-							// TODO
+						if (orderService.isTradeTime(timeZoneGap, contract, FuturesTradeActionType.OPEN) && isTriggerOvernight(order, timeZoneGap)) {
+							entrustService.cancelEntrust(order.getId(), order.getPublisherId());
 							continue;
-						}*/
+						}
 					}
 				}
 			} catch (Exception ex) {
@@ -122,27 +129,24 @@ public class BuyingEntrustOrderMonitorSchedule {
 	 *            订单
 	 * @return 是否触发隔夜
 	 */
-	private boolean isTriggerOvernight(FuturesContractOrder order, Integer timeZoneGap) {
+	private boolean isTriggerOvernight(FuturesTradeEntrust order, Integer timeZoneGap) {
 		SimpleDateFormat daySdf = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		FuturesOvernightRecord record = overnightService.findNewestOvernightRecord(order);
 		Date now = new Date();
 		Date nowExchangeTime = orderService.retriveExchangeTime(now, timeZoneGap);
 		String nowStr = daySdf.format(nowExchangeTime);
-		// 判断是否有今天的隔夜记录
-		if (!(record != null && nowStr.equals(daySdf.format(record.getDeferredTime())))) {
-			FuturesContract contract = order.getContract();
-			String overnightTime = contract.getCommodity().getOvernightTime();
-			try {
-				// 判断是否达到隔夜时间，隔夜时间~隔夜时间+1分钟
-				Date beginTime = fullSdf.parse(nowStr + " " + overnightTime);
-				Date endTime = new Date(beginTime.getTime() + 1 * 60 * 1000);
-				if (nowExchangeTime.getTime() >= beginTime.getTime() && nowExchangeTime.getTime() < endTime.getTime()) {
-					return true;
-				}
-			} catch (ParseException e) {
-				logger.error("期货品种" + contract.getCommodity().getSymbol() + "隔夜时间格式错误?" + overnightTime);
+		FuturesContract contract = order.getContract();
+		String overnightTime = contract.getCommodity().getOvernightTime();
+		try {
+			// 判断是否达到隔夜时间，隔夜时间~隔夜时间+1分钟
+			Date beginTime = fullSdf.parse(nowStr + " " + overnightTime);
+			Date endTime = new Date(beginTime.getTime() + 1 * 60 * 1000);
+			if (nowExchangeTime.getTime() >= beginTime.getTime() && nowExchangeTime.getTime() < endTime.getTime()) {
+				return true;
 			}
+		} catch (ParseException e) {
+			// logger.error("期货品种" + contract.getCommodity().getSymbol() + "隔夜时间格式错误?" + overnightTime);
+			return false;
 		}
 		return false;
 	}
@@ -152,14 +156,8 @@ public class BuyingEntrustOrderMonitorSchedule {
 	 * 
 	 * @return 买入委托中的订单
 	 */
-	private List<FuturesOrder> retriveBuyingEntrustOrders() {
-		FuturesOrderState[] states = { FuturesOrderState.BuyingEntrust };
-		FuturesOrderQuery query = new FuturesOrderQuery();
-		query.setPage(0);
-		query.setSize(Integer.MAX_VALUE);
-		query.setStates(states);
-		Page<FuturesOrder> pages = orderService.pagesOrder(query);
-		return pages.getContent();
+	private List<FuturesTradeEntrust> retriveQueueingEntrustOrders() {
+		return entrustDao.retrieveByTradeActionTypeAndState(FuturesTradeActionType.OPEN, FuturesTradeEntrustState.Queuing);
 	}
 
 }
