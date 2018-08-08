@@ -1,30 +1,5 @@
 package com.waben.stock.datalayer.publisher.service;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
 import com.waben.stock.datalayer.publisher.entity.CapitalFlow;
 import com.waben.stock.datalayer.publisher.entity.Publisher;
 import com.waben.stock.datalayer.publisher.repository.CapitalFlowDao;
@@ -38,6 +13,20 @@ import com.waben.stock.interfaces.pojo.query.CapitalFlowQuery;
 import com.waben.stock.interfaces.pojo.query.admin.publisher.CapitalFlowAdminQuery;
 import com.waben.stock.interfaces.pojo.query.admin.publisher.CapitalFlowFuturesAdminQuery;
 import com.waben.stock.interfaces.util.StringUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import javax.persistence.criteria.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * 资金流水 Service
@@ -404,7 +393,7 @@ public class CapitalFlowService {
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
-				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("occurrenceTime").as(Long.class)));
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("occurrenceTime").as(Date.class)));
 				return criteriaQuery.getRestriction();
 			}
 		}, pageable);
