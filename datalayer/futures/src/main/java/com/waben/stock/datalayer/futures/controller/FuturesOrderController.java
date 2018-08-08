@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 @RestController
 @RequestMapping("/order")
@@ -163,15 +164,12 @@ public class FuturesOrderController implements FuturesOrderInterface {
 	public Response<BigDecimal> getTotalFloatingProfitAndLoss(@PathVariable Long publisherId) {
 		FuturesContractOrderQuery futuresContractOrderQuery = new FuturesContractOrderQuery();
 		futuresContractOrderQuery.setPublisherId(publisherId);
-		Page<FuturesContractOrder> page = futuresContractOrderService.pages(futuresContractOrderQuery);
-		PageInfo<FuturesContractOrderViewDto> result = PageToPageInfo.pageToPageInfo(page,
-				FuturesContractOrderViewDto.class);
+		List<FuturesContractOrder> futuresContractOrders = futuresContractOrderService.findByPublisherId(publisherId);
 		BigDecimal totalFloatingProfitAndLoss = new BigDecimal(0);
-		if (result != null && result.getContent() != null) {
-			for (int i = 0; i < result.getContent().size(); i++) {
+		if (futuresContractOrders != null && !futuresContractOrders.isEmpty()) {
+			for (FuturesContractOrder futuresContractOrder : futuresContractOrders ) {
 				BigDecimal buyUpFloatingProfitAndLoss = new BigDecimal(0);
 				BigDecimal buyFallFloatingProfitAndLoss = new BigDecimal(0);
-				FuturesContractOrder futuresContractOrder = page.getContent().get(i);
 				FuturesCommodity futuresCommodity = futuresCommodityService
 						.retrieveByCommodityNo(futuresContractOrder.getCommodityNo());
 				FuturesCurrencyRate rate = rateService.findByCurrency(futuresCommodity.getCurrency());
@@ -191,7 +189,7 @@ public class FuturesOrderController implements FuturesOrderInterface {
 						buyUpFloatingProfitAndLoss = lastPrice.subtract(avgUpFillPrice)
 								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
 								.multiply(futuresContractOrder.getBuyUpQuantity())
-								.multiply(rate.getRate()).setScale(2, RoundingMode.HALF_UP);
+								.multiply(rate.getRate()).setScale(2, RoundingMode.HALF_DOWN);
 					}
 					if (avgFallFillPrice != null && avgFallFillPrice.compareTo(new BigDecimal(0)) > 0 &&
 							futuresContractOrder.getBuyFallQuantity().compareTo(BigDecimal.ZERO) > 0) {
@@ -199,7 +197,7 @@ public class FuturesOrderController implements FuturesOrderInterface {
 						buyFallFloatingProfitAndLoss = avgFallFillPrice.subtract(lastPrice)
 								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
 								.multiply(futuresContractOrder.getBuyFallQuantity())
-								.multiply(rate.getRate()).setScale(2, RoundingMode.HALF_UP);
+								.multiply(rate.getRate()).setScale(2, RoundingMode.HALF_DOWN);
 					}
 					totalFloatingProfitAndLoss = totalFloatingProfitAndLoss.add(buyUpFloatingProfitAndLoss)
 							.add(buyFallFloatingProfitAndLoss);
@@ -208,5 +206,52 @@ public class FuturesOrderController implements FuturesOrderInterface {
 		}
 		return new Response<>(totalFloatingProfitAndLoss);
 	}
+
+	public Response<BigDecimal> getTotalFloatingProfitAndLossNow(@PathVariable Long publisherId) {
+		FuturesContractOrderQuery futuresContractOrderQuery = new FuturesContractOrderQuery();
+		futuresContractOrderQuery.setPublisherId(publisherId);
+		List<FuturesContractOrder> futuresContractOrders = futuresContractOrderService.findByPublisherId(publisherId);
+		BigDecimal totalFloatingProfitAndLoss = new BigDecimal(0);
+		if (futuresContractOrders != null && !futuresContractOrders.isEmpty()) {
+			for (FuturesContractOrder futuresContractOrder : futuresContractOrders) {
+				BigDecimal buyUpFloatingProfitAndLoss = new BigDecimal(0);
+				BigDecimal buyFallFloatingProfitAndLoss = new BigDecimal(0);
+				FuturesCommodity futuresCommodity = futuresCommodityService
+						.retrieveByCommodityNo(futuresContractOrder.getCommodityNo());
+				FuturesCurrencyRate rate = rateService.findByCurrency(futuresCommodity.getCurrency());
+				// 已成交部分最新均价
+				BigDecimal lastPrice = quoteContainer.getLastPrice(futuresContractOrder.getCommodityNo(),
+						futuresContractOrder.getContractNo());
+				if (futuresCommodity != null) {
+					// 成交价格-买涨
+					BigDecimal avgUpFillPrice = futuresOrderService.getOpenAvgFillPriceNow(
+							futuresContractOrder.getPublisherId(), futuresContractOrder.getContract().getId(), FuturesOrderType.BuyUp.getIndex());
+					// 成交价格-买跌
+					BigDecimal avgFallFillPrice = futuresOrderService.getOpenAvgFillPriceNow(
+							futuresContractOrder.getPublisherId(), futuresContractOrder.getContract().getId(), FuturesOrderType.BuyFall.getIndex());
+					if (avgUpFillPrice != null && avgUpFillPrice.compareTo(new BigDecimal(0)) > 0
+							&& futuresContractOrder.getBuyUpQuantity().compareTo(BigDecimal.ZERO) > 0) {
+						// 买涨浮动盈亏
+						buyUpFloatingProfitAndLoss = lastPrice.subtract(avgUpFillPrice)
+								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
+								.multiply(futuresContractOrder.getBuyUpQuantity())
+								.multiply(rate.getRate()).setScale(2, RoundingMode.HALF_DOWN);
+					}
+					if (avgFallFillPrice != null && avgFallFillPrice.compareTo(new BigDecimal(0)) > 0 &&
+							futuresContractOrder.getBuyFallQuantity().compareTo(BigDecimal.ZERO) > 0) {
+						// 买跌浮动盈亏
+						buyFallFloatingProfitAndLoss = avgFallFillPrice.subtract(lastPrice)
+								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
+								.multiply(futuresContractOrder.getBuyFallQuantity())
+								.multiply(rate.getRate()).setScale(2, RoundingMode.HALF_DOWN);
+					}
+					totalFloatingProfitAndLoss = totalFloatingProfitAndLoss.add(buyUpFloatingProfitAndLoss)
+							.add(buyFallFloatingProfitAndLoss);
+				}
+			}
+		}
+		return new Response<>(totalFloatingProfitAndLoss);
+	}
+
 
 }

@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.util.List;
+
 /**
  * 合约订单
  * 
@@ -41,6 +43,15 @@ public interface FuturesContractOrderInterface {
 	 */
 	@RequestMapping(value = "/contractId/{contractId}/{publisherId}", method = RequestMethod.GET)
 	Response<FuturesContractOrderDto> fetchByContractIdAndPublisherId(@PathVariable("contractId") Long contractId, @PathVariable("publisherId") Long publisherId);
+
+
+	/**
+	 * 根据发布人获取合约订单
+	 *
+	 * @return 订单
+	 */
+	@RequestMapping(value = "/contractId/{publisherId}", method = RequestMethod.GET)
+	Response<List<FuturesContractOrderDto>> fetchByPublisherId(@PathVariable("publisherId") Long publisherId);
 
 	/**
 	 * 新增合约订单

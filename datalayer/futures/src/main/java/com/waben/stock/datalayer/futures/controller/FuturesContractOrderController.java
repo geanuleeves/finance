@@ -109,6 +109,18 @@ public class FuturesContractOrderController implements FuturesContractOrderInter
 	}
 
 	@Override
+	public Response<List<FuturesContractOrderDto>> fetchByPublisherId(Long publisherId) {
+		List<FuturesContractOrderDto> futuresContractOrderDtos = new ArrayList<>();
+		List<FuturesContractOrder> futuresContractOrders = futuresContractOrderService.findByPublisherId(publisherId);
+		for (FuturesContractOrder futuresContractOrder : futuresContractOrders) {
+			FuturesContractOrderDto futuresContractOrderDto	= CopyBeanUtils.copyBeanProperties(FuturesContractOrderDto.class,
+					futuresContractOrder, false);
+			futuresContractOrderDtos.add(futuresContractOrderDto);
+		}
+		return new Response<>(futuresContractOrderDtos);
+	}
+
+	@Override
 	public Response<FuturesContractOrderDto> save(@RequestBody FuturesContractOrderDto dto) {
 		FuturesContractOrder futuresContractOrder = CopyBeanUtils.copyBeanProperties(FuturesContractOrder.class, dto,
 				false);

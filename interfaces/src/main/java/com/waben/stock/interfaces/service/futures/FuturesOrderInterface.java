@@ -230,4 +230,12 @@ public interface FuturesOrderInterface {
 	@RequestMapping(value = "/totalProfitOrLoss/{publisherId}", method = RequestMethod.GET)
 	Response<BigDecimal> getTotalFloatingProfitAndLoss(@PathVariable("publisherId") Long publisherId);
 
+	/**
+	 * 获取今天持仓订单的浮动盈亏累计
+	 *
+	 * @return 浮动盈亏
+	 */
+	@RequestMapping(value = "/totalProfitOrLoss/{publisherId}", method = RequestMethod.GET)
+	Response<BigDecimal> getTotalFloatingProfitAndLossNow(@PathVariable("publisherId") Long publisherId);
+
 }

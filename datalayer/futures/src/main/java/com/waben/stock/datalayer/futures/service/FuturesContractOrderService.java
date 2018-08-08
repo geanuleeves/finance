@@ -61,6 +61,10 @@ public class FuturesContractOrderService {
 		return null;
 	}
 
+    public List<FuturesContractOrder> findByPublisherId(Long publisherId) {
+        return futuresContractOrderDao.retrieveByPublisherId(publisherId);
+    }
+
     public Page<FuturesContractOrder> pages(final FuturesContractOrderQuery query) {
         Pageable pageable = new PageRequest(query.getPage(), query.getSize());
         Page<FuturesContractOrder> page = futuresContractOrderDao.page(new Specification<FuturesContractOrder>() {
