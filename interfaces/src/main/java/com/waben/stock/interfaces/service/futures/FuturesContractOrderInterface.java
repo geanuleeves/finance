@@ -50,7 +50,7 @@ public interface FuturesContractOrderInterface {
 	 *
 	 * @return 订单
 	 */
-	@RequestMapping(value = "/contractId/{publisherId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/contract/{publisherId}", method = RequestMethod.GET)
 	Response<List<FuturesContractOrderDto>> fetchByPublisherId(@PathVariable("publisherId") Long publisherId);
 
 	/**
