@@ -61,11 +61,12 @@ public class PromotionStockOptionTradeController {
 		List<StockOptionCycleDto> response = cycleBusiness.findAll();
 		return new Response<>(response);
 	}
-	
+
 	@RequestMapping(value = "/sta", method = RequestMethod.GET)
 	@ApiOperation(value = "统计名义本金、权利金总和")
 	public Response<StockOptionStaDto> promotionSta(StockOptionPromotionQuery query) {
 		query.setCurrentOrgId(SecurityUtil.getUserDetails().getOrgId());
+		query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
 		return new Response<>(business.promotionSta(query));
 	}
 
@@ -73,6 +74,7 @@ public class PromotionStockOptionTradeController {
 	@ApiOperation(value = "查询期权订单")
 	public Response<PageInfo<StockOptionPromotionDto>> promotionPagesByQuery(StockOptionPromotionQuery query) {
 		query.setCurrentOrgId(SecurityUtil.getUserDetails().getOrgId());
+		query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
 		return new Response<>(business.promotionPagesByQuery(query));
 	}
 

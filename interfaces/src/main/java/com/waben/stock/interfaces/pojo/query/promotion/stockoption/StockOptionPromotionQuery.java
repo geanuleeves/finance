@@ -69,6 +69,10 @@ public class StockOptionPromotionQuery extends PageAndSortQuery {
 	 * 查询代理商代码或者名称
 	 */
 	private String orgCodeOrName;
+	/**
+	 * 树结构代码
+	 */
+	private String treeCode;
 
 	public String getPublisherName() {
 		return publisherName;
@@ -180,6 +184,14 @@ public class StockOptionPromotionQuery extends PageAndSortQuery {
 
 	public void setOrgCodeOrName(String orgCodeOrName) {
 		this.orgCodeOrName = orgCodeOrName;
+	}
+
+	public String getTreeCode() {
+		return treeCode;
+	}
+
+	public void setTreeCode(String treeCode) {
+		this.treeCode = treeCode;
 	}
 
 }

@@ -188,6 +188,7 @@ public class OrganizationController {
 	@ApiOperation(value = "查询交易流水")
 	public Response<PageInfo<TradingFowDto>> tradingFow(TradingFowQuery query) {
 		query.setCurrentOrgId(SecurityUtil.getUserDetails().getOrgId());
+		query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
 		return new Response<>(business.tradingFowPageByQuery(query));
 	}
 

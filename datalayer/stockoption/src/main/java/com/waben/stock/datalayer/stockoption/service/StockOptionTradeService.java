@@ -586,7 +586,7 @@ public class StockOptionTradeService {
 						+ "LEFT JOIN publisher t3 on t1.publisher_id=t3.id "
 						+ "LEFT JOIN real_name t4 on t4.resource_type=2 and t1.publisher_id=t4.resource_id "
 						+ "LEFT JOIN p_organization t5 on t5.id=t1.promotion_org_id "
-						+ "LEFT JOIN p_organization t6 on t6.id=" + query.getCurrentOrgId() + " "
+						+ "LEFT JOIN p_organization t6 on t6.tree_code like '%%" + query.getTreeCode() + "%%' "
 						+ "where 1=1 %s %s %s %s %s %s %s %s %s %s %s %s %s and (t6.level=1 or (t5.id=t6.id or t5.parent_id=t6.id)) order by t1.apply_time desc limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(),
 				publisherNameCondition, publisherPhoneCondition, stockCodeOrNameCondition, nominalAmountCondition,
@@ -677,7 +677,7 @@ public class StockOptionTradeService {
 						+ "LEFT JOIN publisher t3 on t1.publisher_id=t3.id "
 						+ "LEFT JOIN real_name t4 on t4.resource_type=2 and t1.publisher_id=t4.resource_id "
 						+ "LEFT JOIN p_organization t5 on t5.id=t1.promotion_org_id "
-						+ "LEFT JOIN p_organization t6 on t6.id=" + query.getCurrentOrgId() + " "
+						+ "LEFT JOIN p_organization t6 on t6.tree_code like '%%" + query.getTreeCode() + "%%' "
 						+ "where 1=1 %s %s %s %s %s %s %s %s %s %s %s %s %s and (t6.level=1 or (t5.id=t6.id or t5.parent_id=t6.id)) order by t1.apply_time desc limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(),
 				publisherNameCondition, publisherPhoneCondition, stockCodeOrNameCondition, nominalAmountCondition,
