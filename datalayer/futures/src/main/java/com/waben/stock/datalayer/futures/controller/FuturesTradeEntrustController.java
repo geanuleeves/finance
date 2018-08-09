@@ -102,6 +102,17 @@ public class FuturesTradeEntrustController implements FuturesTradeEntrustInterfa
 			// step 2 : 设置一些其他信息
 			for (FuturesTradeEntrustDto dto : result.getContent()) {
 				String commodityNo = dto.getCommodityNo();
+				FuturesCommodity futuresCommodity = futuresCommodityService
+						.retrieveByCommodityNo(commodityNo);
+				BigDecimal openwindServiceFee = futuresCommodity.getOpenwindServiceFee() != null ?
+						futuresCommodity.getOpenwindServiceFee() : new BigDecimal(0);
+				BigDecimal unwindServiceFee = futuresCommodity.getUnwindServiceFee() != null ?
+						futuresCommodity.getUnwindServiceFee() : new BigDecimal(0);
+				dto.setServiceFee(openwindServiceFee.add(unwindServiceFee));
+				BigDecimal perUnitReserveFund = futuresCommodity.getPerUnitReserveFund() != null ?
+						futuresCommodity.getPerUnitReserveFund() : new BigDecimal(0);
+				BigDecimal quantity = dto.getQuantity() != null ? dto.getQuantity() : new BigDecimal(0);
+				dto.setReserveFund(perUnitReserveFund.multiply(quantity));
 				String contractNo = dto.getContractNo();
 				dto.setLastPrice(quoteContainer.getLastPrice(commodityNo, contractNo));
 				FuturesCurrencyRate rate = rateMap.get(dto.getCurrency());
