@@ -129,7 +129,7 @@ public class MonitorStrongPointConsumer {
 					List<FuturesContractOrder> overnightOrderList = triggerOvernightOrderList(orderList);
 					if (isEnoughOvernight(overnightOrderList, account)) {
 						// 隔夜
-						overnight(overnightOrderList, account);
+						overnight(overnightOrderList);
 					} else {
 						doUnwind(overnightOrderList);
 					}
@@ -228,7 +228,7 @@ public class MonitorStrongPointConsumer {
 	 * @return 订单
 	 */
 	@Transactional
-	public boolean overnight(List<FuturesContractOrder> orderList, CapitalAccountDto account) {
+	public boolean overnight(List<FuturesContractOrder> orderList) {
 		for (FuturesContractOrder order : orderList) {
 			if (order.getContract().getCommodity().getOvernightPerUnitReserveFund() == null) {
 				continue;
@@ -325,6 +325,9 @@ public class MonitorStrongPointConsumer {
 						logger.error("期货品种" + contract.getCommodity().getSymbol() + "隔夜时间格式错误?" + overnightTime);
 					}
 				}
+			}
+			if (order.getIsNeedLog() != null && order.getIsNeedLog()) {
+				logger.info("隔夜队列{}，result:{}，frozenDeposit{}", order.getId(), order);
 			}
 		}
 		return result;

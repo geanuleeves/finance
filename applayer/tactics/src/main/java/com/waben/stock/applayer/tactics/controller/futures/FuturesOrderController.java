@@ -668,7 +668,7 @@ public class FuturesOrderController {
 	 * 
 	 * @return 当前用户的账户资金及当天持仓、平仓盈亏
 	 */
-	@GetMapping("/current/capital/profit/settled/")
+	@GetMapping("/current/capital/profit/settled")
 	@ApiOperation(value = "获取当前用户的账户资金及当天持仓、平仓盈亏")
 	public Response<FuturesOrderDayGainLossDto> capitalAccountAndDayGainLoss() {
 		return new Response<>(futuresOrderBusiness.capitalAccountAndDayGainLoss(SecurityUtil.getUserId()));

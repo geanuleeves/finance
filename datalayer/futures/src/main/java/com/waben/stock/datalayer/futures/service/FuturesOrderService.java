@@ -1733,10 +1733,12 @@ public class FuturesOrderService {
 		List<FuturesOrder> orderList = pages.getContent();
 		BigDecimal totalProfitOrLoss = BigDecimal.ZERO;
 		for (FuturesOrder order : orderList) {
+			FuturesCurrencyRate rate = rateService.findByCurrency(order.getContract().getCommodity().getCurrency());
 			// 计算浮动盈亏
 			BigDecimal lastPrice = allQuote.getLastPrice(order.getCommoditySymbol(), order.getContractNo());
 			totalProfitOrLoss = totalProfitOrLoss.add(this.getProfitOrLossCurrency(order.getContract(),
-					order.getOrderType(), order.getTotalQuantity(), order.getOpenAvgFillPrice(), lastPrice));
+					order.getOrderType(), order.getTotalQuantity(), order.getOpenAvgFillPrice(), lastPrice)
+					.multiply(rate.getRate()));
 		}
 		return totalProfitOrLoss;
 	}
@@ -2229,6 +2231,7 @@ public class FuturesOrderService {
 		}
 		return openAvgFillPrice;
 	}
+
 
     public BigDecimal getOpenAvgFillPriceNow(Long publisherId, String extendType) {
         BigDecimal openAvgFillPrice = orderDao.getOpenAvgFillPriceNow(publisherId, extendType);
