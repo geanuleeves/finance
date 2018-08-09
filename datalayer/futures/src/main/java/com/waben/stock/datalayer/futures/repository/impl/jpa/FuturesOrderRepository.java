@@ -120,7 +120,7 @@ public interface FuturesOrderRepository extends CustomJpaRepository<FuturesOrder
 
 
     /**
-     * 今天已成交部分均价
+     * 今天平仓盈亏
      *
      * @param publisherId 用户ID
      * @return
@@ -128,7 +128,7 @@ public interface FuturesOrderRepository extends CustomJpaRepository<FuturesOrder
     @Query(value = "SELECT sum(amount)  FROM capital_flow t " +
             "WHERE t.publisher_id = ?1 AND t.extend_type = ?2 " +
             "AND DATEDIFF(t.occurrence_time,NOW())=0 AND t.type IN (22,23)", nativeQuery = true)
-    BigDecimal getOpenAvgFillPriceNow(Long publisherId, String extendType);
+    BigDecimal getTotalFloatingProfitAndLossNow(Long publisherId, String extendType);
 
 
     /**
