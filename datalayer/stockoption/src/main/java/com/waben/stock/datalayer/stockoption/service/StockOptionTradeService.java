@@ -476,7 +476,7 @@ public class StockOptionTradeService {
 		}
 
 		String orderBy = "t1.apply_time";
-		if(query.getState().equals("5,6")) {
+		if(query.getState()!=null&&query.getState().equals("5,6")) {
 			orderBy = "t1.selling_time";
 		}
 		logger.info("orderBy:{}",orderBy);
