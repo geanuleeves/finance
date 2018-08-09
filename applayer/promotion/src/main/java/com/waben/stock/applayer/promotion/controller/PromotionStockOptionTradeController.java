@@ -86,6 +86,7 @@ public class PromotionStockOptionTradeController {
 		query.setPage(0);
 		query.setSize(Integer.MAX_VALUE);
 		query.setCurrentOrgId(SecurityUtil.getUserDetails().getOrgId());
+		query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
 		PageInfo<StockOptionPromotionDto> result = business.promotionPagesByQuery(query);
 		File file = null;
 		FileInputStream is = null;
