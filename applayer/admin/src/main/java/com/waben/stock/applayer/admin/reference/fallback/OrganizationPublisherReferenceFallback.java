@@ -38,4 +38,9 @@ public class OrganizationPublisherReferenceFallback implements OrganizationPubli
 		throw new NetflixCircuitException(ExceptionConstant.NETFLIX_CIRCUIT_EXCEPTION);
 	}
 
+	@Override
+	public Response<OrganizationPublisherDto> addOrgPublisher(Long publisherId) {
+		throw new NetflixCircuitException(ExceptionConstant.NETFLIX_CIRCUIT_EXCEPTION);
+	}
+
 }

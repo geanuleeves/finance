@@ -76,4 +76,14 @@ public interface PublisherInterface {
 	@RequestMapping(value = "/recover/{id}", method = RequestMethod.POST)
 	Response<PublisherDto> recover(@PathVariable("id") Long id);
 
+
+	/**模拟账户*/
+	@RequestMapping(value = "/savePublisher", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	Response<PublisherAdminDto> savePublisher(@RequestBody PublisherAdminDto dto);
+
+	@RequestMapping(value = "/modifyPublisher", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE)
+	Response<PublisherAdminDto> modifyPublisher(@RequestBody PublisherAdminDto dto);
+
+	@RequestMapping(value = "/deletePublisher/{id}", method = RequestMethod.GET)
+	Response<Long> deletePublisher(@PathVariable("id") Long id);
 }

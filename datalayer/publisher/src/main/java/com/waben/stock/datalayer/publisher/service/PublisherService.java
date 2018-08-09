@@ -271,4 +271,52 @@ public class PublisherService {
 		publisher.setState(1);
 		return publisherDao.update(publisher);
 	}
+
+	public void delete(Long id){
+		publisherDao.delete(id);
+	}
+
+	/**模拟账户*/
+
+	public static int getNum(int start,int end) {
+		return (int)(Math.random()*(end-start+1)+start);
+	}
+
+	private static String[] telFirst="134,135,136,137,138,139,150,151,152,157,158,159,130,131,132,155,156,133,153".split(",");
+	private static String getTel() {
+		int index=getNum(0,telFirst.length-1);
+		String first=telFirst[index];
+		String second=String.valueOf(getNum(1,888)+10000).substring(1);
+		String third=String.valueOf(getNum(1,9100)+10000).substring(1);
+		return first+second+third;
+	}
+
+	public PublisherAdminDto registerDum(PublisherAdminDto dto){
+
+		// 保存发布策略人信息
+		Publisher publisher = new Publisher();
+		publisher.setSerialCode(UniqueCodeGenerator.generateSerialCode());
+		publisher.setPhone(getTel());
+		publisher.setPassword(PasswordCrypt.crypt("123456"));
+		publisher.setCreateTime(new Date());
+		publisher.setPromoter("");
+		publisher.setEndType("T");
+		publisher.setIsTest(true);
+		Publisher pu = publisherDao.create(publisher);
+		CapitalAccount account = new CapitalAccount();
+		account.setBalance(dto.getAvailableBalance());
+		account.setAvailableBalance(dto.getAvailableBalance());
+		account.setFrozenCapital(new BigDecimal(0.00));
+		account.setPublisherSerialCode(publisher.getSerialCode());
+		account.setPublisherId(publisher.getId());
+		account.setPublisher(publisher);
+		account.setUpdateTime(new Date());
+		CapitalAccount result = capitalAccountDao.create(account);
+		PublisherAdminDto response = new PublisherAdminDto();
+		response.setAvailableBalance(result.getAvailableBalance());
+		response.setPhone(pu.getPhone());
+		response.setId(pu.getId());
+		response.setCreateTime(pu.getCreateTime());
+		return response;
+	}
 }

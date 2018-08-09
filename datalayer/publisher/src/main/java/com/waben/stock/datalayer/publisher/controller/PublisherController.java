@@ -2,6 +2,8 @@ package com.waben.stock.datalayer.publisher.controller;
 
 import java.util.List;
 
+import com.waben.stock.datalayer.publisher.entity.CapitalAccount;
+import com.waben.stock.datalayer.publisher.service.CapitalAccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,9 @@ public class PublisherController implements PublisherInterface {
 
 	@Autowired
 	private PublisherService publisherService;
+
+	@Autowired
+	private CapitalAccountService capitalAccountService;
 
 	@Override
 	public Response<PageInfo<PublisherDto>> pages(@RequestBody PublisherQuery publisherQuery) {
@@ -128,6 +133,29 @@ public class PublisherController implements PublisherInterface {
 		Page<PublisherAdminDto> page = publisherService.adminPagesByQuery(query);
 		PageInfo<PublisherAdminDto> result = PageToPageInfo.pageToPageInfo(page, PublisherAdminDto.class);
 		return new Response<>(result);
+	}
+
+
+	@Override
+	public Response<PublisherAdminDto> savePublisher(@RequestBody PublisherAdminDto dto) {
+		return new Response<>(publisherService.registerDum(dto));
+	}
+
+	@Override
+	public Response<PublisherAdminDto> modifyPublisher(@RequestBody PublisherAdminDto dto) {
+		CapitalAccount ac = capitalAccountService.midifyDum(dto);
+
+		return new Response<>(dto) ;
+	}
+
+	@Override
+	public Response<Long> deletePublisher(@PathVariable Long id) {
+		CapitalAccount ac = capitalAccountService.findByPublisherId(id);
+		if(ac!=null){
+			capitalAccountService.delete(ac.getId());
+		}
+		publisherService.delete(id);
+		return new Response<>(id);
 	}
 
 }

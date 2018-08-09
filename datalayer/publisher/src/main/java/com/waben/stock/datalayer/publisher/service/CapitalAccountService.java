@@ -16,6 +16,7 @@ import javax.transaction.Transactional;
 
 import com.waben.stock.datalayer.publisher.entity.*;
 import com.waben.stock.datalayer.publisher.repository.*;
+import com.waben.stock.interfaces.dto.admin.publisher.PublisherAdminDto;
 import com.waben.stock.interfaces.exception.DataNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +74,15 @@ public class CapitalAccountService {
 
 	@Autowired
 	private DynamicQuerySqlDao sqlDao;
+
+	public void delete(Long accId){
+		CapitalAccount account = capitalAccountDao.retrieve(accId);
+		List<CapitalAccountRecord> list =  recordDao.findByCapitalAccount(account);
+		for(CapitalAccountRecord record : list){
+			recordDao.delete(record.getId());
+		}
+		capitalAccountDao.delete(accId);
+	}
 
 	/**
 	 * 根据发布人系列号获取资金账户
@@ -676,5 +686,32 @@ public class CapitalAccountService {
 		record.setUpdateAfterFrozenCapital(capitalAccount.getFrozenCapital());
 		recordDao.create(record);
 		return capitalAccountDao.update(capitalAccount);
+	}
+
+	/**模拟账户*/
+
+	/**
+	 * 修改虚拟账号金额
+	 * @return
+	 */
+	public CapitalAccount midifyDum(PublisherAdminDto dto){
+		CapitalAccount acc = capitalAccountDao.retriveByPublisherId(dto.getId());
+		if(acc==null){
+			Publisher pu = publisherDao.retrieve(dto.getId());
+			acc.setBalance(dto.getAvailableBalance());
+			acc.setAvailableBalance(dto.getAvailableBalance());
+			acc.setFrozenCapital(new BigDecimal(0.00));
+			acc.setPublisherSerialCode(pu.getSerialCode());
+			acc.setPublisherId(pu.getId());
+			acc.setPublisher(pu);
+			acc.setUpdateTime(new Date());
+			CapitalAccount result = capitalAccountDao.create(acc);
+			return result;
+		}else{
+			acc.setAvailableBalance(dto.getAvailableBalance());
+			acc.setBalance(dto.getAvailableBalance().add(acc.getFrozenCapital()));
+			return capitalAccountDao.update(acc);
+		}
+
 	}
 }

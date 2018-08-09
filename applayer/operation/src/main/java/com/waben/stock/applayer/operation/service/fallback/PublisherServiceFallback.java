@@ -72,6 +72,21 @@ public class PublisherServiceFallback implements PublisherService{
     }
 
     @Override
+    public Response<PublisherAdminDto> savePublisher(PublisherAdminDto dto) {
+        return new Response<>(ExceptionConstant.NETFLIX_CIRCUIT_EXCEPTION);
+    }
+
+    @Override
+    public Response<PublisherAdminDto> modifyPublisher(PublisherAdminDto dto) {
+        return new Response<>(ExceptionConstant.NETFLIX_CIRCUIT_EXCEPTION);
+    }
+
+    @Override
+    public Response<Long> deletePublisher(Long id) {
+        return new Response<>(ExceptionConstant.NETFLIX_CIRCUIT_EXCEPTION);
+    }
+
+    @Override
 	public Response<PublisherDto> modiyHeadportrait(Long id, String headPortrait) {
 		return new Response<>(ExceptionConstant.NETFLIX_CIRCUIT_EXCEPTION);
 	}

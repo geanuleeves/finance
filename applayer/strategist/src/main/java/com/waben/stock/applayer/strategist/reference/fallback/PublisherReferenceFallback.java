@@ -79,6 +79,21 @@ public class PublisherReferenceFallback implements PublisherReference {
 	}
 
 	@Override
+	public Response<PublisherAdminDto> savePublisher(PublisherAdminDto dto) {
+		throw new NetflixCircuitException(ExceptionConstant.NETFLIX_CIRCUIT_EXCEPTION);
+	}
+
+	@Override
+	public Response<PublisherAdminDto> modifyPublisher(PublisherAdminDto dto) {
+		throw new NetflixCircuitException(ExceptionConstant.NETFLIX_CIRCUIT_EXCEPTION);
+	}
+
+	@Override
+	public Response<Long> deletePublisher(Long id) {
+		throw new NetflixCircuitException(ExceptionConstant.NETFLIX_CIRCUIT_EXCEPTION);
+	}
+
+	@Override
 	public Response<PublisherDto> modiyHeadportrait(Long id, String headPortrait) {
 		throw new NetflixCircuitException(ExceptionConstant.NETFLIX_CIRCUIT_EXCEPTION);
 	}

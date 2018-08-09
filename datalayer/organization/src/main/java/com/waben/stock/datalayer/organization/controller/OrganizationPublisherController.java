@@ -1,6 +1,8 @@
 package com.waben.stock.datalayer.organization.controller;
 
+import com.waben.stock.datalayer.organization.entity.Organization;
 import com.waben.stock.datalayer.organization.entity.OrganizationPublisher;
+import com.waben.stock.interfaces.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,5 +57,20 @@ public class OrganizationPublisherController implements OrganizationPublisherInt
 		List<OrganizationPublisherDto> response = CopyBeanUtils.copyListBeanPropertiesToList(result, OrganizationPublisherDto.class);
 		return new Response<>(response);
 	}
+
+	@Override
+	public Response<OrganizationPublisherDto> addOrgPublisher(@PathVariable Long publisherId) {
+		List<Organization> org = service.listByLevel(1);
+		if(org!=null && org.size()>0){
+			Organization zation = org.get(0);
+			if(!StringUtil.isEmpty(zation.getCode())){
+				return new Response<>(CopyBeanUtils.copyBeanProperties(OrganizationPublisherDto.class,
+						service.addOrgPublisherAdmin(zation.getCode(), publisherId), false));
+			}
+		}
+		return new Response<>(new OrganizationPublisherDto());
+	}
+
+
 
 }

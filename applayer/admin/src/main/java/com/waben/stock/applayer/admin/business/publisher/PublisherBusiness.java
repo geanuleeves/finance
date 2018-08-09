@@ -1,6 +1,7 @@
 package com.waben.stock.applayer.admin.business.publisher;
 
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
+import com.waben.stock.interfaces.service.organization.OrganizationPublisherInterface;
 import com.waben.stock.interfaces.util.PasswordCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,6 +27,9 @@ public class PublisherBusiness {
 	@Autowired
 	@Qualifier("publisherReference")
 	private PublisherReference reference;
+
+	@Autowired
+	private OrganizationPublisherInterface orgReference;
 
 	@Autowired
 	private RedisCache redisCache;
@@ -72,6 +76,35 @@ public class PublisherBusiness {
 			response.getResult().setPassword(PasswordCrypt.crypt(password));
 			reference.modify(response.getResult());
 			// TODO 发送信息通知用户
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	//虚拟账号相关
+
+	public PublisherAdminDto savePublisher(PublisherAdminDto dto){
+		Response<PublisherAdminDto> response = reference.savePublisher(dto);
+		if("200".equals(response.getCode())){
+			if(response.getResult() !=null ){
+				orgReference.addOrgPublisher(response.getResult().getId());
+			}
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public PublisherAdminDto modifyPublisher(PublisherAdminDto dto){
+		Response<PublisherAdminDto> response = reference.modifyPublisher(dto);
+		if("200".equals(response.getCode())){
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public Long delete(Long id){
+		Response<Long> response = reference.deletePublisher(id);
+		if("".equals(response.getCode())){
+			return response.getResult();
 		}
 		throw new ServiceException(response.getCode());
 	}

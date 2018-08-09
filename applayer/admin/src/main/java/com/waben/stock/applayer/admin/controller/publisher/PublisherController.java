@@ -13,13 +13,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.waben.stock.applayer.admin.business.publisher.BindCardBusiness;
 import com.waben.stock.applayer.admin.business.publisher.CapitalAccountBusiness;
@@ -64,6 +58,7 @@ public class PublisherController {
 	private BindCardBusiness bindCardBusiness;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 
 	@GetMapping("/pages")
 	@ApiOperation(value = "查询发布人")
@@ -227,4 +222,24 @@ public class PublisherController {
 		result.add("是否测试");
 		return result;
 	}
+	/**==================模拟账户========================**/
+
+	@RequestMapping(value = "/savePublisher", method = RequestMethod.POST)
+	@ApiOperation(value = "新增虚拟测试账号")
+	public Response<PublisherAdminDto> savePublisher(PublisherAdminDto dto){
+		return new Response<>(business.savePublisher(dto));
+	}
+
+	@PutMapping("/modifyPublisher")
+	@ApiOperation(value = "修改虚拟测试账号")
+	public Response<PublisherAdminDto> modifyPublisher(PublisherAdminDto dto){
+		return new Response<>(business.modifyPublisher(dto));
+	}
+
+	@DeleteMapping("/delete/{id}")
+	@ApiOperation(value = "删除虚拟测试账号")
+	public Response<Long> delete(@PathVariable Long id){
+		return new Response<>(business.delete(id));
+	}
+
 }
