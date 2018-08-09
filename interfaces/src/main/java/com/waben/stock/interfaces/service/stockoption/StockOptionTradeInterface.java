@@ -285,6 +285,6 @@ public interface StockOptionTradeInterface {
 	@RequestMapping(value = "/count/stockoptiontrade", method = RequestMethod.GET)
 	Response<Integer> countStockOptionTradeState(@RequestParam("publisherId") Long publisherId);
 
-	@RequestMapping(value = "/update", method = RequestMethod.PUT)
+	@RequestMapping(value = "/update", method = RequestMethod.PUT,consumes = MediaType.APPLICATION_JSON_VALUE)
 	Response<StockOptionTradeDto> update(@RequestBody StockOptionTradeDto dto);
 }

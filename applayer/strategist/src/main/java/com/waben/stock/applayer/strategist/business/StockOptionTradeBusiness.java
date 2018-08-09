@@ -103,7 +103,7 @@ public class StockOptionTradeBusiness {
 		if (!isTradeDay) {
 			throw new ServiceException(ExceptionConstant.NONTRADINGDAY_EXCEPTION);
 		}
-		Date date = holidayBusiness.getAfterTradeDate(buyingTime, 3);
+		Date date = holidayBusiness.getAfterTradeDate(buyingTime, 1);
 		// 持仓中的才能申请行权
 		if (trade.getState() == StockOptionTradeState.TURNOVER && now.getTime() > date.getTime()) {
 			Response<StockOptionTradeDto> response = tradeReference.userRight(publisherId, id);

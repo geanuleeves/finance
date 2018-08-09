@@ -73,6 +73,12 @@ public class StockOptionAdminDto {
 	 * 成交时间
 	 */
 	private Date buyingTime;
+
+	/**
+	 *
+	 */
+	private BigDecimal buyingLastPrice;
+
 	/**
 	 * 成交价格
 	 */
@@ -302,4 +308,11 @@ public class StockOptionAdminDto {
 		this.numberOfStrand = numberOfStrand;
 	}
 
+	public BigDecimal getBuyingLastPrice() {
+		return buyingLastPrice;
+	}
+
+	public void setBuyingLastPrice(BigDecimal buyingLastPrice) {
+		this.buyingLastPrice = buyingLastPrice;
+	}
 }

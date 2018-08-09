@@ -474,14 +474,20 @@ public class StockOptionTradeService {
 			endRatioCondition = " and t1.right_money_ratio<='"
 					+ query.getEndRatio().divide(new BigDecimal("100")).toString() + "' ";
 		}
+
+		String orderBy = "t1.apply_time";
+		if(query.getState().equals("5,6")) {
+			orderBy = "t1.selling_time";
+		}
+		logger.info("orderBy:{}",orderBy);
 		String sql = String.format(
 				"select t1.id, t1.trade_no, t4.name, t3.phone, t1.stock_code, t1.stock_name, t1.cycle_name, t1.nominal_amount, t1.right_money_ratio, "
 						+ "t1.right_money, t2.right_money_ratio as org_right_money_ratio, t2.right_money as org_right_money, t1.apply_time, t1.buying_time, t1.buying_price, t1.selling_time, t1.selling_price, "
-						+ "t1.profit, t1.is_test, t1.is_mark, t1.state, t1.right_time, t1.number_of_strand from stock_option_trade t1 "
+						+ "t1.profit, t1.is_test, t1.is_mark, t1.state, t1.right_time, t1.number_of_strand,t1.buying_last_price from stock_option_trade t1 "
 						+ "LEFT JOIN offline_stock_option_trade t2 on t1.offline_trade=t2.id "
 						+ "LEFT JOIN publisher t3 on t1.publisher_id=t3.id "
 						+ "LEFT JOIN real_name t4 on t4.resource_type=2 and t1.publisher_id=t4.resource_id "
-						+ "where 1=1 %s %s %s %s %s %s %s %s %s %s %s %s order by t1.apply_time desc limit "
+						+ "where 1=1 %s %s %s %s %s %s %s %s %s %s %s %s order by "+orderBy+" desc limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(),
 				publisherNameCondition, publisherPhoneCondition, stockCodeCondition, nominalAmountCondition,
 				cycleNameCondition, stateCondition, isTestCondition, isMarkCondition, startTimeCondition,
@@ -511,6 +517,7 @@ public class StockOptionTradeService {
 		setMethodMap.put(new Integer(20), new MethodDesc("setState", new Class<?>[] { StockOptionTradeState.class }));
 		setMethodMap.put(new Integer(21), new MethodDesc("setRightTime", new Class<?>[] { Date.class }));
 		setMethodMap.put(new Integer(22), new MethodDesc("setNumberOfStrand", new Class<?>[] { Integer.class }));
+		setMethodMap.put(new Integer(23), new MethodDesc("setBuyingLastPrice", new Class<?>[] { BigDecimal.class }));
 		List<StockOptionAdminDto> content = sqlDao.execute(StockOptionAdminDto.class, sql, setMethodMap);
 		BigInteger totalElements = sqlDao.executeComputeSql(countSql);
 		return new PageImpl<>(content, new PageRequest(query.getPage(), query.getSize()),
@@ -857,6 +864,7 @@ public class StockOptionTradeService {
 		}
 		StockMarket stockMarket = stockQuotationHttp.fetQuotationByCode(trade.getStockCode());
 		BigDecimal sellingPrice = stockMarket.getLastPrice();
+		logger.info("sellingPrice:{}",sellingPrice);
 		trade.setState(StockOptionTradeState.SETTLEMENTED);
 		trade.setUpdateTime(new Date());
 		trade.setSellingPrice(sellingPrice);
@@ -869,6 +877,7 @@ public class StockOptionTradeService {
 		}
 		trade.setProfit(profit);
 		stockOptionTradeDao.update(trade);
+		logger.info("trade:{}",JacksonUtil.encode(trade));
 		// 线下期权交易结算
 		settlementOfflineTrade(trade);
 		if (profit.compareTo(BigDecimal.ZERO) > 0) {

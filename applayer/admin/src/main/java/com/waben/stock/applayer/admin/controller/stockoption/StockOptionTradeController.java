@@ -453,6 +453,7 @@ public class StockOptionTradeController {
 	@PutMapping("/buyingPrice")
 	@ApiOperation(value = "修改买入价格")
 	public Response<StockOptionTradeDto> updateBuyingPrice(StockOptionTradeDto dto) {
+		logger.info("dto:{}",JacksonUtil.encode(dto));
 		return new Response<>(business.updateBuyingPrice(dto.getId(),dto.getBuyingPrice()));
 	}
 }
