@@ -938,7 +938,7 @@ public class FuturesTradeEntrustService {
 
 		String orderStateCondition = "";
 		if (!StringUtil.isEmpty(query.getOrderState())) {
-			orderStateCondition = " and f1.state in in(" + query.getOrderState().trim() + ") ";
+			orderStateCondition = " and f1.state IN(" + query.getOrderState().trim() + ") ";
 		}
 
 		String startTimeCondition = "";
