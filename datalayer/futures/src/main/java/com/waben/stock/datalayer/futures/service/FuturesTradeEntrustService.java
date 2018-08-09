@@ -745,7 +745,8 @@ public class FuturesTradeEntrustService {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
 				// 以委托时间排序
-				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("entrustTime").as(Date.class)));
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("entrustTime").as(Date.class)))
+						.orderBy(criteriaBuilder.desc(root.get("id").as(Long.class)));
 				return criteriaQuery.getRestriction();
 			}
 		}, pageable);
