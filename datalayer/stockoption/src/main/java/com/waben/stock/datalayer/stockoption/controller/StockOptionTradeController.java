@@ -277,4 +277,14 @@ public class StockOptionTradeController implements StockOptionTradeInterface {
 		return new Response<>(stockOptionTradeDao.countStockOptionTradeState(publisherId));
 	}
 
+	@Override
+	public Response<StockOptionTradeDto> update(StockOptionTradeDto dto) {
+		StockOptionTrade stockOptionTrade = CopyBeanUtils.copyBeanProperties(StockOptionTrade.class,
+				dto, false);
+		StockOptionTrade result = stockOptionTradeDao.update(stockOptionTrade);
+		StockOptionTradeDto stockOptionTradeDto = CopyBeanUtils.copyBeanProperties(StockOptionTradeDto.class,
+				result, false);
+		return new Response<>(stockOptionTradeDto);
+	}
+
 }

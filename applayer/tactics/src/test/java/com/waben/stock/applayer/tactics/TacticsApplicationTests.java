@@ -6,10 +6,8 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 //@RunWith(SpringRunner.class)
 //@SpringBootTest
@@ -36,6 +34,20 @@ public class TacticsApplicationTests {
 		descByNominalAmount(list);
 		for (Student student : list){
 			System.out.println(student.toString());
+		}
+	}
+
+	@Test
+	public void isTradeTime() {
+		String amStartTime = "09:35:00";
+		String amEndTime =  "11:25:00";
+		String pmStartTime = "13:05:00";
+		String pmEndTime =  "14:55:00";
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm:ss");
+		String currentTime = simpleDateFormat.format(new Date());
+		System.out.println(currentTime);
+		if(currentTime.compareTo(amStartTime)>0&&currentTime.compareTo(amEndTime)<0||currentTime.compareTo(pmStartTime)>0&&currentTime.compareTo(pmEndTime)<0) {
+			System.out.println("在交易时间");
 		}
 	}
 	private void descByNominalAmount(List<Student> list) {

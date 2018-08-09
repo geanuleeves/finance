@@ -217,4 +217,13 @@ public class StockOptionTradeBusiness {
 		throw new ServiceException(response.getCode());
 	}
 
+	public StockOptionTradeDto updateBuyingPrice(Long id,BigDecimal buyingPrice) {
+		Response<StockOptionTradeDto> stockOptionTradeDtoResponse = reference.fetchById(id);
+		StockOptionTradeDto result = stockOptionTradeDtoResponse.getResult();
+		result.setBuyingPrice(buyingPrice);
+		Response<StockOptionTradeDto> response = reference.update(result);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());	}
 }

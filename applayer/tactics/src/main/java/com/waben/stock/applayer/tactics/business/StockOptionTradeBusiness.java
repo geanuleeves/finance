@@ -1,5 +1,6 @@
 package com.waben.stock.applayer.tactics.business;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.slf4j.Logger;
@@ -103,7 +104,7 @@ public class StockOptionTradeBusiness {
 		}
 		Date date = holidayBusiness.getAfterTradeDate(buyingTime, 1);
 		// 持仓中的才能申请行权
-		if (trade.getState() == StockOptionTradeState.TURNOVER && now.getTime() > date.getTime()) {
+		if (trade.getState() == StockOptionTradeState.TURNOVER && now.getTime() > date.getTime()&&isTradeTimeQuantum()) {
 			Response<StockOptionTradeDto> response = tradeReference.userRight(publisherId, id);
 			if ("200".equals(response.getCode())) {
 				return response.getResult();
@@ -112,6 +113,19 @@ public class StockOptionTradeBusiness {
 		} else {
 			throw new ServiceException(ExceptionConstant.USERRIGHT_NOTMATCH_EXCEPTION);
 		}
+	}
+
+	private Boolean isTradeTimeQuantum() {
+		String amStartTime = "09:35:00";
+		String amEndTime =  "11:25:00";
+		String pmStartTime = "13:05:00";
+		String pmEndTime =  "14:55:00";
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm:ss");
+		String currentTime = simpleDateFormat.format(new Date());
+		if(currentTime.compareTo(amStartTime)>0&&currentTime.compareTo(amEndTime)<0||currentTime.compareTo(pmStartTime)>0&&currentTime.compareTo(pmEndTime)<0) {
+			return true;
+		}
+		return false;
 	}
 
 	public StockOptionTradeWithMarketDto wrapMarketInfo(StockOptionTradeDto trade) {
@@ -163,21 +177,24 @@ public class StockOptionTradeBusiness {
 				new StockOptionTradeState[] { StockOptionTradeState.SETTLEMENTED });
 		query.setOnlyProfit(true);
 		Response<PageInfo<StockOptionTradeDto>> sResponse = tradeReference.pagesByUserQuery(query);
+		logger.info("settlementSize:{}",sResponse.getResult().getContent().size());
 		if ("200".equals(sResponse.getCode())) {
 			StockOptionTradeUserQuery bQuery = new StockOptionTradeUserQuery(page,
 					size - sResponse.getResult().getContent().size(), null,
 					new StockOptionTradeState[] { StockOptionTradeState.TURNOVER, StockOptionTradeState.APPLYRIGHT,
 							StockOptionTradeState.INSETTLEMENT });
 			PageInfo<StockOptionTradeDto> pageInfo = pagesByUserQuery(bQuery);
-			int total = sResponse.getResult().getContent().size() + pageInfo.getContent().size();
+            logger.info("tradeSize:{}",pageInfo.getContent().size());
+            int total = sResponse.getResult().getContent().size() + pageInfo.getContent().size();
 			//降序
-			descByProfit(sResponse.getResult().getContent());
-			descByNominalAmount(pageInfo.getContent());
+//			descByProfit(sResponse.getResult().getContent());
+//			descByNominalAmount(pageInfo.getContent());
 			List<StockOptionTradeDynamicDto> content = new ArrayList<>();
 			boolean isSettlement = true;
 			for (int n = 0; n < total; n++) {
 				if (isSettlement && sResponse.getResult().getContent().size() > 0) {
 					StockOptionTradeDto settlement = sResponse.getResult().getContent().remove(0);
+					logger.info("settlement:{}",JacksonUtil.encode(settlement));
 					StockOptionTradeDynamicDto inner = new StockOptionTradeDynamicDto();
 					inner.setTradeType(2);
 					inner.setPublisherId(settlement.getPublisherId());
@@ -193,6 +210,7 @@ public class StockOptionTradeBusiness {
 				} else {
 					if (pageInfo.getContent().size() > 0) {
 						StockOptionTradeDto trade = pageInfo.getContent().remove(0);
+						logger.info("trade:{}",JacksonUtil.encode(trade));
 						StockOptionTradeDynamicDto inner = new StockOptionTradeDynamicDto();
 						inner.setTradeType(1);
 						inner.setPublisherId(trade.getPublisherId());

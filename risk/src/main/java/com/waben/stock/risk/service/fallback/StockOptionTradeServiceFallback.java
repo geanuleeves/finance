@@ -160,6 +160,11 @@ public class StockOptionTradeServiceFallback implements StockOptionTradeService 
 	}
 
 	@Override
+	public Response<StockOptionTradeDto> update(StockOptionTradeDto dto) {
+		return new Response<>(ExceptionConstant.NETFLIX_CIRCUIT_EXCEPTION);
+	}
+
+	@Override
 	public Response<StockOptionStaDto> promotionSta(StockOptionPromotionQuery query) {
 		return new Response<>(ExceptionConstant.NETFLIX_CIRCUIT_EXCEPTION);
 	}

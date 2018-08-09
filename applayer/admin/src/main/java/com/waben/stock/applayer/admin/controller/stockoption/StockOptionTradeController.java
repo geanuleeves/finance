@@ -14,14 +14,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.waben.stock.applayer.admin.business.organization.PriceMarkupConfigBusiness;
 import com.waben.stock.applayer.admin.business.stockcontent.StockBusiness;
@@ -456,4 +449,10 @@ public class StockOptionTradeController {
 		return result;
 	}
 
+
+	@PutMapping("/buyingPrice")
+	@ApiOperation(value = "修改买入价格")
+	public Response<StockOptionTradeDto> updateBuyingPrice(@RequestBody StockOptionTradeDto dto) {
+		return new Response<>(business.updateBuyingPrice(dto.getId(),dto.getBuyingPrice()));
+	}
 }

@@ -11,10 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 
 import com.waben.stock.datalayer.stockoption.web.StockQuotationHttp;
 import com.waben.stock.interfaces.pojo.stock.quotation.StockMarket;
@@ -93,6 +90,7 @@ public class StockOptionTradeService {
 	private StockQuotationHttp stockQuotationHttp;
 
 	public Page<StockOptionTrade> pagesByUserQuery(final StockOptionTradeUserQuery query) {
+		logger.info("query:{}",JacksonUtil.encode(query));
 		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
 		Page<StockOptionTrade> pages = stockOptionTradeDao.page(new Specification<StockOptionTrade>() {
 			@Override
@@ -120,10 +118,17 @@ public class StockOptionTradeService {
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
-				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("sellingTime").as(Date.class)),
-						criteriaBuilder.desc(root.get("rightTime").as(Date.class)),
-						criteriaBuilder.desc(root.get("buyingTime").as(Date.class)),
-						criteriaBuilder.desc(root.get("applyTime").as(Date.class)));
+				Order priceDesc = criteriaBuilder.desc(root.get("nominalAmount").as(BigDecimal.class));
+					if(query.isOnlyProfit()) {
+						logger.info("已结算===================");
+						priceDesc = criteriaBuilder.desc(root.get("profit").as(BigDecimal.class));
+					}
+//				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("sellingTime").as(Date.class)),
+//						criteriaBuilder.desc(root.get("rightTime").as(Date.class)),
+//						criteriaBuilder.desc(root.get("buyingTime").as(Date.class)),
+//						criteriaBuilder.desc(root.get("applyTime").as(Date.class)),priceDesc);
+               criteriaQuery.orderBy(priceDesc);
+				logger.info("criteriaQuery:{}",criteriaQuery.toString());
 				return criteriaQuery.getRestriction();
 			}
 		}, pageable);
@@ -857,6 +862,7 @@ public class StockOptionTradeService {
 		trade.setUpdateTime(new Date());
 		trade.setSellingPrice(sellingPrice);
 		trade.setSellingTime(new Date());
+		trade.setRightTime(new Date());
 		BigDecimal profit = BigDecimal.ZERO;
 		if (sellingPrice.compareTo(trade.getBuyingPrice()) > 0) {
 			profit = sellingPrice.subtract(trade.getBuyingPrice()).divide(trade.getBuyingPrice(), 10, RoundingMode.DOWN)
@@ -901,7 +907,6 @@ public class StockOptionTradeService {
 					.multiply(trade.getNominalAmount()).setScale(2, RoundingMode.HALF_EVEN);
 		}
 		trade.setProfit(profit);
-		trade.setRightTime(new Date());
 		StockOptionTrade result = stockOptionTradeDao.update(trade);
 		// 线下期权交易结算
 		settlementOfflineTrade(trade);
