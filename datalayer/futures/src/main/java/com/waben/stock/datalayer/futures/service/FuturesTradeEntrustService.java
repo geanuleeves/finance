@@ -438,13 +438,11 @@ public class FuturesTradeEntrustService {
 					entrust.setSettlementRate(rate);
 					BigDecimal totalOpenCost = BigDecimal.ZERO;
 					BigDecimal totalUnwindQuantity = BigDecimal.ZERO;
-					BigDecimal totalPublisherProfitOrLoss = BigDecimal.ZERO;
 					BigDecimal totalServiceFee = BigDecimal.ZERO;
 					BigDecimal totalDeferredFee = BigDecimal.ZERO;
 					for (FuturesTradeAction action : actionList) {
 						totalUnwindQuantity = totalUnwindQuantity.add(action.getQuantity());
 						totalOpenCost = totalOpenCost.add(action.getQuantity().multiply(action.getOpenAvgFillPrice()));
-						totalPublisherProfitOrLoss = totalPublisherProfitOrLoss.add(action.getProfitOrLoss());
 						logger.info("代理分成自动平仓外, actionNo:{}, state:{}", action.getActionNo(),
 								action.getState().getType());
 						// 给代理商分成结算
@@ -469,6 +467,8 @@ public class FuturesTradeEntrustService {
 					openAvgFillPrice = divideArr[0].multiply(minWave);
 					entrust.setOpenAvgFillPrice(openAvgFillPrice);
 					// 计算
+					BigDecimal totalPublisherProfitOrLoss = totalPublisherProfitOrLoss = orderService.computeProfitOrLoss(entrust.getOrderType(), entrust.getQuantity(), openAvgFillPrice, entrust.getTradePrice(), contract.getCommodity().getMinWave(), contract.getCommodity().getPerWaveMoney());
+					totalPublisherProfitOrLoss = rate.multiply(totalPublisherProfitOrLoss);
 					CapitalAccountDto account = accountBusiness.futuresOrderSettlement(entrust.getPublisherId(),
 							entrust.getId(), totalPublisherProfitOrLoss);
 					if(totalPublisherProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
