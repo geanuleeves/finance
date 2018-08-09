@@ -281,6 +281,7 @@ public class OrganizationController {
 		query.setPage(0);
 		query.setSize(Integer.MAX_VALUE);
 		// query.setCurrentOrgId(SecurityUtil.getUserDetails().getOrgId());
+		query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
 		PageInfo<TradingFowDto> result = business.tradingFowPageByQuery(query);
 		File file = null;
 		FileInputStream is = null;
