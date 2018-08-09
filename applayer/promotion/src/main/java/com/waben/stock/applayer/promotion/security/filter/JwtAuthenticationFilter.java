@@ -48,6 +48,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 				String orgName = (String) tokenInfo.get("orgName");
 				Integer orgLevel = (Integer) tokenInfo.get("orgLevel");
 				Long roleId = new Long((Integer) tokenInfo.get("roleId"));
+				String treeCode = (String) tokenInfo.get("treeCode");
 
 				String isFrozen = redisCache.get(PROMOTION_BLACKUSER_REDISKEY + "_" + String.valueOf(userId));
 				// 判断该用户是否为冻结用户
@@ -74,6 +75,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 						userDeatails.setOrgName(orgName);
 						userDeatails.setOrgLevel(orgLevel);
 						userDeatails.setRoleId(roleId);
+						userDeatails.setTreeCode(treeCode);
 						UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
 								username, null, authorities);
 						authentication.setDetails(userDeatails);

@@ -54,6 +54,7 @@ public class CustomAuthenticationProvider extends AbstractUserDetailsAuthenticat
 			userDetails.setOrgName(org.getName());
 			userDetails.setOrgLevel(org.getLevel());
 			userDetails.setRoleId(user.getRole());
+			userDetails.setTreeCode(org.getTreeCode());
 			if (user.getState() != null && user.getState()) {
 				throw new DisabledException("当前用户已被冻结");
 			}

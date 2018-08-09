@@ -63,6 +63,8 @@ public class TradingFowQuery extends PageAndSortQuery {
 	/** 是否测试（0或null为正式，1为测试） **/
 	private String isTest;
 
+	private String treeCode;
+
 	public Long getCurrentOrgId() {
 		return currentOrgId;
 	}
@@ -133,6 +135,14 @@ public class TradingFowQuery extends PageAndSortQuery {
 
 	public void setIsTest(String isTest) {
 		this.isTest = isTest;
+	}
+
+	public String getTreeCode() {
+		return treeCode;
+	}
+
+	public void setTreeCode(String treeCode) {
+		this.treeCode = treeCode;
 	}
 
 }

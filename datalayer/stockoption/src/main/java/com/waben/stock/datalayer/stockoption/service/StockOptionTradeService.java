@@ -13,8 +13,6 @@ import java.util.Map;
 
 import javax.persistence.criteria.*;
 
-import com.waben.stock.datalayer.stockoption.web.StockQuotationHttp;
-import com.waben.stock.interfaces.pojo.stock.quotation.StockMarket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +36,7 @@ import com.waben.stock.datalayer.stockoption.repository.OfflineStockOptionTradeD
 import com.waben.stock.datalayer.stockoption.repository.StockOptionOrgDao;
 import com.waben.stock.datalayer.stockoption.repository.StockOptionTradeDao;
 import com.waben.stock.datalayer.stockoption.repository.impl.MethodDesc;
+import com.waben.stock.datalayer.stockoption.web.StockQuotationHttp;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.stockoption.StockOptionAdminDto;
 import com.waben.stock.interfaces.dto.promotion.stockoption.StockOptionPromotionDto;
@@ -53,6 +52,7 @@ import com.waben.stock.interfaces.pojo.query.StockOptionTradeQuery;
 import com.waben.stock.interfaces.pojo.query.StockOptionTradeUserQuery;
 import com.waben.stock.interfaces.pojo.query.admin.stockoption.StockOptionAdminQuery;
 import com.waben.stock.interfaces.pojo.query.promotion.stockoption.StockOptionPromotionQuery;
+import com.waben.stock.interfaces.pojo.stock.quotation.StockMarket;
 import com.waben.stock.interfaces.util.JacksonUtil;
 import com.waben.stock.interfaces.util.StringUtil;
 import com.waben.stock.interfaces.util.UniqueCodeGenerator;
@@ -84,7 +84,6 @@ public class StockOptionTradeService {
 
 	@Autowired
 	private StockOptionOrgDao optionOrgDao;
-
 
 	@Autowired
 	private StockQuotationHttp stockQuotationHttp;
@@ -306,7 +305,6 @@ public class StockOptionTradeService {
 		sendOutsideMessage(result);
 		return result;
 	}
-
 
 	@Transactional
 	public StockOptionTrade modify(Long id) {
@@ -593,7 +591,7 @@ public class StockOptionTradeService {
 						+ "LEFT JOIN publisher t3 on t1.publisher_id=t3.id "
 						+ "LEFT JOIN real_name t4 on t4.resource_type=2 and t1.publisher_id=t4.resource_id "
 						+ "LEFT JOIN p_organization t5 on t5.id=t1.promotion_org_id "
-						+ "LEFT JOIN p_organization t6 on t6.id=" + query.getCurrentOrgId() + " "
+						+ "LEFT JOIN p_organization t6 on t6.tree_code like '%%" + query.getTreeCode() + "%%' "
 						+ "where 1=1 %s %s %s %s %s %s %s %s %s %s %s %s %s and (t6.level=1 or (t5.id=t6.id or t5.parent_id=t6.id)) order by t1.apply_time desc limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(),
 				publisherNameCondition, publisherPhoneCondition, stockCodeOrNameCondition, nominalAmountCondition,
@@ -678,12 +676,13 @@ public class StockOptionTradeService {
 		String sql = String.format(
 				"select t1.id, t1.trade_no, t4.name, t3.phone, t1.stock_code, t1.stock_name, t1.cycle_name, t1.nominal_amount, t1.right_money_ratio, "
 						+ "t1.right_money, t2.right_money_ratio as org_right_money_ratio, t2.right_money as org_right_money, t1.apply_time, t1.buying_time, t1.buying_price, t1.selling_time, t1.selling_price, "
-						+ "t1.profit, t1.is_test, t1.is_mark, t1.state, t1.right_time, t5.id as org_id, t5.code as org_code, t5.name as org_name from stock_option_trade t1 "
+						+ "t1.profit, t1.is_test, t1.is_mark, t1.state, t1.right_time, t5.id as org_id, t5.code as org_code, t5.name as org_name, t1.buying_last_price "
+						+ "from stock_option_trade t1 "
 						+ "LEFT JOIN offline_stock_option_trade t2 on t1.offline_trade=t2.id "
 						+ "LEFT JOIN publisher t3 on t1.publisher_id=t3.id "
 						+ "LEFT JOIN real_name t4 on t4.resource_type=2 and t1.publisher_id=t4.resource_id "
 						+ "LEFT JOIN p_organization t5 on t5.id=t1.promotion_org_id "
-						+ "LEFT JOIN p_organization t6 on t6.id=" + query.getCurrentOrgId() + " "
+						+ "LEFT JOIN p_organization t6 on t6.tree_code like '%%" + query.getTreeCode() + "%%' "
 						+ "where 1=1 %s %s %s %s %s %s %s %s %s %s %s %s %s and (t6.level=1 or (t5.id=t6.id or t5.parent_id=t6.id)) order by t1.apply_time desc limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(),
 				publisherNameCondition, publisherPhoneCondition, stockCodeOrNameCondition, nominalAmountCondition,
@@ -716,6 +715,7 @@ public class StockOptionTradeService {
 		setMethodMap.put(new Integer(22), new MethodDesc("setOrgId", new Class<?>[] { Long.class }));
 		setMethodMap.put(new Integer(23), new MethodDesc("setOrgCode", new Class<?>[] { String.class }));
 		setMethodMap.put(new Integer(24), new MethodDesc("setOrgName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(25), new MethodDesc("setBuyingLastPrice", new Class<?>[] { BigDecimal.class }));
 		List<StockOptionPromotionDto> content = sqlDao.execute(StockOptionPromotionDto.class, sql, setMethodMap);
 		BigInteger totalElements = sqlDao.executeComputeSql(countSql);
 		return new PageImpl<>(content, new PageRequest(query.getPage(), query.getSize()),
@@ -846,9 +846,8 @@ public class StockOptionTradeService {
 		return trade;
 	}
 
-
 	@Transactional
-	public StockOptionTrade autoSettlement(Long publisherId,Long id) {
+	public StockOptionTrade autoSettlement(Long publisherId, Long id) {
 		StockOptionTrade trade = stockOptionTradeDao.retrieve(id);
 		if (trade.getState() != StockOptionTradeState.TURNOVER) {
 			throw new ServiceException(ExceptionConstant.STOCKOPTION_STATE_NOTMATCH_OPERATION_NOTSUPPORT_EXCEPTION);
@@ -918,6 +917,5 @@ public class StockOptionTradeService {
 		sendOutsideMessage(result);
 		return result;
 	}
-
 
 }
