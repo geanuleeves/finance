@@ -110,6 +110,9 @@ public class FuturesTradeEntrustService {
 	@Autowired
 	private MonitorStrongPointConsumer monitorStrongPoint;
 
+	@Autowired
+	private FuturesOvernightRecordService overnightService;
+
 	private SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	public FuturesTradeEntrust findById(Long id) {
@@ -324,6 +327,8 @@ public class FuturesTradeEntrustService {
 					BigDecimal profitOrLoss = currencyProfitOrLoss.multiply(rate).setScale(2, RoundingMode.DOWN);
 					action.setCurrencyProfitOrLoss(currencyProfitOrLoss);
 					action.setProfitOrLoss(profitOrLoss);
+					action.setPublisherProfitOrLoss(profitOrLoss);
+					action.setPlatformProfitOrLoss(profitOrLoss);
 					action.setSettlementRate(rate);
 					action.setSettlementTime(date);
 				}
@@ -437,28 +442,12 @@ public class FuturesTradeEntrustService {
 					BigDecimal totalOpenCost = BigDecimal.ZERO;
 					BigDecimal totalUnwindQuantity = BigDecimal.ZERO;
 					BigDecimal totalPublisherProfitOrLoss = BigDecimal.ZERO;
+					BigDecimal totalServiceFee = BigDecimal.ZERO;
+					BigDecimal totalDeferredFee = BigDecimal.ZERO;
 					for (FuturesTradeAction action : actionList) {
 						totalUnwindQuantity = totalUnwindQuantity.add(action.getQuantity());
 						totalOpenCost = totalOpenCost.add(action.getQuantity().multiply(action.getOpenAvgFillPrice()));
-						CapitalAccountDto account = accountBusiness.futuresOrderSettlement(action.getPublisherId(),
-								action.getOrder().getId(), action.getProfitOrLoss());
-						// 发布人盈亏（人民币）、平台盈亏（人民币）
-						BigDecimal publisherProfitOrLoss = BigDecimal.ZERO;
-						BigDecimal platformProfitOrLoss = BigDecimal.ZERO;
-						if (action.getProfitOrLoss().compareTo(BigDecimal.ZERO) > 0) {
-							publisherProfitOrLoss = action.getProfitOrLoss();
-						} else if (action.getProfitOrLoss().compareTo(BigDecimal.ZERO) < 0) {
-							publisherProfitOrLoss = account.getRealProfitOrLoss();
-							if (action.getProfitOrLoss().abs().compareTo(publisherProfitOrLoss.abs()) > 0) {
-								platformProfitOrLoss = action.getProfitOrLoss().abs()
-										.subtract(publisherProfitOrLoss.abs()).multiply(new BigDecimal(-1));
-							}
-						}
-						action.setPublisherProfitOrLoss(publisherProfitOrLoss);
-						totalPublisherProfitOrLoss = totalPublisherProfitOrLoss.add(publisherProfitOrLoss);
-						action.setPlatformProfitOrLoss(platformProfitOrLoss);
-						actionDao.update(action);
-
+						totalPublisherProfitOrLoss = totalPublisherProfitOrLoss.add(action.getProfitOrLoss());
 						logger.info("代理分成自动平仓外, actionNo:{}, state:{}", action.getActionNo(),
 								action.getState().getType());
 						// 给代理商分成结算
@@ -466,32 +455,35 @@ public class FuturesTradeEntrustService {
 							logger.info("代理分成自动平仓内, actionNo:{}, state:{}", action.getActionNo(),
 									action.getState().getType());
 							// 递延费
-							BigDecimal deferredFee = action.getOrder().getContract().getCommodity()
-									.getOvernightPerUnitDeferredFee().multiply(action.getQuantity());
-							// action.getOrder().getContractOrder().getBuyUpCanUnwindQuantity()
-							// .add(action.getOrder().getContractOrder().getBuyFallCanUnwindQuantity())
-							// .multiply(action.getOrder().getContract().getCommodity()
-							// .getOvernightPerUnitDeferredFee());
+							// BigDecimal deferredFee =
+							// action.getOrder().getContract().getCommodity()
+							// .getOvernightPerUnitDeferredFee().multiply(action.getQuantity());
+							BigDecimal deferredFee = overnightService.getSUMOvernightRecord(action.getOrder().getId());
 							if (deferredFee == null) {
 								deferredFee = BigDecimal.ZERO;
 							}
+							totalDeferredFee = totalDeferredFee.add(deferredFee);
 							// 当前拆分的服务费
-							BigDecimal currentServiceFee = action.getOrder().getServiceFee()
-									.divide(action.getOrder().getTotalQuantity()).multiply(action.getQuantity());
-
-							// 结算
-							orgBusiness.futuresRatioSettlement(action.getPublisherId(), action.getContractId(),
-									action.getId(), action.getActionNo(), action.getOrder().getTotalQuantity(),
-									currentServiceFee, publisherProfitOrLoss, deferredFee);
+							totalServiceFee = totalServiceFee.add(action.getOrder().getServiceFee()
+									.divide(action.getOrder().getTotalQuantity()).multiply(action.getQuantity()));
 						}
-
 					}
 					// 计算开仓的均价
 					BigDecimal openAvgFillPrice = totalOpenCost.divide(totalUnwindQuantity, 10, RoundingMode.DOWN);
 					BigDecimal[] divideArr = openAvgFillPrice.divideAndRemainder(minWave);
 					openAvgFillPrice = divideArr[0].multiply(minWave);
 					entrust.setOpenAvgFillPrice(openAvgFillPrice);
+					// 计算
+					CapitalAccountDto account = accountBusiness.futuresOrderSettlement(entrust.getPublisherId(),
+							entrust.getId(), totalPublisherProfitOrLoss);
+					if (totalPublisherProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+						totalPublisherProfitOrLoss = account.getRealProfitOrLoss();
+					}
 					entrust.setPublisherProfitOrLoss(totalPublisherProfitOrLoss);
+					// 代理商结算
+					orgBusiness.futuresRatioSettlement(entrust.getPublisherId(), entrust.getContractId(),
+							entrust.getId(), entrust.getEntrustNo(), entrust.getQuantity(), totalServiceFee,
+							totalPublisherProfitOrLoss, totalDeferredFee);
 				}
 				dao.update(entrust);
 				sendOutsideMessage(entrust);

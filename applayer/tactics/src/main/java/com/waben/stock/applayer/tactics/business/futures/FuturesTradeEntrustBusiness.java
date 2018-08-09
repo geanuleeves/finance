@@ -28,11 +28,19 @@ public class FuturesTradeEntrustBusiness {
     
     public FuturesTradeEntrustDto cancelEntrust(Long id, Long publisherId) {
 		Response<FuturesTradeEntrustDto> response = reference.cancelEntrust(id, publisherId);
-		if ("200".equals(response.getCode())) {
-			return response.getResult();
-		}
-		throw new ServiceException(response.getCode());
+        if ("200".equals(response.getCode())) {
+            return response.getResult();
+        }
+        throw new ServiceException(response.getCode());
 	}
+
+    public FuturesTradeEntrustDto fetchById(Long id) {
+        Response<FuturesTradeEntrustDto> response = reference.fetchById(id);
+        if ("200".equals(response.getCode())) {
+            return response.getResult();
+        }
+        throw new ServiceException(response.getCode());
+    }
 
     public PageInfo<FuturesTradeEntrustDto> pages(FuturesTradeEntrustQuery query) {
         Response<PageInfo<FuturesTradeEntrustDto>> response = reference.pages(query);

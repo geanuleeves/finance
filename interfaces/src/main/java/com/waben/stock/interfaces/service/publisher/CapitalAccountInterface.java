@@ -190,15 +190,15 @@ public interface CapitalAccountInterface {
 	 * 
 	 * @param publisherId
 	 *            用户ID
-	 * @param orderId
-	 *            订单ID
+	 * @param entrustId
+	 *            委托订单ID
 	 * @param profitOrLoss
 	 *            订单盈亏
 	 * @return 资金账号对象
 	 */
-	@RequestMapping(value = "/{publisherId}/{orderId}/futures/settlement/{profitOrLoss}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{publisherId}/{entrustId}/futures/settlement/{profitOrLoss}", method = RequestMethod.POST)
 	Response<CapitalAccountDto> futuresOrderSettlement(@PathVariable("publisherId") Long publisherId,
-			@PathVariable("orderId") Long orderId, @PathVariable("profitOrLoss") BigDecimal profitOrLoss);
+			@PathVariable("entrustId") Long entrustId, @PathVariable("profitOrLoss") BigDecimal profitOrLoss);
 
 	/**
 	 * 期货订单撤单

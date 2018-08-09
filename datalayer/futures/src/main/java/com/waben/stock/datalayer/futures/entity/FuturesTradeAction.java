@@ -88,6 +88,10 @@ public class FuturesTradeAction {
 	private Date settlementTime;
 	/** 更新时间 */
 	private Date updateTime;
+	/** 止盈金额（只有平仓才有值） **/
+	private BigDecimal stopProfitAmount;
+	/** 止损金额（只有平仓才有值） **/
+	private BigDecimal stopLossAmount;
 
 	/***************** 分割线，以下字段为非数据库字段 ********************/
 	/** 合约ID */
@@ -435,6 +439,22 @@ public class FuturesTradeAction {
 
 	public void setEntrustPrice(BigDecimal entrustPrice) {
 		this.entrustPrice = entrustPrice;
+	}
+
+	public BigDecimal getStopProfitAmount() {
+		return stopProfitAmount;
+	}
+
+	public void setStopProfitAmount(BigDecimal stopProfitAmount) {
+		this.stopProfitAmount = stopProfitAmount;
+	}
+
+	public BigDecimal getStopLossAmount() {
+		return stopLossAmount;
+	}
+
+	public void setStopLossAmount(BigDecimal stopLossAmount) {
+		this.stopLossAmount = stopLossAmount;
 	}
 
 }
