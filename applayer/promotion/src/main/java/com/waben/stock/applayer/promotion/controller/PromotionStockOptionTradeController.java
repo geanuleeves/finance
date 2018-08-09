@@ -142,6 +142,7 @@ public class PromotionStockOptionTradeController {
 			data.add(trade.getCycleName() == null ? "" : trade.getCycleName());
 			data.add(String.valueOf(trade.getRightMoney() == null ? "" : trade.getRightMoney()));
 			data.add(trade.getApplyTime() == null ? "" : sdf.format(trade.getApplyTime()));
+			data.add(String.valueOf(trade.getBuyingLastPrice() == null ? "" : trade.getBuyingLastPrice()));
 			data.add(trade.getBuyingTime() == null ? "" : sdf.format(trade.getBuyingTime()));
 			data.add(String.valueOf(trade.getBuyingPrice() == null ? "" : trade.getBuyingPrice()));
 			data.add(trade.getRightTime() == null ? "" : sdf.format(trade.getRightTime()));
@@ -167,6 +168,7 @@ public class PromotionStockOptionTradeController {
 		result.add("行权周期");
 		result.add("权利金");
 		result.add("申购时间");
+		result.add("申购价格");
 		result.add("买入时间");
 		result.add("买入价格");
 		result.add("申请行权时间");
