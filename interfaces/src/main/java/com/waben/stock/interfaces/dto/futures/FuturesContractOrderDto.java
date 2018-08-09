@@ -17,6 +17,9 @@ public class FuturesContractOrderDto {
 	/** 品种编号 */
 	@ApiModelProperty(value = "品种编号")
 	private String commodityNo;
+	/** 品种名称 */
+	@ApiModelProperty(value = "品种名称")
+	private String commodityName;
 	/** 合约编号 */
 	@ApiModelProperty(value = "合约编号")
 	private String contractNo;
@@ -204,6 +207,14 @@ public class FuturesContractOrderDto {
 
 	public void setBuyFallCanUnwindQuantity(BigDecimal buyFallCanUnwindQuantity) {
 		this.buyFallCanUnwindQuantity = buyFallCanUnwindQuantity;
+	}
+
+	public String getCommodityName() {
+		return commodityName;
+	}
+
+	public void setCommodityName(String commodityName) {
+		this.commodityName = commodityName;
 	}
 
 }
