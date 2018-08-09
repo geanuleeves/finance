@@ -110,6 +110,9 @@ public class FuturesTradeEntrustService {
 	@Autowired
 	private MonitorStrongPointConsumer monitorStrongPoint;
 
+	@Autowired
+	private FuturesOvernightRecordService overnightService;
+
 	private SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	public FuturesTradeEntrust findById(Long id) {
@@ -450,8 +453,10 @@ public class FuturesTradeEntrustService {
 							logger.info("代理分成自动平仓内, actionNo:{}, state:{}", action.getActionNo(),
 									action.getState().getType());
 							// 递延费
-							BigDecimal deferredFee = action.getOrder().getContract().getCommodity()
-									.getOvernightPerUnitDeferredFee().multiply(action.getQuantity());
+							// BigDecimal deferredFee =
+							// action.getOrder().getContract().getCommodity()
+							// .getOvernightPerUnitDeferredFee().multiply(action.getQuantity());
+							BigDecimal deferredFee = overnightService.getSUMOvernightRecord(action.getOrder().getId());
 							if (deferredFee == null) {
 								deferredFee = BigDecimal.ZERO;
 							}
@@ -471,14 +476,14 @@ public class FuturesTradeEntrustService {
 					totalPublisherProfitOrLoss = rate.multiply(totalPublisherProfitOrLoss);
 					CapitalAccountDto account = accountBusiness.futuresOrderSettlement(entrust.getPublisherId(),
 							entrust.getId(), totalPublisherProfitOrLoss);
-					if(totalPublisherProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+					if (totalPublisherProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
 						totalPublisherProfitOrLoss = account.getRealProfitOrLoss();
 					}
 					entrust.setPublisherProfitOrLoss(totalPublisherProfitOrLoss);
 					// 代理商结算
 					orgBusiness.futuresRatioSettlement(entrust.getPublisherId(), entrust.getContractId(),
-							entrust.getId(), entrust.getEntrustNo(), entrust.getQuantity(),
-							totalServiceFee, totalPublisherProfitOrLoss, totalDeferredFee);
+							entrust.getId(), entrust.getEntrustNo(), entrust.getQuantity(), totalServiceFee,
+							totalPublisherProfitOrLoss, totalDeferredFee);
 				}
 				dao.update(entrust);
 				sendOutsideMessage(entrust);
