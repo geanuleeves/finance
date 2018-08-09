@@ -2306,7 +2306,7 @@ public class FuturesOrderService {
 		String sql = String.format(
 				"SELECT t1.id as action_id, t4.name AS publisher_name, t5.phone AS publisher_phone, t2.commodity_symbol, t2.commodity_name, t2.contract_no, t2.order_type, "
 						+ "t1.trade_action_type, t1.filled, t1.trade_price, t1.publisher_profit_or_loss, t1.action_no, t1.trade_time,t1.state,t3.price_type,t1.wind_control_type, "
-						+ "t2.commodity_currency, t6.id, t8.code, t8.name "
+						+ "t2.commodity_currency, t6.id, t8.code, t8.name, t1.stop_profit_amount, t1.stop_loss_amount "
 						+ "FROM f_futures_trade_action t1 LEFT JOIN f_futures_order t2 ON t2.id = t1.order_id "
 						+ "LEFT JOIN f_futures_trade_entrust t3 ON t3.id = t1.trade_entrust_id "
 						+ "LEFT JOIN real_name t4 ON t4.resource_id = t1.publisher_id "
@@ -2341,6 +2341,8 @@ public class FuturesOrderService {
 		setMethodMap.put(new Integer(17), new MethodDesc("setContractId", new Class<?>[] { Long.class }));
 		setMethodMap.put(new Integer(18), new MethodDesc("setCode", new Class<?>[] { String.class }));
 		setMethodMap.put(new Integer(19), new MethodDesc("setOrgName", new Class<?>[] { String.class }));
+		setMethodMap.put(new Integer(20), new MethodDesc("setStopProfitAmount", new Class<?>[] { BigDecimal.class }));
+		setMethodMap.put(new Integer(21), new MethodDesc("setStopLossAmount", new Class<?>[] { BigDecimal.class }));
 
 		List<FuturesTradeActionAgentDto> content = sqlDao.execute(FuturesTradeActionAgentDto.class, sql, setMethodMap);
 		BigInteger totalElements = sqlDao.executeComputeSql(countSql);
