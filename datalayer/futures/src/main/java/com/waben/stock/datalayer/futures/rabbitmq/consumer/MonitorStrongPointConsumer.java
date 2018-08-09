@@ -152,6 +152,9 @@ public class MonitorStrongPointConsumer {
 
 	private void doUnwind(List<FuturesContractOrder> orderList) {
 		for (FuturesContractOrder order : orderList) {
+			if (order.getIsNeedLog() != null && order.getIsNeedLog()) {
+				logger.info("隔夜强平订单日志{}", order.getId());
+			}
 			if (orderService.isTradeTime(order.getContract().getCommodity().getTimeZoneGap(), order.getContract(),
 					FuturesTradeActionType.CLOSE)) {
 				if (order.getBuyUpQuantity().compareTo(BigDecimal.ZERO) > 0) {
@@ -200,6 +203,10 @@ public class MonitorStrongPointConsumer {
 			totalOvernightDeferredFee = totalOvernightDeferredFee
 					.add(order.getBuyUpCanUnwindQuantity().add(order.getBuyFallCanUnwindQuantity())
 							.multiply(order.getContract().getCommodity().getOvernightPerUnitDeferredFee()));
+			if (order.getIsNeedLog() != null && order.getIsNeedLog()) {
+				logger.info("隔夜订单日志{}，totalTradeReserveFund:{}，totalOvernightDeferredFee{}", order.getId(), totalTradeReserveFund,
+						totalOvernightDeferredFee);
+			}
 		}
 		// 隔夜保证金小于交易保证金
 		if (totalOvernightReserveFund.compareTo(totalTradeReserveFund) < 0) {
@@ -240,6 +247,10 @@ public class MonitorStrongPointConsumer {
 			// 冻结金额=隔夜保证金-保证金
 			BigDecimal frozenDeposit = overnightReserveFund.compareTo(order.getReserveFund()) < 0 ? BigDecimal.ZERO
 					: overnightReserveFund.subtract(order.getReserveFund());
+			if (order.getIsNeedLog() != null && order.getIsNeedLog()) {
+				logger.info("隔夜订单日志{}，overnightReserveFund:{}，frozenDeposit{}", order.getId(), overnightReserveFund,
+						frozenDeposit);
+			}
 			overnightRecord.setOvernightReserveFund(overnightReserveFund);
 			overnightRecord.setPublisherId(order.getPublisherId());
 			overnightRecord.setReduceTime(new Date());

@@ -1,24 +1,16 @@
 package com.waben.stock.interfaces.service.futures;
 
-import java.math.BigDecimal;
-
-import org.springframework.cloud.netflix.feign.FeignClient;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
-import com.waben.stock.interfaces.dto.futures.FuturesOvernightRecordDto;
-import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
-import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
+import com.waben.stock.interfaces.dto.futures.*;
 import com.waben.stock.interfaces.enums.FuturesOrderType;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
+import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 
 @FeignClient(name = "futures", path = "order", qualifier = "futuresOrderInterface")
 public interface FuturesOrderInterface {
@@ -237,5 +229,8 @@ public interface FuturesOrderInterface {
 	 */
 	@RequestMapping(value = "/totalProfitOrLossNow/{publisherId}", method = RequestMethod.GET)
 	Response<BigDecimal> getTotalFloatingProfitAndLossNow(@PathVariable("publisherId") Long publisherId);
+
+	@RequestMapping(value = "/capitalAccountAndDayGainLoss/{publisherId}", method = RequestMethod.GET)
+	Response<FuturesOrderDayGainLossDto> capitalAccountAndDayGainLoss(Long publisherId);
 
 }

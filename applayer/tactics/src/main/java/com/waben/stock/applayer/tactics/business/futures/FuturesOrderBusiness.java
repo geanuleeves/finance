@@ -1,17 +1,5 @@
 package com.waben.stock.applayer.tactics.business.futures;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.waben.stock.applayer.tactics.business.AnalogDataBusiness;
 import com.waben.stock.applayer.tactics.business.ProfileBusiness;
 import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderMarketDto;
@@ -19,12 +7,7 @@ import com.waben.stock.applayer.tactics.dto.futures.TransactionDynamicsDto;
 import com.waben.stock.applayer.tactics.security.SecurityUtil;
 import com.waben.stock.interfaces.commonapi.retrivefutures.RetriveFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
-import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
-import com.waben.stock.interfaces.dto.futures.FuturesCurrencyRateDto;
-import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
-import com.waben.stock.interfaces.dto.futures.FuturesStopLossOrProfitDto;
-import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
-import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
+import com.waben.stock.interfaces.dto.futures.*;
 import com.waben.stock.interfaces.dto.manage.AnalogDataDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
 import com.waben.stock.interfaces.enums.AnalogDataType;
@@ -43,6 +26,17 @@ import com.waben.stock.interfaces.service.futures.FuturesOrderInterface;
 import com.waben.stock.interfaces.service.publisher.PublisherInterface;
 import com.waben.stock.interfaces.util.CopyBeanUtils;
 import com.waben.stock.interfaces.util.JacksonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class FuturesOrderBusiness {
@@ -503,6 +497,14 @@ public class FuturesOrderBusiness {
 				orderType.getIndex(), limitProfitType, perUnitLimitProfitAmount, limitLossType, perUnitLimitLossAmount);
 		if ("200".equals(response.getCode())) {
 			return;
+		}
+		throw new ServiceException(response.getCode());
+	}
+
+	public FuturesOrderDayGainLossDto capitalAccountAndDayGainLoss(Long publisherId) {
+		Response<FuturesOrderDayGainLossDto> response = futuresOrderInterface.capitalAccountAndDayGainLoss(publisherId);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
 		}
 		throw new ServiceException(response.getCode());
 	}

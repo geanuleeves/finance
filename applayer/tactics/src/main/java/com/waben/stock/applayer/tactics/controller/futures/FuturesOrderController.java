@@ -1,5 +1,42 @@
 package com.waben.stock.applayer.tactics.controller.futures;
 
+import com.waben.stock.applayer.tactics.business.CapitalAccountBusiness;
+import com.waben.stock.applayer.tactics.business.PublisherBusiness;
+import com.waben.stock.applayer.tactics.business.futures.FuturesContractBusiness;
+import com.waben.stock.applayer.tactics.business.futures.FuturesContractOrderBusiness;
+import com.waben.stock.applayer.tactics.business.futures.FuturesOrderBusiness;
+import com.waben.stock.applayer.tactics.business.futures.FuturesTradeActionBusiness;
+import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderBuysellDto;
+import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderMarketDto;
+import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderProfitDto;
+import com.waben.stock.applayer.tactics.dto.futures.TransactionDynamicsDto;
+import com.waben.stock.applayer.tactics.security.SecurityUtil;
+import com.waben.stock.applayer.tactics.util.PoiUtil;
+import com.waben.stock.interfaces.constants.ExceptionConstant;
+import com.waben.stock.interfaces.dto.futures.*;
+import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
+import com.waben.stock.interfaces.dto.publisher.PublisherDto;
+import com.waben.stock.interfaces.enums.FuturesOrderState;
+import com.waben.stock.interfaces.enums.FuturesOrderType;
+import com.waben.stock.interfaces.enums.FuturesTradePriceType;
+import com.waben.stock.interfaces.exception.ServiceException;
+import com.waben.stock.interfaces.pojo.Response;
+import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
+import com.waben.stock.interfaces.pojo.query.PageInfo;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeActionQuery;
+import com.waben.stock.interfaces.util.StringUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,58 +48,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.waben.stock.applayer.tactics.business.CapitalAccountBusiness;
-import com.waben.stock.applayer.tactics.business.PublisherBusiness;
-import com.waben.stock.applayer.tactics.business.futures.FuturesContractBusiness;
-import com.waben.stock.applayer.tactics.business.futures.FuturesContractOrderBusiness;
-import com.waben.stock.applayer.tactics.business.futures.FuturesOrderBusiness;
-import com.waben.stock.applayer.tactics.business.futures.FuturesTradeActionBusiness;
-import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderBuysellDto;
-import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderDayGainLossDto;
-import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderMarketDto;
-import com.waben.stock.applayer.tactics.dto.futures.FuturesOrderProfitDto;
-import com.waben.stock.applayer.tactics.dto.futures.TransactionDynamicsDto;
-import com.waben.stock.applayer.tactics.security.SecurityUtil;
-import com.waben.stock.applayer.tactics.util.PoiUtil;
-import com.waben.stock.interfaces.constants.ExceptionConstant;
-import com.waben.stock.interfaces.dto.futures.FuturesContractDto;
-import com.waben.stock.interfaces.dto.futures.FuturesContractOrderDto;
-import com.waben.stock.interfaces.dto.futures.FuturesContractOrderViewDto;
-import com.waben.stock.interfaces.dto.futures.FuturesTradeActionViewDto;
-import com.waben.stock.interfaces.dto.futures.FuturesTradeEntrustDto;
-import com.waben.stock.interfaces.dto.futures.TurnoverStatistyRecordDto;
-import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
-import com.waben.stock.interfaces.dto.publisher.PublisherDto;
-import com.waben.stock.interfaces.enums.FuturesOrderState;
-import com.waben.stock.interfaces.enums.FuturesOrderType;
-import com.waben.stock.interfaces.enums.FuturesTradePriceType;
-import com.waben.stock.interfaces.exception.ServiceException;
-import com.waben.stock.interfaces.pojo.Response;
-import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
-import com.waben.stock.interfaces.pojo.query.PageInfo;
-import com.waben.stock.interfaces.pojo.query.futures.FuturesContractOrderQuery;
-import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
-import com.waben.stock.interfaces.pojo.query.futures.FuturesTradeActionQuery;
-import com.waben.stock.interfaces.util.StringUtil;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 
 /**
  * 期货订单
@@ -686,32 +671,7 @@ public class FuturesOrderController {
 	@GetMapping("/current/capital/profit/settled/")
 	@ApiOperation(value = "获取当前用户的账户资金及当天持仓、平仓盈亏")
 	public Response<FuturesOrderDayGainLossDto> capitalAccountAndDayGainLoss() {
-		FuturesOrderDayGainLossDto gainLoss = new FuturesOrderDayGainLossDto();
-		// 获得合计浮动盈亏
-		BigDecimal totalFloatingProfitAndLoss = futuresOrderBusiness.getTotalFloatingProfitAndLoss(SecurityUtil.getUserId());
-		//计算今平仓盈亏
-		BigDecimal totalFloatingProfitAndLossNow = futuresOrderBusiness.getTotalFloatingProfitAndLossNow(SecurityUtil.getUserId());
-		gainLoss.setTotalFloatingProfitAndLoss(totalFloatingProfitAndLoss);
-		gainLoss.setTotalFloatingProfitAndLossNow(totalFloatingProfitAndLossNow);
-		// 获取用户账户资金
-		CapitalAccountDto result = capitalAccountBusiness.findByPublisherId(SecurityUtil.getUserId());
-		BigDecimal unsettledProfitOrLoss = orderBusiness.getUnsettledProfitOrLoss(SecurityUtil.getUserId());
-		if (unsettledProfitOrLoss != null && unsettledProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
-			if (unsettledProfitOrLoss.abs().compareTo(result.getAvailableBalance()) > 0) {
-				gainLoss.setFloatAvailableBalance(BigDecimal.ZERO);
-			} else {
-				gainLoss.setFloatAvailableBalance(result.getAvailableBalance().stripTrailingZeros()
-						.subtract(unsettledProfitOrLoss.abs().stripTrailingZeros()));
-			}
-		} else {
-			gainLoss.setFloatAvailableBalance(result.getAvailableBalance().stripTrailingZeros());
-		}
-		result.setPaymentPassword(null);
-		gainLoss.setTotalBalance(result.getAvailableBalance()
-				.add(futuresOrderBusiness.totalBalance(0, Integer.MAX_VALUE)).setScale(2, RoundingMode.DOWN));
-		gainLoss.setAvailableBalance(result.getAvailableBalance());
-		gainLoss.setFrozenCapital(result.getFrozenCapital());
-		return new Response<>(gainLoss);
+		return new Response<>(futuresOrderBusiness.capitalAccountAndDayGainLoss(SecurityUtil.getUserId()));
 	}
 
 	@GetMapping("/transaction/dynamics")

@@ -1,65 +1,14 @@
 package com.waben.stock.datalayer.futures.service;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.RoundingMode;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
-import com.waben.stock.datalayer.futures.business.CapitalFlowBusiness;
-import com.waben.stock.datalayer.futures.business.OrganizationBusiness;
-import com.waben.stock.datalayer.futures.business.ProfileBusiness;
-import com.waben.stock.datalayer.futures.business.PublisherBusiness;
-import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
-import com.waben.stock.datalayer.futures.entity.FuturesContract;
-import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesHoliday;
-import com.waben.stock.datalayer.futures.entity.FuturesOrder;
-import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
-import com.waben.stock.datalayer.futures.entity.FuturesTradeAction;
-import com.waben.stock.datalayer.futures.entity.FuturesTradeEntrust;
-import com.waben.stock.datalayer.futures.entity.FuturesTradeLimit;
+import com.waben.stock.datalayer.futures.business.*;
+import com.waben.stock.datalayer.futures.entity.*;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesOrderStateConverter;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesWindControlTypeConverter;
 import com.waben.stock.datalayer.futures.quote.QuoteContainer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.EntrustQueryConsumer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorStopLossOrProfitConsumer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorStrongPointConsumer;
-import com.waben.stock.datalayer.futures.repository.DynamicQuerySqlDao;
-import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
-import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
-import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
-import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
-import com.waben.stock.datalayer.futures.repository.FuturesTradeActionDao;
-import com.waben.stock.datalayer.futures.repository.FuturesTradeEntrustDao;
+import com.waben.stock.datalayer.futures.repository.*;
 import com.waben.stock.datalayer.futures.repository.impl.MethodDesc;
 import com.waben.stock.interfaces.commonapi.retrivefutures.TradeFuturesOverHttp;
 import com.waben.stock.interfaces.commonapi.retrivefutures.bean.FuturesContractMarket;
@@ -74,22 +23,37 @@ import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
 import com.waben.stock.interfaces.dto.publisher.FrozenCapitalDto;
 import com.waben.stock.interfaces.dto.publisher.PublisherDto;
-import com.waben.stock.interfaces.enums.CapitalFlowExtendType;
-import com.waben.stock.interfaces.enums.CapitalFlowType;
-import com.waben.stock.interfaces.enums.FuturesActionType;
-import com.waben.stock.interfaces.enums.FuturesOrderState;
-import com.waben.stock.interfaces.enums.FuturesOrderType;
-import com.waben.stock.interfaces.enums.FuturesTradeActionType;
-import com.waben.stock.interfaces.enums.FuturesTradeEntrustState;
-import com.waben.stock.interfaces.enums.FuturesTradeLimitType;
-import com.waben.stock.interfaces.enums.FuturesTradePriceType;
-import com.waben.stock.interfaces.enums.FuturesWindControlType;
+import com.waben.stock.interfaces.enums.*;
 import com.waben.stock.interfaces.exception.ServiceException;
+import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.param.futures.PlaceOrderParam;
 import com.waben.stock.interfaces.pojo.query.admin.futures.FuturesTradeAdminQuery;
+import com.waben.stock.interfaces.pojo.query.futures.FuturesContractOrderQuery;
 import com.waben.stock.interfaces.pojo.query.futures.FuturesOrderQuery;
 import com.waben.stock.interfaces.util.StringUtil;
 import com.waben.stock.interfaces.util.UniqueCodeGenerator;
+import org.apache.catalina.security.SecurityUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import javax.persistence.criteria.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * 期货订单 service
@@ -162,7 +126,16 @@ public class FuturesOrderService {
 	private FuturesTradeLimitService futuresTradeLimitService;
 
 	@Autowired
-	private FuturesContractOrderDao futuresContractOrderDao;
+	private QuoteContainer quoteContainer;
+
+	@Autowired
+	private FuturesContractOrderService futuresContractOrderService;
+
+	@Autowired
+	private FuturesCommodityService futuresCommodityService;
+
+	@Autowired
+	private CapitalAccountBusiness capitalAccountBusiness;
 
 	private SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -2374,7 +2347,7 @@ public class FuturesOrderService {
 
 	public Page<FuturesContractOrder> pages(final FuturesTradeAdminQuery query) {
 		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
-		Page<FuturesContractOrder> page = futuresContractOrderDao.page(new Specification<FuturesContractOrder>() {
+		Page<FuturesContractOrder> page = contractOrderDao.page(new Specification<FuturesContractOrder>() {
 			@Override
 			public Predicate toPredicate(Root<FuturesContractOrder> root, CriteriaQuery<?> criteriaQuery,
 										 CriteriaBuilder criteriaBuilder) {
@@ -2403,6 +2376,81 @@ public class FuturesOrderService {
 			}
 		}, pageable);
 		return page;
+	}
+
+
+	public BigDecimal getTotalFloatingProfitAndLoss(Long publisherId) {
+		FuturesContractOrderQuery futuresContractOrderQuery = new FuturesContractOrderQuery();
+		futuresContractOrderQuery.setPublisherId(publisherId);
+		List<FuturesContractOrder> futuresContractOrders = futuresContractOrderService.findByPublisherId(publisherId);
+		BigDecimal totalFloatingProfitAndLoss = new BigDecimal(0);
+		if (futuresContractOrders != null && !futuresContractOrders.isEmpty()) {
+			for (FuturesContractOrder futuresContractOrder : futuresContractOrders ) {
+				BigDecimal buyUpFloatingProfitAndLoss = new BigDecimal(0);
+				BigDecimal buyFallFloatingProfitAndLoss = new BigDecimal(0);
+				FuturesCommodity futuresCommodity = futuresCommodityService
+						.retrieveByCommodityNo(futuresContractOrder.getCommodityNo());
+				FuturesCurrencyRate rate = rateService.findByCurrency(futuresCommodity.getCurrency());
+				// 已成交部分最新均价
+				BigDecimal lastPrice = quoteContainer.getLastPrice(futuresContractOrder.getCommodityNo(),
+						futuresContractOrder.getContractNo());
+				if (futuresCommodity != null) {
+					// 成交价格-买涨
+					BigDecimal avgUpFillPrice = this.getOpenAvgFillPrice(
+							futuresContractOrder.getPublisherId(), futuresContractOrder.getContract().getId(), FuturesOrderType.BuyUp.getIndex());
+					// 成交价格-买跌
+					BigDecimal avgFallFillPrice = this.getOpenAvgFillPrice(
+							futuresContractOrder.getPublisherId(), futuresContractOrder.getContract().getId(), FuturesOrderType.BuyFall.getIndex());
+					if (avgUpFillPrice != null && avgUpFillPrice.compareTo(new BigDecimal(0)) > 0
+							&& futuresContractOrder.getBuyUpQuantity().compareTo(BigDecimal.ZERO) > 0) {
+						// 买涨浮动盈亏
+						buyUpFloatingProfitAndLoss = lastPrice.subtract(avgUpFillPrice)
+								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
+								.multiply(futuresContractOrder.getBuyUpQuantity())
+								.multiply(rate.getRate()).setScale(2, RoundingMode.HALF_DOWN);
+					}
+					if (avgFallFillPrice != null && avgFallFillPrice.compareTo(new BigDecimal(0)) > 0 &&
+							futuresContractOrder.getBuyFallQuantity().compareTo(BigDecimal.ZERO) > 0) {
+						// 买跌浮动盈亏
+						buyFallFloatingProfitAndLoss = avgFallFillPrice.subtract(lastPrice)
+								.divide(futuresCommodity.getMinWave()).multiply(futuresCommodity.getPerWaveMoney())
+								.multiply(futuresContractOrder.getBuyFallQuantity())
+								.multiply(rate.getRate()).setScale(2, RoundingMode.HALF_DOWN);
+					}
+					totalFloatingProfitAndLoss = totalFloatingProfitAndLoss.add(buyUpFloatingProfitAndLoss)
+							.add(buyFallFloatingProfitAndLoss);
+				}
+			}
+		}
+		return totalFloatingProfitAndLoss;
+	}
+
+	public FuturesOrderDayGainLoss capitalAccountAndDayGainLoss(Long publisherId) {
+		FuturesOrderDayGainLoss gainLoss = new FuturesOrderDayGainLoss();
+		// 获得合计浮动盈亏
+		BigDecimal totalFloatingProfitAndLoss = this.getTotalFloatingProfitAndLoss(publisherId);
+		//计算今平仓盈亏
+		BigDecimal totalFloatingProfitAndLossNow = this.getOpenAvgFillPriceNow(publisherId,
+				CapitalFlowExtendType.FUTURESRECORD.getIndex());
+		gainLoss.setTotalFloatingProfitAndLoss(totalFloatingProfitAndLoss);
+		gainLoss.setTotalFloatingProfitAndLossNow(totalFloatingProfitAndLossNow);
+		// 获取用户账户资金
+		CapitalAccountDto result = capitalAccountBusiness.fetchByPublisherId(publisherId);
+		BigDecimal unsettledProfitOrLoss = this.getUnsettledProfitOrLoss(publisherId);
+		if (unsettledProfitOrLoss != null && unsettledProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+			if (unsettledProfitOrLoss.abs().compareTo(result.getAvailableBalance()) > 0) {
+				gainLoss.setFloatAvailableBalance(BigDecimal.ZERO);
+			} else {
+				gainLoss.setFloatAvailableBalance(result.getAvailableBalance().stripTrailingZeros()
+						.subtract(unsettledProfitOrLoss.abs().stripTrailingZeros()));
+			}
+		} else {
+			gainLoss.setFloatAvailableBalance(result.getAvailableBalance().stripTrailingZeros());
+		}
+		result.setPaymentPassword(null);
+		gainLoss.setAvailableBalance(result.getAvailableBalance());
+		gainLoss.setFrozenCapital(result.getFrozenCapital());
+		return gainLoss;
 	}
 
 }
