@@ -30,6 +30,7 @@ import com.waben.stock.interfaces.exception.ServiceException;
 import com.waben.stock.interfaces.pojo.Response;
 import com.waben.stock.interfaces.pojo.query.PageInfo;
 import com.waben.stock.interfaces.pojo.query.promotion.stockoption.StockOptionPromotionQuery;
+import com.waben.stock.interfaces.util.JacksonUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -75,6 +76,7 @@ public class PromotionStockOptionTradeController {
 	public Response<PageInfo<StockOptionPromotionDto>> promotionPagesByQuery(StockOptionPromotionQuery query) {
 		query.setCurrentOrgId(SecurityUtil.getUserDetails().getOrgId());
 		query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
+		logger.info("数据组装成功:{}", SecurityUtil.getUserDetails().getTreeCode());
 		return new Response<>(business.promotionPagesByQuery(query));
 	}
 
