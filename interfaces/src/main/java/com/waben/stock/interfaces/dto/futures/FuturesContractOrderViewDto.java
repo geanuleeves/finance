@@ -391,7 +391,7 @@ public class FuturesContractOrderViewDto implements Serializable, Cloneable {
 	}
 
 	public BigDecimal getAvgFillPrice() {
-		return avgFillPrice != null ? avgFillPrice.stripTrailingZeros() : null;
+		return avgFillPrice != null ? new BigDecimal(avgFillPrice.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setAvgFillPrice(BigDecimal avgFillPrice) {
