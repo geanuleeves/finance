@@ -34,9 +34,9 @@ public class FuturesQuoteService {
 		return quoteDao.retrieveFuturesQuoteById(commodityNo, contractNo, id);
 	}
 	
-	// @PostConstruct
+	@PostConstruct
 	public void init() {
-		String dateTimeStamp = "2018-08-07 22:00:00.000";
+		String dateTimeStamp = "2018-08-08 21:00:00.000";
 		deleteQuoteByDateTimeStampLessThan(dateTimeStamp);
 	}
 
