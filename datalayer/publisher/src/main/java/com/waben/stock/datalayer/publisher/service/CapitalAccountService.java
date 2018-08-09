@@ -899,7 +899,7 @@ public class CapitalAccountService {
 	}
 
 	@Transactional
-	public synchronized CapitalAccount futuresOrderSettlement(Long publisherId, Long orderId, BigDecimal profitOrLoss) {
+	public synchronized CapitalAccount futuresOrderSettlement(Long publisherId, Long entrustId, BigDecimal profitOrLoss) {
 		BigDecimal realProfitOrLoss = profitOrLoss;
 		CapitalAccount account = capitalAccountDao.retriveByPublisherId(publisherId);
 		Date date = new Date();
@@ -925,7 +925,7 @@ public class CapitalAccountService {
 			// 盈利
 			increaseAmount(account, profitOrLoss, date);
 			flowDao.create(account.getPublisher(), CapitalFlowType.FuturesProfit, profitOrLoss.abs(), date,
-					CapitalFlowExtendType.FUTURESRECORD, orderId, account.getAvailableBalance(),
+					CapitalFlowExtendType.FUTURESTRADEENTRUST, entrustId, account.getAvailableBalance(),
 					account.getFrozenCapital());
 			realProfitOrLoss = profitOrLoss;
 		} else if (profitOrLoss.compareTo(new BigDecimal(0)) < 0) {
@@ -937,8 +937,8 @@ public class CapitalAccountService {
 			}
 			reduceAmount(account, lossAmountAbs, date);
 			flowDao.create(account.getPublisher(), CapitalFlowType.FuturesLoss,
-					lossAmountAbs.abs().multiply(new BigDecimal(-1)), date, CapitalFlowExtendType.FUTURESRECORD,
-					orderId, account.getAvailableBalance(), account.getFrozenCapital());
+					lossAmountAbs.abs().multiply(new BigDecimal(-1)), date, CapitalFlowExtendType.FUTURESTRADEENTRUST,
+					entrustId, account.getAvailableBalance(), account.getFrozenCapital());
 			realProfitOrLoss = lossAmountAbs.multiply(new BigDecimal(-1));
 		}
 		CapitalAccount result = findByPublisherId(publisherId);

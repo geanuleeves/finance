@@ -227,9 +227,9 @@ public class CapitalAccountController implements CapitalAccountInterface {
 
 	@Override
 	public Response<CapitalAccountDto> futuresOrderSettlement(@PathVariable Long publisherId,
-			@PathVariable Long orderId, @PathVariable BigDecimal profitOrLoss) {
+			@PathVariable Long entrustId, @PathVariable BigDecimal profitOrLoss) {
 		return new Response<>(CopyBeanUtils.copyBeanProperties(CapitalAccountDto.class,
-				capitalAccountService.futuresOrderSettlement(publisherId, orderId, profitOrLoss), false));
+				capitalAccountService.futuresOrderSettlement(publisherId, entrustId, profitOrLoss), false));
 	}
 
 	@Override

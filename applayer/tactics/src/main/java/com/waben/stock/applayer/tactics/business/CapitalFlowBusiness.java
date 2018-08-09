@@ -2,13 +2,11 @@ package com.waben.stock.applayer.tactics.business;
 
 import com.waben.stock.applayer.tactics.business.futures.FuturesContractOrderBusiness;
 import com.waben.stock.applayer.tactics.business.futures.FuturesOrderBusiness;
+import com.waben.stock.applayer.tactics.business.futures.FuturesTradeEntrustBusiness;
 import com.waben.stock.applayer.tactics.dto.publisher.CapitalFlowWithExtendDto;
 import com.waben.stock.applayer.tactics.security.SecurityUtil;
 import com.waben.stock.interfaces.dto.buyrecord.BuyRecordDto;
-import com.waben.stock.interfaces.dto.futures.FuturesCommodityDto;
-import com.waben.stock.interfaces.dto.futures.FuturesContractOrderDto;
-import com.waben.stock.interfaces.dto.futures.FuturesOrderDto;
-import com.waben.stock.interfaces.dto.futures.FuturesOvernightRecordDto;
+import com.waben.stock.interfaces.dto.futures.*;
 import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
 import com.waben.stock.interfaces.dto.publisher.PaymentOrderDto;
 import com.waben.stock.interfaces.dto.stockcontent.StockDto;
@@ -66,6 +64,9 @@ public class CapitalFlowBusiness {
 
 	@Autowired
 	private FuturesOrderBusiness orderBusiness;
+
+	@Autowired
+	private FuturesTradeEntrustBusiness entrustBusiness;
 
 	@Autowired
 	@Qualifier("futuresOrderInterface")
@@ -128,8 +129,11 @@ public class CapitalFlowBusiness {
 					flowWithExtend.setCommodityName(orderDto.getCommodityName());
 					flowWithExtend.setCommoditySymbol(orderDto.getCommoditySymbol());
 					flowWithExtend.setContractNo(orderDto.getContractNo());
-					flowWithExtend.setReserveFund(orderDto != null ?
-							orderDto.getReserveFund() : BigDecimal.ZERO);
+				} else if(flow.getExtendType() == CapitalFlowExtendType.FUTURESTRADEENTRUST) {
+					FuturesTradeEntrustDto entrust = entrustBusiness.fetchById(flow.getExtendId());
+					flowWithExtend.setCommodityName(entrust.getCommodityName());
+					flowWithExtend.setCommoditySymbol(entrust.getCommodityNo());
+					flowWithExtend.setContractNo(entrust.getContractNo());
 				} else if (flow.getExtendType() == CapitalFlowExtendType.FUTURESOVERNIGHTRECORD) {
 					Response<FuturesOvernightRecordDto> recordDto = futuresOrderInterface
 							.fetchByOvernightId(flow.getExtendId());

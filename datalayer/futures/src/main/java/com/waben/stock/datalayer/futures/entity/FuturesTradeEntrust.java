@@ -81,6 +81,10 @@ public class FuturesTradeEntrust {
 	private Date updateTime;
 	/** 反手源委托ID */
 	private Long backhandEntrustId;
+	/** 止盈金额（只有平仓才有值） **/
+	private BigDecimal stopProfitAmount;
+	/** 止损金额（只有平仓才有值） **/
+	private BigDecimal stopLossAmount;
 
 	/***************** 分割线，以下字段为非数据库字段 ********************/
 	/** 合约ID */
@@ -376,6 +380,22 @@ public class FuturesTradeEntrust {
 
 	public void setOpenAvgFillPrice(BigDecimal openAvgFillPrice) {
 		this.openAvgFillPrice = openAvgFillPrice;
+	}
+
+	public BigDecimal getStopProfitAmount() {
+		return stopProfitAmount;
+	}
+
+	public void setStopProfitAmount(BigDecimal stopProfitAmount) {
+		this.stopProfitAmount = stopProfitAmount;
+	}
+
+	public BigDecimal getStopLossAmount() {
+		return stopLossAmount;
+	}
+
+	public void setStopLossAmount(BigDecimal stopLossAmount) {
+		this.stopLossAmount = stopLossAmount;
 	}
 
 }

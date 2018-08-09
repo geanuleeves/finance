@@ -66,8 +66,8 @@ public class CapitalAccountBusiness {
 		throw new ServiceException(response.getCode());
 	}
 
-	public CapitalAccountDto futuresOrderSettlement(Long publisherId, Long orderId, BigDecimal profitOrLoss) {
-		Response<CapitalAccountDto> response = service.futuresOrderSettlement(publisherId, orderId, profitOrLoss);
+	public CapitalAccountDto futuresOrderSettlement(Long publisherId, Long entrustId, BigDecimal profitOrLoss) {
+		Response<CapitalAccountDto> response = service.futuresOrderSettlement(publisherId, entrustId, profitOrLoss);
 		if ("200".equals(response.getCode())) {
 			return response.getResult();
 		}

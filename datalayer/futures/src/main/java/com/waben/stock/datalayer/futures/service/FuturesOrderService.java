@@ -803,6 +803,10 @@ public class FuturesOrderService {
 		tradeEntrust.setState(FuturesTradeEntrustState.Queuing);
 		tradeEntrust.setTradeActionType(FuturesTradeActionType.CLOSE);
 		tradeEntrust.setTradePrice(BigDecimal.ZERO);
+		if(isStopLossOrProfit) {
+			tradeEntrust.setStopLossAmount(orderType == FuturesOrderType.BuyUp ? contractOrder.getBuyUpPerUnitLimitLossAmount() : contractOrder.getBuyFallPerUnitLimitLossAmount());
+			tradeEntrust.setStopProfitAmount(orderType == FuturesOrderType.BuyUp ? contractOrder.getBuyUpPerUnitLimitProfitAmount() : contractOrder.getBuyFallPerUnitLimitProfitAmount());
+		}
 		tradeEntrust.setUpdateTime(date);
 		tradeEntrustDao.create(tradeEntrust);
 		// step 2 : 创建平仓记录，更新订单信息
@@ -858,6 +862,10 @@ public class FuturesOrderService {
 				tradeAction.setTradeActionType(FuturesTradeActionType.CLOSE);
 				tradeAction.setTradeEntrust(tradeEntrust);
 				tradeAction.setTradePrice(BigDecimal.ZERO);
+				if(isStopLossOrProfit) {
+					tradeEntrust.setStopLossAmount(orderType == FuturesOrderType.BuyUp ? contractOrder.getBuyUpPerUnitLimitLossAmount() : contractOrder.getBuyFallPerUnitLimitLossAmount());
+					tradeEntrust.setStopProfitAmount(orderType == FuturesOrderType.BuyUp ? contractOrder.getBuyUpPerUnitLimitProfitAmount() : contractOrder.getBuyFallPerUnitLimitProfitAmount());
+				}
 				tradeAction.setUpdateTime(date);
 				tradeActionDao.create(tradeAction);
 				// step 2.3 : 更新订单信息
