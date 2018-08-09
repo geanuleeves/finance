@@ -236,7 +236,7 @@ public class FuturesContractOrderViewDto implements Serializable, Cloneable {
 	}
 
 	public BigDecimal getPerUnitLimitProfitAmount() {
-		return perUnitLimitProfitAmount;
+		return perUnitLimitProfitAmount != null ? new BigDecimal(perUnitLimitProfitAmount.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setPerUnitLimitProfitAmount(BigDecimal perUnitLimitProfitAmount) {
@@ -252,7 +252,7 @@ public class FuturesContractOrderViewDto implements Serializable, Cloneable {
 	}
 
 	public BigDecimal getPerUnitLimitLossAmount() {
-		return perUnitLimitLossAmount;
+		return perUnitLimitLossAmount != null ? new BigDecimal(perUnitLimitLossAmount.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setPerUnitLimitLossAmount(BigDecimal perUnitLimitLossAmount) {
@@ -284,7 +284,7 @@ public class FuturesContractOrderViewDto implements Serializable, Cloneable {
 	}
 
 	public BigDecimal getFloatingProfitAndLoss() {
-		return floatingProfitAndLoss;
+		return floatingProfitAndLoss != null ? new BigDecimal(floatingProfitAndLoss.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setFloatingProfitAndLoss(BigDecimal floatingProfitAndLoss) {
@@ -292,7 +292,7 @@ public class FuturesContractOrderViewDto implements Serializable, Cloneable {
 	}
 
 	public BigDecimal getServiceFee() {
-		return serviceFee;
+		return serviceFee != null ? new BigDecimal(serviceFee.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setServiceFee(BigDecimal serviceFee) {
@@ -300,7 +300,7 @@ public class FuturesContractOrderViewDto implements Serializable, Cloneable {
 	}
 
 	public BigDecimal getReserveFund() {
-		return reserveFund;
+		return reserveFund != null ? new BigDecimal(reserveFund.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setReserveFund(BigDecimal reserveFund) {
@@ -308,7 +308,7 @@ public class FuturesContractOrderViewDto implements Serializable, Cloneable {
 	}
 
 	public BigDecimal getLastPrice() {
-		return lastPrice;
+		return lastPrice != null ? new BigDecimal(lastPrice.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setLastPrice(BigDecimal lastPrice) {
@@ -316,10 +316,7 @@ public class FuturesContractOrderViewDto implements Serializable, Cloneable {
 	}
 
 	public BigDecimal getMinWave() {
-		if (minWave != null) {
-			return minWave.stripTrailingZeros();
-		}
-		return minWave;
+		return minWave != null ? new BigDecimal(minWave.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setMinWave(BigDecimal minWave) {
@@ -375,7 +372,7 @@ public class FuturesContractOrderViewDto implements Serializable, Cloneable {
 	}
 
 	public BigDecimal getBidPrice() {
-		return bidPrice;
+		return bidPrice != null ? new BigDecimal(bidPrice.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setBidPrice(BigDecimal bidPrice) {
@@ -383,7 +380,7 @@ public class FuturesContractOrderViewDto implements Serializable, Cloneable {
 	}
 
 	public BigDecimal getAskPrice() {
-		return askPrice;
+		return askPrice != null ? new BigDecimal(askPrice.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setAskPrice(BigDecimal askPrice) {
@@ -391,7 +388,7 @@ public class FuturesContractOrderViewDto implements Serializable, Cloneable {
 	}
 
 	public BigDecimal getAvgFillPrice() {
-		return avgFillPrice != null ? avgFillPrice.stripTrailingZeros() : null;
+		return avgFillPrice != null ? new BigDecimal(avgFillPrice.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setAvgFillPrice(BigDecimal avgFillPrice) {
