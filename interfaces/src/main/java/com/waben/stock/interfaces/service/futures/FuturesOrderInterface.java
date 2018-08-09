@@ -230,7 +230,7 @@ public interface FuturesOrderInterface {
 	@RequestMapping(value = "/totalProfitOrLossNow/{publisherId}", method = RequestMethod.GET)
 	Response<BigDecimal> getTotalFloatingProfitAndLossNow(@PathVariable("publisherId") Long publisherId);
 
-	@RequestMapping(value = "/capitalAccountAndDayGainLoss/{publisherId}", method = RequestMethod.GET)
-	Response<FuturesOrderDayGainLossDto> capitalAccountAndDayGainLoss(Long publisherId);
+	@RequestMapping(value = "/{publisherId}/capitalAccountAndDayGainLoss", method = RequestMethod.GET)
+	Response<FuturesOrderDayGainLossDto> capitalAccountAndDayGainLoss(@PathVariable("publisherId") Long publisherId);
 
 }

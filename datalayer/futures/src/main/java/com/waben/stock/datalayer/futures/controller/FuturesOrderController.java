@@ -170,7 +170,7 @@ public class FuturesOrderController implements FuturesOrderInterface {
 				publisherId, CapitalFlowExtendType.FUTURESRECORD.getIndex()));
 	}
 
-	public Response<FuturesOrderDayGainLossDto> capitalAccountAndDayGainLoss(Long publisherId) {
+	public Response<FuturesOrderDayGainLossDto> capitalAccountAndDayGainLoss(@PathVariable Long publisherId) {
 		return new Response<>(CopyBeanUtils.copyBeanProperties(futuresOrderService.capitalAccountAndDayGainLoss(
 				publisherId), new FuturesOrderDayGainLossDto(), false));
 	}

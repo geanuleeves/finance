@@ -127,7 +127,7 @@ public interface FuturesOrderRepository extends CustomJpaRepository<FuturesOrder
      */
     @Query(value = "SELECT sum(amount)  FROM capital_flow t " +
             "WHERE t.publisher_id = ?1 AND t.extend_type = ?2 " +
-            "AND DATEDIFF(t.occurrence_time,NOW())=0 ", nativeQuery = true)
+            "AND DATEDIFF(t.occurrence_time,NOW())=0 AND t.type IN (22,23)", nativeQuery = true)
     BigDecimal getOpenAvgFillPriceNow(Long publisherId, String extendType);
 
 

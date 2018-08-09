@@ -51,6 +51,10 @@ public class FuturesTradeActionAgentDto {
 	private String code;
 	/** 合约编号 **/
 	private String orgName;
+	/** 止盈金额 **/
+	private BigDecimal stopProfitAmount;
+	/** 止损金额 **/
+	private BigDecimal stopLossAmount;
 
 	public Long getId() {
 		return id;
@@ -210,6 +214,22 @@ public class FuturesTradeActionAgentDto {
 
 	public void setOrgName(String orgName) {
 		this.orgName = orgName;
+	}
+
+	public BigDecimal getStopProfitAmount() {
+		return stopProfitAmount;
+	}
+
+	public void setStopProfitAmount(BigDecimal stopProfitAmount) {
+		this.stopProfitAmount = stopProfitAmount;
+	}
+
+	public BigDecimal getStopLossAmount() {
+		return stopLossAmount;
+	}
+
+	public void setStopLossAmount(BigDecimal stopLossAmount) {
+		this.stopLossAmount = stopLossAmount;
 	}
 
 }
