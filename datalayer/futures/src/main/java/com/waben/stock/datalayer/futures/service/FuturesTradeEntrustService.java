@@ -809,6 +809,8 @@ public class FuturesTradeEntrustService {
 					predicateList
 							.add(criteriaBuilder.lessThan(root.get("tradeTime").as(Date.class), query.getEndTime()));
 				}
+				predicateList.add(criteriaBuilder.greaterThan(root.get("filled").as(BigDecimal.class),
+						BigDecimal.ZERO));
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
