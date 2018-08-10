@@ -205,7 +205,7 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 			}
 		}
 		// 检查用户保证金
-
+		checkReserveFund(result);
 		return new Response<>(response);
 	}
 
@@ -217,7 +217,7 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 				if(contractOrderList != null && contractOrderList.size() > 0) {
 					for(FuturesContractOrder contractOrder : contractOrderList) {
 						BigDecimal singleMax = contractOrder.getBuyUpTotalQuantity();
-						if(singleMax.compareTo(contractOrder.getBuyFallTotalQuantity()) > 0) {
+						if(singleMax.compareTo(contractOrder.getBuyFallTotalQuantity()) < 0) {
 							singleMax = contractOrder.getBuyFallTotalQuantity();
 						}
 						if(singleMax.compareTo(BigDecimal.ZERO) > 0) {
@@ -225,11 +225,11 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 							BigDecimal originReverseFund = contractOrder.getReserveFund();
 							// 期望保证金
 							BigDecimal expectReverseFund = singleMax.multiply(commodity.getPerUnitReserveFund());
-							if(originReverseFund.compareTo(expectReverseFund) > 0 && expectReverseFund.compareTo(BigDecimal.ZERO) > 0) {
+							if(originReverseFund.compareTo(expectReverseFund) > 0 && expectReverseFund.compareTo(BigDecimal.ZERO) >= 0) {
 								// 多退
 								accountBusiness.futuresReturnReserveFund(contractOrder.getPublisherId(), contractOrder.getId(), originReverseFund.subtract(expectReverseFund));
 							}
-							if(expectReverseFund.compareTo(originReverseFund) > 0 && originReverseFund.compareTo(BigDecimal.ZERO) > 0) {
+							if(expectReverseFund.compareTo(originReverseFund) > 0 && originReverseFund.compareTo(BigDecimal.ZERO) >= 0) {
 								// 少补
 								accountBusiness.futuresFillReserveFund(contractOrder.getPublisherId(), contractOrder.getId(), expectReverseFund.subtract(originReverseFund));
 							}
