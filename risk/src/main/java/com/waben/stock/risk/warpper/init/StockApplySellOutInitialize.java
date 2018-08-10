@@ -21,7 +21,7 @@ import java.util.Set;
  * @author Created by yuyidi on 2017/12/14.
  * @desc
  */
-@Component
+//@Component
 public class StockApplySellOutInitialize implements CommandLineRunner {
 
     @Autowired

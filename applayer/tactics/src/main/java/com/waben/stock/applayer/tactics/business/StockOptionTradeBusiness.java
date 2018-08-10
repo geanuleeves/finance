@@ -104,7 +104,10 @@ public class StockOptionTradeBusiness {
 		}
 		Date date = holidayBusiness.getAfterTradeDate(buyingTime, 1);
 		// 持仓中的才能申请行权
-		if (trade.getState() == StockOptionTradeState.TURNOVER && now.getTime() > date.getTime()&&isTradeTimeQuantum()) {
+		if(!isTradeTimeQuantum()) {
+			throw new ServiceException(ExceptionConstant.NO_TRADING_TIMES);
+		}
+		if (trade.getState() == StockOptionTradeState.TURNOVER && now.getTime() > date.getTime()) {
 			Response<StockOptionTradeDto> response = tradeReference.userRight(publisherId, id);
 			if ("200".equals(response.getCode())) {
 				return response.getResult();

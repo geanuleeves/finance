@@ -83,7 +83,7 @@ public class StockMonitor implements CommandLineRunner {
         CronScheduleBuilder scheduleBuilderPMStop = CronScheduleBuilder.cronSchedule("0 0 15 * * ?");
 
         //期权到期处理启动时间
-        CronScheduleBuilder scheduleDueTreatmentBuilderBegin = CronScheduleBuilder.cronSchedule("0 0 9 * * ?");
+        CronScheduleBuilder scheduleDueTreatmentBuilderBegin = CronScheduleBuilder.cronSchedule("0 30 9 * * ?");
         CronScheduleBuilder scheduleDueTreatmentBuilderStop = CronScheduleBuilder.cronSchedule("0 0 21 * * ?");
 
         //买入任务

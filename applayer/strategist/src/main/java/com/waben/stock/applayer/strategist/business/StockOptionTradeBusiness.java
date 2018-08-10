@@ -1,5 +1,6 @@
 package com.waben.stock.applayer.strategist.business;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -105,6 +106,9 @@ public class StockOptionTradeBusiness {
 		}
 		Date date = holidayBusiness.getAfterTradeDate(buyingTime, 1);
 		// 持仓中的才能申请行权
+		if(!isTradeTimeQuantum()) {
+			throw new ServiceException(ExceptionConstant.NO_TRADING_TIMES);
+		}
 		if (trade.getState() == StockOptionTradeState.TURNOVER && now.getTime() > date.getTime()) {
 			Response<StockOptionTradeDto> response = tradeReference.userRight(publisherId, id);
 			if ("200".equals(response.getCode())) {
@@ -114,6 +118,19 @@ public class StockOptionTradeBusiness {
 		} else {
 			throw new ServiceException(ExceptionConstant.USERRIGHT_NOTMATCH_EXCEPTION);
 		}
+	}
+
+	private Boolean isTradeTimeQuantum() {
+		String amStartTime = "09:35:00";
+		String amEndTime =  "11:25:00";
+		String pmStartTime = "13:05:00";
+		String pmEndTime =  "14:55:00";
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm:ss");
+		String currentTime = simpleDateFormat.format(new Date());
+		if(currentTime.compareTo(amStartTime)>0&&currentTime.compareTo(amEndTime)<0||currentTime.compareTo(pmStartTime)>0&&currentTime.compareTo(pmEndTime)<0) {
+			return true;
+		}
+		return true;
 	}
 
 	public StockOptionTradeWithMarketDto wrapMarketInfo(StockOptionTradeDto trade) {

@@ -16,7 +16,7 @@ import java.util.List;
  * @author Created by yuyidi on 2017/12/14.
  * @desc 初始化申请买入的点买记录
  */
-@Component
+//@Component
 public class StockApplyBuyInInitialize implements CommandLineRunner {
 
     @Autowired

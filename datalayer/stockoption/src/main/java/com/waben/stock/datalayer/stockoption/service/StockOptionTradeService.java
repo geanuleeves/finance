@@ -753,6 +753,7 @@ public class StockOptionTradeService {
 	}
 
 	private OfflineStockOptionTrade settlementOfflineTrade(StockOptionTrade trade) {
+		logger.info("trade:{}",JacksonUtil.encode(trade));
 		OfflineStockOptionTrade offlineTrade = trade.getOfflineTrade();
 		offlineTrade.setSellingTime(trade.getSellingTime());
 		offlineTrade.setSellingPrice(trade.getSellingPrice());
@@ -788,7 +789,9 @@ public class StockOptionTradeService {
 		// 保存线下机构期权交易
 		OfflineStockOptionTrade offlineTrade = saveOfflineTrade(trade, orgId, orgRightMoneyRatio);
 		trade.setOfflineTrade(offlineTrade);
+		logger.info("申购订单：{}",JacksonUtil.encode(trade));
 		StockOptionTrade result = stockOptionTradeDao.update(trade);
+		logger.info("申购结果：{}",JacksonUtil.encode(result));
 		// 给渠道推广机构结算
 		if (trade.getOfflineTrade().getRightMoney() != null
 				&& (trade.getIsTest() == null || trade.getIsTest() == false)) {

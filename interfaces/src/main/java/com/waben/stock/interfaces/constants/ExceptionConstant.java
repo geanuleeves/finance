@@ -221,6 +221,8 @@ public class ExceptionConstant {
 	// 该股票最大额度为%s万，请重新输入
 	public static final String STOCK_AMOUNTGTLEFT_EXCEPTION = "9010";
 
+	public static final String NO_TRADING_TIMES = "9011";
+
 	// 直播
 	// 无直播频道
 	public static final String NO_LIVEPLAYER_EXCEPTION = "10001";
