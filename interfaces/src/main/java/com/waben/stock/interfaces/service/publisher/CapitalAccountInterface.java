@@ -130,8 +130,6 @@ public interface CapitalAccountInterface {
 	 *            服务费
 	 * @param reserveFund
 	 *            保证金
-	 * @param deferredFee
-	 *            递延费
 	 * @return 资金账号对象
 	 */
 	@RequestMapping(value = "/{publisherId}/{orderId}/futures/serviceFee/{serviceFee}/reserveFund/{reserveFund}", method = RequestMethod.POST)
@@ -229,5 +227,20 @@ public interface CapitalAccountInterface {
 	@RequestMapping(value = "/{publisherId}/{contractOrderId}/futures/returnReserveFund/{reserveFund}", method = RequestMethod.POST)
 	Response<CapitalAccountDto> futuresReturnReserveFund(@PathVariable("publisherId") Long publisherId,
 			@PathVariable("contractOrderId") Long contractOrderId, @PathVariable("reserveFund") BigDecimal reserveFund);
+
+	/**
+	 * 期货补仓履约保证金
+	 *
+	 * @param publisherId
+	 *            用户ID
+	 * @param contractOrderId
+	 *            合约订单ID
+	 * @param reserveFund
+	 *            保证金
+	 * @return 资金账号对象
+	 */
+	@RequestMapping(value = "/{publisherId}/{contractOrderId}/futures/fillReserveFund/{reserveFund}", method = RequestMethod.POST)
+	Response<CapitalAccountDto> futuresFillReserveFund(@PathVariable("publisherId") Long publisherId,
+														 @PathVariable("contractOrderId") Long contractOrderId, @PathVariable("reserveFund") BigDecimal reserveFund);
 
 }

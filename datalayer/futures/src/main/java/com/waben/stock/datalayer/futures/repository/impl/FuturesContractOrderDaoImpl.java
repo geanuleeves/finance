@@ -125,4 +125,9 @@ public class FuturesContractOrderDaoImpl implements FuturesContractOrderDao {
 		return pages.getContent();
 	}
 
+	@Override
+	public List<FuturesContractOrder> retrieveByContract(FuturesContract contract) {
+		return repository.findByContract(contract);
+	}
+
 }

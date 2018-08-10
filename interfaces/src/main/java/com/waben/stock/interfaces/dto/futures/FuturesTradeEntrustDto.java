@@ -185,7 +185,7 @@ public class FuturesTradeEntrustDto {
 	}
 
 	public BigDecimal getEntrustPrice() {
-		return entrustPrice;
+		return entrustPrice != null ? new BigDecimal(entrustPrice.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setEntrustPrice(BigDecimal entrustPrice) {
@@ -217,7 +217,7 @@ public class FuturesTradeEntrustDto {
 	}
 
 	public BigDecimal getReserveFund() {
-		return reserveFund;
+		return reserveFund != null ? new BigDecimal(reserveFund.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setReserveFund(BigDecimal reserveFund) {
@@ -225,7 +225,7 @@ public class FuturesTradeEntrustDto {
 	}
 
 	public BigDecimal getReturnReserveFund() {
-		return returnReserveFund;
+		return returnReserveFund != null ? new BigDecimal(returnReserveFund.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setReturnReserveFund(BigDecimal returnReserveFund) {
@@ -257,7 +257,7 @@ public class FuturesTradeEntrustDto {
 	}
 
 	public BigDecimal getAvgFillPrice() {
-		return avgFillPrice;
+		return avgFillPrice != null ? new BigDecimal(avgFillPrice.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setAvgFillPrice(BigDecimal avgFillPrice) {
@@ -273,7 +273,7 @@ public class FuturesTradeEntrustDto {
 	}
 
 	public BigDecimal getTradePrice() {
-		return tradePrice;
+		return tradePrice != null ? new BigDecimal(tradePrice.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setTradePrice(BigDecimal tradePrice) {
@@ -313,7 +313,7 @@ public class FuturesTradeEntrustDto {
 	}
 
 	public BigDecimal getLastPrice() {
-		return lastPrice;
+		return lastPrice != null ? new BigDecimal(lastPrice.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setLastPrice(BigDecimal lastPrice) {
@@ -321,10 +321,7 @@ public class FuturesTradeEntrustDto {
 	}
 
 	public BigDecimal getMinWave() {
-		if(minWave != null) {
-			return minWave.stripTrailingZeros();
-		}
-		return minWave;
+		return minWave != null ? new BigDecimal(minWave.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setMinWave(BigDecimal minWave) {
@@ -348,7 +345,7 @@ public class FuturesTradeEntrustDto {
 	}
 
 	public BigDecimal getPerWaveMoney() {
-		return perWaveMoney;
+		return perWaveMoney != null ? new BigDecimal(perWaveMoney.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setPerWaveMoney(BigDecimal perWaveMoney) {
@@ -364,7 +361,7 @@ public class FuturesTradeEntrustDto {
 	}
 
 	public BigDecimal getServiceFee() {
-		return serviceFee;
+		return serviceFee != null ? new BigDecimal(serviceFee.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setServiceFee(BigDecimal serviceFee) {
@@ -372,7 +369,7 @@ public class FuturesTradeEntrustDto {
 	}
 
 	public BigDecimal getPublisherProfitOrLoss() {
-		return publisherProfitOrLoss;
+		return publisherProfitOrLoss != null ? new BigDecimal(publisherProfitOrLoss.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setPublisherProfitOrLoss(BigDecimal publisherProfitOrLoss) {
@@ -396,7 +393,7 @@ public class FuturesTradeEntrustDto {
 	}
 
 	public BigDecimal getOpenAvgFillPrice() {
-		return openAvgFillPrice;
+		return openAvgFillPrice != null ? new BigDecimal(openAvgFillPrice.stripTrailingZeros().toPlainString()) : null;
 	}
 
 	public void setOpenAvgFillPrice(BigDecimal openAvgFillPrice) {

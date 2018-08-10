@@ -126,14 +126,25 @@ public class CapitalFlowBusiness {
 					}
 				} else if (flow.getExtendType() == CapitalFlowExtendType.FUTURESRECORD) {
 					FuturesOrderDto orderDto = orderBusiness.fetchByOrderId(flow.getExtendId());
-					flowWithExtend.setCommodityName(orderDto.getCommodityName());
-					flowWithExtend.setCommoditySymbol(orderDto.getCommoditySymbol());
-					flowWithExtend.setContractNo(orderDto.getContractNo());
+					if(orderDto != null) {
+						flowWithExtend.setCommodityName(orderDto.getCommodityName());
+						flowWithExtend.setCommoditySymbol(orderDto.getCommoditySymbol());
+						flowWithExtend.setContractNo(orderDto.getContractNo());
+					}
 				} else if(flow.getExtendType() == CapitalFlowExtendType.FUTURESTRADEENTRUST) {
 					FuturesTradeEntrustDto entrust = entrustBusiness.fetchById(flow.getExtendId());
-					flowWithExtend.setCommodityName(entrust.getCommodityName());
-					flowWithExtend.setCommoditySymbol(entrust.getCommodityNo());
-					flowWithExtend.setContractNo(entrust.getContractNo());
+					if(entrust != null) {
+						flowWithExtend.setCommodityName(entrust.getCommodityName());
+						flowWithExtend.setCommoditySymbol(entrust.getCommodityNo());
+						flowWithExtend.setContractNo(entrust.getContractNo());
+					}
+				} else if(flow.getExtendType() == CapitalFlowExtendType.BUYRECORD.FUTURESCONTRACTORDER) {
+					FuturesContractOrderDto contractOrder = futuresContractOrderBusiness.fetchById(flow.getExtendId());
+					if(contractOrder != null) {
+						flowWithExtend.setCommodityName(contractOrder.getCommodityName());
+						flowWithExtend.setCommoditySymbol(contractOrder.getCommodityNo());
+						flowWithExtend.setContractNo(contractOrder.getContractNo());
+					}
 				} else if (flow.getExtendType() == CapitalFlowExtendType.FUTURESOVERNIGHTRECORD) {
 					Response<FuturesOvernightRecordDto> recordDto = futuresOrderInterface
 							.fetchByOvernightId(flow.getExtendId());

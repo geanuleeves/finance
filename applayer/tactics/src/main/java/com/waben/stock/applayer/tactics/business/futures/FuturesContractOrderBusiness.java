@@ -24,7 +24,15 @@ public class FuturesContractOrderBusiness {
 	@Autowired
 	@Qualifier("futuresContractOrderInterface")
 	private FuturesContractOrderInterface reference;
-	
+
+	public FuturesContractOrderDto fetchById(Long id) {
+		Response<FuturesContractOrderDto> response = reference.fetchById(id);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
 	public FuturesContractOrderDto fetchByContractIdAndPublisherId(Long contractId, Long publisherId) {
 		Response<FuturesContractOrderDto> response = reference.fetchByContractIdAndPublisherId(contractId, publisherId);
 		if ("200".equals(response.getCode())) {

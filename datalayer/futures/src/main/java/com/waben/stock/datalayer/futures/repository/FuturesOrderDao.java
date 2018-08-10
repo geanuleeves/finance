@@ -152,12 +152,12 @@ public interface FuturesOrderDao extends BaseDao<FuturesOrder, Long> {
 
 
 	/**
-	 * 今天已成交部分均价
+	 * 今持仓盈亏
 	 *
 	 * @param publisherId 用户ID
 	 * @return 已成交部分均价
 	 */
-	BigDecimal getOpenAvgFillPriceNow(Long publisherId, String extendType);
+	BigDecimal getTotalFloatingProfitAndLossNow(Long publisherId, String extendType);
 
 
     /**

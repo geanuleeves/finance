@@ -940,6 +940,10 @@ public class CapitalAccountService {
 					lossAmountAbs.abs().multiply(new BigDecimal(-1)), date, CapitalFlowExtendType.FUTURESTRADEENTRUST,
 					entrustId, account.getAvailableBalance(), account.getFrozenCapital());
 			realProfitOrLoss = lossAmountAbs.multiply(new BigDecimal(-1));
+		} else {
+			flowDao.create(account.getPublisher(), CapitalFlowType.FuturesProfit,
+					profitOrLoss, date, CapitalFlowExtendType.FUTURESTRADEENTRUST,
+					entrustId, account.getAvailableBalance(), account.getFrozenCapital());
 		}
 		CapitalAccount result = findByPublisherId(publisherId);
 		result.setRealProfitOrLoss(realProfitOrLoss);
@@ -989,5 +993,38 @@ public class CapitalAccountService {
 		// 退回服务费
 		return findByPublisherId(publisherId);
 	}
+
+	@Transactional
+    public CapitalAccount futuresFillReserveFund(Long publisherId, Long contractOrderId, BigDecimal reserveFund) {
+		Date date = new Date();
+		CapitalAccount account = capitalAccountDao.retriveByPublisherId(publisherId);
+		// 冻结保证金
+		if(account.getAvailableBalance().compareTo(BigDecimal.ZERO) > 0) {
+			if (reserveFund != null && reserveFund.abs().compareTo(new BigDecimal(0)) > 0) {
+				if(reserveFund.compareTo(account.getAvailableBalance()) >= 0) {
+					reserveFund = account.getAvailableBalance();
+				} else {
+					logger.error("调整保证金{}，需补{}，{}用户余额为{}不足补", contractOrderId, reserveFund, publisherId, account.getAvailableBalance());
+				}
+				frozenAmount(account, reserveFund, date);
+				flowDao.create(account.getPublisher(), CapitalFlowType.FuturesReserveFund,
+						reserveFund.abs().multiply(new BigDecimal(-1)), date, CapitalFlowExtendType.FUTURESCONTRACTORDER, contractOrderId,
+						account.getAvailableBalance(), account.getFrozenCapital());
+			}
+			// 保存冻结资金记录
+			FrozenCapital frozen = new FrozenCapital();
+			frozen.setAmount(reserveFund.abs());
+			frozen.setFuturesContractOrderId(contractOrderId);
+			frozen.setFrozenTime(date);
+			frozen.setPublisherId(publisherId);
+			frozen.setStatus(FrozenCapitalStatus.Frozen);
+			frozen.setType(FrozenCapitalType.FuturesReserveFund);
+			frozenCapitalDao.create(frozen);
+			return findByPublisherId(publisherId);
+		} else {
+			logger.error("调整保证金{}，需补{}，{}用户余额为{}不足补", contractOrderId, reserveFund, publisherId, account.getAvailableBalance());
+		}
+		return account;
+    }
 
 }

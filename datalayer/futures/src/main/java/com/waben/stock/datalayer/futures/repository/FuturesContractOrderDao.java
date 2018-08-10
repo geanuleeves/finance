@@ -22,4 +22,6 @@ public interface FuturesContractOrderDao extends BaseDao<FuturesContractOrder, L
 
 	List<FuturesContractOrder> retrivePublisherPositionContractOrders(Long publisherId);
 
+    List<FuturesContractOrder> retrieveByContract(FuturesContract contract);
+
 }

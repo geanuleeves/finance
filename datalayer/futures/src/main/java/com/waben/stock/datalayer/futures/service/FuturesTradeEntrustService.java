@@ -282,217 +282,223 @@ public class FuturesTradeEntrustService {
 		}
 	}
 
+	private String getLockKey(Long contractId, Long publisherId) {
+		return contractId + "-" + publisherId;
+	}
+
 	@Transactional
 	public FuturesTradeEntrust success(Long id, BigDecimal filled, BigDecimal remaining, BigDecimal avgFillPrice,
 			Date date) {
 		FuturesTradeEntrust entrust = dao.retrieve(id);
-		BigDecimal minWave = entrust.getContract().getCommodity().getMinWave();
-		BigDecimal perWaveMoney = entrust.getContract().getCommodity().getPerWaveMoney();
-		String currency = entrust.getContract().getCommodity().getCurrency();
-		FuturesOrderType orderType = entrust.getOrderType();
-		FuturesTradeActionType actionType = entrust.getTradeActionType();
-		date = date != null ? date : new Date();
-		BigDecimal totalFilled = BigDecimal.ZERO;
-		// step 1 : 更新订单信息
-		List<FuturesTradeAction> actionList = actionDao.retrieveByTradeEntrustAndTradeActionType(entrust, actionType);
-		for (FuturesTradeAction action : actionList) {
-			if (action.getRemaining().compareTo(BigDecimal.ZERO) <= 0) {
-				continue;
-			}
-			// step 1.1 : 计算当前成交的数量
-			BigDecimal currentFilled = action.getRemaining();
-			if (currentFilled.compareTo(filled) > 0) {
-				currentFilled = filled;
-			}
-			filled = filled.subtract(currentFilled);
-			// step 1.2 : 更新开平仓记录
-			BigDecimal actionRemaining = action.getRemaining().subtract(currentFilled);
-			BigDecimal actionFilled = action.getFilled().add(currentFilled);
-			BigDecimal actionTotalFillCost = action.getTotalFillCost().add(avgFillPrice.multiply(currentFilled));
-			BigDecimal actionAvgFillPrice = actionTotalFillCost.divide(actionFilled, 10, RoundingMode.DOWN);
-			actionAvgFillPrice = avgFillPriceScale(minWave, actionAvgFillPrice, entrust.getOrderType(),
-					entrust.getTradeActionType());
-			if (actionRemaining.compareTo(BigDecimal.ZERO) > 0) {
-				action.setState(FuturesTradeEntrustState.PartSuccess);
-			} else {
-				action.setState(FuturesTradeEntrustState.Success);
-				action.setTradePrice(actionAvgFillPrice);
-				action.setTradeTime(date);
-				if (entrust.getTradeActionType() == FuturesTradeActionType.CLOSE) {
-					// 盈亏（交易所货币）
-					BigDecimal currencyProfitOrLoss = computeProfitOrLoss(orderType, actionFilled,
-							action.getOrder().getOpenAvgFillPrice(), actionAvgFillPrice, minWave, perWaveMoney);
-					// 盈亏（人民币）
-					BigDecimal rate = rateService.findByCurrency(currency).getRate();
-					BigDecimal profitOrLoss = currencyProfitOrLoss.multiply(rate).setScale(2, RoundingMode.DOWN);
-					action.setCurrencyProfitOrLoss(currencyProfitOrLoss);
-					action.setProfitOrLoss(profitOrLoss);
-					action.setPublisherProfitOrLoss(profitOrLoss);
-					action.setPlatformProfitOrLoss(profitOrLoss);
-					action.setSettlementRate(rate);
-					action.setSettlementTime(date);
+		FuturesContract contract = entrust.getContract();
+		synchronized (getLockKey(contract.getId(), entrust.getPublisherId())) {
+			BigDecimal minWave = entrust.getContract().getCommodity().getMinWave();
+			BigDecimal perWaveMoney = entrust.getContract().getCommodity().getPerWaveMoney();
+			String currency = entrust.getContract().getCommodity().getCurrency();
+			FuturesOrderType orderType = entrust.getOrderType();
+			FuturesTradeActionType actionType = entrust.getTradeActionType();
+			date = date != null ? date : new Date();
+			BigDecimal totalFilled = BigDecimal.ZERO;
+			// step 1 : 更新订单信息
+			List<FuturesTradeAction> actionList = actionDao.retrieveByTradeEntrustAndTradeActionType(entrust, actionType);
+			for (FuturesTradeAction action : actionList) {
+				if (action.getRemaining().compareTo(BigDecimal.ZERO) <= 0) {
+					continue;
 				}
-			}
-			action.setAvgFillPrice(actionAvgFillPrice);
-			action.setFilled(actionFilled);
-			action.setRemaining(actionRemaining);
-			action.setTotalFillCost(actionTotalFillCost);
-			action.setUpdateTime(date);
-			actionDao.update(action);
-			// step 1.2 : 更新订单信息
-			FuturesOrder order = action.getOrder();
-			if (entrust.getTradeActionType() == FuturesTradeActionType.OPEN) {
-				order.setOpenFilled(order.getOpenFilled().add(currentFilled));
-				order.setOpenRemaining(order.getOpenRemaining().subtract(currentFilled));
-				order.setOpenTotalFillCost(order.getOpenTotalFillCost().add(avgFillPrice.multiply(currentFilled)));
-				BigDecimal orderAvgFillPrice = order.getOpenTotalFillCost().divide(order.getOpenFilled(), 10,
-						RoundingMode.DOWN);
-				orderAvgFillPrice = avgFillPriceScale(minWave, orderAvgFillPrice, orderType, actionType);
-				order.setOpenAvgFillPrice(orderAvgFillPrice);
-				if (order.getOpenRemaining().compareTo(BigDecimal.ZERO) > 0) {
-					order.setState(FuturesOrderState.PartPosition);
+				// step 1.1 : 计算当前成交的数量
+				BigDecimal currentFilled = action.getRemaining();
+				if (currentFilled.compareTo(filled) > 0) {
+					currentFilled = filled;
+				}
+				filled = filled.subtract(currentFilled);
+				// step 1.2 : 更新开平仓记录
+				BigDecimal actionRemaining = action.getRemaining().subtract(currentFilled);
+				BigDecimal actionFilled = action.getFilled().add(currentFilled);
+				BigDecimal actionTotalFillCost = action.getTotalFillCost().add(avgFillPrice.multiply(currentFilled));
+				BigDecimal actionAvgFillPrice = actionTotalFillCost.divide(actionFilled, 10, RoundingMode.DOWN);
+				actionAvgFillPrice = avgFillPriceScale(minWave, actionAvgFillPrice, entrust.getOrderType(),
+						entrust.getTradeActionType());
+				if (actionRemaining.compareTo(BigDecimal.ZERO) > 0) {
+					action.setState(FuturesTradeEntrustState.PartSuccess);
 				} else {
-					order.setState(FuturesOrderState.Position);
-					order.setOpenTradeTime(date);
+					action.setState(FuturesTradeEntrustState.Success);
+					action.setTradePrice(actionAvgFillPrice);
+					action.setTradeTime(date);
+					if (entrust.getTradeActionType() == FuturesTradeActionType.CLOSE) {
+						// 盈亏（交易所货币）
+						BigDecimal currencyProfitOrLoss = computeProfitOrLoss(orderType, actionFilled,
+								action.getOrder().getOpenAvgFillPrice(), actionAvgFillPrice, minWave, perWaveMoney);
+						// 盈亏（人民币）
+						BigDecimal rate = rateService.findByCurrency(currency).getRate();
+						BigDecimal profitOrLoss = currencyProfitOrLoss.multiply(rate).setScale(2, RoundingMode.DOWN);
+						action.setCurrencyProfitOrLoss(currencyProfitOrLoss);
+						action.setProfitOrLoss(profitOrLoss);
+						action.setPublisherProfitOrLoss(profitOrLoss);
+						action.setPlatformProfitOrLoss(profitOrLoss);
+						action.setSettlementRate(rate);
+						action.setSettlementTime(date);
+					}
 				}
-			} else {
-				order.setCloseFilled(order.getCloseFilled().add(currentFilled));
-				order.setCloseRemaining(order.getCloseRemaining().subtract(currentFilled));
-				order.setCloseTotalFillCost(order.getCloseTotalFillCost().add(avgFillPrice.multiply(currentFilled)));
-				BigDecimal orderAvgFillPrice = order.getCloseTotalFillCost().divide(order.getCloseFilled(), 10,
-						RoundingMode.DOWN);
-				orderAvgFillPrice = avgFillPriceScale(minWave, orderAvgFillPrice, orderType, actionType);
-				order.setCloseAvgFillPrice(orderAvgFillPrice);
-				if (order.getCloseRemaining().compareTo(BigDecimal.ZERO) <= 0
-						&& order.getTotalQuantity().compareTo(order.getCloseFilled()) == 0) {
-					order.setState(FuturesOrderState.Unwind);
+				action.setAvgFillPrice(actionAvgFillPrice);
+				action.setFilled(actionFilled);
+				action.setRemaining(actionRemaining);
+				action.setTotalFillCost(actionTotalFillCost);
+				action.setUpdateTime(date);
+				actionDao.update(action);
+				// step 1.2 : 更新订单信息
+				FuturesOrder order = action.getOrder();
+				if (entrust.getTradeActionType() == FuturesTradeActionType.OPEN) {
+					order.setOpenFilled(order.getOpenFilled().add(currentFilled));
+					order.setOpenRemaining(order.getOpenRemaining().subtract(currentFilled));
+					order.setOpenTotalFillCost(order.getOpenTotalFillCost().add(avgFillPrice.multiply(currentFilled)));
+					BigDecimal orderAvgFillPrice = order.getOpenTotalFillCost().divide(order.getOpenFilled(), 10,
+							RoundingMode.DOWN);
+					orderAvgFillPrice = avgFillPriceScale(minWave, orderAvgFillPrice, orderType, actionType);
+					order.setOpenAvgFillPrice(orderAvgFillPrice);
+					if (order.getOpenRemaining().compareTo(BigDecimal.ZERO) > 0) {
+						order.setState(FuturesOrderState.PartPosition);
+					} else {
+						order.setState(FuturesOrderState.Position);
+						order.setOpenTradeTime(date);
+					}
 				} else {
-					order.setState(FuturesOrderState.PartUnwind);
+					order.setCloseFilled(order.getCloseFilled().add(currentFilled));
+					order.setCloseRemaining(order.getCloseRemaining().subtract(currentFilled));
+					order.setCloseTotalFillCost(order.getCloseTotalFillCost().add(avgFillPrice.multiply(currentFilled)));
+					BigDecimal orderAvgFillPrice = order.getCloseTotalFillCost().divide(order.getCloseFilled(), 10,
+							RoundingMode.DOWN);
+					orderAvgFillPrice = avgFillPriceScale(minWave, orderAvgFillPrice, orderType, actionType);
+					order.setCloseAvgFillPrice(orderAvgFillPrice);
+					if (order.getCloseRemaining().compareTo(BigDecimal.ZERO) <= 0
+							&& order.getTotalQuantity().compareTo(order.getCloseFilled()) == 0) {
+						order.setState(FuturesOrderState.Unwind);
+					} else {
+						order.setState(FuturesOrderState.PartUnwind);
+					}
+				}
+				orderDao.update(order);
+				// step 1.3 : 更新合约订单
+				FuturesContractOrder contractOrder = order.getContractOrder();
+				if (orderType == FuturesOrderType.BuyUp && actionType == FuturesTradeActionType.OPEN) {
+					contractOrder.setBuyUpQuantity(contractOrder.getBuyUpQuantity().add(currentFilled));
+					contractOrder.setLightQuantity(contractOrder.getLightQuantity().add(currentFilled));
+					contractOrder.setBuyUpCanUnwindQuantity(contractOrder.getBuyUpCanUnwindQuantity().add(currentFilled));
+				} else if (orderType == FuturesOrderType.BuyUp && actionType == FuturesTradeActionType.CLOSE) {
+					contractOrder.setBuyUpTotalQuantity(contractOrder.getBuyUpTotalQuantity().subtract(currentFilled));
+					contractOrder.setBuyUpQuantity(contractOrder.getBuyUpQuantity().subtract(currentFilled));
+					contractOrder.setLightQuantity(contractOrder.getLightQuantity().subtract(currentFilled));
+				} else if (orderType == FuturesOrderType.BuyFall && actionType == FuturesTradeActionType.OPEN) {
+					contractOrder.setBuyFallQuantity(contractOrder.getBuyFallQuantity().add(currentFilled));
+					contractOrder.setLightQuantity(contractOrder.getLightQuantity().subtract(currentFilled));
+					contractOrder
+							.setBuyFallCanUnwindQuantity(contractOrder.getBuyFallCanUnwindQuantity().add(currentFilled));
+				} else if (orderType == FuturesOrderType.BuyFall && actionType == FuturesTradeActionType.CLOSE) {
+					contractOrder.setBuyFallTotalQuantity(contractOrder.getBuyFallTotalQuantity().subtract(currentFilled));
+					contractOrder.setBuyFallQuantity(contractOrder.getBuyFallQuantity().subtract(currentFilled));
+					contractOrder.setLightQuantity(contractOrder.getLightQuantity().add(currentFilled));
+				}
+				contractOrderDao.doUpdate(contractOrder);
+				// step 1.4 : 如果没有的剩余，停止循环
+				totalFilled = totalFilled.add(currentFilled);
+				if (filled.compareTo(BigDecimal.ZERO) <= 0) {
+					break;
 				}
 			}
-			orderDao.update(order);
-			// step 1.3 : 更新合约订单
-			FuturesContractOrder contractOrder = order.getContractOrder();
-			if (orderType == FuturesOrderType.BuyUp && actionType == FuturesTradeActionType.OPEN) {
-				contractOrder.setBuyUpQuantity(contractOrder.getBuyUpQuantity().add(currentFilled));
-				contractOrder.setLightQuantity(contractOrder.getLightQuantity().add(currentFilled));
-				contractOrder.setBuyUpCanUnwindQuantity(contractOrder.getBuyUpCanUnwindQuantity().add(currentFilled));
-			} else if (orderType == FuturesOrderType.BuyUp && actionType == FuturesTradeActionType.CLOSE) {
-				contractOrder.setBuyUpTotalQuantity(contractOrder.getBuyUpTotalQuantity().subtract(currentFilled));
-				contractOrder.setBuyUpQuantity(contractOrder.getBuyUpQuantity().subtract(currentFilled));
-				contractOrder.setLightQuantity(contractOrder.getLightQuantity().subtract(currentFilled));
-			} else if (orderType == FuturesOrderType.BuyFall && actionType == FuturesTradeActionType.OPEN) {
-				contractOrder.setBuyFallQuantity(contractOrder.getBuyFallQuantity().add(currentFilled));
-				contractOrder.setLightQuantity(contractOrder.getLightQuantity().subtract(currentFilled));
-				contractOrder
-						.setBuyFallCanUnwindQuantity(contractOrder.getBuyFallCanUnwindQuantity().add(currentFilled));
-			} else if (orderType == FuturesOrderType.BuyFall && actionType == FuturesTradeActionType.CLOSE) {
-				contractOrder.setBuyFallTotalQuantity(contractOrder.getBuyFallTotalQuantity().subtract(currentFilled));
-				contractOrder.setBuyFallQuantity(contractOrder.getBuyFallQuantity().subtract(currentFilled));
-				contractOrder.setLightQuantity(contractOrder.getLightQuantity().add(currentFilled));
-			}
-			contractOrderDao.doUpdate(contractOrder);
-			// step 1.4 : 如果没有的剩余，停止循环
-			totalFilled = totalFilled.add(currentFilled);
-			if (filled.compareTo(BigDecimal.ZERO) <= 0) {
-				break;
-			}
-		}
-		// step 2 : 更新委托记录
-		if (totalFilled.compareTo(BigDecimal.ZERO) > 0) {
-			entrust.setFilled(entrust.getFilled().add(totalFilled));
-			entrust.setRemaining(entrust.getRemaining().subtract(totalFilled));
-			entrust.setTotalFillCost(entrust.getTotalFillCost().add(avgFillPrice.multiply(totalFilled)));
-			BigDecimal entrustAvgFillPrice = entrust.getTotalFillCost().divide(entrust.getFilled(), 10,
-					RoundingMode.DOWN);
-			entrustAvgFillPrice = avgFillPriceScale(minWave, entrustAvgFillPrice, orderType, actionType);
-			entrust.setAvgFillPrice(entrustAvgFillPrice);
-			entrust.setUpdateTime(date);
-			if (entrust.getRemaining().compareTo(BigDecimal.ZERO) > 0) {
-				entrust.setState(FuturesTradeEntrustState.PartSuccess);
-			} else {
-				entrust.setState(FuturesTradeEntrustState.Success);
-				entrust.setTradePrice(entrustAvgFillPrice);
-				entrust.setTradeTime(date);
-				if (entrust.getTradeActionType() == FuturesTradeActionType.CLOSE) {
-					FuturesContract contract = entrust.getContract();
-					FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract,
-							entrust.getPublisherId());
-					BigDecimal singleEdgeMax = contractOrder.getBuyUpTotalQuantity()
-							.compareTo(contractOrder.getBuyFallTotalQuantity()) > 0
-									? contractOrder.getBuyUpTotalQuantity() : contractOrder.getBuyFallTotalQuantity();
-					contractOrderDao.doUpdate(contractOrder);
-					BigDecimal expectReserveFund = contract.getCommodity().getPerUnitReserveFund()
-							.multiply(singleEdgeMax);
-					// step 2.1 : 退款保证金，计算需要退款的保证金
-					BigDecimal returnReserveFund = BigDecimal.ZERO;
-					if (contractOrder.getReserveFund().compareTo(expectReserveFund) > 0) {
-						returnReserveFund = contractOrder.getReserveFund().subtract(expectReserveFund);
-						contractOrder.setReserveFund(contractOrder.getReserveFund().subtract(returnReserveFund));
-						accountBusiness.futuresReturnReserveFund(entrust.getPublisherId(), contractOrder.getId(),
-								returnReserveFund);
+			// step 2 : 更新委托记录
+			if (totalFilled.compareTo(BigDecimal.ZERO) > 0) {
+				entrust.setFilled(entrust.getFilled().add(totalFilled));
+				entrust.setRemaining(entrust.getRemaining().subtract(totalFilled));
+				entrust.setTotalFillCost(entrust.getTotalFillCost().add(avgFillPrice.multiply(totalFilled)));
+				BigDecimal entrustAvgFillPrice = entrust.getTotalFillCost().divide(entrust.getFilled(), 10,
+						RoundingMode.DOWN);
+				entrustAvgFillPrice = avgFillPriceScale(minWave, entrustAvgFillPrice, orderType, actionType);
+				entrust.setAvgFillPrice(entrustAvgFillPrice);
+				entrust.setUpdateTime(date);
+				if (entrust.getRemaining().compareTo(BigDecimal.ZERO) > 0) {
+					entrust.setState(FuturesTradeEntrustState.PartSuccess);
+				} else {
+					entrust.setState(FuturesTradeEntrustState.Success);
+					entrust.setTradePrice(entrustAvgFillPrice);
+					entrust.setTradeTime(date);
+					if (entrust.getTradeActionType() == FuturesTradeActionType.CLOSE) {
+						FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(contract,
+								entrust.getPublisherId());
+						BigDecimal singleEdgeMax = contractOrder.getBuyUpTotalQuantity()
+								.compareTo(contractOrder.getBuyFallTotalQuantity()) > 0
+								? contractOrder.getBuyUpTotalQuantity() : contractOrder.getBuyFallTotalQuantity();
 						contractOrderDao.doUpdate(contractOrder);
-					}
-					entrust.setReturnReserveFund(returnReserveFund);
-					futuresTradeEntrustDao.update(entrust);
-					// step 2.2 : 给用户结算盈亏
-					BigDecimal rate = rateService.findByCurrency(currency).getRate();
-					entrust.setSettlementTime(date);
-					entrust.setSettlementRate(rate);
-					BigDecimal totalOpenCost = BigDecimal.ZERO;
-					BigDecimal totalUnwindQuantity = BigDecimal.ZERO;
-					BigDecimal totalPublisherProfitOrLoss = BigDecimal.ZERO;
-					BigDecimal totalServiceFee = BigDecimal.ZERO;
-					BigDecimal totalDeferredFee = BigDecimal.ZERO;
-					for (FuturesTradeAction action : actionList) {
-						totalUnwindQuantity = totalUnwindQuantity.add(action.getQuantity());
-						totalOpenCost = totalOpenCost.add(action.getQuantity().multiply(action.getOpenAvgFillPrice()));
-						totalPublisherProfitOrLoss = totalPublisherProfitOrLoss.add(action.getProfitOrLoss());
-						logger.info("代理分成自动平仓外, actionNo:{}, state:{}", action.getActionNo(),
-								action.getState().getType());
-						// 给代理商分成结算
-						if (action.getOrder().getIsTest() == null || action.getOrder().getIsTest() == false) {
-							logger.info("代理分成自动平仓内, actionNo:{}, state:{}", action.getActionNo(),
-									action.getState().getType());
-							// 递延费
-							// BigDecimal deferredFee =
-							// action.getOrder().getContract().getCommodity()
-							// .getOvernightPerUnitDeferredFee().multiply(action.getQuantity());
-							BigDecimal deferredFee = overnightService.getSUMOvernightRecord(action.getOrder().getId());
-							if (deferredFee == null) {
-								deferredFee = BigDecimal.ZERO;
-							}
-							totalDeferredFee = totalDeferredFee.add(deferredFee);
-							// 当前拆分的服务费
-							totalServiceFee = totalServiceFee.add(action.getOrder().getServiceFee()
-									.divide(action.getOrder().getTotalQuantity()).multiply(action.getQuantity()));
+						BigDecimal expectReserveFund = contract.getCommodity().getPerUnitReserveFund()
+								.multiply(singleEdgeMax);
+						// step 2.1 : 退款保证金，计算需要退款的保证金
+						BigDecimal returnReserveFund = BigDecimal.ZERO;
+						if (contractOrder.getReserveFund().compareTo(expectReserveFund) > 0) {
+							returnReserveFund = contractOrder.getReserveFund().subtract(expectReserveFund);
+							contractOrder.setReserveFund(contractOrder.getReserveFund().subtract(returnReserveFund));
+							accountBusiness.futuresReturnReserveFund(entrust.getPublisherId(), contractOrder.getId(),
+									returnReserveFund);
+							contractOrderDao.doUpdate(contractOrder);
 						}
+						entrust.setReturnReserveFund(returnReserveFund);
+						futuresTradeEntrustDao.update(entrust);
+						// step 2.2 : 给用户结算盈亏
+						BigDecimal rate = rateService.findByCurrency(currency).getRate();
+						entrust.setSettlementTime(date);
+						entrust.setSettlementRate(rate);
+						BigDecimal totalOpenCost = BigDecimal.ZERO;
+						BigDecimal totalUnwindQuantity = BigDecimal.ZERO;
+						BigDecimal totalServiceFee = BigDecimal.ZERO;
+						BigDecimal totalDeferredFee = BigDecimal.ZERO;
+						for (FuturesTradeAction action : actionList) {
+							totalUnwindQuantity = totalUnwindQuantity.add(action.getQuantity());
+							totalOpenCost = totalOpenCost.add(action.getQuantity().multiply(action.getOpenAvgFillPrice()));
+							logger.info("代理分成自动平仓外, actionNo:{}, state:{}", action.getActionNo(),
+									action.getState().getType());
+							// 给代理商分成结算
+							if (action.getOrder().getIsTest() == null || action.getOrder().getIsTest() == false) {
+								logger.info("代理分成自动平仓内, actionNo:{}, state:{}", action.getActionNo(),
+										action.getState().getType());
+								// 递延费
+								// BigDecimal deferredFee =
+								// action.getOrder().getContract().getCommodity()
+								// .getOvernightPerUnitDeferredFee().multiply(action.getQuantity());
+								BigDecimal deferredFee = overnightService.getSUMOvernightRecord(action.getOrder().getId());
+								if (deferredFee == null) {
+									deferredFee = BigDecimal.ZERO;
+								}
+								totalDeferredFee = totalDeferredFee.add(deferredFee);
+								// 当前拆分的服务费
+								totalServiceFee = totalServiceFee.add(action.getOrder().getServiceFee()
+										.divide(action.getOrder().getTotalQuantity()).multiply(action.getQuantity()));
+							}
+						}
+						// 计算开仓的均价
+						BigDecimal openAvgFillPrice = totalOpenCost.divide(totalUnwindQuantity, 10, RoundingMode.DOWN);
+						BigDecimal[] divideArr = openAvgFillPrice.divideAndRemainder(minWave);
+						openAvgFillPrice = divideArr[0].multiply(minWave);
+						entrust.setOpenAvgFillPrice(openAvgFillPrice);
+						// 计算
+						BigDecimal totalPublisherProfitOrLoss = totalPublisherProfitOrLoss = orderService.computeProfitOrLoss(entrust.getOrderType(), entrust.getQuantity(), openAvgFillPrice, entrust.getTradePrice(), contract.getCommodity().getMinWave(), contract.getCommodity().getPerWaveMoney());
+						totalPublisherProfitOrLoss = rate.multiply(totalPublisherProfitOrLoss);
+						CapitalAccountDto account = accountBusiness.futuresOrderSettlement(entrust.getPublisherId(),
+								entrust.getId(), totalPublisherProfitOrLoss);
+						if (totalPublisherProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+							totalPublisherProfitOrLoss = account.getRealProfitOrLoss();
+						}
+						entrust.setPublisherProfitOrLoss(totalPublisherProfitOrLoss);
+						// 代理商结算
+						orgBusiness.futuresRatioSettlement(entrust.getPublisherId(), entrust.getContractId(),
+								entrust.getId(), entrust.getEntrustNo(), entrust.getQuantity(), totalServiceFee,
+								totalPublisherProfitOrLoss, totalDeferredFee);
 					}
-					// 计算开仓的均价
-					BigDecimal openAvgFillPrice = totalOpenCost.divide(totalUnwindQuantity, 10, RoundingMode.DOWN);
-					BigDecimal[] divideArr = openAvgFillPrice.divideAndRemainder(minWave);
-					openAvgFillPrice = divideArr[0].multiply(minWave);
-					entrust.setOpenAvgFillPrice(openAvgFillPrice);
-					// 计算
-					CapitalAccountDto account = accountBusiness.futuresOrderSettlement(entrust.getPublisherId(),
-							entrust.getId(), totalPublisherProfitOrLoss);
-					if (totalPublisherProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
-						totalPublisherProfitOrLoss = account.getRealProfitOrLoss();
-					}
-					entrust.setPublisherProfitOrLoss(totalPublisherProfitOrLoss);
-					// 代理商结算
-					orgBusiness.futuresRatioSettlement(entrust.getPublisherId(), entrust.getContractId(),
-							entrust.getId(), entrust.getEntrustNo(), entrust.getQuantity(), totalServiceFee,
-							totalPublisherProfitOrLoss, totalDeferredFee);
+					dao.update(entrust);
+					sendOutsideMessage(entrust);
 				}
-				dao.update(entrust);
-				sendOutsideMessage(entrust);
 			}
+			FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(entrust.getContract(),
+					entrust.getPublisherId());
+			this.monitorContractOrder(contractOrder);
+			return entrust;
 		}
-		FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(entrust.getContract(),
-				entrust.getPublisherId());
-		this.monitorContractOrder(contractOrder);
-		return entrust;
 	}
 
 	private void sendOutsideMessage(FuturesTradeEntrust entrust) {
@@ -745,7 +751,8 @@ public class FuturesTradeEntrustService {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
 				// 以委托时间排序
-				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("entrustTime").as(Date.class)));
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("entrustTime").as(Date.class)))
+						.orderBy(criteriaBuilder.desc(root.get("id").as(Long.class)));
 				return criteriaQuery.getRestriction();
 			}
 		}, pageable);
@@ -808,6 +815,8 @@ public class FuturesTradeEntrustService {
 					predicateList
 							.add(criteriaBuilder.lessThan(root.get("tradeTime").as(Date.class), query.getEndTime()));
 				}
+				predicateList.add(criteriaBuilder.greaterThan(root.get("filled").as(BigDecimal.class),
+						BigDecimal.ZERO));
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
