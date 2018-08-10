@@ -89,7 +89,7 @@ public class StockOptionTradeService {
 	private StockQuotationHttp stockQuotationHttp;
 
 	public Page<StockOptionTrade> pagesByUserQuery(final StockOptionTradeUserQuery query) {
-		logger.info("query:{}",JacksonUtil.encode(query));
+		logger.info("query:{}", JacksonUtil.encode(query));
 		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
 		Page<StockOptionTrade> pages = stockOptionTradeDao.page(new Specification<StockOptionTrade>() {
 			@Override
@@ -118,16 +118,16 @@ public class StockOptionTradeService {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
 				Order priceDesc = criteriaBuilder.desc(root.get("nominalAmount").as(BigDecimal.class));
-					if(query.isOnlyProfit()) {
-						logger.info("已结算===================");
-						priceDesc = criteriaBuilder.desc(root.get("profit").as(BigDecimal.class));
-					}
-//				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("sellingTime").as(Date.class)),
-//						criteriaBuilder.desc(root.get("rightTime").as(Date.class)),
-//						criteriaBuilder.desc(root.get("buyingTime").as(Date.class)),
-//						criteriaBuilder.desc(root.get("applyTime").as(Date.class)),priceDesc);
-               criteriaQuery.orderBy(priceDesc);
-				logger.info("criteriaQuery:{}",criteriaQuery.toString());
+				if (query.isOnlyProfit()) {
+					logger.info("已结算===================");
+					priceDesc = criteriaBuilder.desc(root.get("profit").as(BigDecimal.class));
+				}
+				// criteriaQuery.orderBy(criteriaBuilder.desc(root.get("sellingTime").as(Date.class)),
+				// criteriaBuilder.desc(root.get("rightTime").as(Date.class)),
+				// criteriaBuilder.desc(root.get("buyingTime").as(Date.class)),
+				// criteriaBuilder.desc(root.get("applyTime").as(Date.class)),priceDesc);
+				criteriaQuery.orderBy(priceDesc);
+				logger.info("criteriaQuery:{}", criteriaQuery.toString());
 				return criteriaQuery.getRestriction();
 			}
 		}, pageable);
@@ -582,21 +582,26 @@ public class StockOptionTradeService {
 			orgCodeOrNameConditon = " and (t5.code like '%" + query.getOrgCodeOrName() + "%' or t5.name like '%"
 					+ query.getOrgCodeOrName() + "%') ";
 		}
+		String treeCodeQuery = "";
+		if (!StringUtil.isEmpty(query.getTreeCode())) {
+			treeCodeQuery = " and t5.tree_code like '" + query.getTreeCode() + "%'";
+		}
 
-		String sql = String.format(
-				"select t1.id, t1.trade_no, t4.name, t3.phone, t1.stock_code, t1.stock_name, t1.cycle_name, t1.nominal_amount, t1.right_money_ratio, "
+		String sql = String
+				.format("select t1.id, t1.trade_no, t4.name, t3.phone, t1.stock_code, t1.stock_name, t1.cycle_name, t1.nominal_amount, t1.right_money_ratio, "
 						+ "t1.right_money, t2.right_money_ratio as org_right_money_ratio, t2.right_money as org_right_money, t1.apply_time, t1.buying_time, t1.buying_price, t1.selling_time, t1.selling_price, "
 						+ "t1.profit, t1.is_test, t1.is_mark, t1.state, t1.right_time, t5.id as org_id, t5.code as org_code, t5.name as org_name from stock_option_trade t1 "
 						+ "LEFT JOIN offline_stock_option_trade t2 on t1.offline_trade=t2.id "
 						+ "LEFT JOIN publisher t3 on t1.publisher_id=t3.id "
 						+ "LEFT JOIN real_name t4 on t4.resource_type=2 and t1.publisher_id=t4.resource_id "
 						+ "LEFT JOIN p_organization t5 on t5.id=t1.promotion_org_id "
-						+ "LEFT JOIN p_organization t6 on t6.tree_code like '%%" + query.getTreeCode() + "%%' "
-						+ "where 1=1 %s %s %s %s %s %s %s %s %s %s %s %s %s and (t6.level=1 or (t5.id=t6.id or t5.parent_id=t6.id)) order by t1.apply_time desc limit "
-						+ query.getPage() * query.getSize() + "," + query.getSize(),
-				publisherNameCondition, publisherPhoneCondition, stockCodeOrNameCondition, nominalAmountCondition,
-				cycleNameCondition, stateCondition, isTestCondition, isMarkCondition, startTimeCondition,
-				endTimeCondition, startRatioCondition, endRatioCondition, orgCodeOrNameConditon);
+						// + "LEFT JOIN p_organization t6 on t6.tree_code like
+						// '%%" + query.getTreeCode() + "%%' "
+						+ "where 1=1 %s %s %s %s %s %s %s %s %s %s %s %s %s %s order by t1.apply_time desc limit "
+						+ query.getPage() * query.getSize() + "," + query.getSize(), publisherNameCondition,
+						publisherPhoneCondition, stockCodeOrNameCondition, nominalAmountCondition, cycleNameCondition,
+						stateCondition, isTestCondition, isMarkCondition, startTimeCondition, endTimeCondition,
+						startRatioCondition, endRatioCondition, orgCodeOrNameConditon, treeCodeQuery);
 		String sumSql1 = "select sum(x.nominal_amount) from (" + sql.substring(0, sql.indexOf("limit")) + ") x";
 		String sumSql2 = "select sum(x.right_money) from (" + sql.substring(0, sql.indexOf("limit")) + ") x";
 		BigDecimal totalNominalAmount = sqlDao.executeComputeSql(sumSql1);
@@ -672,6 +677,10 @@ public class StockOptionTradeService {
 			orgCodeOrNameConditon = " and (t5.code like '%" + query.getOrgCodeOrName() + "%' or t5.name like '%"
 					+ query.getOrgCodeOrName() + "%') ";
 		}
+		String treeCodeQuery = "";
+		if (!StringUtil.isEmpty(query.getTreeCode())) {
+			treeCodeQuery = " and t5.tree_code like '" + query.getTreeCode() + "%'";
+		}
 
 		String sql = String.format(
 				"select t1.id, t1.trade_no, t4.name, t3.phone, t1.stock_code, t1.stock_name, t1.cycle_name, t1.nominal_amount, t1.right_money_ratio, "
@@ -682,12 +691,11 @@ public class StockOptionTradeService {
 						+ "LEFT JOIN publisher t3 on t1.publisher_id=t3.id "
 						+ "LEFT JOIN real_name t4 on t4.resource_type=2 and t1.publisher_id=t4.resource_id "
 						+ "LEFT JOIN p_organization t5 on t5.id=t1.promotion_org_id "
-						+ "LEFT JOIN p_organization t6 on t6.tree_code like '%%" + query.getTreeCode() + "%%' "
-						+ "where 1=1 %s %s %s %s %s %s %s %s %s %s %s %s %s and (t6.level=1 or (t5.id=t6.id or t5.parent_id=t6.id)) order by t1.apply_time desc limit "
+						+ "where 1=1 %s %s %s %s %s %s %s %s %s %s %s %s %s %s  order by t1.apply_time desc limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(),
 				publisherNameCondition, publisherPhoneCondition, stockCodeOrNameCondition, nominalAmountCondition,
 				cycleNameCondition, stateCondition, isTestCondition, isMarkCondition, startTimeCondition,
-				endTimeCondition, startRatioCondition, endRatioCondition, orgCodeOrNameConditon);
+				endTimeCondition, startRatioCondition, endRatioCondition, orgCodeOrNameConditon, treeCodeQuery);
 		String countSql = "select count(*) " + sql.substring(sql.indexOf("from"), sql.indexOf("limit"));
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setId", new Class<?>[] { Long.class }));
