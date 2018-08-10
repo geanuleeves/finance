@@ -592,6 +592,13 @@ public class OrganizationService {
 				isTest = " AND (t3.is_test IS NULL OR t3.is_test = 0)";
 			}
 		}
+
+		String treeCodeQuery = "";
+		if (!StringUtil.isEmpty(query.getTreeCode())) {
+			treeCodeQuery = " and t10.tree_code like '" + query.getTreeCode() + "%'";
+			// and (t11.level=1 or (t11.level>1 and (t11.id=t10.id or
+			// t11.id=t10.parent_id)))
+		}
 		String sql = String
 				.format("select t1.id, t4.name as publisher_name, t5.phone, t1.flow_no, t1.occurrence_time, t1.type, t1.amount, t1.available_balance, "
 						+ " IF(t3.stock_code IS NULL,t2.stock_code,t3.stock_code) AS stock_code,  IF(t3.stock_name IS NULL,t2.stock_name,t3.stock_name) AS stcode_name,"
@@ -606,11 +613,12 @@ public class OrganizationService {
 						// + " LEFT JOIN bind_card t8 on
 						// t7.bank_card=t8.bank_card"
 						+ " LEFT JOIN p_organization t10 ON t10.code = t9.org_code"
-						+ " LEFT JOIN p_organization t11 ON t11.tree_code like '%%" + query.getTreeCode() + "%%' "
-						+ " WHERE 1=1 and t10.id is not null and (t11.level=1 or (t11.level>1 and (t11.id=t10.id or t11.id=t10.parent_id))) %s %s %s %s %s %s %s %s order by t1.occurrence_time desc limit "
+						// + " LEFT JOIN p_organization t11 ON t11.tree_code
+						// like '%%" + query.getTreeCode() + "%%' "
+						+ " WHERE 1=1 and t10.id is not null %s %s %s %s %s %s %s %s %s order by t1.occurrence_time desc limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(), customerNameQuery,
 						tradingNumberQuery, startTimeCondition, endTimeCondition, typeQuery, stockCodeQuery,
-						agentCodeNameQuery, isTest);
+						agentCodeNameQuery, isTest, treeCodeQuery);
 		String countSql = "select count(*) from (" + sql.substring(0, sql.indexOf("limit")) + ") c";
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setId", new Class<?>[] { Long.class })); // ID
