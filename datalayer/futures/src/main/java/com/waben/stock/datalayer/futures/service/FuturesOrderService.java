@@ -2468,13 +2468,12 @@ public class FuturesOrderService {
 		gainLoss.setTotalFloatingProfitAndLossNow(totalFloatingProfitAndLossNow);
 		// 获取用户账户资金
 		CapitalAccountDto result = capitalAccountBusiness.fetchByPublisherId(publisherId);
-		BigDecimal unsettledProfitOrLoss = this.getUnsettledProfitOrLoss(publisherId);
-		if (unsettledProfitOrLoss != null && unsettledProfitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
-			if (unsettledProfitOrLoss.abs().compareTo(result.getAvailableBalance()) > 0) {
+		if (totalFloatingProfitAndLoss != null && totalFloatingProfitAndLoss.compareTo(BigDecimal.ZERO) < 0) {
+			if (totalFloatingProfitAndLoss.abs().compareTo(result.getAvailableBalance()) > 0) {
 				gainLoss.setFloatAvailableBalance(BigDecimal.ZERO);
 			} else {
 				gainLoss.setFloatAvailableBalance(result.getAvailableBalance().stripTrailingZeros()
-						.subtract(unsettledProfitOrLoss.abs().stripTrailingZeros()));
+						.subtract(totalFloatingProfitAndLoss.abs().stripTrailingZeros()));
 			}
 		} else {
 			gainLoss.setFloatAvailableBalance(result.getAvailableBalance().stripTrailingZeros());
