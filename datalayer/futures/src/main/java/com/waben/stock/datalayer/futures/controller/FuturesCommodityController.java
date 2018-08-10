@@ -170,7 +170,7 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 		oldCommodity.setMinWave(dto.getMinWave());
 		oldCommodity.setPerWaveMoney(dto.getPerWaveMoney());
 		Integer tradeState = getTradingTime(oldCommodity.getId());
-		if(tradeState==1){
+		if (tradeState == 2) {
 			oldCommodity.setPerUnitReserveFund(dto.getPerUnitReserveFund());
 			oldCommodity.setPerUnitUnwindPoint(dto.getPerUnitUnwindPoint());
 		}
