@@ -82,6 +82,14 @@ public class CapitalAccountBusiness {
 		throw new ServiceException(response.getCode());
 	}
 
+	public CapitalAccountDto futuresFillReserveFund(Long publisherId, Long contractOrderId, BigDecimal reserveFund) {
+		Response<CapitalAccountDto> response = service.futuresFillReserveFund(publisherId, contractOrderId, reserveFund);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
+
 	public CapitalAccountDto futuresReturnReserveFund(Long publisherId, Long contractOrderId, BigDecimal reserveFund) {
 		Response<CapitalAccountDto> response = service.futuresReturnReserveFund(publisherId, contractOrderId,
 				reserveFund);

@@ -246,4 +246,10 @@ public class CapitalAccountController implements CapitalAccountInterface {
 				capitalAccountService.futuresReturnReserveFund(publisherId, contractOrderId, reserveFund), false));
 	}
 
+	@Override
+	public Response<CapitalAccountDto> futuresFillReserveFund(@PathVariable Long publisherId, @PathVariable Long contractOrderId, @PathVariable BigDecimal reserveFund) {
+		return new Response<>(CopyBeanUtils.copyBeanProperties(CapitalAccountDto.class,
+				capitalAccountService.futuresFillReserveFund(publisherId, contractOrderId, reserveFund), false));
+	}
+
 }

@@ -16,4 +16,6 @@ public interface FuturesContractOrderRepository extends CustomJpaRepository<Futu
 
 	List<FuturesContractOrder> findByPublisherId(Long publisherId);
 
+    List<FuturesContractOrder> findByContract(FuturesContract contract);
+
 }

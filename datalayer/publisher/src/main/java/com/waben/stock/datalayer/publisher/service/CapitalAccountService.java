@@ -990,4 +990,29 @@ public class CapitalAccountService {
 		return findByPublisherId(publisherId);
 	}
 
+    public void futuresFillReserveFund(Long publisherId, Long contractOrderId, BigDecimal reserveFund) {
+		Date date = new Date();
+		CapitalAccount account = capitalAccountDao.retriveByPublisherId(publisherId);
+		// 冻结保证金
+		if(account.getAvailableBalance().compareTo(BigDecimal.ZERO) > 0) {
+			if (reserveFund != null && reserveFund.abs().compareTo(new BigDecimal(0)) > 0) {
+				frozenAmount(account, reserveFund, date);
+				flowDao.create(account.getPublisher(), CapitalFlowType.FuturesReserveFund,
+						reserveFund.abs().multiply(new BigDecimal(-1)), date, CapitalFlowExtendType.FUTURESRECORD, orderId,
+						account.getAvailableBalance(), account.getFrozenCapital());
+			}
+			// 保存冻结资金记录
+			FrozenCapital frozen = new FrozenCapital();
+			frozen.setAmount(reserveFund.abs());
+			frozen.setFuturesOrderId(orderId);
+			frozen.setFrozenTime(date);
+			frozen.setPublisherId(publisherId);
+			frozen.setStatus(FrozenCapitalStatus.Frozen);
+			frozen.setType(FrozenCapitalType.FuturesReserveFund);
+			frozenCapitalDao.create(frozen);
+			return findByPublisherId(publisherId);
+		}
+		return account;
+    }
+
 }

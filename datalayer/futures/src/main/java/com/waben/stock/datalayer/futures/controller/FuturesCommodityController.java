@@ -1,11 +1,17 @@
 package com.waben.stock.datalayer.futures.controller;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.waben.stock.datalayer.futures.business.CapitalAccountBusiness;
+import com.waben.stock.datalayer.futures.entity.*;
+import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
+import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
+import com.waben.stock.datalayer.futures.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,20 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
-import com.waben.stock.datalayer.futures.entity.FuturesContract;
-import com.waben.stock.datalayer.futures.entity.FuturesCurrencyRate;
-import com.waben.stock.datalayer.futures.entity.FuturesExchange;
-import com.waben.stock.datalayer.futures.entity.FuturesHoliday;
-import com.waben.stock.datalayer.futures.entity.FuturesPreQuantity;
-import com.waben.stock.datalayer.futures.entity.FuturesStopLossOrProfit;
 import com.waben.stock.datalayer.futures.entity.enumconverter.FuturesProductTypeConverter;
-import com.waben.stock.datalayer.futures.service.FuturesCommodityService;
-import com.waben.stock.datalayer.futures.service.FuturesContractService;
-import com.waben.stock.datalayer.futures.service.FuturesCurrencyRateService;
-import com.waben.stock.datalayer.futures.service.FuturesExchangeService;
-import com.waben.stock.datalayer.futures.service.FuturesHolidayService;
-import com.waben.stock.datalayer.futures.service.FuturesPreQuantityService;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesCommodityAdminDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesPreQuantityDto;
@@ -58,6 +51,9 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 	private FuturesContractService contractService;
 
 	@Autowired
+	private FuturesContractDao contractDao;
+
+	@Autowired
 	private FuturesExchangeService exchangeService;
 
 	@Autowired
@@ -68,6 +64,12 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 
 	@Autowired
 	private FuturesHolidayService futuresHolidayService;
+
+	@Autowired
+	private FuturesContractOrderDao contractOrderDao;
+
+	@Autowired
+	private CapitalAccountBusiness accountBusiness;
 
 	private SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -202,7 +204,40 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 				response.setRate(rate.getRate());
 			}
 		}
+		// 检查用户保证金
+
 		return new Response<>(response);
+	}
+
+	private void checkReserveFund(FuturesCommodity commodity) {
+		List<FuturesContract> contractList = contractDao.retrieveByCommodity(commodity);
+		if(contractList != null && contractList.size() > 0) {
+			for(FuturesContract contract : contractList) {
+				List<FuturesContractOrder> contractOrderList = contractOrderDao.retrieveByContract(contract);
+				if(contractOrderList != null && contractOrderList.size() > 0) {
+					for(FuturesContractOrder contractOrder : contractOrderList) {
+						BigDecimal singleMax = contractOrder.getBuyUpTotalQuantity();
+						if(singleMax.compareTo(contractOrder.getBuyFallTotalQuantity()) > 0) {
+							singleMax = contractOrder.getBuyFallTotalQuantity();
+						}
+						if(singleMax.compareTo(BigDecimal.ZERO) > 0) {
+							// 原保证金
+							BigDecimal originReverseFund = contractOrder.getReserveFund();
+							// 期望保证金
+							BigDecimal expectReverseFund = singleMax.multiply(commodity.getPerUnitReserveFund());
+							if(originReverseFund.compareTo(expectReverseFund) > 0 && expectReverseFund.compareTo(BigDecimal.ZERO) > 0) {
+								// 多退
+								accountBusiness.futuresReturnReserveFund(contractOrder.getPublisherId(), contractOrder.getId(), originReverseFund.subtract(expectReverseFund));
+							}
+							if(expectReverseFund.compareTo(originReverseFund) > 0 && originReverseFund.compareTo(BigDecimal.ZERO) > 0) {
+								// 少补
+								accountBusiness.futuresFillReserveFund(contractOrder.getPublisherId(), contractOrder.getId(), expectReverseFund.subtract(originReverseFund));
+							}
+						}
+ 					}
+				}
+			}
+		}
 	}
 
 	@Override

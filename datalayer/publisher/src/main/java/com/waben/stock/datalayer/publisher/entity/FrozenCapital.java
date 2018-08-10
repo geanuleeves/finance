@@ -67,6 +67,11 @@ public class FrozenCapital {
 	@Column(name = "futures_order_Id")
 	private Long futuresOrderId;
 	/**
+	 * 期货合约订单ID
+	 */
+	@Column(name = "futures_contract_order_Id")
+	private Long futuresContractOrderId;
+	/**
 	 * 期货订单过夜记录ID
 	 */
 	@Column(name = "futures_overnight_Id")
@@ -168,6 +173,14 @@ public class FrozenCapital {
 
 	public void setFuturesOvernightId(Long futuresOvernightId) {
 		this.futuresOvernightId = futuresOvernightId;
+	}
+
+	public Long getFuturesContractOrderId() {
+		return futuresContractOrderId;
+	}
+
+	public void setFuturesContractOrderId(Long futuresContractOrderId) {
+		this.futuresContractOrderId = futuresContractOrderId;
 	}
 
 }
