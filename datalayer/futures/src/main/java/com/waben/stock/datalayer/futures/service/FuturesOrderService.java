@@ -2260,10 +2260,8 @@ public class FuturesOrderService {
 	}
 
 
-    public BigDecimal getOpenAvgFillPriceNow(Long publisherId, String extendType) {
-        BigDecimal openAvgFillPrice = orderDao.getOpenAvgFillPriceNow(publisherId, extendType);
-        openAvgFillPrice = openAvgFillPrice != null ? openAvgFillPrice.stripTrailingZeros()
-                : BigDecimal.ZERO;
+    public BigDecimal getTotalFloatingProfitAndLossNow(Long publisherId, String extendType) {
+        BigDecimal openAvgFillPrice = orderDao.getTotalFloatingProfitAndLossNow(publisherId, extendType);
         return openAvgFillPrice;
     }
 
@@ -2462,8 +2460,8 @@ public class FuturesOrderService {
 		// 获得合计浮动盈亏
 		BigDecimal totalFloatingProfitAndLoss = this.getTotalFloatingProfitAndLoss(publisherId);
 		//计算今平仓盈亏
-		BigDecimal totalFloatingProfitAndLossNow = this.getOpenAvgFillPriceNow(publisherId,
-				CapitalFlowExtendType.FUTURESRECORD.getIndex());
+		BigDecimal totalFloatingProfitAndLossNow = this.getTotalFloatingProfitAndLossNow(publisherId,
+				CapitalFlowExtendType.FUTURESTRADEENTRUST.getIndex());
 		gainLoss.setTotalFloatingProfitAndLoss(totalFloatingProfitAndLoss);
 		gainLoss.setTotalFloatingProfitAndLossNow(totalFloatingProfitAndLossNow);
 		// 获取用户账户资金

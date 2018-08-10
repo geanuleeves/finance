@@ -166,7 +166,7 @@ public class FuturesOrderController implements FuturesOrderInterface {
 	}
 
 	public Response<BigDecimal> getTotalFloatingProfitAndLossNow(@PathVariable Long publisherId) {
-		return new Response<>(futuresOrderService.getOpenAvgFillPriceNow(
+		return new Response<>(futuresOrderService.getTotalFloatingProfitAndLossNow(
 				publisherId, CapitalFlowExtendType.FUTURESTRADEENTRUST.getIndex()));
 	}
 
