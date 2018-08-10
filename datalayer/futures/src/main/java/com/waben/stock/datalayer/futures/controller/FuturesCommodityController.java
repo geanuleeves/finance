@@ -12,6 +12,7 @@ import com.waben.stock.datalayer.futures.entity.*;
 import com.waben.stock.datalayer.futures.repository.FuturesContractDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
 import com.waben.stock.datalayer.futures.service.*;
+import com.waben.stock.interfaces.dto.publisher.CapitalAccountDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -172,7 +173,7 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 		oldCommodity.setMinWave(dto.getMinWave());
 		oldCommodity.setPerWaveMoney(dto.getPerWaveMoney());
 		Integer tradeState = getTradingTime(oldCommodity.getId());
-		if(tradeState==1){
+		if (tradeState == 2) {
 			oldCommodity.setPerUnitReserveFund(dto.getPerUnitReserveFund());
 			oldCommodity.setPerUnitUnwindPoint(dto.getPerUnitUnwindPoint());
 		}
@@ -228,10 +229,14 @@ public class FuturesCommodityController implements FuturesCommodityInterface {
 							if(originReverseFund.compareTo(expectReverseFund) > 0 && expectReverseFund.compareTo(BigDecimal.ZERO) >= 0) {
 								// 多退
 								accountBusiness.futuresReturnReserveFund(contractOrder.getPublisherId(), contractOrder.getId(), originReverseFund.subtract(expectReverseFund));
+								contractOrder.setReserveFund(expectReverseFund);
+								contractOrderDao.update(contractOrder);
 							}
 							if(expectReverseFund.compareTo(originReverseFund) > 0 && originReverseFund.compareTo(BigDecimal.ZERO) >= 0) {
 								// 少补
-								accountBusiness.futuresFillReserveFund(contractOrder.getPublisherId(), contractOrder.getId(), expectReverseFund.subtract(originReverseFund));
+								CapitalAccountDto account = accountBusiness.futuresFillReserveFund(contractOrder.getPublisherId(), contractOrder.getId(), expectReverseFund.subtract(originReverseFund));
+								contractOrder.setReserveFund(originReverseFund.add(account.getRealProfitOrLoss()));
+								contractOrderDao.update(contractOrder);
 							}
 						}
  					}
