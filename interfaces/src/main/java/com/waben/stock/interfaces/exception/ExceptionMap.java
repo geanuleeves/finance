@@ -80,6 +80,7 @@ public class ExceptionMap {
 		exceptionMap.put(ExceptionConstant.REQUEST_RECHARGE_EXCEPTION, "请求充值失败");
 		exceptionMap.put(ExceptionConstant.SINGLE_WITHDRAWAL_LIMIT_EXCEPTION, "单笔提现不能超过10万");
 		exceptionMap.put(ExceptionConstant.UNWINDORDER_REPEATOPERATION_EXCEPTION, "订单已卖出，请勿重复操作");
+		exceptionMap.put(ExceptionConstant.ST_STOCK_SUSPEND_EXCEPTION, "该股票暂停交易");
 
 		exceptionMap.put(ExceptionConstant.INVESTOR_NOT_FOUND_EXCEPTION, "投资人信息未找到");
 		exceptionMap.put(ExceptionConstant.INVESTOR_SECURITIES_LOGIN_EXCEPTION, "投资人券商账户登陆异常");

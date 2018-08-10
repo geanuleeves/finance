@@ -154,9 +154,8 @@ public class WindControlSchedule {
 							// step 1 : 获取股票行情
 							StockMarket market = RetriveStockOverHttp.singleStockMarket(restTemplate, stockCode);
 							if (market == null || market.getLastPrice() == null
-									|| market.getLastPrice().compareTo(new BigDecimal(0)) <= 0) {
-								throw new ServiceException(ExceptionConstant.UNKNOW_EXCEPTION,
-										String.format("获取股票{}的最新行情失败!", stockCode));
+									|| market.getLastPrice().compareTo(new BigDecimal(0)) <= 0 || market.getBidVolume().compareTo(BigDecimal.ZERO) <= 0) {
+								logger.info("获取股票价格异常或者跌停：" + stockCode + "_" + (market != null ? market.getBidVolume() : null) + "_" + (market != null ? market.getLastPrice() : null));
 							}
 							if (!sdf.format(now).equals(market.getTradeDay())) {
 								continue;

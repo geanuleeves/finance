@@ -145,6 +145,8 @@ public class ExceptionConstant {
 	public static final String SINGLE_WITHDRAWAL_LIMIT_EXCEPTION = "6032";
 	// 订单已卖出，请勿重复操作
 	public static final String UNWINDORDER_REPEATOPERATION_EXCEPTION = "6033";
+	// 该股票暂停交易
+	public static final String ST_STOCK_SUSPEND_EXCEPTION = "6034";
 
 	// 投资人服务异常
 	public static final String INVESTOR_NOT_FOUND_EXCEPTION = "7001";

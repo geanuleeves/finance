@@ -214,10 +214,12 @@ public class StockBusiness {
 		StockMarket market = RetriveStockOverHttp.listStockMarket(restTemplate, codes).get(0);
 		if (market.getStatus() == 0) {
 			throw new ServiceException(ExceptionConstant.STOCK_SUSPENSION_EXCEPTION);
-		} else if (market.getUpDropSpeed().compareTo(new BigDecimal(0.1)) >= 0) {
+		} else if (market.getUpDropSpeed().compareTo(new BigDecimal(0.0995)) >= 0) {
 			throw new ServiceException(ExceptionConstant.STOCK_ARRIVEUPLIMIT_EXCEPTION);
-		} else if (market.getUpDropSpeed().compareTo(new BigDecimal(-0.1)) <= 0) {
+		} else if (market.getUpDropSpeed().compareTo(new BigDecimal(-0.0995)) <= 0) {
 			throw new ServiceException(ExceptionConstant.STOCK_ARRIVEDOWNLIMIT_EXCEPTION);
+		} else if(market.getAskVolume().compareTo(BigDecimal.ZERO) <= 0) {
+			throw new ServiceException(ExceptionConstant.ST_STOCK_SUSPEND_EXCEPTION);
 		} else if (market.getName().toUpperCase().startsWith("ST") || market.getName().toUpperCase().startsWith("*ST")
 				|| market.getName().toUpperCase().startsWith("S*ST")) {
 			throw new ServiceException(ExceptionConstant.ST_STOCK_CANNOTBUY_EXCEPTION);
@@ -233,10 +235,12 @@ public class StockBusiness {
 		StockMarket market = RetriveStockOverHttp.listStockMarket(restTemplate, codes).get(0);
 		if (market.getStatus() == 0) {
 			throw new ServiceException(ExceptionConstant.STOCK_SUSPENSION_EXCEPTION);
-		} else if (market.getUpDropSpeed().compareTo(new BigDecimal(0.1)) >= 0) {
+		} else if (market.getUpDropSpeed().compareTo(new BigDecimal(0.0995)) >= 0) {
 			throw new ServiceException(ExceptionConstant.STOCK_ARRIVEUPLIMIT_EXCEPTION);
-		} else if (market.getUpDropSpeed().compareTo(new BigDecimal(-0.1)) <= 0) {
+		} else if (market.getUpDropSpeed().compareTo(new BigDecimal(-0.0995)) <= 0) {
 			throw new ServiceException(ExceptionConstant.STOCK_ARRIVEDOWNLIMIT_EXCEPTION);
+		} else if(market.getBidVolume().compareTo(BigDecimal.ZERO) <= 0) {
+			throw new ServiceException(ExceptionConstant.ST_STOCK_SUSPEND_EXCEPTION);
 		}
 	}
 
