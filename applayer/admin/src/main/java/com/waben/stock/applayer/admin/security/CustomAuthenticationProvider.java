@@ -3,6 +3,7 @@ package com.waben.stock.applayer.admin.security;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.waben.stock.interfaces.dto.manage.RoleDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -43,8 +44,9 @@ public class CustomAuthenticationProvider extends AbstractUserDetailsAuthenticat
 			throws AuthenticationException {
 		try {
 			StaffDto staff = staffBusiness.fetchByUserName(username);
+
 			return new CustomUserDetails(staff.getId(), staff.getNickname(), username, staff.getPassword(),
-					getAdminGrantedAuthList());
+					getAdminGrantedAuthList(staff.getRoleDto()));
 		} catch (ServiceException ex) {
 			if (ExceptionConstant.STAFF_NOT_FOUND_EXCEPTION.equals(ex.getType())) {
 				throw new UsernameNotFoundException("用户名不存在");
@@ -54,9 +56,12 @@ public class CustomAuthenticationProvider extends AbstractUserDetailsAuthenticat
 		}
 	}
 
-	private List<GrantedAuthority> getAdminGrantedAuthList() {
+	private List<GrantedAuthority> getAdminGrantedAuthList(RoleDto dto) {
 		List<GrantedAuthority> grantedAuthList = new ArrayList<>();
 		grantedAuthList.add(new SimpleGrantedAuthority("Role_Admin"));
+		if(dto!=null) {
+			grantedAuthList.add(new SimpleGrantedAuthority(dto.getCode()));
+		}
 		return grantedAuthList;
 	}
 
