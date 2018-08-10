@@ -2428,9 +2428,11 @@ public class FuturesOrderService {
 					// 成交价格-买涨
 					BigDecimal avgUpFillPrice = this.getOpenAvgFillPrice(
 							futuresContractOrder.getPublisherId(), futuresContractOrder.getContract().getId(), FuturesOrderType.BuyUp.getIndex());
+					avgUpFillPrice = avgUpFillPrice.divideAndRemainder(futuresCommodity.getMinWave())[0].multiply(futuresCommodity.getMinWave());
 					// 成交价格-买跌
 					BigDecimal avgFallFillPrice = this.getOpenAvgFillPrice(
 							futuresContractOrder.getPublisherId(), futuresContractOrder.getContract().getId(), FuturesOrderType.BuyFall.getIndex());
+					avgFallFillPrice = avgFallFillPrice.divideAndRemainder(futuresCommodity.getMinWave())[0].multiply(futuresCommodity.getMinWave());
 					if (avgUpFillPrice != null && avgUpFillPrice.compareTo(new BigDecimal(0)) > 0
 							&& futuresContractOrder.getBuyUpQuantity().compareTo(BigDecimal.ZERO) > 0) {
 						// 买涨浮动盈亏
