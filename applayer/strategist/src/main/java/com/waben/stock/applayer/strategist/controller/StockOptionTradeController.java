@@ -187,7 +187,7 @@ public class StockOptionTradeController {
 		// 获取是否为测试单
 		PublisherDto publisher = publisherBusiness.findById(SecurityUtil.getUserId());
 		dto.setIsTest(publisher.getIsTest());
-
+		dto.setBuyingLastPrice(market.getLastPrice());
 		StockOptionTradeDto tradeDto = tradeBusiness.add(dto);
 		return new Response<>(tradeBusiness.wrapMarketInfo(tradeDto));
 	}

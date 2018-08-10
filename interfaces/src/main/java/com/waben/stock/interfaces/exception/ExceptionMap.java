@@ -116,7 +116,7 @@ public class ExceptionMap {
 		exceptionMap.put(ExceptionConstant.STOCKOPTION_STATE_NOTMATCH_OPERATION_NOTSUPPORT_EXCEPTION,
 				"交易状态不匹配，不支持该操作");
 		exceptionMap.put(ExceptionConstant.STOCKOPTION_PUBLISHERID_NOTMATCH_EXCEPTION, "自主卖出发布人不匹配，不支持该操作");
-		exceptionMap.put(ExceptionConstant.USERRIGHT_NOTMATCH_EXCEPTION, "T+3才能申请卖出");
+		exceptionMap.put(ExceptionConstant.USERRIGHT_NOTMATCH_EXCEPTION, "不在交易时间段内");
 		exceptionMap.put(ExceptionConstant.STOCKOPTION_QUOTENOTFOUND_EXCEPTION, "该股票暂时无法申购，请购买其它股票");
 		exceptionMap.put(ExceptionConstant.INQUIRY_RESULT_NOT_FOUND, "询价结果不存在");
 		exceptionMap.put(ExceptionConstant.NONTRADINGDAY_EXCEPTION, "非交易日不能申请卖出");
