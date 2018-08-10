@@ -7,6 +7,7 @@ import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
+import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
 import com.waben.stock.datalayer.futures.service.FuturesContractOrderService;
 import com.waben.stock.datalayer.futures.service.FuturesCurrencyRateService;
 import com.waben.stock.datalayer.futures.service.FuturesOrderService;
@@ -69,6 +70,9 @@ public class WindControlSchedule {
 	private ProfileBusiness profileBusiness;
 
 	@Autowired
+	private FuturesContractOrderDao contractOrderDao;
+
+	@Autowired
 	private FuturesContractOrderService futuresContractOrderService;
 
 	@PostConstruct
@@ -82,15 +86,37 @@ public class WindControlSchedule {
 		public void run() {
 			try {
 				// step 1 : 获取所有持仓中的正式单
-				List<FuturesContractOrder> content = retrivePositionOrders();
+				List<FuturesContractOrder> content = retrivePositionContractOrders();
 				if (RandomUtil.getRandomInt(100) % 51 == 0 && RandomUtil.getRandomInt(100) % 51 == 0) {
 					logger.info("监控持仓中的正式单数量：" + content.size());
 				}
 				// step 2 : 遍历所有订单，判断是否达到风控平仓条件
 				if (content != null && content.size() > 0) {
 					for (FuturesContractOrder order : content) {
-						Integer timeZoneGap = order.getContract().getCommodity().getTimeZoneGap();
+						FuturesContract contract = order.getContract();
+						Integer timeZoneGap = contract.getCommodity().getTimeZoneGap();
+						// step 3 : 是否触发退还隔夜保证金时间
 						checkAndDoReturnOvernightReserveFund(order, timeZoneGap);
+						// step 4 : 是否合约到期
+						if (orderService.isTradeTime(timeZoneGap, contract, FuturesTradeActionType.CLOSE)
+								&& isReachContractExpiration(timeZoneGap, contract)) {
+							synchronized (getLockKey(contract.getId(), order.getPublisherId()).intern()) {
+								BigDecimal buyUpQuantity = order.getBuyUpCanUnwindQuantity();
+								BigDecimal buyFallQuantity = order.getBuyFallCanUnwindQuantity();
+								// 合约到期，强平买涨订单
+								if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
+									orderService.doUnwind(contract, order, FuturesOrderType.BuyUp, buyUpQuantity, FuturesTradePriceType.MKT,
+											null, order.getPublisherId(), FuturesWindControlType.ReachContractExpiration, false, false, null);
+								}
+								// 合约到期，强平买跌订单
+								if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
+									orderService.doUnwind(contract, order, FuturesOrderType.BuyFall, buyFallQuantity,
+											FuturesTradePriceType.MKT, null, order.getPublisherId(), FuturesWindControlType.ReachContractExpiration, false,
+											false, null);
+								}
+							}
+							continue;
+						}
 					}
 				}
 			} catch (Exception ex) {
@@ -101,6 +127,10 @@ public class WindControlSchedule {
 			}
 		}
 
+	}
+
+	private String getLockKey(Long contractId, Long publisherId) {
+		return contractId + "-" + publisherId;
 	}
 
 	/**
@@ -452,16 +482,12 @@ public class WindControlSchedule {
 	}
 
 	/**
-	 * 获取所有持仓中的订单
-	 * 
+	 * 获取所有持仓中的合约订单
+	 *
 	 * @return 持仓中的订单
 	 */
-	private List<FuturesContractOrder> retrivePositionOrders() {
-		FuturesContractOrderQuery query = new FuturesContractOrderQuery();
-		query.setPage(0);
-		query.setSize(Integer.MAX_VALUE);
-		Page<FuturesContractOrder> pages = futuresContractOrderService.pages(query);
-		return pages.getContent();
+	private List<FuturesContractOrder> retrivePositionContractOrders() {
+		return contractOrderDao.retrivePositionContractOrders();
 	}
 
 }

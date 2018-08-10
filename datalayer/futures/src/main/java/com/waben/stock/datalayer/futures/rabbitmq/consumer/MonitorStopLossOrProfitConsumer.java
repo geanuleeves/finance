@@ -244,7 +244,7 @@ public class MonitorStopLossOrProfitConsumer {
 
 	/**
 	 * 获取所有持仓中的合约订单
-	 * 
+	 *
 	 * @return 持仓中的订单
 	 */
 	private List<FuturesContractOrder> retrivePositionContractOrders() {
