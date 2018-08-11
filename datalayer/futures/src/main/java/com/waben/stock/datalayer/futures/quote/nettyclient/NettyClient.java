@@ -33,7 +33,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 public class NettyClient {
 
 	public static String CLIENTID = "FuturesBack-" + UUID.randomUUID().toString();
-	private final static String HOST = "47.75.72.30";
+	private final static String HOST = "47.106.253.130";
 	private final static int PORT = 9094;
 	private final static int READER_IDLE_TIME_SECONDS = 10;// 读操作空闲20秒
 	private final static int WRITER_IDLE_TIME_SECONDS = 10;// 写操作空闲20秒
