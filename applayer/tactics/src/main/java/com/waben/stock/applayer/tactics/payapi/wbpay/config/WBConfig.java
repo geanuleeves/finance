@@ -21,6 +21,10 @@ public class WBConfig {
 	@Value("${pay.protocolcallback}")
 	private String protocol_callback;
 
+	@Value("${pay.unionpayMerchant}")
+	private String unionPayMerchantNo;
+	@Value("${pay.unionpayKey}")
+	private String unionPayKey;
 	@Value("${pay.unionpaytempfrontUrl}")
 	private String unionpayTempFrontUrl;
 	@Value("${pay.unionpayfrontUrl}")
@@ -108,4 +112,19 @@ public class WBConfig {
 		this.unionpayFrontUrl = unionpayFrontUrl;
 	}
 
+	public String getUnionPayMerchantNo() {
+		return unionPayMerchantNo;
+	}
+
+	public void setUnionPayMerchantNo(String unionPayMerchantNo) {
+		this.unionPayMerchantNo = unionPayMerchantNo;
+	}
+
+	public String getUnionPayKey() {
+		return unionPayKey;
+	}
+
+	public void setUnionPayKey(String unionPayKey) {
+		this.unionPayKey = unionPayKey;
+	}
 }
