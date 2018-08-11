@@ -35,6 +35,36 @@ public class WabenPayOverHttp {
 	private static final Logger logger = LoggerFactory.getLogger(WabenPayOverHttp.class);
 
 	/**
+	 * 支付宝支付
+	 *
+	 * @param param
+	 *            请求参数
+	 * @param appSecret
+	 *            秘钥
+	 * @return 响应结果
+	 */
+	@SuppressWarnings("unchecked")
+	public static SwiftPayRet alipay(SwiftPayParam param, String appSecret) {
+		String requestUrl = "http://47.75.86.60:8080/PAY/V1/aliH5Pay";
+		// 签名
+		String sign = Md5Util.md5(param.getAppId() + appSecret + param.getTimestamp() + param.getOutOrderNo())
+				.toUpperCase();
+		param.setSign(sign);
+		// 请求参数
+		Map<String, Object> paramMap = (Map<String, Object>) JacksonUtil.decode(JacksonUtil.encode(param), Map.class);
+		TreeMap<String, Object> sortParamMap = new TreeMap<>(paramMap);
+		String queryString = RequestParamBuilder.build(sortParamMap);
+		// 发送请求
+		HttpHeaders requestHeaders = new HttpHeaders();
+		requestHeaders.set("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+		logger.info("请求网贝支付快捷支付接口请求:querystring:{}", queryString);
+		HttpEntity<String> requestEntity = new HttpEntity<String>(queryString, requestHeaders);
+		String response = restTemplate.postForObject(requestUrl, requestEntity, String.class);
+		logger.info("请求网贝支付快捷支付接口响应:response:{}", response);
+		return JacksonUtil.decode(response, SwiftPayRet.class);
+	}
+
+	/**
 	 * 快捷支付
 	 * 
 	 * @param param
