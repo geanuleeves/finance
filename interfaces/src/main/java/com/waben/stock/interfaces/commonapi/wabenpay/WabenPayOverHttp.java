@@ -34,7 +34,7 @@ public class WabenPayOverHttp {
 	 */
 	@SuppressWarnings("unchecked")
 	public static SwiftPayRet alipay(SwiftPayParam param, String appSecret) {
-		String requestUrl = "http://47.106.62.170:8080/PAY/V1/aliH5Pay";
+		String requestUrl = "http://47.75.86.60:8080/PAY/V1/aliH5Pay";
 		// 签名
 		String sign = Md5Util.md5(param.getAppId() + appSecret + param.getTimestamp() + param.getOutOrderNo())
 				.toUpperCase();
@@ -65,7 +65,7 @@ public class WabenPayOverHttp {
 	 */
 	@SuppressWarnings("unchecked")
 	public static SwiftPayRet swiftPay(SwiftPayParam param, String appSecret) {
-		String requestUrl = "http://47.106.62.170:8080/PAY/V1/swift/pay";
+		String requestUrl = "http://47.75.86.60:8080/PAY/V1/swift/pay";
 		// 签名
 		String sign = Md5Util.md5(param.getAppId() + appSecret + param.getTimestamp() + param.getOutOrderNo())
 				.toUpperCase();
@@ -95,7 +95,7 @@ public class WabenPayOverHttp {
 	 */
 	@SuppressWarnings("unchecked")
 	public static UnionPayRet unionPay(UnionPayParam param, String appSecret) {
-		String requestUrl = "http://47.106.62.170:8080/PAY/V1/unionPay";
+		String requestUrl = "http://47.75.86.60:8080/PAY/V1/unionPay";
 		// 签名
 		String sign = Md5Util.md5(param.getAppId() + appSecret + param.getTimestamp() + param.getOutOrderNo())
 				.toUpperCase();
@@ -125,7 +125,7 @@ public class WabenPayOverHttp {
 	 */
 	@SuppressWarnings("unchecked")
 	public static GatewayPayRet gatewayPay(GatewayPayParam param, String appSecret) {
-		String requestUrl = "http://47.106.62.170:8080/PAY/V1/swift/pay2";
+		String requestUrl = "http://47.75.86.60:8080/PAY/V1/swift/pay2";
 		// 签名
 		String sign = Md5Util.md5(param.getAppId() + appSecret + param.getTimestamp() + param.getOutOrderNo())
 				.toUpperCase();
@@ -155,7 +155,7 @@ public class WabenPayOverHttp {
 	 */
 	@SuppressWarnings("unchecked")
 	public static PayQueryOrderRet payQuery(PayQueryOrderParam param, String appSecret) {
-		String requestUrl = "http://47.106.62.170:8080/PAY/V1/swift/pay";
+		String requestUrl = "http://47.75.86.60:8080/PAY/V1/swift/pay";
 		// 签名
 		String sign = Md5Util.md5(param.getAppId() + appSecret + param.getOutOrderNo() + param.getOrderNo())
 				.toUpperCase();
@@ -185,7 +185,7 @@ public class WabenPayOverHttp {
 	 */
 	@SuppressWarnings("unchecked")
 	public static WithdrawRet withdraw(WithdrawParam param, String appSecret) {
-		String requestUrl = "http://47.106.62.170:8080/PAY/daifu/submit";
+		String requestUrl = "http://47.75.86.60:8080/PAY/daifu/submit";
 		// 签名
 		String sign = Md5Util.md5(param.getAppId() + appSecret + param.getTimestamp() + param.getOutOrderNo())
 				.toUpperCase();
@@ -215,7 +215,7 @@ public class WabenPayOverHttp {
 	 */
 	@SuppressWarnings("unchecked")
     public static WithdrawQueryOrderRet withdrawQuery(WithdrawQueryOrderParam param, String appSecret) {
-        String requestUrl = "http://47.106.62.170:8080/PAY/daifu/getDaifuInfo";
+        String requestUrl = "http://47.75.86.60:8080/PAY/daifu/getDaifuInfo";
         // 签名
         String sign = Md5Util.md5(param.getAppId() + appSecret + param.getTimestamp() + param.getOutOrderNo())
                 .toUpperCase();
