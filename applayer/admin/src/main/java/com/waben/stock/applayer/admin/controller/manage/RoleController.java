@@ -1,12 +1,10 @@
 package com.waben.stock.applayer.admin.controller.manage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.waben.stock.applayer.admin.business.manage.MenuBusiness;
 import com.waben.stock.applayer.admin.business.manage.RoleBusiness;
@@ -89,4 +87,12 @@ public class RoleController {
 		roleBusiness.delete(id);
 		return new Response<>(id);
     }
+
+    @PutMapping("/permission/{id}")
+	@ApiOperation(value = "修改角色权限")
+	public Response<RoleVo> updateRolePermission(@PathVariable Long id,String permissionIds) {
+		RoleDto roleDto = roleBusiness.updateRolePermission(id, permissionIds);
+		RoleVo roleVo = CopyBeanUtils.copyBeanProperties(RoleVo.class, roleDto, false);
+		return new Response<>(roleVo);
+	}
 }

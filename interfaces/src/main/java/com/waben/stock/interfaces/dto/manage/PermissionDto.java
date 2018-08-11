@@ -1,6 +1,7 @@
 package com.waben.stock.interfaces.dto.manage;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author Created by yuyidi on 2017/11/16.
@@ -14,6 +15,7 @@ public class PermissionDto implements Serializable {
     private String expression;
     private Long variety;
 
+    private List<PermissionDto> childs;
 
     public Long getId() {
         return id;
@@ -53,5 +55,13 @@ public class PermissionDto implements Serializable {
 
     public void setVariety(Long variety) {
         this.variety = variety;
+    }
+
+    public List<PermissionDto> getChilds() {
+        return childs;
+    }
+
+    public void setChilds(List<PermissionDto> childs) {
+        this.childs = childs;
     }
 }

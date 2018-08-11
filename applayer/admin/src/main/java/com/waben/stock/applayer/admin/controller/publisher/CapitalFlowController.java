@@ -6,18 +6,23 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.waben.stock.applayer.admin.business.manage.OperationLogBusiness;
+import com.waben.stock.applayer.admin.security.SecurityUtil;
+import com.waben.stock.applayer.admin.util.PhoneUtil;
+import com.waben.stock.interfaces.dto.admin.publisher.PublisherAdminDto;
+import com.waben.stock.interfaces.dto.manage.OperationLogDto;
+import com.waben.stock.interfaces.dto.publisher.CapitalFlowDto;
+import com.waben.stock.interfaces.enums.OperationType;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.waben.stock.applayer.admin.business.publisher.CapitalFlowBusiness;
 import com.waben.stock.applayer.admin.util.PoiUtil;
@@ -49,14 +54,30 @@ public class CapitalFlowController {
 
 	@Autowired
 	private CapitalFlowBusiness business;
-	
+
+	@Autowired
+	private OperationLogBusiness operationLogBusiness;
+
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@GetMapping("/pages")
 	@ApiOperation(value = "查询资金流水")
 	public Response<PageInfo<CapitalFlowAdminDto>> pages(CapitalFlowAdminQuery query) {
-		return new Response<>(business.adminPagesByQuery(query));
+		PageInfo<CapitalFlowAdminDto> pageInfo = business.adminPagesByQuery(query);
+		for(CapitalFlowAdminDto dto : pageInfo.getContent()) {
+			dto.setPublisherPhone(PhoneUtil.encodedPhone(dto.getPublisherPhone()));
+		}
+		return new Response<>(pageInfo);
 	}
+
+	@GetMapping("/phone/{id}")
+	@ApiOperation(value = "查看手机号码")
+	public Response<CapitalFlowDto> getPhone(@PathVariable Long id) {
+		CapitalFlowDto response = business.findById(id);
+		operationLogBusiness.save(OperationType.SEE_PHONE_NUMBER.getIndex());
+		return new Response<>(response);
+	}
+
 	@GetMapping("/pagesFutures")
 	@ApiOperation(value = "查询期货资金流水")
 	public Response<PageInfo<CapitalFlowFuturesAdminDto>> pagesFutures(CapitalFlowFuturesAdminQuery query){

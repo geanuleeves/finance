@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import com.waben.stock.datalayer.organization.entity.OrganizationAccountFlow;
 import com.waben.stock.datalayer.organization.entity.OrganizationPublisher;
 import com.waben.stock.datalayer.organization.entity.SettlementMethod;
 import com.waben.stock.datalayer.organization.repository.BenefitConfigDao;
+import com.waben.stock.datalayer.organization.repository.DynamicQuerySqlDao;
 import com.waben.stock.datalayer.organization.repository.FuturesAgentPriceDao;
 import com.waben.stock.datalayer.organization.repository.OrganizationAccountFlowDao;
 import com.waben.stock.datalayer.organization.repository.OrganizationDao;
@@ -71,6 +73,9 @@ public class OrganizationSettlementService {
 	@Autowired
 	private OrganizationDao organizationDao;
 
+	@Autowired
+	private DynamicQuerySqlDao sqlDao;
+
 	@Transactional
 	public void futuresRatioSettlement(Long publisherId, Long benefitResourceId, Long futuresOrderId, String tradeNo,
 			BigDecimal totalQuantity, BigDecimal serviceFee, BigDecimal orderCloseFee, BigDecimal deferredFee) {
@@ -84,7 +89,7 @@ public class OrganizationSettlementService {
 		if (checkFlowList == null || checkFlowList.size() == 0) {
 			logger.info("参与结算返佣金额未结算前日志, tradeNo{},serviceFee:{},orderCloseFee:{},deferredFee:{}", tradeNo, serviceFee,
 					orderCloseFee, deferredFee);
-			futuresOrderRatioSettlement(publisherId, BenefitConfigType.FuturesComprehensiveFee,
+			futuresOrderRatioJYTSettlement(publisherId, BenefitConfigType.FuturesComprehensiveFee,
 					OrganizationAccountFlowType.FuturesComprehensiveFeeAssign, comprehensiveFee, benefitResourceId,
 					futuresOrderId, tradeNo);
 		}
@@ -629,6 +634,87 @@ public class OrganizationSettlementService {
 						ratio = ratio.add(computeRatio);
 						accountService.futureBenefit(config.getOrg(), amount, childFee, flowType, flowResourceType,
 								flowResourceId, tradeNo);
+					}
+				}
+			}
+		}
+		accountService.futureBenefit(null, amount, amount, flowType, flowResourceType, flowResourceId, tradeNo);
+	}
+
+	/**
+	 * 获取当前代理商所有上级的比例之和
+	 * 
+	 * @param orgId
+	 *            代理商ID
+	 * @return 当前代理商所有上级的比例之和
+	 */
+	public BigDecimal getSumRatio(Long orgId) {
+		Organization org = organizationDao.retrieve(orgId);
+		List<Long> orgList = new ArrayList<>();
+		if (org != null && org.getLevel() != 1) {
+			while (org.getParent() != null) {
+				orgList.add(org.getParent().getId());
+				org = org.getParent();
+			}
+			if (orgList.size() > 0) {
+				Collections.reverse(orgList);
+			}
+		}
+		String str = StringUtils.join(orgList, ",");
+		BigDecimal sumRatio = sqlDao.executeComputeSql(
+				"SELECT (100 - (IF(SUM(t1.ratio) IS NULL,0,SUM(t1.ratio))+ IF(t1.platform_ratio IS NULL,0,t1.platform_ratio))) AS surplus "
+						+ " FROM p_benefit_config t1 "
+						+ " LEFT JOIN p_organization t2 ON t2.id = t1.org_id where t2.id in(" + str + ")");
+		return sumRatio;
+	}
+
+	public void futuresOrderRatioJYTSettlement(Long publisherId, BenefitConfigType benefitConfigType,
+			OrganizationAccountFlowType flowType, BigDecimal amount, Long benefitResourceId, Long flowResourceId,
+			String tradeNo) {
+		logger.info("参与结算返佣金额进入结算方法, tradeNo{}", tradeNo);
+		ResourceType flowResourceType = ResourceType.FUTURESORDER;
+		Integer benefitResourceType = 3;
+		List<Organization> orgTreeList = getPublisherOrgTreeList(publisherId);
+		if (orgTreeList != null) {
+			List<BenefitConfig> benefitConfigList = getFuturesRakeBackBenefitConfigList(orgTreeList, benefitConfigType,
+					benefitResourceType);
+			if (benefitConfigList != null && benefitConfigList.size() > 0) {
+				BigDecimal currentServiceFee = amount;
+				for (int i = 0; i < benefitConfigList.size(); i++) {
+					BenefitConfig config = benefitConfigList.get(i);
+					// 一级下的客户
+					if (benefitConfigList.size() == 1 && config.getOrg().getLevel() == 1) {
+						accountService.futureBenefit(config.getOrg(), amount, currentServiceFee, flowType,
+								flowResourceType, flowResourceId, tradeNo);
+						break;
+					}
+					BigDecimal ratio = config.getRatio();
+					// 给当前用户的代理结算
+					if (i == benefitConfigList.size() - 1) {
+						BigDecimal childServiceFee = currentServiceFee.multiply(ratio.divide(new BigDecimal("100")))
+								.setScale(2, RoundingMode.DOWN);
+						accountService.futureBenefit(config.getOrg(), amount, childServiceFee, flowType,
+								flowResourceType, flowResourceId, tradeNo);
+					} else {
+						BigDecimal percentage = BigDecimal.ZERO;
+						BenefitConfig childConfig = benefitConfigList.get(i + 1);
+						BigDecimal childRatio = childConfig.getRatio();
+						if (childRatio.compareTo(BigDecimal.ZERO) == 0) {
+							BigDecimal childServiceFee = currentServiceFee.multiply(ratio.divide(new BigDecimal("100")))
+									.setScale(2, RoundingMode.DOWN);
+							accountService.futureBenefit(config.getOrg(), amount, childServiceFee, flowType,
+									flowResourceType, flowResourceId, tradeNo);
+							break;
+						}
+						if (config.getOrg().getLevel() == 1) {
+							percentage = new BigDecimal("100").subtract(childRatio).divide(new BigDecimal("100"));
+						} else {
+							percentage = ratio.subtract(childRatio).divide(new BigDecimal("100"));
+						}
+						BigDecimal childServiceFee = currentServiceFee.multiply(percentage).setScale(2,
+								RoundingMode.DOWN);
+						accountService.futureBenefit(config.getOrg(), amount, childServiceFee, flowType,
+								flowResourceType, flowResourceId, tradeNo);
 					}
 				}
 			}

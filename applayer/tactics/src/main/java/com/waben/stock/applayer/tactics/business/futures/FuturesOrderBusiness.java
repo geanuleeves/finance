@@ -264,7 +264,7 @@ public class FuturesOrderBusiness {
 		FuturesOrderState[] unwindStates = { FuturesOrderState.Unwind };
 		unwindQuery.setStates(unwindStates);
 		unwindQuery.setPage(page);
-		unwindQuery.setSize(size / 2);
+		unwindQuery.setSize(size);
 		unwindQuery.setOnlyProfit(true);
 		unwindQuery.setExpire(true);
 		PageInfo<FuturesOrderDto> pageUnwindOrder = pageOrder(unwindQuery);
@@ -276,13 +276,15 @@ public class FuturesOrderBusiness {
 		positionQuery.setPage(page);
 		positionQuery.setOnlyProfit(true);
 		unwindQuery.setExpire(true);
-		positionQuery.setSize(size - pageUnwindOrder.getContent().size());
+		positionQuery.setSize(size);
 		PageInfo<FuturesOrderDto> pagePositionOrder = pageOrder(positionQuery);
 
 		boolean isSettlement = true;
 		List<TransactionDynamicsDto> content = new ArrayList<TransactionDynamicsDto>();
-
 		int total = pageUnwindOrder.getContent().size() + pagePositionOrder.getContent().size();
+		if (total > size) {
+			total = size;
+		}
 		for (int i = 0; i < total; i++) {
 			if (isSettlement && pageUnwindOrder.getContent().size() > 0) {
 				FuturesOrderDto unwindOrder = pageUnwindOrder.getContent().remove(0);

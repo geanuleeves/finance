@@ -21,7 +21,6 @@ import com.waben.stock.applayer.promotion.security.SecurityUtil;
 import com.waben.stock.applayer.promotion.util.PoiUtil;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
 import com.waben.stock.interfaces.dto.admin.futures.AgentOrderRecordDto;
-import com.waben.stock.interfaces.dto.admin.futures.FutresOrderEntrustDto;
 import com.waben.stock.interfaces.dto.admin.futures.FuturesOrderCountDto;
 import com.waben.stock.interfaces.dto.organization.FuturesFowDto;
 import com.waben.stock.interfaces.enums.CapitalFlowType;

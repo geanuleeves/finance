@@ -126,5 +126,12 @@ public class CapitalAccountBusiness {
 		cal.set(Calendar.MILLISECOND, 0);
 		return cal.getTime();
 	}
-	
+
+    public CapitalAccountDto findById(Long id) {
+		Response<CapitalAccountDto> response = reference.fetchById(id);
+		if ("200".equals(response.getCode())) {
+			return response.getResult();
+		}
+		throw new ServiceException(response.getCode());
+	}
 }

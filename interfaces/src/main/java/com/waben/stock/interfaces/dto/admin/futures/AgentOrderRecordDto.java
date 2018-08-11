@@ -15,67 +15,127 @@ import com.waben.stock.interfaces.enums.FuturesWindControlType;
 public class AgentOrderRecordDto {
 
 	private Long id;
-
+	/**
+	 * 客户姓名
+	 */
 	private String publisherName;
-
+	/**
+	 * 交易账号
+	 */
 	private String publisherPhone;
-
+	/**
+	 * 交易代码
+	 */
 	private String symbol;
-
+	/**
+	 * 交易品种
+	 */
 	private String name;
-
+	/**
+	 * 合约编号
+	 */
 	private String contractNo;
-
+	/**
+	 * 订单编号
+	 */
 	private String tradeNo;
-
+	/**
+	 * 交易方向
+	 */
 	private Integer orderType;
-
+	/**
+	 * 交易状态
+	 */
 	private Integer state;
-
+	/**
+	 * 成交手数
+	 */
 	private BigDecimal totalQuantity;
-
+	/**
+	 * 买入时间
+	 */
 	private Date buyingTime;
-
+	/**
+	 * 买入价格
+	 */
 	private BigDecimal buyingPrice;
-
+	/**
+	 * 浮动盈亏
+	 */
 	private BigDecimal publisherProfitOrLoss;
-
+	/**
+	 * 订单类型
+	 */
 	private FuturesTradePriceType buyingPriceType;
-
+	/**
+	 * 开仓手续费
+	 */
 	private BigDecimal openwindServiceFee;
-
+	/**
+	 * 平仓手续费
+	 */
 	private BigDecimal unwindServiceFee;
-
+	/**
+	 * 服务费
+	 */
 	private BigDecimal reserveFund;
-
+	/**
+	 * 隔夜手续费
+	 */
 	private BigDecimal overnightServiceFee;
-
+	/**
+	 * 隔夜保证金
+	 */
 	private BigDecimal overnightReserveFund;
-
+	/**
+	 * 止损金额
+	 */
 	private BigDecimal perUnitLimitLossAmount;
-
+	/**
+	 * 止盈金额
+	 */
 	private BigDecimal perUnitLimitProfitAmount;
-
+	/**
+	 * 卖出时间
+	 */
 	private Date sellingTime;
-
+	/**
+	 * 卖出价格
+	 */
 	private BigDecimal sellingPrice;
-
+	/**
+	 * 盈亏
+	 */
 	private BigDecimal profitOrLoss;
-
+	/**
+	 * 风控类型
+	 */
 	private FuturesWindControlType windControlType;
-
+	/**
+	 * 代理商名称
+	 */
 	private String orgName;
-
+	/**
+	 * 合约ID
+	 */
 	private Long contractId;
-
+	/**
+	 * 货币单位
+	 */
 	private String commodityCurrency;
-
+	/**
+	 * 代理商代码
+	 */
 	private String code;
 
 	/*******************************************************/
-
+	/**
+	 * 最新价
+	 */
 	private BigDecimal LastPrice;
-
+	/**
+	 * 持仓小时
+	 */
 	private String positionDays;
 
 	private BigDecimal sellingProfit;
@@ -83,7 +143,9 @@ public class AgentOrderRecordDto {
 	private Date positionEndTime;
 
 	private BigDecimal floatingProfitOrLoss;
-
+	/**
+	 * 盈亏
+	 */
 	private BigDecimal profit;
 
 	private Date dealTime;

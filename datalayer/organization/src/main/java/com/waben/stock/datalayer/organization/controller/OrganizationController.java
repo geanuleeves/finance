@@ -278,7 +278,7 @@ public class OrganizationController implements OrganizationInterface {
 	@Override
 	public Response<Integer> addAgentPartition(@PathVariable BigDecimal ratio, @PathVariable BigDecimal platformRatio,
 			@PathVariable Long orgId, Long id) {
-		return new Response<>(organizationService.addAgentPartition(ratio, platformRatio, orgId, id));
+		return new Response<>(organizationService.addAgentJYTPartition(ratio, platformRatio, orgId, id));
 	}
 
 	@Override
@@ -290,6 +290,11 @@ public class OrganizationController implements OrganizationInterface {
 	@Override
 	public Response<List<Long>> getListByPublisherId(String treeCode) {
 		return new Response<>(organizationService.getListByPublisherId(treeCode));
+	}
+
+	@Override
+	public Response<BigDecimal> getSumRatio(@PathVariable Long orgId) {
+		return new Response<>(organizationService.getSumRatio(orgId));
 	}
 
 }

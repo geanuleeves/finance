@@ -1664,7 +1664,7 @@ public class FuturesOrderService {
 		FuturesContract contract = order.getContract();
 		return isTradeTime(timeZoneGap, contract, new Date());
 	}
-	
+
 	/**
 	 * 是否在交易时间
 	 * 
@@ -2284,7 +2284,9 @@ public class FuturesOrderService {
 				"SELECT t1.id, t2.name AS publisher_name, t3.phone as publisher_phone, t1.commodity_symbol, "
 						+ "t1.commodity_name, t1.contract_no, t1.trade_no, t1.order_type, t1.state, t1.total_quantity, t1.buying_time, "
 						+ "t1.buying_price, t1.publisher_profit_or_loss, t1.buying_price_type, t1.openwind_service_fee, "
-						+ "t1.unwind_service_fee, t1.reserve_fund, t4.overnight_deferred_fee, t4.overnight_reserve_fund, "
+						+ "t1.unwind_service_fee, t1.reserve_fund, "
+						+ "IF(SUM(t4.overnight_deferred_fee) IS NULL,0,SUM(t4.overnight_deferred_fee)) AS overnight_deferred_fee, "
+						+ "IF(SUM(t4.overnight_reserve_fund) IS NULL,0,SUM(t4.overnight_reserve_fund)) AS overnight_reserve_fund, "
 						+ "t1.per_unit_limit_loss_amount, t1.per_unit_limit_profit_amount, t1.selling_time, t1.selling_price, "
 						+ "t1.profit_or_loss, t1.wind_control_type, t6.name AS org_name, t1.contract_id, t1.commodity_currency, "
 						+ "t6.code, t1.buying_entrust_price, t1.post_time, t1.service_fee "
@@ -2292,11 +2294,11 @@ public class FuturesOrderService {
 						+ " LEFT JOIN publisher t3 ON t3.id = t1.publisher_id "
 						+ " LEFT JOIN f_futures_overnight_record t4 ON t4.order_id = t1.id "
 						+ " LEFT JOIN p_organization_publisher t5 ON t5.publisher_id = t1.publisher_id "
-						+ " LEFT JOIN p_organization t6 ON t6.id = t5.org_id  WHERE 1=1 %s %s %s %s %s %s %s %s %s %s %s LIMIT "
+						+ " LEFT JOIN p_organization t6 ON t6.id = t5.org_id  WHERE 1=1 %s %s %s %s %s %s %s %s %s %s GROUP BY t1.id %s LIMIT "
 						+ query.getPage() * query.getSize() + "," + query.getSize(),
 				treeCode, publisherNameCondition, publisherPhoneCondition, symbol, commodityName, orderType, orderState,
 				priceType, tradeNo, windControlType, orderByName);
-		String countSql = "select count(*) " + sql.substring(sql.indexOf("FROM"), sql.indexOf("LIMIT"));
+		String countSql = "select count(*) FROM (" + sql.substring(0, sql.indexOf("LIMIT")) + ") c";
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setId", new Class<?>[] { Long.class }));
 		setMethodMap.put(new Integer(1), new MethodDesc("setPublisherName", new Class<?>[] { String.class }));

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,7 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -1181,20 +1183,16 @@ public class OrganizationService {
 		Organization org = organizationDao.retrieve(orgId);
 		Organization orgParent = org.getParent();
 		List<BenefitConfig> orgParentList = benefitConfigDao.retrieveByOrgAndResourceType(orgParent, 3);
-		BigDecimal sumRatio = sqlDao.executeComputeSql(
-				"SELECT IF(SUM(t1.ratio) is null,0,SUM(t1.ratio)) as sum_ratio FROM p_benefit_config t1 LEFT JOIN p_organization t2 ON t2.id = t1.org_id where t2.tree_code LIKE '"
-						+ org.getTreeCode().substring(0, 5) + "%'");
 		// 剩余可设置比例
-		BigDecimal surplusRatio = BigDecimal.ZERO;
+		BigDecimal sumRatio = getSumRatio(orgId);
 		if (orgParent.getLevel() == 1) {
 			if (id != null) {
 				BenefitConfig benfit = benefitConfigDao.retrieve(id);
 				if (benfit != null) {
-					surplusRatio = new BigDecimal(100).subtract(sumRatio.add(benfit.getPlatformRatio()))
-							.add(benfit.getRatio()).add(benfit.getPlatformRatio());
+					sumRatio = sumRatio.add(benfit.getRatio()).add(benfit.getPlatformRatio());
 				}
 			}
-			if (ratio.add(platformRatio).compareTo(surplusRatio) > 0) {
+			if (ratio.add(platformRatio).compareTo(sumRatio) > 0) {
 				// 分成比例已满额
 				throw new ServiceException(ExceptionConstant.THE_PROPORTION_ISFULL_EXCEPTION);
 			}
@@ -1205,15 +1203,13 @@ public class OrganizationService {
 					// 上级未设置分成比例
 					throw new ServiceException(ExceptionConstant.PROPORTION_SUPERIOR_NOTSET_PROPORTION_EXCEPTION);
 				}
-				surplusRatio = new BigDecimal(100).subtract(sumRatio.add(config.getPlatformRatio()));
 				if (id != null) {
 					BenefitConfig benfit = benefitConfigDao.retrieve(id);
 					if (benfit != null) {
-						surplusRatio = surplusRatio
-								.add(benfit.getRatio() == null ? BigDecimal.ZERO : benfit.getRatio());
+						sumRatio = sumRatio.add(benfit.getRatio() == null ? BigDecimal.ZERO : benfit.getRatio());
 					}
 				}
-				if (ratio.compareTo(surplusRatio) > 0) {
+				if (ratio.compareTo(sumRatio) > 0) {
 					// 分成比例已满额
 					throw new ServiceException(ExceptionConstant.THE_PROPORTION_ISFULL_EXCEPTION);
 				}
@@ -1257,4 +1253,73 @@ public class OrganizationService {
 		return content;
 	}
 
+	/**
+	 * 获取当前代理商可设比例
+	 * 
+	 * @param orgId
+	 *            代理商ID
+	 * @return 当前代理商可设比例
+	 */
+	public BigDecimal getSumRatio(Long orgId) {
+		Organization org = organizationDao.retrieve(orgId);
+		List<Long> orgList = new ArrayList<>();
+		if (org != null && org.getLevel() != 1) {
+			orgList.add(org.getId());
+			while (org.getParent() != null) {
+				orgList.add(org.getParent().getId());
+				org = org.getParent();
+			}
+			if (orgList.size() > 0) {
+				Collections.reverse(orgList);
+			}
+		}
+		String str = StringUtils.join(orgList, ",");
+		BigDecimal sumRatio = sqlDao.executeComputeSql(
+				"SELECT IF(sum(t1.ratio) IS NULL,100-(IF(t1.platform_ratio IS NULL,0,t1.platform_ratio)),100-(sum(t1.ratio)+ (IF(t1.platform_ratio IS NULL,0,t1.platform_ratio)))) AS surplus "
+						+ "FROM p_benefit_config t1 LEFT JOIN p_organization t2 ON t2.id = t1.org_id where t2.id in("
+						+ str + ")");
+		return sumRatio;
+	}
+
+	public Integer addAgentJYTPartition(BigDecimal ratio, BigDecimal platformRatio, Long orgId, Long id) {
+		Organization org = organizationDao.retrieve(orgId);
+		Organization orgParent = org.getParent();
+		List<BenefitConfig> orgParentList = benefitConfigDao.retrieveByOrgAndResourceType(orgParent, 3);
+		// 剩余可设置比例
+		if (orgParent.getLevel() == 1) {
+			if ((ratio.add(platformRatio)).compareTo(new BigDecimal(100)) > 0) {
+				// 分成比例已满额
+				throw new ServiceException(ExceptionConstant.THE_PROPORTION_ISFULL_EXCEPTION);
+			}
+		} else {
+			if (orgParentList != null && orgParentList.size() > 0) {
+				BenefitConfig config = orgParentList.get(0);
+				if (config.getRatio() == null) {
+					// 上级未设置分成比例
+					throw new ServiceException(ExceptionConstant.PROPORTION_SUPERIOR_NOTSET_PROPORTION_EXCEPTION);
+				}
+				if (ratio.compareTo(config.getRatio()) > 0) {
+					// 分成比例不能大于上级
+					throw new ServiceException(ExceptionConstant.THE_PROPORTION_CANNOTBE_LARGER_SUPERIOR_EXCEPTION);
+				}
+			} else {
+				// 上级未设置分成比例
+				throw new ServiceException(ExceptionConstant.PROPORTION_SUPERIOR_NOTSET_PROPORTION_EXCEPTION);
+			}
+		}
+
+		BenefitConfig config = new BenefitConfig();
+		config.setId(id);
+		config.setOrg(org);
+		config.setPlatformRatio(platformRatio);
+		config.setRatio(ratio);
+		config.setResourceType(3);
+		config.setType(BenefitConfigType.FuturesComprehensiveFee);
+		if (id != null) {
+			config = benefitConfigDao.update(config);
+		} else {
+			config = benefitConfigDao.create(config);
+		}
+		return config.getId() == null ? 1 : config.getId().intValue();
+	}
 }

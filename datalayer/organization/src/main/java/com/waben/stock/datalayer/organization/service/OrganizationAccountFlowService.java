@@ -338,7 +338,7 @@ public class OrganizationAccountFlowService {
 						+ "t5.name as b_publisher_name, t6.name as s_publisher_name, IF(t1.type = 4 || t1.type = 5, t1.available_balance, t16.balance) AS available_balance, "
 						+ "t8.commodity_symbol, t8.commodity_name, t8.publisher_id AS o_publisher_id, t14.name AS o_publisher_name ,t15.phone AS o_publisher_phone, "
 
-						+ "IF(t1.type = 4 || t1.type = 5, t1.amount, t16.real_maid_fee)  as maid_fee, t1.origin_amount AS commission, t8.trade_no "
+						+ "IF(t1.type = 4 || t1.type = 5, t1.amount, t16.real_maid_fee)  as maid_fee, t1.origin_amount AS commission, IF(t16.order_id is not null,t16.order_id,t8.trade_no) as trade_no "
 
 						+ "from p_organization_account_flow t1 "
 						+ "LEFT JOIN buy_record t2 on t1.resource_type=1 and t1.resource_id=t2.id "
@@ -443,7 +443,7 @@ public class OrganizationAccountFlowService {
 						+ "LEFT JOIN p_futures_agent_price t12 ON t12.commodity_id=t10.id AND t12.org_id = t4.parent_id "
 						+ "LEFT JOIN real_name t5 on t5.resource_type=2 and t2.publisher_id=t5.resource_id "
 						+ "LEFT JOIN real_name t6 on t6.resource_type=2 and t3.publisher_id=t6.resource_id "
-						+ "LEFT JOIN real_name t14 ON t14.resource_type = 2 " + "AND t8.publisher_id = t14.resource_id "
+						+ "LEFT JOIN real_name t14 ON t14.resource_type = 2 AND t8.publisher_id = t14.resource_id "
 						+ "LEFT JOIN publisher t15 ON t15.id = t8.publisher_id "
 						+ "LEFT JOIN p_futures_commission_audit t16 ON t16.flow_id = t1.id "
 						+ "LEFT JOIN p_organization t7 on t7.id=" + query.getCurrentOrgId() + " "

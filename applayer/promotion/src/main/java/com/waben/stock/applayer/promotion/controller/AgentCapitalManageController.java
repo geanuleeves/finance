@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.waben.stock.applayer.promotion.business.AgentCapitalManageBusiness;
+import com.waben.stock.applayer.promotion.business.OrganizationBusiness;
 import com.waben.stock.applayer.promotion.security.SecurityUtil;
 import com.waben.stock.applayer.promotion.util.PoiUtil;
 import com.waben.stock.interfaces.constants.ExceptionConstant;
@@ -48,6 +49,9 @@ public class AgentCapitalManageController {
 
 	@Autowired
 	public AgentCapitalManageBusiness agentCapitalManageBusiness;
+
+	@Autowired
+	private OrganizationBusiness organizationBusiness;
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -124,14 +128,18 @@ public class AgentCapitalManageController {
 		return new Response<>(agentCapitalManageBusiness.pageAgentCapitalManage(query));
 	}
 
+	@RequestMapping(value = "/current/sum/ratio/{orgId}", method = RequestMethod.GET)
+	@ApiOperation(value = "获取当前代理商可设比例")
+	public Response<BigDecimal> getSumRatio(@PathVariable("orgId") Long orgId) {
+		return new Response<>(organizationBusiness.getSumRatio(orgId));
+	}
+
 	@RequestMapping(value = "/export", method = RequestMethod.GET)
 	@ApiOperation(value = "资金流水及佣金结算导出")
 	@ApiImplicitParam(paramType = "query", dataType = "int", name = "queryType", value = "1 资金流水，2 佣金结算", required = true)
-	public void export(Integer queryType, HttpServletResponse svrResponse) {
-		AgentCapitalManageQuery query = new AgentCapitalManageQuery();
+	public void export(Integer queryType, AgentCapitalManageQuery query, HttpServletResponse svrResponse) {
 		query.setPage(0);
 		query.setSize(Integer.MAX_VALUE);
-		// query.setTreeCode(SecurityUtil.getUserDetails().getTreeCode());
 		query.setCurrentOrgId(SecurityUtil.getUserDetails().getOrgId());
 		PageInfo<AgentCapitalManageDto> result = agentCapitalManageBusiness.pageAgentCapitalManage(query);
 		File file = null;
@@ -218,8 +226,8 @@ public class AgentCapitalManageController {
 			if (trade.getType() != null) {
 				type = OrganizationAccountFlowType.getByIndex(trade.getType().toString()).getType();
 			}
-			data.add(String.valueOf(trade.getId() == null ? "" : trade.getId()));
 			data.add(trade.getoTradeNo() == null ? "" : trade.getoTradeNo());
+			data.add(trade.getFlowNo() == null ? "" : trade.getFlowNo());
 			data.add(trade.getoPublisherName() == null ? "" : trade.getoPublisherName());
 			data.add(trade.getoPublisherPhone() == null ? "" : trade.getoPublisherPhone());
 			data.add(trade.getCommoditySymbol() == null ? "" : trade.getCommoditySymbol());

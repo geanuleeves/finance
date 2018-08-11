@@ -147,6 +147,7 @@ public class FuturesCommissionAuditService {
 	 */
 	private synchronized void levelOneAmount(OrganizationAccount account, BigDecimal amount, Organization org,
 			Long auditId, Date date) {
+		FuturesCommissionAudit currentAudit = auditDao.retrieve(auditId);
 		BigDecimal accountFee = account.getBalance();
 		account.setBalance(account.getBalance().add(amount));
 		account.setAvailableBalance(account.getAvailableBalance().add(amount));
@@ -174,6 +175,7 @@ public class FuturesCommissionAuditService {
 		commAudit.setExamineTime(new Date());
 		commAudit.setRealMaidFee(amount);
 		commAudit.setBalance(accountFee.add(amount));
+		commAudit.setOrderId(currentAudit.getAccountFlow().getResourceTradeNo());
 		auditDao.create(commAudit);
 	}
 

@@ -135,4 +135,19 @@ public class RoleBusiness {
         return menuIds;
     }
 
+    public RoleDto updateRolePermission(Long id, String permissionIds) {
+        String[] split = permissionIds.split(",");
+        Long[] ids = new Long[split.length];
+        for (int i=0; i<split.length; i++){
+            ids[i] = Long.getLong(split[i]);
+        }
+        Response<RoleDto> response = roleReference.addRolePermission(id, ids);
+        String code = response.getCode();
+        if ("200".equals(code)) {
+            return response.getResult();
+        }else if(ExceptionConstant.NETFLIX_CIRCUIT_EXCEPTION.equals(code)){
+            throw new NetflixCircuitException(code);
+        }
+        throw new ServiceException(response.getCode());
+    }
 }
