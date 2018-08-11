@@ -199,6 +199,15 @@ public class QuickPayController {
     
     /**************************网贝支付**********************/
 
+    @RequestMapping("/alipay")
+    @ApiOperation(value = "支付宝支付")
+    @ResponseBody
+    public Response<Map<String, String>> alipay(@RequestParam(required = true) BigDecimal amount, HttpServletRequest request) {
+        String endType = request.getHeader("endType");
+        Response<Map<String, String>> result = quickPayBusiness.wabenPayforalipay(amount, SecurityUtil.getUserId(), endType);
+        return result;
+    }
+
     @RequestMapping("/quickbank")
     @ApiOperation(value = "快捷支付")
     @ResponseBody
