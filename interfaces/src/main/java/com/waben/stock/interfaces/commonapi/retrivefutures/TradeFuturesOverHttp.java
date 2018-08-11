@@ -31,12 +31,11 @@ public class TradeFuturesOverHttp {
 	/**
 	 * 易盛api基础路径（测试）
 	 */
-	// private static String testYishengBaseUrl = "http://10.0.0.99:9093/";
-	private static String testYishengBaseUrl = "http://47.75.72.30:9093/";
+	private static String testYishengBaseUrl = "http://47.106.253.130:9093/";
 	/**
 	 * 易盛api基础路径（正式）
 	 */
-	private static String prodYishengBaseUrl = "http://47.75.72.30:9093/";
+	private static String prodYishengBaseUrl = "http://47.106.253.130:9093/";
 	/**
 	 * api类型
 	 * <ul>
