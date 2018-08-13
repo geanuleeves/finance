@@ -300,7 +300,8 @@ public class FuturesTradeEntrustService {
 			date = date != null ? date : new Date();
 			BigDecimal totalFilled = BigDecimal.ZERO;
 			// step 1 : 更新订单信息
-			List<FuturesTradeAction> actionList = actionDao.retrieveByTradeEntrustAndTradeActionType(entrust, actionType);
+			List<FuturesTradeAction> actionList = actionDao.retrieveByTradeEntrustAndTradeActionType(entrust,
+					actionType);
 			for (FuturesTradeAction action : actionList) {
 				if (action.getRemaining().compareTo(BigDecimal.ZERO) <= 0) {
 					continue;
@@ -364,7 +365,8 @@ public class FuturesTradeEntrustService {
 				} else {
 					order.setCloseFilled(order.getCloseFilled().add(currentFilled));
 					order.setCloseRemaining(order.getCloseRemaining().subtract(currentFilled));
-					order.setCloseTotalFillCost(order.getCloseTotalFillCost().add(avgFillPrice.multiply(currentFilled)));
+					order.setCloseTotalFillCost(
+							order.getCloseTotalFillCost().add(avgFillPrice.multiply(currentFilled)));
 					BigDecimal orderAvgFillPrice = order.getCloseTotalFillCost().divide(order.getCloseFilled(), 10,
 							RoundingMode.DOWN);
 					orderAvgFillPrice = avgFillPriceScale(minWave, orderAvgFillPrice, orderType, actionType);
@@ -382,7 +384,8 @@ public class FuturesTradeEntrustService {
 				if (orderType == FuturesOrderType.BuyUp && actionType == FuturesTradeActionType.OPEN) {
 					contractOrder.setBuyUpQuantity(contractOrder.getBuyUpQuantity().add(currentFilled));
 					contractOrder.setLightQuantity(contractOrder.getLightQuantity().add(currentFilled));
-					contractOrder.setBuyUpCanUnwindQuantity(contractOrder.getBuyUpCanUnwindQuantity().add(currentFilled));
+					contractOrder
+							.setBuyUpCanUnwindQuantity(contractOrder.getBuyUpCanUnwindQuantity().add(currentFilled));
 				} else if (orderType == FuturesOrderType.BuyUp && actionType == FuturesTradeActionType.CLOSE) {
 					contractOrder.setBuyUpTotalQuantity(contractOrder.getBuyUpTotalQuantity().subtract(currentFilled));
 					contractOrder.setBuyUpQuantity(contractOrder.getBuyUpQuantity().subtract(currentFilled));
@@ -390,10 +393,11 @@ public class FuturesTradeEntrustService {
 				} else if (orderType == FuturesOrderType.BuyFall && actionType == FuturesTradeActionType.OPEN) {
 					contractOrder.setBuyFallQuantity(contractOrder.getBuyFallQuantity().add(currentFilled));
 					contractOrder.setLightQuantity(contractOrder.getLightQuantity().subtract(currentFilled));
-					contractOrder
-							.setBuyFallCanUnwindQuantity(contractOrder.getBuyFallCanUnwindQuantity().add(currentFilled));
+					contractOrder.setBuyFallCanUnwindQuantity(
+							contractOrder.getBuyFallCanUnwindQuantity().add(currentFilled));
 				} else if (orderType == FuturesOrderType.BuyFall && actionType == FuturesTradeActionType.CLOSE) {
-					contractOrder.setBuyFallTotalQuantity(contractOrder.getBuyFallTotalQuantity().subtract(currentFilled));
+					contractOrder
+							.setBuyFallTotalQuantity(contractOrder.getBuyFallTotalQuantity().subtract(currentFilled));
 					contractOrder.setBuyFallQuantity(contractOrder.getBuyFallQuantity().subtract(currentFilled));
 					contractOrder.setLightQuantity(contractOrder.getLightQuantity().add(currentFilled));
 				}
@@ -425,7 +429,8 @@ public class FuturesTradeEntrustService {
 								entrust.getPublisherId());
 						BigDecimal singleEdgeMax = contractOrder.getBuyUpTotalQuantity()
 								.compareTo(contractOrder.getBuyFallTotalQuantity()) > 0
-								? contractOrder.getBuyUpTotalQuantity() : contractOrder.getBuyFallTotalQuantity();
+										? contractOrder.getBuyUpTotalQuantity()
+										: contractOrder.getBuyFallTotalQuantity();
 						contractOrderDao.doUpdate(contractOrder);
 						BigDecimal expectReserveFund = contract.getCommodity().getPerUnitReserveFund()
 								.multiply(singleEdgeMax);
@@ -450,7 +455,8 @@ public class FuturesTradeEntrustService {
 						BigDecimal totalDeferredFee = BigDecimal.ZERO;
 						for (FuturesTradeAction action : actionList) {
 							totalUnwindQuantity = totalUnwindQuantity.add(action.getQuantity());
-							totalOpenCost = totalOpenCost.add(action.getQuantity().multiply(action.getOpenAvgFillPrice()));
+							totalOpenCost = totalOpenCost
+									.add(action.getQuantity().multiply(action.getOpenAvgFillPrice()));
 							logger.info("代理分成自动平仓外, actionNo:{}, state:{}", action.getActionNo(),
 									action.getState().getType());
 							// 给代理商分成结算
@@ -461,7 +467,8 @@ public class FuturesTradeEntrustService {
 								// BigDecimal deferredFee =
 								// action.getOrder().getContract().getCommodity()
 								// .getOvernightPerUnitDeferredFee().multiply(action.getQuantity());
-								BigDecimal deferredFee = overnightService.getSUMOvernightRecord(action.getOrder().getId());
+								BigDecimal deferredFee = overnightService
+										.getSUMOvernightRecord(action.getOrder().getId());
 								if (deferredFee == null) {
 									deferredFee = BigDecimal.ZERO;
 								}
@@ -477,7 +484,10 @@ public class FuturesTradeEntrustService {
 						openAvgFillPrice = divideArr[0].multiply(minWave);
 						entrust.setOpenAvgFillPrice(openAvgFillPrice);
 						// 计算
-						BigDecimal totalPublisherProfitOrLoss = totalPublisherProfitOrLoss = orderService.computeProfitOrLoss(entrust.getOrderType(), entrust.getQuantity(), openAvgFillPrice, entrust.getTradePrice(), contract.getCommodity().getMinWave(), contract.getCommodity().getPerWaveMoney());
+						BigDecimal totalPublisherProfitOrLoss = totalPublisherProfitOrLoss = orderService
+								.computeProfitOrLoss(entrust.getOrderType(), entrust.getQuantity(), openAvgFillPrice,
+										entrust.getTradePrice(), contract.getCommodity().getMinWave(),
+										contract.getCommodity().getPerWaveMoney());
 						totalPublisherProfitOrLoss = rate.multiply(totalPublisherProfitOrLoss);
 						CapitalAccountDto account = accountBusiness.futuresOrderSettlement(entrust.getPublisherId(),
 								entrust.getId(), totalPublisherProfitOrLoss);
@@ -494,8 +504,8 @@ public class FuturesTradeEntrustService {
 					sendOutsideMessage(entrust);
 				}
 			}
-			FuturesContractOrder contractOrder = contractOrderDao.retrieveByContractAndPublisherId(entrust.getContract(),
-					entrust.getPublisherId());
+			FuturesContractOrder contractOrder = contractOrderDao
+					.retrieveByContractAndPublisherId(entrust.getContract(), entrust.getPublisherId());
 			this.monitorContractOrder(contractOrder);
 			return entrust;
 		}
@@ -815,8 +825,8 @@ public class FuturesTradeEntrustService {
 					predicateList
 							.add(criteriaBuilder.lessThan(root.get("tradeTime").as(Date.class), query.getEndTime()));
 				}
-				predicateList.add(criteriaBuilder.greaterThan(root.get("filled").as(BigDecimal.class),
-						BigDecimal.ZERO));
+				predicateList
+						.add(criteriaBuilder.greaterThan(root.get("filled").as(BigDecimal.class), BigDecimal.ZERO));
 				if (predicateList.size() > 0) {
 					criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()]));
 				}
@@ -926,15 +936,15 @@ public class FuturesTradeEntrustService {
 		}
 		String orderTypeCondition = "";
 		if (!StringUtil.isEmpty(query.getOrderType())) {
-			orderTypeCondition = " and f1.orderType = " + query.getOrderType().trim();
+			orderTypeCondition = " and f1.order_type = " + query.getOrderType().trim();
 		}
 		String tradeActionCondition = "";
 		if (query.getTradeActionType() != null) {
 			tradeActionCondition = " and f1.trade_action_type =" + query.getTradeActionType();
 		}
-		String tradeNoCondition = "";
-		if (!StringUtil.isEmpty(query.getTradeNo())) {
-			tradeNoCondition = " and f1.entrust_no = " + query.getTradeNo().trim();
+		String entrustNoCondition = "";
+		if (!StringUtil.isEmpty(query.getEntrustNo())) {
+			entrustNoCondition = " and f1.entrust_no = " + query.getEntrustNo().trim();
 		}
 
 		String orderStateCondition = "";
@@ -944,11 +954,11 @@ public class FuturesTradeEntrustService {
 
 		String startTimeCondition = "";
 		if (query.getStartTime() != null) {
-			startTimeCondition = " and t1.entrust_time>='" + fullSdf.format(query.getStartTime()) + "' ";
+			startTimeCondition = " and f1.entrust_time>='" + fullSdf.format(query.getStartTime()) + "' ";
 		}
 		String endTimeCondition = "";
 		if (query.getEndTime() != null) {
-			endTimeCondition = " and t1.entrust_time<'" + fullSdf.format(query.getEndTime()) + "' ";
+			endTimeCondition = " and f1.entrust_time<'" + fullSdf.format(query.getEndTime()) + "' ";
 		}
 
 		String treeCode = "";
@@ -972,7 +982,7 @@ public class FuturesTradeEntrustService {
 						+ " where 1=1 %s %s %s %s %s %s %s %s %s %s %s  ORDER BY f1.entrust_time DESC LIMIT "
 						+ query.getPage() * query.getSize() + "," + query.getSize(),
 				publisherNameCondition, publisherPhoneCondition, contractNameCondition, contractNoCondition,
-				orderTypeCondition, tradeActionCondition, tradeNoCondition, orderStateCondition, startTimeCondition,
+				orderTypeCondition, tradeActionCondition, entrustNoCondition, orderStateCondition, startTimeCondition,
 				endTimeCondition, treeCode);
 		String countSql = "select count(*) " + sql.substring(sql.indexOf("from"), sql.indexOf("LIMIT"));
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
