@@ -14,6 +14,8 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -42,6 +44,8 @@ import com.waben.stock.interfaces.pojo.query.MessagingQuery;
  */
 @Service
 public class MessagingService {
+
+	Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private MessagingDao messagingDao;
@@ -96,6 +100,7 @@ public class MessagingService {
 						+ "ORDER BY t1.create_time DESC)) as t3 order by t3.create_time desc, t3.recipient desc) t4 where 1=1 %s limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(),
 				isOutsideConition, isOutsideConition, hasReadCondition);
+		logger.info("消息通知sql:{}", sql);
 		String countSql = "select count(*) " + sql.substring(sql.indexOf("from"), sql.indexOf("limit"));
 		Map<Integer, MethodDesc> setMethodMap = new HashMap<>();
 		setMethodMap.put(new Integer(0), new MethodDesc("setId", new Class<?>[] { Long.class }));
@@ -169,7 +174,7 @@ public class MessagingService {
 		}
 		return new PageImpl<>(content, pageable, pages.getTotalElements());
 	}
-	
+
 	public Page<Messaging> pagesAdmin(final MessagingQuery messagingQuery) {
 		Pageable pageable = new PageRequest(messagingQuery.getPage(), messagingQuery.getSize());
 		if (messagingQuery.getPublisherId() != null) {
@@ -191,17 +196,18 @@ public class MessagingService {
 							messagingQuery.getIsOutside());
 					predicatesList.add(stateQuery);
 				}
-				
-				if(messagingQuery.getOutsideType()!=null){
-					Predicate stateQuery = criteriaBuilder.equal(root.get("outsideMsgType").as(OutsideMessageType.class),
+
+				if (messagingQuery.getOutsideType() != null) {
+					Predicate stateQuery = criteriaBuilder.equal(
+							root.get("outsideMsgType").as(OutsideMessageType.class),
 							OutsideMessageType.getByType("37"));
 					predicatesList.add(criteriaBuilder.and(stateQuery));
 				}
-				
-				
-				
-				criteriaQuery.where(predicatesList.toArray(new Predicate[predicatesList.size()]));
-				criteriaQuery.orderBy(criteriaBuilder.desc(root.<Date>get("createTime").as(Date.class)));
+
+				if (predicatesList.size() > 0) {
+					criteriaQuery.where(predicatesList.toArray(new Predicate[predicatesList.size()]));
+				}
+				criteriaQuery.orderBy(criteriaBuilder.desc(root.get("createTime").as(Date.class)));
 				return criteriaQuery.getRestriction();
 			}
 		}, pageable);
@@ -239,23 +245,23 @@ public class MessagingService {
 							messagingQuery.getIsOutside());
 					predicatesList.add(stateQuery);
 				}
-				if(messagingQuery.getHasRead()!=null){
+				if (messagingQuery.getHasRead() != null) {
 					Predicate hasReadQuery = criteriaBuilder.equal(root.get("hasRead").as(Boolean.class), true);
 					predicatesList.add(criteriaBuilder.and(hasReadQuery));
 				}
-				
-				if(messagingQuery.getOutsideType()!=null){
-					Predicate stateQuery = criteriaBuilder.equal(root.get("outsideMsgType").as(OutsideMessageType.class),
+
+				if (messagingQuery.getOutsideType() != null) {
+					Predicate stateQuery = criteriaBuilder.equal(
+							root.get("outsideMsgType").as(OutsideMessageType.class),
 							OutsideMessageType.getByType("37"));
 					predicatesList.add(criteriaBuilder.and(stateQuery));
-					if(messagingQuery.getOutsideType().equals("37")){
-						Predicate sendTimeQuery = criteriaBuilder.lessThan(root.get("sendTime").as(Date.class), new Date());
+					if (messagingQuery.getOutsideType().equals("37")) {
+						Predicate sendTimeQuery = criteriaBuilder.lessThan(root.get("sendTime").as(Date.class),
+								new Date());
 						predicatesList.add(criteriaBuilder.and(sendTimeQuery));
 					}
 				}
-				
-				
-				
+
 				criteriaQuery.where(predicatesList.toArray(new Predicate[predicatesList.size()]));
 				criteriaQuery.orderBy(criteriaBuilder.desc(root.<Date>get("createTime").as(Date.class)));
 				return criteriaQuery.getRestriction();
@@ -263,33 +269,32 @@ public class MessagingService {
 		}, pageable);
 		return pages;
 	}
-	
-	public List<Messaging> retrieveOutsideMsgType(){
-		
+
+	public List<Messaging> retrieveOutsideMsgType() {
+
 		Pageable pageable = new PageRequest(0, Integer.MAX_VALUE);
 		Page<Messaging> pages = messagingDao.page(new Specification<Messaging>() {
 			@Override
 			public Predicate toPredicate(Root<Messaging> root, CriteriaQuery<?> criteriaQuery,
 					CriteriaBuilder criteriaBuilder) {
 				List<Predicate> predicatesList = new ArrayList<Predicate>();
-				
+
 				Predicate hasReadQuery = criteriaBuilder.equal(root.get("hasRead").as(Boolean.class), false);
 				predicatesList.add(criteriaBuilder.and(hasReadQuery));
-				
+
 				Predicate sendTimeQuery = criteriaBuilder.lessThan(root.get("sendTime").as(Date.class), new Date());
 				predicatesList.add(criteriaBuilder.and(sendTimeQuery));
-				
+
 				Predicate stateQuery = criteriaBuilder.equal(root.get("outsideMsgType").as(OutsideMessageType.class),
 						OutsideMessageType.getByType("37"));
 				predicatesList.add(criteriaBuilder.and(stateQuery));
-				
-				
+
 				criteriaQuery.where(predicatesList.toArray(new Predicate[predicatesList.size()]));
 				criteriaQuery.orderBy(criteriaBuilder.desc(root.<Date>get("createTime").as(Date.class)));
 				return criteriaQuery.getRestriction();
 			}
 		}, pageable);
-		
+
 		return pages.getContent();
 	}
 
