@@ -336,26 +336,26 @@ public class OrganizationAccountFlowService {
 						+ "t3.publisher_id as s_publisher_id, t3.publisher_phone as s_publisher_phone, t3.stock_code as s_stock_code, t3.stock_name as s_stock_name, "
 						+ "t3.cycle_id, t3.cycle_name, t4.code as org_code, t4.name as org_name, "
 						+ "t5.name as b_publisher_name, t6.name as s_publisher_name, IF(t1.type = 4 || t1.type = 5, t1.available_balance, t16.balance) AS available_balance, "
-						+ "t8.commodity_symbol, t8.commodity_name, t8.publisher_id AS o_publisher_id, t14.name AS o_publisher_name ,t15.phone AS o_publisher_phone, "
+						+ "t10.symbol AS commodity_symbol, t10.name as commodity_name, t8.publisher_id AS o_publisher_id, t14.name AS o_publisher_name ,t15.phone AS o_publisher_phone, "
 
-						+ "IF(t1.type = 4 || t1.type = 5, t1.amount, t16.real_maid_fee)  as maid_fee, t1.origin_amount AS commission, IF(t16.order_id is not null,t16.order_id,t8.trade_no) as trade_no "
+						+ "IF(t1.type = 4 || t1.type = 5, t1.amount, t16.real_maid_fee)  as maid_fee, t1.origin_amount AS commission, IF(t16.order_id is not null,t16.order_id,t8.entrust_no) as trade_no "
 
 						+ "from p_organization_account_flow t1 "
 						+ "LEFT JOIN buy_record t2 on t1.resource_type=1 and t1.resource_id=t2.id "
 						+ "LEFT JOIN stock_option_trade t3 on t1.resource_type=3 and t1.resource_id=t3.id "
 						+ "LEFT JOIN p_organization t4 on t1.org_id=t4.id "
-						+ "LEFT JOIN f_futures_order t8 ON t1.resource_type IN(6,7) AND t8.id = t1.resource_id "
+						+ "LEFT JOIN f_futures_trade_entrust t8 ON t8.id = t1.resource_id AND t1.resource_type in(6,7,8) "
 						+ "LEFT JOIN f_futures_contract t9 ON t9.id = t8.contract_id "
 						+ "LEFT JOIN f_futures_commodity t10 ON t10.id = t9.commodity_id "
-						+ "LEFT JOIN p_futures_agent_price t11 ON t11.commodity_id = t10.id AND t11.org_id = t4.id "
-						+ "LEFT JOIN p_futures_agent_price t12 ON t12.commodity_id=t10.id AND t12.org_id = t4.parent_id "
+//						+ "LEFT JOIN p_futures_agent_price t11 ON t11.commodity_id = t10.id AND t11.org_id = t4.id "
+//						+ "LEFT JOIN p_futures_agent_price t12 ON t12.commodity_id=t10.id AND t12.org_id = t4.parent_id "
 						+ "LEFT JOIN real_name t5 on t5.resource_type=2 and t2.publisher_id=t5.resource_id "
 						+ "LEFT JOIN real_name t6 on t6.resource_type=2 and t3.publisher_id=t6.resource_id "
 						+ "LEFT JOIN real_name t14 ON t14.resource_type = 2 AND t8.publisher_id = t14.resource_id "
 						+ "LEFT JOIN p_futures_commission_audit t16 ON t16.flow_id = t1.id "
 						+ "LEFT JOIN publisher t15 ON t15.id = t8.publisher_id "
 						+ "LEFT JOIN p_organization t7 on t7.id=" + query.getCurrentOrgId() + " "
-						+ "where 1=1 %s %s %s %s %s %s %s %s %s and t1.org_id is not null AND (t16.state IS NULL OR t16.state IN(2,3)) order by t1.occurrence_time DESC, t1.available_balance DESC, t1.amount DESC, t1.org_id ASC limit "
+						+ "where 1=1 %s %s %s %s %s %s %s %s %s and t1.org_id is not null AND (t16.state IS NULL OR t16.state IN(2,3)) order by t1.occurrence_time DESC limit "
 						+ query.getPage() * query.getSize() + "," + query.getSize(), queryTypeCondition, types,
 						contractCodeOrName, orgCodeOrName, flowNo, customerName, customerPhone, startTimeCondition,
 						endTimeCondition);

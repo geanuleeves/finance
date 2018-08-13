@@ -85,6 +85,8 @@ public class FuturesTradeEntrust {
 	private BigDecimal stopProfitAmount;
 	/** 止损金额（只有平仓才有值） **/
 	private BigDecimal stopLossAmount;
+	/** 是否为测试单 */
+	private Boolean isTest;
 
 	/***************** 分割线，以下字段为非数据库字段 ********************/
 	/** 合约ID */
@@ -396,6 +398,14 @@ public class FuturesTradeEntrust {
 
 	public void setStopLossAmount(BigDecimal stopLossAmount) {
 		this.stopLossAmount = stopLossAmount;
+	}
+
+	public Boolean getIsTest() {
+		return isTest;
+	}
+
+	public void setIsTest(Boolean isTest) {
+		this.isTest = isTest;
 	}
 
 }
