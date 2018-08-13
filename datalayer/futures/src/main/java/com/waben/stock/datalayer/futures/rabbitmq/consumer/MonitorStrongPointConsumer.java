@@ -74,7 +74,7 @@ public class MonitorStrongPointConsumer {
 	@Autowired
 	private CapitalFlowBusiness flowBusiness;
 
-	private List<Long> monitorPublisherList = Collections.synchronizedList(new ArrayList<Long>());
+	private Set<Long> monitorPublisherList = Collections.synchronizedSet(new HashSet<Long>());
 
 	@PostConstruct
 	public void init() {

@@ -1,9 +1,7 @@
 package com.waben.stock.datalayer.futures.rabbitmq.consumer;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import javax.annotation.PostConstruct;
 
@@ -49,7 +47,7 @@ public class MonitorStopLossOrProfitConsumer {
 	@Autowired
 	private QuoteContainer quoteContainer;
 
-	private List<Long> monitorContractOrderIdList = Collections.synchronizedList(new ArrayList<Long>());
+	private Set<Long> monitorContractOrderIdList = Collections.synchronizedSet(new HashSet<Long>());
 
 	@PostConstruct
 	public void init() {
@@ -79,8 +77,10 @@ public class MonitorStopLossOrProfitConsumer {
 		try {
 			FuturesContractOrder order = contractOrderDao.retrieve(messgeObj.getContractOrderId());
 			if (order == null) {
-				if (messgeObj.getConsumeCount() < 10) {
+				if (messgeObj.getConsumeCount() < 15) {
 					retry(messgeObj);
+				} else {
+					monitorContractOrderIdList.remove(messgeObj.getContractOrderId());
 				}
 				return;
 			}
@@ -136,7 +136,7 @@ public class MonitorStopLossOrProfitConsumer {
 						}
 						if (order.getIsNeedLog() != null && order.getIsNeedLog()) {
 							logger.info(
-									"订单日志{}，buyUpCanUnwind:{}，buyUpAvgFillPrice{}，buyUpLimitProfit：{}，buyUpLimitLoss：{}",
+									"买涨订单日志{}，buyUpCanUnwind:{}，buyUpAvgFillPrice{}，buyUpLimitProfit：{}，buyUpLimitLoss：{}",
 									order.getId(), buyUpCanUnwind, buyUpAvgFillPrice, buyUpLimitProfit, buyUpLimitLoss);
 						}
 					} else {
@@ -180,7 +180,7 @@ public class MonitorStopLossOrProfitConsumer {
 						}
 						if (order.getIsNeedLog() != null && order.getIsNeedLog()) {
 							logger.info(
-									"订单日志{}，buyFallCanUnwind:{}，buyFallAvgFillPrice{}，buyFallLimitProfit：{}，buyFallLimitLoss：{}",
+									"买跌订单日志{}，buyFallCanUnwind:{}，buyFallAvgFillPrice{}，buyFallLimitProfit：{}，buyFallLimitLoss：{}",
 									order.getId(), buyFallCanUnwind, buyFallAvgFillPrice, buyFallLimitProfit,
 									buyFallLimitLoss);
 						}
@@ -196,7 +196,7 @@ public class MonitorStopLossOrProfitConsumer {
 			}
 			if (isNeedRetry) {
 				retry(messgeObj);
-			} else if (messgeObj.getConsumeCount() < 5) {
+			} else if (messgeObj.getConsumeCount() < 15) {
 				retry(messgeObj);
 			} else {
 				monitorContractOrderIdList.remove(messgeObj.getContractOrderId());
