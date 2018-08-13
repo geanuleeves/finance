@@ -128,7 +128,7 @@ public class StockOptionTradeBusiness {
 		if(currentTime.compareTo(amStartTime)>0&&currentTime.compareTo(amEndTime)<0||currentTime.compareTo(pmStartTime)>0&&currentTime.compareTo(pmEndTime)<0) {
 			return true;
 		}
-		return true;
+		return false;
 	}
 
 	public StockOptionTradeWithMarketDto wrapMarketInfo(StockOptionTradeDto trade) {
@@ -180,24 +180,18 @@ public class StockOptionTradeBusiness {
 				new StockOptionTradeState[] { StockOptionTradeState.SETTLEMENTED });
 		query.setOnlyProfit(true);
 		Response<PageInfo<StockOptionTradeDto>> sResponse = tradeReference.pagesByUserQuery(query);
-		logger.info("settlementSize:{}",sResponse.getResult().getContent().size());
 		if ("200".equals(sResponse.getCode())) {
 			StockOptionTradeUserQuery bQuery = new StockOptionTradeUserQuery(page,
 					size - sResponse.getResult().getContent().size(), null,
 					new StockOptionTradeState[] { StockOptionTradeState.TURNOVER, StockOptionTradeState.APPLYRIGHT,
 							StockOptionTradeState.INSETTLEMENT });
 			PageInfo<StockOptionTradeDto> pageInfo = pagesByUserQuery(bQuery);
-            logger.info("tradeSize:{}",pageInfo.getContent().size());
             int total = sResponse.getResult().getContent().size() + pageInfo.getContent().size();
-			//降序
-//			descByProfit(sResponse.getResult().getContent());
-//			descByNominalAmount(pageInfo.getContent());
 			List<StockOptionTradeDynamicDto> content = new ArrayList<>();
 			boolean isSettlement = true;
 			for (int n = 0; n < total; n++) {
 				if (isSettlement && sResponse.getResult().getContent().size() > 0) {
 					StockOptionTradeDto settlement = sResponse.getResult().getContent().remove(0);
-					logger.info("settlement:{}",JacksonUtil.encode(settlement));
 					StockOptionTradeDynamicDto inner = new StockOptionTradeDynamicDto();
 					inner.setTradeType(2);
 					inner.setPublisherId(settlement.getPublisherId());
@@ -213,7 +207,6 @@ public class StockOptionTradeBusiness {
 				} else {
 					if (pageInfo.getContent().size() > 0) {
 						StockOptionTradeDto trade = pageInfo.getContent().remove(0);
-						logger.info("trade:{}",JacksonUtil.encode(trade));
 						StockOptionTradeDynamicDto inner = new StockOptionTradeDynamicDto();
 						inner.setTradeType(1);
 						inner.setPublisherId(trade.getPublisherId());
@@ -256,40 +249,5 @@ public class StockOptionTradeBusiness {
 			return new PageInfo<StockOptionTradeDynamicDto>(content, 0, false, 0L, size, page, false);
 		}
 		throw new ServiceException(sResponse.getCode());
-	}
-
-	private void descByNominalAmount(List<StockOptionTradeDto> list) {
-		Collections.sort(list, new Comparator<StockOptionTradeDto>() {
-
-			@Override
-			public int compare(StockOptionTradeDto o1, StockOptionTradeDto o2) {
-				// 按照学生的年龄进行升序排列
-				if (o1.getNominalAmount().compareTo(o2.getNominalAmount())>0) {
-					return -1;
-				}
-				if (o1.getNominalAmount().compareTo(o2.getNominalAmount())==0) {
-					return 0;
-				}
-				return 1;
-			}
-		});
-	}
-
-
-	private void descByProfit(List<StockOptionTradeDto> list) {
-		Collections.sort(list, new Comparator<StockOptionTradeDto>() {
-
-			@Override
-			public int compare(StockOptionTradeDto o1, StockOptionTradeDto o2) {
-				// 按照学生的年龄进行升序排列
-				if (o1.getProfit().compareTo(o2.getProfit())>0) {
-					return -1;
-				}
-				if (o1.getProfit().compareTo(o2.getProfit())==0) {
-					return 0;
-				}
-				return 1;
-			}
-		});
 	}
 }

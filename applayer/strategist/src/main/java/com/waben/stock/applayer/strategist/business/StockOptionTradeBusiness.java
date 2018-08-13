@@ -130,7 +130,7 @@ public class StockOptionTradeBusiness {
 		if(currentTime.compareTo(amStartTime)>0&&currentTime.compareTo(amEndTime)<0||currentTime.compareTo(pmStartTime)>0&&currentTime.compareTo(pmEndTime)<0) {
 			return true;
 		}
-		return true;
+		return false;
 	}
 
 	public StockOptionTradeWithMarketDto wrapMarketInfo(StockOptionTradeDto trade) {
