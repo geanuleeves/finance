@@ -64,7 +64,7 @@ public class Md5Util {
 		//
 		// System.out.println(Md5Util.md5("123456").toLowerCase());
 
-		byte[] data = IOUtils.toByteArray(new FileInputStream("apk/dingbang_v1.1.0_dingbang.apk"));
+		byte[] data = IOUtils.toByteArray(new FileInputStream("apk/dingbang_v1.1.1_dingbang.apk"));
 
 		System.out.println(md5(data));
 	}
