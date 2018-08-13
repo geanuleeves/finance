@@ -1114,7 +1114,7 @@ public class QuickPayBusiness {
         paymentOrder = this.savePaymentOrder(paymentOrder);
         // 封装请求参数
         GatewayPayParam param = new GatewayPayParam();
-		param.setAppId(wbConfig.getMerchantNo());
+		param.setAppId(wbConfig.getUnionpayMerchantNo());
 		param.setUserId(String.valueOf(publisherId));
 		param.setSubject(publisherId + "充值");
 		param.setBody(publisherId + "充值" + amount + "元");
@@ -1125,7 +1125,7 @@ public class QuickPayBusiness {
 		param.setTimestamp(sdf.format(new Date()));
 		param.setVersion("1.0");
 		param.setBankCode("01050000");
-		GatewayPayRet payRet = WabenPayOverHttp.gatewayPay(param, wbConfig.getKey());
+		GatewayPayRet payRet = WabenPayOverHttp.gatewayPay(param, wbConfig.getUnionpayKey());
 		if(payRet != null && payRet.getTradeNo() != null) {
 			paymentOrder.setThirdPaymentNo(payRet.getTradeNo());
 			this.modifyPaymentOrder(paymentOrder);
