@@ -74,6 +74,8 @@ public class FuturesTradeAdminQuery extends PageAndSortQuery {
 	@JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date endTime;
 
+	private String entrustNo;
+
 	public String getPublisherName() {
 		return publisherName;
 	}
@@ -224,6 +226,14 @@ public class FuturesTradeAdminQuery extends PageAndSortQuery {
 
 	public void setTradeActionType(String tradeActionType) {
 		this.tradeActionType = tradeActionType;
+	}
+
+	public String getEntrustNo() {
+		return entrustNo;
+	}
+
+	public void setEntrustNo(String entrustNo) {
+		this.entrustNo = entrustNo;
 	}
 
 }
