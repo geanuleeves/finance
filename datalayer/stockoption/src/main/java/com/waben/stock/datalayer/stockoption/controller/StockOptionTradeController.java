@@ -3,6 +3,7 @@ package com.waben.stock.datalayer.stockoption.controller;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.waben.stock.interfaces.util.JacksonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,6 +151,7 @@ public class StockOptionTradeController implements StockOptionTradeInterface {
 	public Response<StockOptionTradeDto> add(@RequestBody StockOptionTradeDto stockOptionTradeDto) {
 		logger.info("发布人{}申购期权{}，名义本金 {}!", stockOptionTradeDto.getPublisherId(), stockOptionTradeDto.getStockCode(),
 				stockOptionTradeDto.getNominalAmount());
+        logger.info("申购:{}", JacksonUtil.encode(stockOptionTradeDto));
 		StockOptionTrade stockOptionTrade = CopyBeanUtils.copyBeanProperties(StockOptionTrade.class,
 				stockOptionTradeDto, false);
 		return new Response<>(CopyBeanUtils.copyBeanProperties(StockOptionTradeDto.class,
@@ -172,7 +174,7 @@ public class StockOptionTradeController implements StockOptionTradeInterface {
 
 	@Override
 	public Response<StockOptionTradeDto> userRight(@PathVariable Long publisherId, @PathVariable Long id) {
-		logger.info("发布人{}申请行权期权交易{}!", publisherId, id);
+			logger.info("发布人{}申请行权期权交易{}!", publisherId, id);
 		StockOptionTrade trade = stockOptionTradeService.autoSettlement(publisherId, id);
 		return new Response<>(CopyBeanUtils.copyBeanProperties(StockOptionTradeDto.class, trade, false));
 	}

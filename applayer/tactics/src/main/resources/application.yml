@@ -25,14 +25,14 @@ hystrix:
         isolation:
           strategy: THREAD
           semaphore:
-            maxConcurrentRequests: 1000
+            maxConcurrentRequests: 4000
           thread:
             timeoutInMilliseconds: 30000
   threadpool:
     default:
       coreSize: 500
-      maxQueueSize: 500
-      queueSizeRejectionThreshold: 300
+      maxQueueSize: 1500
+      queueSizeRejectionThreshold: 1500
 ribbon:
   OkToRetryOnAllOperations: false
   ReadTimeout: 60000

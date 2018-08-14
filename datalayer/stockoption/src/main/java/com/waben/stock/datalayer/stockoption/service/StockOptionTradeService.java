@@ -89,7 +89,6 @@ public class StockOptionTradeService {
 	private StockQuotationHttp stockQuotationHttp;
 
 	public Page<StockOptionTrade> pagesByUserQuery(final StockOptionTradeUserQuery query) {
-		logger.info("query:{}", JacksonUtil.encode(query));
 		Pageable pageable = new PageRequest(query.getPage(), query.getSize());
 		Page<StockOptionTrade> pages = stockOptionTradeDao.page(new Specification<StockOptionTrade>() {
 			@Override
@@ -119,7 +118,6 @@ public class StockOptionTradeService {
 				}
 				Order priceDesc = criteriaBuilder.desc(root.get("nominalAmount").as(BigDecimal.class));
 				if (query.isOnlyProfit()) {
-					logger.info("已结算===================");
 					priceDesc = criteriaBuilder.desc(root.get("profit").as(BigDecimal.class));
 				}
 				// criteriaQuery.orderBy(criteriaBuilder.desc(root.get("sellingTime").as(Date.class)),
@@ -127,7 +125,6 @@ public class StockOptionTradeService {
 				// criteriaBuilder.desc(root.get("buyingTime").as(Date.class)),
 				// criteriaBuilder.desc(root.get("applyTime").as(Date.class)),priceDesc);
 				criteriaQuery.orderBy(priceDesc);
-				logger.info("criteriaQuery:{}", criteriaQuery.toString());
 				return criteriaQuery.getRestriction();
 			}
 		}, pageable);
@@ -479,7 +476,6 @@ public class StockOptionTradeService {
 		if(query.getState()!=null&&query.getState().equals("5,6")) {
 			orderBy = "t1.selling_time";
 		}
-		logger.info("orderBy:{}",orderBy);
 		String sql = String.format(
 				"select t1.id, t1.trade_no, t4.name, t3.phone, t1.stock_code, t1.stock_name, t1.cycle_name, t1.nominal_amount, t1.right_money_ratio, "
 						+ "t1.right_money, t2.right_money_ratio as org_right_money_ratio, t2.right_money as org_right_money, t1.apply_time, t1.buying_time, t1.buying_price, t1.selling_time, t1.selling_price, "
@@ -875,7 +871,7 @@ public class StockOptionTradeService {
 		}
 		StockMarket stockMarket = stockQuotationHttp.fetQuotationByCode(trade.getStockCode());
 		BigDecimal sellingPrice = stockMarket.getLastPrice();
-		logger.info("sellingPrice:{}",sellingPrice);
+		logger.info("stockMarket:{}",JacksonUtil.encode(stockMarket));
 		trade.setState(StockOptionTradeState.SETTLEMENTED);
 		trade.setUpdateTime(new Date());
 		trade.setSellingPrice(sellingPrice);
@@ -888,7 +884,6 @@ public class StockOptionTradeService {
 		}
 		trade.setProfit(profit);
 		stockOptionTradeDao.update(trade);
-		logger.info("trade:{}",JacksonUtil.encode(trade));
 		// 线下期权交易结算
 		settlementOfflineTrade(trade);
 		if (profit.compareTo(BigDecimal.ZERO) > 0) {
@@ -914,7 +909,7 @@ public class StockOptionTradeService {
 			throw new ServiceException(ExceptionConstant.STOCKOPTION_STATE_NOTMATCH_OPERATION_NOTSUPPORT_EXCEPTION);
 		}
 		StockMarket stockMarket = stockQuotationHttp.fetQuotationByCode(trade.getStockCode());
-
+        logger.info("stockMarket:{}",JacksonUtil.encode(stockMarket));
 		BigDecimal sellingPrice = stockMarket.getLastPrice();
 		trade.setState(StockOptionTradeState.SETTLEMENTED);
 		trade.setUpdateTime(new Date());

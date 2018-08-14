@@ -123,7 +123,7 @@ public class StockOptionTradeBusiness {
 		String amEndTime =  "11:25:00";
 		String pmStartTime = "13:05:00";
 		String pmEndTime =  "14:55:00";
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm:ss");
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
 		String currentTime = simpleDateFormat.format(new Date());
 		if(currentTime.compareTo(amStartTime)>0&&currentTime.compareTo(amEndTime)<0||currentTime.compareTo(pmStartTime)>0&&currentTime.compareTo(pmEndTime)<0) {
 			return true;
