@@ -1124,7 +1124,7 @@ public class QuickPayBusiness {
 		param.setReturnUrl(wbConfig.getNotifyUrl());
 		param.setTimestamp(sdf.format(new Date()));
 		param.setVersion("1.0");
-		param.setBankCode("01050000");
+//		param.setBankCode("01050000");
 		GatewayPayRet payRet = WabenPayOverHttp.gatewayPay(param, wbConfig.getUnionpayKey());
 		if(payRet != null && payRet.getTradeNo() != null) {
 			paymentOrder.setThirdPaymentNo(payRet.getTradeNo());
