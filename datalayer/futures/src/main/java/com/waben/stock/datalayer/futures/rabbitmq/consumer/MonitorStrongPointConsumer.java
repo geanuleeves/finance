@@ -157,15 +157,18 @@ public class MonitorStrongPointConsumer {
 			}
 			if (orderService.isTradeTime(order.getContract().getCommodity().getTimeZoneGap(), order.getContract(),
 					FuturesTradeActionType.CLOSE)) {
-				if (order.getBuyUpQuantity().compareTo(BigDecimal.ZERO) > 0) {
-					orderService.doUnwind(order.getContract(), order, FuturesOrderType.BuyUp, order.getBuyUpQuantity(),
-							FuturesTradePriceType.MKT, null, order.getPublisherId(), FuturesWindControlType.DayUnwind,
-							false, false, null);
-				}
-				if (order.getBuyFallQuantity().compareTo(BigDecimal.ZERO) > 0) {
-					orderService.doUnwind(order.getContract(), order, FuturesOrderType.BuyFall,
-							order.getBuyFallQuantity(), FuturesTradePriceType.MKT, null, order.getPublisherId(),
-							FuturesWindControlType.DayUnwind, false, false, null);
+				FuturesContract contract = order.getContract();
+				synchronized(getLockKey(contract.getId(), order.getPublisherId()).intern()) {
+					if (order.getBuyUpQuantity().compareTo(BigDecimal.ZERO) > 0) {
+						orderService.doUnwind(contract, order.getPublisherId(), FuturesOrderType.BuyUp, order.getBuyUpQuantity(),
+								FuturesTradePriceType.MKT, null, FuturesWindControlType.DayUnwind,
+								false, false, null);
+					}
+					if (order.getBuyFallQuantity().compareTo(BigDecimal.ZERO) > 0) {
+						orderService.doUnwind(contract, order.getPublisherId(), FuturesOrderType.BuyFall,
+								order.getBuyFallQuantity(), FuturesTradePriceType.MKT, null,
+								FuturesWindControlType.DayUnwind, false, false, null);
+					}
 				}
 			}
 		}
@@ -447,28 +450,35 @@ public class MonitorStrongPointConsumer {
 			BigDecimal loss = totalProfitOrLoss.add(account.getAvailableBalance());
 			for (FuturesContractOrderTemp order : tempOrderList) {
 				FuturesContract contract = order.getContract();
-				if (orderService.isTradeTime(contract.getCommodity().getExchange().getTimeZoneGap(), contract,
-						FuturesTradeActionType.CLOSE)) {
-					BigDecimal strongMoney = order.getStrongMoney();
-					if (loss.abs().compareTo(strongMoney) >= 0) {
-						// 强平
-						BigDecimal buyUpQuantity = order.getBuyUpCanUnwindQuantity();
-						BigDecimal buyFallQuantity = order.getBuyFallCanUnwindQuantity();
-						if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
-							orderService.doUnwind(contract, order.getOriginOrder(), FuturesOrderType.BuyUp,
-									buyUpQuantity, FuturesTradePriceType.MKT, null, order.getPublisherId(),
-									FuturesWindControlType.ReachStrongPoint, false, false, null);
+				synchronized(getLockKey(contract.getId(), order.getPublisherId()).intern()) {
+					if (orderService.isTradeTime(contract.getCommodity().getExchange().getTimeZoneGap(), contract,
+							FuturesTradeActionType.CLOSE)) {
+						BigDecimal strongMoney = order.getStrongMoney();
+						if (loss.abs().compareTo(strongMoney) >= 0) {
+							// 强平
+							BigDecimal buyUpQuantity = order.getBuyUpCanUnwindQuantity();
+							BigDecimal buyFallQuantity = order.getBuyFallCanUnwindQuantity();
+							if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
+								orderService.doUnwind(contract, order.getPublisherId(), FuturesOrderType.BuyUp,
+										buyUpQuantity, FuturesTradePriceType.MKT, null,
+										FuturesWindControlType.ReachStrongPoint, false, false, null);
+							}
+							if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
+								orderService.doUnwind(contract, order.getPublisherId(), FuturesOrderType.BuyFall,
+										buyFallQuantity, FuturesTradePriceType.MKT, null,
+										FuturesWindControlType.ReachStrongPoint, false, false, null);
+							}
+							loss = loss.add(strongMoney);
+							orderList.remove(order.getOriginOrder());
 						}
-						if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
-							orderService.doUnwind(contract, order.getOriginOrder(), FuturesOrderType.BuyFall,
-									buyFallQuantity, FuturesTradePriceType.MKT, null, order.getPublisherId(),
-									FuturesWindControlType.ReachStrongPoint, false, false, null);
-						}
-						loss = loss.add(strongMoney);
 					}
 				}
 			}
 		}
+	}
+
+	private String getLockKey(Long contractId, Long publisherId) {
+		return contractId + "-" + publisherId;
 	}
 
 	/**

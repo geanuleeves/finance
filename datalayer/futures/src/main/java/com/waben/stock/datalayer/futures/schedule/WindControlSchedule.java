@@ -105,13 +105,13 @@ public class WindControlSchedule {
 								BigDecimal buyFallQuantity = order.getBuyFallCanUnwindQuantity();
 								// 合约到期，强平买涨订单
 								if (buyUpQuantity.compareTo(BigDecimal.ZERO) > 0) {
-									orderService.doUnwind(contract, order, FuturesOrderType.BuyUp, buyUpQuantity, FuturesTradePriceType.MKT,
-											null, order.getPublisherId(), FuturesWindControlType.ReachContractExpiration, false, false, null);
+									orderService.doUnwind(contract, order.getPublisherId(), FuturesOrderType.BuyUp, buyUpQuantity, FuturesTradePriceType.MKT,
+											null, FuturesWindControlType.ReachContractExpiration, false, false, null);
 								}
 								// 合约到期，强平买跌订单
 								if (buyFallQuantity.compareTo(BigDecimal.ZERO) > 0) {
-									orderService.doUnwind(contract, order, FuturesOrderType.BuyFall, buyFallQuantity,
-											FuturesTradePriceType.MKT, null, order.getPublisherId(), FuturesWindControlType.ReachContractExpiration, false,
+									orderService.doUnwind(contract, order.getPublisherId(), FuturesOrderType.BuyFall, buyFallQuantity,
+											FuturesTradePriceType.MKT, null, FuturesWindControlType.ReachContractExpiration, false,
 											false, null);
 								}
 							}

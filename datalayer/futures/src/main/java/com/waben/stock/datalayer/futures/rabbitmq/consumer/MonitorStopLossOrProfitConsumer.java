@@ -113,9 +113,11 @@ public class MonitorStopLossOrProfitConsumer {
 								BigDecimal stopLossOrProfitPrice = BigDecimal.ZERO;
 								BigDecimal[] divideArr = buyUpLimitProfit.divideAndRemainder(minWave);
 								stopLossOrProfitPrice = divideArr[0].multiply(minWave);
-								orderService.doUnwind(contract, order, FuturesOrderType.BuyUp, buyUpCanUnwind,
-										FuturesTradePriceType.MKT, null, order.getPublisherId(),
-										FuturesWindControlType.ReachProfitPoint, false, true, stopLossOrProfitPrice);
+								synchronized(getLockKey(contract.getId(), order.getPublisherId()).intern()) {
+									orderService.doUnwind(contract, order.getPublisherId(), FuturesOrderType.BuyUp, buyUpCanUnwind,
+											FuturesTradePriceType.MKT, null,
+											FuturesWindControlType.ReachProfitPoint, false, true, stopLossOrProfitPrice);
+								}
 								needMonitorBuyUp = false;
 							}
 						}
@@ -128,9 +130,11 @@ public class MonitorStopLossOrProfitConsumer {
 								BigDecimal stopLossOrProfitPrice = BigDecimal.ZERO;
 								BigDecimal[] divideArr = buyUpLimitLoss.divideAndRemainder(minWave);
 								stopLossOrProfitPrice = divideArr[0].multiply(minWave);
-								orderService.doUnwind(contract, order, FuturesOrderType.BuyUp, buyUpCanUnwind,
-										FuturesTradePriceType.MKT, null, order.getPublisherId(),
-										FuturesWindControlType.ReachLossPoint, false, true, stopLossOrProfitPrice);
+								synchronized(getLockKey(contract.getId(), order.getPublisherId()).intern()) {
+									orderService.doUnwind(contract, order.getPublisherId(), FuturesOrderType.BuyUp, buyUpCanUnwind,
+											FuturesTradePriceType.MKT, null,
+											FuturesWindControlType.ReachLossPoint, false, true, stopLossOrProfitPrice);
+								}
 								needMonitorBuyUp = false;
 							}
 						}
@@ -157,9 +161,11 @@ public class MonitorStopLossOrProfitConsumer {
 								BigDecimal stopLossOrProfitPrice = BigDecimal.ZERO;
 								BigDecimal[] divideArr = buyFallLimitProfit.divideAndRemainder(minWave);
 								stopLossOrProfitPrice = divideArr[0].multiply(minWave);
-								orderService.doUnwind(contract, order, FuturesOrderType.BuyFall, buyFallCanUnwind,
-										FuturesTradePriceType.MKT, null, order.getPublisherId(),
-										FuturesWindControlType.ReachProfitPoint, false, true, stopLossOrProfitPrice);
+								synchronized(getLockKey(contract.getId(), order.getPublisherId()).intern()) {
+									orderService.doUnwind(contract, order.getPublisherId(), FuturesOrderType.BuyFall, buyFallCanUnwind,
+											FuturesTradePriceType.MKT, null,
+											FuturesWindControlType.ReachProfitPoint, false, true, stopLossOrProfitPrice);
+								}
 								needMonitorBuyFall = false;
 							}
 						}
@@ -172,9 +178,11 @@ public class MonitorStopLossOrProfitConsumer {
 								BigDecimal stopLossOrProfitPrice = BigDecimal.ZERO;
 								BigDecimal[] divideArr = buyFallLimitLoss.divideAndRemainder(minWave);
 								stopLossOrProfitPrice = divideArr[0].multiply(minWave);
-								orderService.doUnwind(contract, order, FuturesOrderType.BuyFall, buyFallCanUnwind,
-										FuturesTradePriceType.MKT, null, order.getPublisherId(),
-										FuturesWindControlType.ReachLossPoint, false, true, stopLossOrProfitPrice);
+								synchronized(getLockKey(contract.getId(), order.getPublisherId()).intern()) {
+									orderService.doUnwind(contract, order.getPublisherId(), FuturesOrderType.BuyFall, buyFallCanUnwind,
+											FuturesTradePriceType.MKT, null,
+											FuturesWindControlType.ReachLossPoint, false, true, stopLossOrProfitPrice);
+								}
 								needMonitorBuyFall = false;
 							}
 						}
@@ -205,6 +213,10 @@ public class MonitorStopLossOrProfitConsumer {
 			ex.printStackTrace();
 			retry(messgeObj);
 		}
+	}
+
+	private String getLockKey(Long contractId, Long publisherId) {
+		return contractId + "-" + publisherId;
 	}
 
 	private void retry(MonitorStopLossOrProfitMessage messgeObj) {
