@@ -637,7 +637,7 @@ public class FuturesOrderService {
 		logger.info("反手下单，源委托ID：{}", entrustId);
 		FuturesTradeEntrust originEntrust = tradeEntrustDao.retrieve(entrustId);
 		FuturesContract contract = originEntrust.getContract();
-		synchronized (getLockKey(contract.getId(), originEntrust.getPublisherId())) {
+		synchronized (getLockKey(contract.getId(), originEntrust.getPublisherId()).intern()) {
 			if (originEntrust.getState() != FuturesTradeEntrustState.Success) {
 				throw new ServiceException(ExceptionConstant.BACKHANDSOURCEORDER_NOTUNWIND_EXCEPTION);
 			}
@@ -898,8 +898,8 @@ public class FuturesOrderService {
 				tradeAction.setTradeEntrust(tradeEntrust);
 				tradeAction.setTradePrice(BigDecimal.ZERO);
 				if(isStopLossOrProfit) {
-					tradeEntrust.setStopLossAmount(orderType == FuturesOrderType.BuyUp ? contractOrder.getBuyUpPerUnitLimitLossAmount() : contractOrder.getBuyFallPerUnitLimitLossAmount());
-					tradeEntrust.setStopProfitAmount(orderType == FuturesOrderType.BuyUp ? contractOrder.getBuyUpPerUnitLimitProfitAmount() : contractOrder.getBuyFallPerUnitLimitProfitAmount());
+					tradeAction.setStopLossAmount(orderType == FuturesOrderType.BuyUp ? contractOrder.getBuyUpPerUnitLimitLossAmount() : contractOrder.getBuyFallPerUnitLimitLossAmount());
+					tradeAction.setStopProfitAmount(orderType == FuturesOrderType.BuyUp ? contractOrder.getBuyUpPerUnitLimitProfitAmount() : contractOrder.getBuyFallPerUnitLimitProfitAmount());
 				}
 				tradeAction.setUpdateTime(date);
 				tradeActionDao.create(tradeAction);
