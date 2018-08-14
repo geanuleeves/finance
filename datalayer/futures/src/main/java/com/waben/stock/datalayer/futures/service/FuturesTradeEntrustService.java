@@ -3,6 +3,7 @@ package com.waben.stock.datalayer.futures.service;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,11 +35,13 @@ import com.waben.stock.datalayer.futures.entity.FuturesCommodity;
 import com.waben.stock.datalayer.futures.entity.FuturesContract;
 import com.waben.stock.datalayer.futures.entity.FuturesContractOrder;
 import com.waben.stock.datalayer.futures.entity.FuturesOrder;
+import com.waben.stock.datalayer.futures.entity.FuturesOvernightRecord;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeAction;
 import com.waben.stock.datalayer.futures.entity.FuturesTradeEntrust;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorStopLossOrProfitConsumer;
 import com.waben.stock.datalayer.futures.rabbitmq.consumer.MonitorStrongPointConsumer;
 import com.waben.stock.datalayer.futures.repository.DynamicQuerySqlDao;
+import com.waben.stock.datalayer.futures.repository.FuturesCommodityDao;
 import com.waben.stock.datalayer.futures.repository.FuturesContractOrderDao;
 import com.waben.stock.datalayer.futures.repository.FuturesOrderDao;
 import com.waben.stock.datalayer.futures.repository.FuturesTradeActionDao;
@@ -112,6 +115,9 @@ public class FuturesTradeEntrustService {
 
 	@Autowired
 	private FuturesOvernightRecordService overnightService;
+
+	@Autowired
+	private FuturesCommodityDao commodityDao;
 
 	private SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -452,7 +458,6 @@ public class FuturesTradeEntrustService {
 						BigDecimal totalOpenCost = BigDecimal.ZERO;
 						BigDecimal totalUnwindQuantity = BigDecimal.ZERO;
 						BigDecimal totalServiceFee = BigDecimal.ZERO;
-						BigDecimal totalDeferredFee = BigDecimal.ZERO;
 						for (FuturesTradeAction action : actionList) {
 							totalUnwindQuantity = totalUnwindQuantity.add(action.getQuantity());
 							totalOpenCost = totalOpenCost
@@ -461,17 +466,21 @@ public class FuturesTradeEntrustService {
 									action.getState().getType());
 							// 给代理商分成结算
 							if (action.getOrder().getIsTest() == null || action.getOrder().getIsTest() == false) {
-								logger.info("代理分成自动平仓内, actionNo:{}, state:{}", action.getActionNo(),
-										action.getState().getType());
+								logger.info("代理分成自动平仓内, actionNo:{}, state:{}，serviceFee{}，totalQuantity{}，Quantity{}",
+										action.getActionNo(), action.getState().getType(),
+										action.getOrder().getServiceFee(), action.getOrder().getTotalQuantity(),
+										action.getQuantity());
 								// 递延费
-								BigDecimal deferredFee = action.getOrder().getContract().getCommodity()
-										.getOvernightPerUnitDeferredFee().multiply(action.getQuantity());
+								// BigDecimal deferredFee =
+								// action.getOrder().getContract().getCommodity()
+								// .getOvernightPerUnitDeferredFee().multiply(action.getQuantity());
 								// BigDecimal deferredFee = overnightService
 								// .getSUMOvernightRecord(action.getOrder().getId());
-								if (deferredFee == null) {
-									deferredFee = BigDecimal.ZERO;
-								}
-								totalDeferredFee = totalDeferredFee.add(deferredFee);
+								// if (deferredFee == null) {
+								// deferredFee = BigDecimal.ZERO;
+								// }
+								// totalDeferredFee =
+								// totalDeferredFee.add(deferredFee);
 								// 当前拆分的服务费
 								totalServiceFee = totalServiceFee.add(action.getOrder().getServiceFee()
 										.divide(action.getOrder().getTotalQuantity()).multiply(action.getQuantity()));
@@ -494,10 +503,18 @@ public class FuturesTradeEntrustService {
 							totalPublisherProfitOrLoss = account.getRealProfitOrLoss();
 						}
 						entrust.setPublisherProfitOrLoss(totalPublisherProfitOrLoss);
-						// 代理商结算
-						orgBusiness.futuresRatioSettlement(entrust.getPublisherId(), entrust.getContractId(),
-								entrust.getId(), entrust.getEntrustNo(), entrust.getQuantity(), totalServiceFee,
-								totalPublisherProfitOrLoss, totalDeferredFee);
+						if (entrust.getIsTest() == null || entrust.getIsTest() == false) {
+							// 递延费
+							BigDecimal totalDeferredFee = triggerOvernightOrderList(contractOrder);
+							logger.info("递延费----{}", totalDeferredFee);
+							if (totalDeferredFee == null) {
+								totalDeferredFee = BigDecimal.ZERO;
+							}
+							// 代理商结算
+							orgBusiness.futuresRatioSettlement(entrust.getPublisherId(), entrust.getContractId(),
+									entrust.getId(), entrust.getEntrustNo(), entrust.getQuantity(), totalServiceFee,
+									totalPublisherProfitOrLoss, totalDeferredFee);
+						}
 					}
 					dao.update(entrust);
 					sendOutsideMessage(entrust);
@@ -1013,6 +1030,65 @@ public class FuturesTradeEntrustService {
 		BigInteger totalElements = sqlDao.executeComputeSql(countSql);
 		return new PageImpl<>(content, new PageRequest(query.getPage(), query.getSize()),
 				totalElements != null ? totalElements.longValue() : 0);
+	}
+
+	private BigDecimal triggerOvernightOrderList(FuturesContractOrder contractOrder) {
+		List<FuturesContractOrder> result = new ArrayList<>();
+		SimpleDateFormat daySdf = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat fullSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date now = new Date();
+		String overnightTimeGroup = overnightTimeMap().get(contractOrder.getContract().getCommodityId());
+		if (overnightTimeGroup != null) {
+			// 获取时差、隔夜时间、交易所时间
+			String[] group = overnightTimeGroup.split("-");
+			Integer timeZoneGap = Integer.parseInt(group[0]);
+			String overnightTime = group[1];
+			FuturesOvernightRecord record = overnightService.findNewestOvernightRecord(contractOrder);
+			Date nowExchangeTime = orderService.retriveExchangeTime(now, timeZoneGap);
+			String nowStr = daySdf.format(nowExchangeTime);
+			// 判断是否有今天的隔夜记录
+			if (!(record != null && nowStr.equals(daySdf.format(record.getDeferredTime())))) {
+				FuturesContract contract = contractOrder.getContract();
+				try {
+					// 判断是否达到隔夜时间，隔夜时间~隔夜时间+1分钟
+					Date beginTime = fullSdf.parse(nowStr + " " + overnightTime);
+					Date endTime = new Date(beginTime.getTime() + 1 * 60 * 1000);
+					if (nowExchangeTime.getTime() >= beginTime.getTime()
+							&& nowExchangeTime.getTime() < endTime.getTime()) {
+						return record.getOvernightDeferredFee();
+					}
+				} catch (ParseException e) {
+					logger.error("期货品种" + contract.getCommodity().getSymbol() + "隔夜时间格式错误?" + overnightTime);
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 获取隔夜时间Map
+	 *
+	 * <p>
+	 * key为品种ID;value格式为“时差-隔夜时间”，如“12-16:55:00”。
+	 * </p>
+	 *
+	 * @return 隔夜时间Map
+	 */
+	private Map<Long, String> overnightTimeMap() {
+		Map<Long, String> result = new HashMap<Long, String>();
+		List<FuturesCommodity> commodityList = commodityDao.list();
+		for (FuturesCommodity commodity : commodityList) {
+			Integer timeZoneGap = commodity.getExchange().getTimeZoneGap();
+			String overnightTime = commodity.getOvernightTime();
+			if (!StringUtil.isEmpty(overnightTime)) {
+				result.put(commodity.getId(), getOvernightTimeMapValue(timeZoneGap, overnightTime.trim()));
+			}
+		}
+		return result;
+	}
+
+	private String getOvernightTimeMapValue(Integer timeZoneGap, String overnightTime) {
+		return timeZoneGap + "-" + overnightTime;
 	}
 
 }
